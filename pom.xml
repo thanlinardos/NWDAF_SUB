@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.1.0</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>io.nwdaf</groupId>
+	<artifactId>NWDAF_SUB</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>NWDAF_SUB</name>
+	<description>Demo project for Nwdaf_EventSubscription</description>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+		      <groupId>org.springdoc</groupId>
+		      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+		      <version>2.0.0</version>
+		   </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>2.0.1.Final</version>
+		</dependency>
+		<!-- 
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-boot-starter</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		-->
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+			<version>1.3.2</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.threeten</groupId>
+		    <artifactId>threetenbp</artifactId>
+		    <version>1.6.8</version>
+		</dependency>
+		
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+			<groupId>io.swagger.codegen.v3</groupId>
+			<artifactId>swagger-codegen-maven-plugin</artifactId>
+			<version>3.0.46</version>
+			<executions>
+				<execution>
+					<goals>
+						<goal>generate</goal>
+					</goals>
+					<configuration>
+						<inputSpec>${project.basedir}/src/main/resources/yaml_files/TS29520_Nnwdaf_EventsSubscription.yaml</inputSpec>
+						<templateDirectory></templateDirectory>
+						<language>spring</language>
+						<output>${project.build.directory}/generated-sources/</output>
+						<generateSupportingFiles>false</generateSupportingFiles>
+						<apiPackage>io.nwdaf.eventsubscription.api</apiPackage>
+						<modelPackage>io.nwdaf.eventsubscription.model</modelPackage>
+						<configOptions>
+							<interfaceOnly>true</interfaceOnly>
+						</configOptions>
+					</configuration>
+				</execution>
+			</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

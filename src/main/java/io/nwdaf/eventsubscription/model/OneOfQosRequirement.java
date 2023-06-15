@@ -1,0 +1,17 @@
+package io.nwdaf.eventsubscription.model;
+
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+/**
+* OneOfQosRequirement
+*/
+@JsonTypeInfo(
+  use = JsonTypeInfo.Id.NAME,
+  include = JsonTypeInfo.As.PROPERTY,
+  property = "type")
+@JsonSubTypes({
+})
+public interface OneOfQosRequirement {
+
+}

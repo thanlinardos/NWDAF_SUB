@@ -1,0 +1,859 @@
+PS C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB> .\mvnw clean install
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------------< io.nwdaf:NWDAF_SUB >-------------------------
+[INFO] Building NWDAF_SUB 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ NWDAF_SUB ---
+[INFO] Deleting C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target
+[INFO] 
+[INFO] --- swagger-codegen:3.0.46:generate (default) @ NWDAF_SUB ---
+[WARNING] Output directory does not exist, or is inaccessible. No file (.swagger-codegen-ignore) will be evaluated.
+[INFO] Invoker Package Name, originally not set, is now derived from api package name: io.nwdaf.eventsubscription
+[WARNING] More than one inline schema specified in allOf:. Only the first one is recognized. All others are ignored.
+[WARNING] More than one inline schema specified in allOf:. Only the first one is recognized. All others are ignored.
+[WARNING] More than one inline schema specified in allOf:. Only the first one is recognized. All others are ignored.
+[WARNING] More than one inline schema specified in allOf:. Only the first one is recognized. All others are ignored.
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] _5qi (model name starts with number) cannot be used as model name. Renamed to Model5qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AbnormalBehaviour.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AccessTokenErr.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AccessTokenReq.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\Accuracy.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AdditionalMeasurement.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AddrFqdn.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AddressList.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AnalyticsContextIdentifier.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AnalyticsMetadata.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AnalyticsMetadataIndication.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AnalyticsMetadataInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AnalyticsSubscriptionsTransfer.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AnalyticsSubset.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AnyOfNfStatus.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AnyOfSmcceUeList.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AnyOfTrafficCharacterization.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AnyOfTrafficInformation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AnyOfWlanPerTsPerformanceInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\AppListForUeComm.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ApplicationVolume.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\BatteryIndication.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\BwRequirement.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\CellGlobalId.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\CircumstanceDescription.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\CivicAddress.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ClassCriterion.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\CongestionInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\CongestionType.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ConsumerNfInformation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\DatasetStatisticalProperty.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\DispersionClass.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\DispersionCollection.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\DispersionInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\DispersionOrderingCriterion.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\DispersionRequirement.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\DispersionType.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\DnPerf.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\DnPerfInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\DnPerfOrderingCriterion.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\DnPerformanceReq.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\Ecgi.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\EllipsoidArc.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\EthFlowDescription.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\EutraLocation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\EventNotification.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\EventReportingRequirement.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\EventSubscription.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\Exception.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ExceptionId.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ExceptionTrend.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ExpectedAnalyticsType.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ExpectedUeBehaviourData.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\FailureEventInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\FlowDirection.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\FlowInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\GADShape.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\GNbId.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\GeographicArea.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\GeographicalCoordinates.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\GeraLocation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\Gli.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\GlobalRanNodeId.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\HfcNodeId.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\InvalidParam.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\IpAddr.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\IpEthFlowDescription.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\LineType.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\Local2dPointUncertaintyEllipse.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\Local3dPointUncertaintyEllipsoid.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\LocalOrigin.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\LocationArea.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\LocationAreaId.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\LocationInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\MLModelAddr.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\MLModelInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\MatchingDirection.java
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] 5Qi (model name starts with number) cannot be used as model name. Renamed to Model5Qi
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[WARNING] Float (reserved word) cannot be used as model name. Renamed to ModelFloat
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ModelInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\N3gaLocation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NFType.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\Ncgi.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NetworkAreaInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NetworkAreaInfo1.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NetworkPerfInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NetworkPerfRequirement.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NetworkPerfType.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NfLoadLevelInformation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NfStatus.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NnwdafEventsSubscription.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NnwdafEventsSubscriptionNotification.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NotificationFlag.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NotificationMethod.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NotificationMethod1.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NrLocation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NsiIdInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NsiLoadLevelInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NumberAverage.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NwdafEvent.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\NwdafFailureCode.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ObservedRedundantTransExp.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OneOfConsumerNfInformation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OneOfGeraLocation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OneOfGlobalRanNodeId.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OneOfIpAddr.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OneOfIpEthFlowDescription.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OneOfMLModelAddr.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OneOfMLModelInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OneOfNnwdafEventsSubscriptionNotification.java   
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OneOfPrevSubInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OneOfQosRequirement.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OneOfQosSustainabilityInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OneOfRetainabilityThreshold.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OneOfTopApplication.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OneOfUtraLocation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\OutputStrategy.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\PartitioningCriteria.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\PerfData.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\PlmnId.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\PlmnIdNid.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\Point.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\PointAltitude.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\PointAltitudeUncertainty.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\PointList.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\PointUncertaintyCircle.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\PointUncertaintyEllipse.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\Polygon.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\PrevSubInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ProblemDetails.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\QosRequirement.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\QosResourceType.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\QosSustainabilityInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\RankingCriterion.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\RatFreqInformation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\RatType.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\RedTransExpOrderingCriterion.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\RedirectResponse.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\RedundantTransmissionExpInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\RedundantTransmissionExpPerTS.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\RedundantTransmissionExpReq.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\RelativeCartesianLocation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ReportingInformation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ResourceUsage.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\RetainabilityThreshold.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\RoutingAreaId.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ScheduledCommunicationTime.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ScheduledCommunicationTime1.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ScheduledCommunicationType.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ServiceAreaId.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ServiceExperienceInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ServiceExperienceType.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\SessInactTimerForUeComm.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\SliceLoadLevelInformation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\SmcceInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\SmcceUeList.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\Snssai.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\StationaryIndication.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\SubscriptionTransferInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\SupportedGADShapes.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\SvcExperience.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\Tai.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\TargetUeInformation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\ThresholdLevel.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\TimeUnit.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\TimeWindow.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\TnapId.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\TopApplication.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\TrafficCharacterization.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\TrafficInformation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\TrafficProfile.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\TransferRequestType.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\TransportProtocol.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\TwapId.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\UeAnalyticsContextDescriptor.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\UeCommunication.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\UeMobility.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\UmtTime.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\UncertaintyEllipse.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\UncertaintyEllipsoid.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\UpfInformation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\UserDataCongestionInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\UserLocation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\UtraLocation.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\WlanOrderingCriterion.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\WlanPerSsIdPerformanceInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\WlanPerTsPerformanceInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\WlanPerformanceInfo.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\model\WlanPerformanceReq.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\api\SubscriptionsApi.java
+[INFO] writing file C:\Users\thanl\Documents\eclipse-workspace-spring\NWDAF_SUB\target\generated-sources\src\main\java\io\nwdaf\eventsubscription\api\TransfersApi.java
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ NWDAF_SUB ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 129 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ NWDAF_SUB ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 189 source files with javac [debug release 17] to target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR :
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AppListForUeComm.java:[8,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AppListForUeComm.java:[26,11] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.AppListForUeComm
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AppListForUeComm.java:[57,37] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.AppListForUeComm
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AppListForUeComm.java:[69,12] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.AppListForUeComm
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AppListForUeComm.java:[73,28] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.AppListForUeComm
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[7,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[22,11] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[25,11] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[27,31] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[40,12] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[44,28] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[48,30] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[61,12] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[65,27] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EutraLocation.java:[10,23] package org.threeten.bp does not 
+exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/NrLocation.java:[10,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UtraLocation.java:[11,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/GeraLocation.java:[11,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/GeraLocation.java:[50,11] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.GeraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/GeraLocation.java:[216,43] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.GeraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/GeraLocation.java:[228,12] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.GeraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/GeraLocation.java:[232,38] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.GeraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UtraLocation.java:[41,11] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.UtraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UtraLocation.java:[150,43] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.UtraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UtraLocation.java:[162,12] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.UtraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UtraLocation.java:[166,38] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.UtraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/NrLocation.java:[37,11] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.NrLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/NrLocation.java:[130,41] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.NrLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/NrLocation.java:[142,12] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.NrLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/NrLocation.java:[146,38] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.NrLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EutraLocation.java:[40,11] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EutraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EutraLocation.java:[155,44] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EutraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EutraLocation.java:[167,12] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EutraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EutraLocation.java:[171,38] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EutraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/ExpectedUeBehaviourData.java:[15,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/ExpectedUeBehaviourData.java:[54,11] cannot find symbol     
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.ExpectedUeBehaviourData
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/ExpectedUeBehaviourData.java:[221,47] cannot find symbol    
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.ExpectedUeBehaviourData
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/ExpectedUeBehaviourData.java:[233,12] cannot find symbol    
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.ExpectedUeBehaviourData
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/ExpectedUeBehaviourData.java:[237,31] cannot find symbol    
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.ExpectedUeBehaviourData
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/WlanPerTsPerformanceInfo.java:[8,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/WlanPerTsPerformanceInfo.java:[23,11] cannot find symbol    
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.WlanPerTsPerformanceInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/WlanPerTsPerformanceInfo.java:[43,43] cannot find symbol    
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.WlanPerTsPerformanceInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/WlanPerTsPerformanceInfo.java:[56,12] cannot find symbol    
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.WlanPerTsPerformanceInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/WlanPerTsPerformanceInfo.java:[60,26] cannot find symbol    
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.WlanPerTsPerformanceInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[12,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[34,11] cannot find symbol   
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[37,11] cannot find symbol   
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[52,11] cannot find symbol   
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[108,44] cannot find symbol  
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[120,12] cannot find symbol  
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[124,26] cannot find symbol  
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[128,42] cannot find symbol  
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[140,12] cannot find symbol  
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[144,24] cannot find symbol  
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[228,50] cannot find symbol  
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[240,12] cannot find symbol  
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[244,32] cannot find symbol  
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/RedundantTransmissionExpPerTS.java:[8,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/RedundantTransmissionExpPerTS.java:[23,11] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.RedundantTransmissionExpPerTS
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/RedundantTransmissionExpPerTS.java:[40,48] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.RedundantTransmissionExpPerTS
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/RedundantTransmissionExpPerTS.java:[53,12] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.RedundantTransmissionExpPerTS
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/RedundantTransmissionExpPerTS.java:[57,26] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.RedundantTransmissionExpPerTS
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/CircumstanceDescription.java:[8,23] package org.threeten.bp 
+does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/CircumstanceDescription.java:[26,11] cannot find symbol     
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.CircumstanceDescription
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/CircumstanceDescription.java:[53,37] cannot find symbol     
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.CircumstanceDescription
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/CircumstanceDescription.java:[65,12] cannot find symbol     
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.CircumstanceDescription
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/CircumstanceDescription.java:[69,21] cannot find symbol     
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.CircumstanceDescription
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/ReportingInformation.java:[12,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[27,23] package org.threeten.bp does 
+not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[45,11] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[48,11] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[51,11] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/QosSustainabilityInfo.java:[10,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UeCommunication.java:[11,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UeMobility.java:[11,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/DispersionInfo.java:[11,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[142,34] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[154,12] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[158,24] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[162,35] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[174,12] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[178,25] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[182,41] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[194,12] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[198,31] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/DispersionInfo.java:[26,11] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.DispersionInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/DispersionInfo.java:[38,33] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.DispersionInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/DispersionInfo.java:[51,12] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.DispersionInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/DispersionInfo.java:[55,26] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.DispersionInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AdditionalMeasurement.java:[13,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AdditionalMeasurement.java:[36,16] cannot find symbol       
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.AdditionalMeasurement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AdditionalMeasurement.java:[95,48] cannot find symbol       
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.AdditionalMeasurement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AdditionalMeasurement.java:[100,50] cannot find symbol      
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.AdditionalMeasurement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AdditionalMeasurement.java:[114,30] cannot find symbol      
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.AdditionalMeasurement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AdditionalMeasurement.java:[118,34] cannot find symbol      
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.AdditionalMeasurement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UeMobility.java:[26,11] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.UeMobility
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UeMobility.java:[41,24] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.UeMobility
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UeMobility.java:[53,12] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.UeMobility
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UeMobility.java:[57,21] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.UeMobility
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UeCommunication.java:[38,11] cannot find symbol
+  symbol:   class OffsetDateTime
+  location: class io.nwdaf.eventsubscription.model.UeCommunication
+[INFO] 100 errors
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  7.467 s
+[INFO] Finished at: 2023-06-10T19:04:08+03:00
+[INFO] ------------------------------------------------------------------------
+[WARNING]
+[WARNING] Plugin validation issues were detected in 1 plugin(s)
+[WARNING]
+[WARNING]  * io.swagger.codegen.v3:swagger-codegen-maven-plugin:3.0.46
+[WARNING]
+[WARNING] For more or less details, use 'maven.plugin.validation' property with one of the values (case insensitive): [BRIEF, DEFAULT, VERBOSE]
+[WARNING]
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project NWDAF_SUB: Compilation failure: Compilation failure:
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AppListForUeComm.java:[8,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AppListForUeComm.java:[26,11] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.AppListForUeComm
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AppListForUeComm.java:[57,37] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.AppListForUeComm
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AppListForUeComm.java:[69,12] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.AppListForUeComm
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AppListForUeComm.java:[73,28] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.AppListForUeComm
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[7,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[22,11] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[25,11] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[27,31] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[40,12] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[44,28] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[48,30] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[61,12] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/TimeWindow.java:[65,27] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.TimeWindow
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EutraLocation.java:[10,23] package org.threeten.bp does not 
+exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/NrLocation.java:[10,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UtraLocation.java:[11,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/GeraLocation.java:[11,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/GeraLocation.java:[50,11] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.GeraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/GeraLocation.java:[216,43] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.GeraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/GeraLocation.java:[228,12] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.GeraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/GeraLocation.java:[232,38] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.GeraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UtraLocation.java:[41,11] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.UtraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UtraLocation.java:[150,43] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.UtraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UtraLocation.java:[162,12] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.UtraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UtraLocation.java:[166,38] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.UtraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/NrLocation.java:[37,11] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.NrLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/NrLocation.java:[130,41] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.NrLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/NrLocation.java:[142,12] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.NrLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/NrLocation.java:[146,38] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.NrLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EutraLocation.java:[40,11] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EutraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EutraLocation.java:[155,44] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EutraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EutraLocation.java:[167,12] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EutraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EutraLocation.java:[171,38] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EutraLocation
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/ExpectedUeBehaviourData.java:[15,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/ExpectedUeBehaviourData.java:[54,11] cannot find symbol     
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.ExpectedUeBehaviourData
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/ExpectedUeBehaviourData.java:[221,47] cannot find symbol    
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.ExpectedUeBehaviourData
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/ExpectedUeBehaviourData.java:[233,12] cannot find symbol    
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.ExpectedUeBehaviourData
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/ExpectedUeBehaviourData.java:[237,31] cannot find symbol    
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.ExpectedUeBehaviourData
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/WlanPerTsPerformanceInfo.java:[8,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/WlanPerTsPerformanceInfo.java:[23,11] cannot find symbol    
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.WlanPerTsPerformanceInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/WlanPerTsPerformanceInfo.java:[43,43] cannot find symbol    
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.WlanPerTsPerformanceInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/WlanPerTsPerformanceInfo.java:[56,12] cannot find symbol    
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.WlanPerTsPerformanceInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/WlanPerTsPerformanceInfo.java:[60,26] cannot find symbol    
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.WlanPerTsPerformanceInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[12,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[34,11] cannot find symbol   
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[37,11] cannot find symbol   
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[52,11] cannot find symbol   
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[108,44] cannot find symbol  
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[120,12] cannot find symbol  
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[124,26] cannot find symbol  
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[128,42] cannot find symbol  
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[140,12] cannot find symbol  
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[144,24] cannot find symbol  
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[228,50] cannot find symbol  
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[240,12] cannot find symbol  
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventReportingRequirement.java:[244,32] cannot find symbol  
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventReportingRequirement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/RedundantTransmissionExpPerTS.java:[8,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/RedundantTransmissionExpPerTS.java:[23,11] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.RedundantTransmissionExpPerTS
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/RedundantTransmissionExpPerTS.java:[40,48] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.RedundantTransmissionExpPerTS
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/RedundantTransmissionExpPerTS.java:[53,12] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.RedundantTransmissionExpPerTS
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/RedundantTransmissionExpPerTS.java:[57,26] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.RedundantTransmissionExpPerTS
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/CircumstanceDescription.java:[8,23] package org.threeten.bp 
+does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/CircumstanceDescription.java:[26,11] cannot find symbol     
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.CircumstanceDescription
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/CircumstanceDescription.java:[53,37] cannot find symbol     
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.CircumstanceDescription
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/CircumstanceDescription.java:[65,12] cannot find symbol     
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.CircumstanceDescription
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/CircumstanceDescription.java:[69,21] cannot find symbol     
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.CircumstanceDescription
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/ReportingInformation.java:[12,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[27,23] package org.threeten.bp does 
+not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[45,11] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[48,11] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[51,11] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/QosSustainabilityInfo.java:[10,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UeCommunication.java:[11,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UeMobility.java:[11,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/DispersionInfo.java:[11,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[142,34] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[154,12] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[158,24] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[162,35] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[174,12] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[178,25] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[182,41] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[194,12] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/EventNotification.java:[198,31] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.EventNotification
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/DispersionInfo.java:[26,11] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.DispersionInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/DispersionInfo.java:[38,33] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.DispersionInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/DispersionInfo.java:[51,12] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.DispersionInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/DispersionInfo.java:[55,26] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.DispersionInfo
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AdditionalMeasurement.java:[13,23] package org.threeten.bp does not exist
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AdditionalMeasurement.java:[36,16] cannot find symbol       
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.AdditionalMeasurement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AdditionalMeasurement.java:[95,48] cannot find symbol       
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.AdditionalMeasurement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AdditionalMeasurement.java:[100,50] cannot find symbol      
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.AdditionalMeasurement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AdditionalMeasurement.java:[114,30] cannot find symbol      
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.AdditionalMeasurement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/AdditionalMeasurement.java:[118,34] cannot find symbol      
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.AdditionalMeasurement
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UeMobility.java:[26,11] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.UeMobility
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UeMobility.java:[41,24] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.UeMobility
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UeMobility.java:[53,12] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.UeMobility
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UeMobility.java:[57,21] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.UeMobility
+[ERROR] /C:/Users/thanl/Documents/eclipse-workspace-spring/NWDAF_SUB/target/generated-sources/src/main/java/io/nwdaf/eventsubscription/model/UeCommunication.java:[38,11] cannot find symbol
+[ERROR]   symbol:   class OffsetDateTime
+[ERROR]   location: class io.nwdaf.eventsubscription.model.UeCommunication
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

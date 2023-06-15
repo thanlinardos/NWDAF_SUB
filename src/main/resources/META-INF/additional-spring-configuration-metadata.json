@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "nnwdaf-eventsubscription.openapi.dev-url",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.openapi.dev-url'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.openapi.prod-url",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.openapi.prod-url'"
+  }
+]}

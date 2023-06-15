@@ -1,0 +1,8 @@
+-----11/6/23-----
+fixed swagger UI
+made test project for generating every class -> it uses spring boot 2
+todo:
+	-fix data types (Accuracy,...)
+	-add parameter annotations for swagger ui
+	-fix api annotations for swagger ui (+transfersapi)
+	-controller if statements
