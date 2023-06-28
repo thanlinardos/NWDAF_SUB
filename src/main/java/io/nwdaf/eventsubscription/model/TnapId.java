@@ -4,6 +4,8 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -24,6 +26,7 @@ public class TnapId   {
   private String bssId = null;
 
   @JsonProperty("civicAddress")
+  @Schema(type = "string", format = "byte",description = "string with format 'bytes' as defined in OpenAPI")
   private byte[] civicAddress = null;
 
   public TnapId ssId(String ssId) {
@@ -64,8 +67,8 @@ public class TnapId   {
     this.bssId = bssId;
   }
 
-  public TnapId civicAddress(byte[] civicAddress) {
-    this.civicAddress = civicAddress;
+  public TnapId civicAddress(String civicAddressString) {
+    this.civicAddress = Base64.decodeBase64(civicAddressString);
     return this;
   }
 
@@ -73,14 +76,13 @@ public class TnapId   {
    * string with format 'bytes' as defined in OpenAPI
    * @return civicAddress
    **/
-  @Schema(description = "string with format 'bytes' as defined in OpenAPI")
   
     public byte[] getCivicAddress() {
     return civicAddress;
   }
 
-  public void setCivicAddress(byte[] civicAddress) {
-    this.civicAddress = civicAddress;
+  public void setCivicAddress(String civicAddressString) {
+    this.civicAddress = Base64.decodeBase64(civicAddressString);
   }
 
 

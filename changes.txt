@@ -2,7 +2,50 @@
 fixed swagger UI
 made test project for generating every class -> it uses spring boot 2
 todo:
-	-fix data types (Accuracy,...)
-	-add parameter annotations for swagger ui
+	-fix data types (Accuracy,...) DONE
+	-make swagger post request generate OffsetDateTime.now() DONE
+	-add parameter annotations for swagger ui (construct the body from these parameters) by making a Client INPROGRESS
+	-make js form for client INPROGRESS (ClientHomeController , ClientConfig)
 	-fix api annotations for swagger ui (+transfersapi)
-	-controller if statements
+	-controller if statements for building the response (responsebuilder: same datatype as request but with added fields)
+	- Location Header = uri of created subscription DONE (need to test it with jpa)
+	- notifURI = client address DONE (in env variables like with apiRoot)
+	-for immediate reporting: get request to analytics api with params and add the notificationData to the response
+	-add database DONE
+	-make schema for database INPROGRESS (add jsonb ->uses an extension)
+	-update and delete subs
+	-make some fake test data and store in db (for example using NFLoad model)
+	-graphana the data
+	-notify about subbed events (sends post to client with notifURI)
+	-simple api for client receiving notifications
+	-store notifications in db
+
+	-implement periodic notifications
+	-implement transfer (use 29552-h40.pdf 5.4 )
+	-get real data and graphana it
+	-find an mltf use case and implement it with the given data (for example predict nfload going over 0.9)
+	-implement with real consumer nfs using the client already made (nrf for nf load)  OR add in seperate containers: client db to store api responses + client logic for subscribing and context transfers 
+	OPTIONAL:
+	-look at data collection architecture and implement one on the network (kafka broker)
+	-complete other use cases and consumer connections
+	-implement mlmodel api for mtlf/anlf seperation
+	-implement data management api
+	-solve ml model storage problem
+	-implement complete test case for multiple nwdafs (with/without mtlf)
+	-Anlf SDK
+-----19/6/23-----
+fixed up to NwdafEvent
+-----20/6/23-----
+fixed datatypes
+-----23/6/23-----
+fixed OffsetDateTime
+fixed byte[] with @Schema
+request is working
+removed type annotations in oneof interfaces
+-----27/6/23-----
+test run for NF_LOAD
+ClientApp for NF_LOAD + database from container (error with nnwdaf_sub as property of event_sub)
+-----28/6/23-----
+Realised i have to change repository from jdbc to jpa and create a class for the table (will use jsonb)
+request builder almost done , only EventSubscription attributes left
+form will use simple String types and not the full object

@@ -6,12 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 /**
 * AnyOfSmcceUeList
 */
-@JsonTypeInfo(
-  use = JsonTypeInfo.Id.NAME,
-  include = JsonTypeInfo.As.PROPERTY,
-  property = "type")
-@JsonSubTypes({
-})
+
 public interface AnyOfSmcceUeList {
 
 }

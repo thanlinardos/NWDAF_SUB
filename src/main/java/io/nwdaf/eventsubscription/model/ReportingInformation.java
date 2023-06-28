@@ -4,12 +4,12 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.nwdaf.eventsubscription.model.NotificationFlag;
-import io.nwdaf.eventsubscription.model.NotificationMethod1;
+import io.nwdaf.eventsubscription.model.NotificationMethod;
 import io.nwdaf.eventsubscription.model.PartitioningCriteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
-import org.threeten.bp.OffsetDateTime;
+import java.time.OffsetDateTime;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -27,7 +27,7 @@ public class ReportingInformation   {
   private Boolean immRep = null;
 
   @JsonProperty("notifMethod")
-  private NotificationMethod1 notifMethod = null;
+  private NotificationMethod notifMethod = null;
 
   @JsonProperty("maxReportNbr")
   private Integer maxReportNbr = null;
@@ -70,7 +70,7 @@ public class ReportingInformation   {
     this.immRep = immRep;
   }
 
-  public ReportingInformation notifMethod(NotificationMethod1 notifMethod) {
+  public ReportingInformation notifMethod(NotificationMethod notifMethod) {
     this.notifMethod = notifMethod;
     return this;
   }
@@ -82,11 +82,11 @@ public class ReportingInformation   {
   @Schema(description = "")
   
     @Valid
-    public NotificationMethod1 getNotifMethod() {
+    public NotificationMethod getNotifMethod() {
     return notifMethod;
   }
 
-  public void setNotifMethod(NotificationMethod1 notifMethod) {
+  public void setNotifMethod(NotificationMethod notifMethod) {
     this.notifMethod = notifMethod;
   }
 

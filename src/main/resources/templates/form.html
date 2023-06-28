@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>Form_Registration</title>
+</head>
+<body>
+    <h1>Form Registration</h1>
+
+    <form th:action="@{/client/form}" th:object="${nnwdafEventsSubscription}" method="post">
+
+        <div>
+            <label>Notification URI</label> 
+            <input type="text" th:field="*{notificationURI}" th:value=${notificationURI} disabled/>
+        </div>
+        <div>
+          <!--  <label>Events:</label>
+            <select th:each="eventSub: *{eventSubscriptions}">
+                <option th:each="e : ${io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum}" th:value="${e}" th:text="${e}"></option>
+            </select> 
+            
+        </div>
+        -->
+
+        <br/> 
+        <br/> 
+        <input type="submit" value="Send" />
+    </form>
+
+    <div th:if="${result != null}">
+        <h1>Result</h1>
+        <div>
+            <h3>Student Name</h3>
+            <ul>
+                <li th:text="${result.name}">Name</li>
+            </ul>
+        </div>
+        <div>
+            <h3>Email</h3>
+            <ul>
+                <li th:text="${result.email}">Email</li>
+            </ul>
+        </div>
+        <div>
+            <h3>Date of Birth</h3>
+            <p th:text="${result.day}"></p>
+            <p th:text="${result.month}"></p>
+            <p th:text="${result.year}"></p>
+
+        </div>
+        <div>
+            <h3>City</h3>
+            <ul>
+                <li th:text="${result.city}">City</li>
+            </ul>
+        </div>
+        <div>
+            <h3>Township</h3>
+            <ul>
+                <li th:text="${result.township}">Township</li>
+            </ul>
+        </div>
+        <div>
+            <h3>Grades</h3>
+            <ul>
+                <li th:text="${result.grade}">Grades</li>
+            </ul>
+        </div>
+
+
+    </div>
+</body>
+</html>

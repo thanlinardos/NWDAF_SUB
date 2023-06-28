@@ -2,6 +2,8 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.nwdaf.eventsubscription.model.GNbId;
 import io.nwdaf.eventsubscription.model.PlmnId;
@@ -16,7 +18,6 @@ import javax.validation.constraints.*;
 @Schema(description = "One of the six attributes n3IwfId, gNbIdm, ngeNbId, wagfId, tngfId, eNbId shall be present. ")
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2023-06-10T19:22:40.843464800+03:00[Europe/Athens]")
-
 
 public class GlobalRanNodeId  implements OneOfGlobalRanNodeId {
   @JsonProperty("plmnId")

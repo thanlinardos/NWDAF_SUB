@@ -9,7 +9,8 @@ import io.nwdaf.eventsubscription.model.AnalyticsMetadataIndication;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
-import org.threeten.bp.OffsetDateTime;
+import java.time.OffsetDateTime;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -29,11 +30,13 @@ public class EventReportingRequirement   {
   @JsonProperty("accPerSubset")
   @Valid
   private List<Accuracy> accPerSubset = null;
-
+  
   @JsonProperty("startTs")
+  @DateTimeFormat
   private OffsetDateTime startTs = null;
 
   @JsonProperty("endTs")
+  @DateTimeFormat
   private OffsetDateTime endTs = null;
 
   @JsonProperty("offsetPeriod")
@@ -49,6 +52,7 @@ public class EventReportingRequirement   {
   private Integer maxSupiNbr = null;
 
   @JsonProperty("timeAnaNeeded")
+  @DateTimeFormat
   private OffsetDateTime timeAnaNeeded = null;
 
   @JsonProperty("anaMeta")

@@ -2,6 +2,7 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeId;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.nwdaf.eventsubscription.model.Ecgi;
 import io.nwdaf.eventsubscription.model.GlobalRanNodeId;

@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  db:
+    container_name: pg_container
+    image: postgres:alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes: 
+      - ./postgres-data:/var/lib/postgresql/data
+      # - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+  gadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    ports:
+      - "5050:80"
+    volumes: 
+      - ./pgadmin-data:/var/lib/pgadmin
+  # nwdaf_sub:
+  #   container_name: nwdaf_sub
+  #   image: nwdaf_sub:0.0.1-SNAPSHOT
+  #   restart: always
+  #   ports:
+  #     - "8080:8080"
+  #   links:
+  #     - db
+  #   environment:
+  #     SPRING.PROFILES.ACTIVE: production
+  #     SPRING.DATASOURCE.URL: jdbc:postgresql://db:5432/postgres 
+  #     SPRING.DATASOURCE.USERNAME: postgres
+  #     SPRING.DATASOURCE.PASSWORD: password
+      

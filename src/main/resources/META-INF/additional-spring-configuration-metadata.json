@@ -1,12 +1,27 @@
 {"properties": [
   {
-    "name": "nnwdaf-eventsubscription.openapi.dev-url",
+    "name": "nnwdaf-eventsubscription.openapi.dev_url",
     "type": "java.lang.String",
-    "description": "A description for 'nnwdaf-eventsubscription.openapi.dev-url'"
+    "description": "A description for 'nnwdaf-eventsubscription.openapi.dev_url'"
   },
   {
-    "name": "nnwdaf-eventsubscription.openapi.prod-url",
+    "name": "nnwdaf-eventsubscription.openapi.prod_url",
     "type": "java.lang.String",
-    "description": "A description for 'nnwdaf-eventsubscription.openapi.prod-url'"
+    "description": "A description for 'nnwdaf-eventsubscription.openapi.prod_url'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.client.dev_url",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.client.dev_url'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.client.prod_url",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.client.prod_url'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.init",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.init'"
   }
 ]}

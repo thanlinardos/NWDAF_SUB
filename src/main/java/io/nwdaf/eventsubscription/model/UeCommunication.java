@@ -8,7 +8,7 @@ import io.nwdaf.eventsubscription.model.ScheduledCommunicationTime;
 import io.nwdaf.eventsubscription.model.SessInactTimerForUeComm;
 import io.nwdaf.eventsubscription.model.TrafficCharacterization;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.threeten.bp.OffsetDateTime;
+import java.time.OffsetDateTime;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;

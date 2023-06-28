@@ -12,6 +12,9 @@ import io.nwdaf.eventsubscription.model.ReportingInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -23,8 +26,11 @@ import javax.validation.constraints.*;
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2023-06-10T19:22:40.843464800+03:00[Europe/Athens]")
 
-
+@Table(value="nnwdaf_events_subscription")
 public class NnwdafEventsSubscription   {
+  @JsonProperty("id")
+  @Id
+  private Integer id;
   @JsonProperty("eventSubscriptions")
   @Valid
   private List<EventSubscription> eventSubscriptions = new ArrayList<EventSubscription>();
@@ -64,7 +70,20 @@ public class NnwdafEventsSubscription   {
     this.eventSubscriptions.add(eventSubscriptionsItem);
     return this;
   }
-
+  
+  /**
+   * Get id
+   * @return id
+   **/
+  @Schema(description = "")
+  public Integer getId() {
+	  return id;
+  }
+  
+  public void setId(Integer id) {
+	  this.id = id;
+  }
+  
   /**
    * Subscribed events
    * @return eventSubscriptions

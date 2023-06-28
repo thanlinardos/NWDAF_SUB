@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
   include = JsonTypeInfo.As.PROPERTY,
   property = "type")
 @JsonSubTypes({
+  @JsonSubTypes.Type(value = Point.class, name = "string"),
   @JsonSubTypes.Type(value = Point.class, name = "Point"),
   @JsonSubTypes.Type(value = PointUncertaintyCircle.class, name = "PointUncertaintyCircle"),
   @JsonSubTypes.Type(value = PointUncertaintyEllipse.class, name = "PointUncertaintyEllipse"),
