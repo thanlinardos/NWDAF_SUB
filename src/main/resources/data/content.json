@@ -1,16 +1,20 @@
 [
   {
     "id": null,
-    "notificationURI":"http://localhost:8080/client",
-    "eventSubscriptions":[{
-		
+    "sub":{
+		"notificationURI":"http://localhost:8080/client",
+    	"eventSubscriptions":[{
+	
 	}]
+	}
   },
   {
-	"id": null,
-    "notificationURI":"http://localhost:8080/client",
-    "eventSubscriptions":[{
-		
+    "id": null,
+    "sub":{
+		"notificationURI":"http://localhost:8080/client",
+    	"eventSubscriptions":[{
+	
 	}]
+	} 
   }
 ]

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
+import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionTable;
 import io.nwdaf.eventsubscription.repository.SubscriptionRepository;
 
 //@Profile("!dev")
@@ -31,7 +32,7 @@ public class DataLoader implements CommandLineRunner{
 	public void run(String... args) throws Exception {
 		if(repository.count()==0) {
 		try(InputStream inputStream = TypeReference.class.getResourceAsStream("/data/content.json")){
-			repository.saveAll(objectMapper.readValue(inputStream, new TypeReference<List<NnwdafEventsSubscription>>() {}));
+			repository.saveAll(objectMapper.readValue(inputStream, new TypeReference<List<NnwdafEventsSubscriptionTable>>() {}));
 		}
 		}
 		

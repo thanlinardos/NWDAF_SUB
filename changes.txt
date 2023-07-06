@@ -4,16 +4,17 @@ made test project for generating every class -> it uses spring boot 2
 todo:
 	-fix data types (Accuracy,...) DONE
 	-make swagger post request generate OffsetDateTime.now() DONE
-	-add parameter annotations for swagger ui (construct the body from these parameters) by making a Client INPROGRESS
+	-add request builder with parameters (construct the body from these parameters) by making a Client DONE
 	-make js form for client INPROGRESS (ClientHomeController , ClientConfig)
 	-fix api annotations for swagger ui (+transfersapi)
 	-controller if statements for building the response (responsebuilder: same datatype as request but with added fields)
 	- Location Header = uri of created subscription DONE (need to test it with jpa)
 	- notifURI = client address DONE (in env variables like with apiRoot)
-	-for immediate reporting: get request to analytics api with params and add the notificationData to the response
 	-add database DONE
-	-make schema for database INPROGRESS (add jsonb ->uses an extension)
+	-make schema for database DONE (with jsonb)
+	-query filters for subs
 	-update and delete subs
+	-implement immediate reporting
 	-make some fake test data and store in db (for example using NFLoad model)
 	-graphana the data
 	-notify about subbed events (sends post to client with notifURI)
@@ -49,3 +50,8 @@ ClientApp for NF_LOAD + database from container (error with nnwdaf_sub as proper
 Realised i have to change repository from jdbc to jpa and create a class for the table (will use jsonb)
 request builder almost done , only EventSubscription attributes left
 form will use simple String types and not the full object
+----3/7/23-------
+Finished request builder
+Changed to jpa
+Fixed http entity not giving headers and body back to client -> changed to response entity type
+Started making form

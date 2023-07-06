@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
+import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionTable;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
 
 @RestController
@@ -29,14 +30,16 @@ public class SubscriptionsController implements SubscriptionsApi{
 		//System.out.println(body.toString());
 		System.out.println("Controller logic...");
 		HttpHeaders responseHeaders = new HttpHeaders();
-//		NnwdafEventsSubscription res = subscriptionService.create(body);
-		NnwdafEventsSubscription res = body;
-		Integer id = 0;
-//		if(res!=null) {
-//			id=res.getId();
-//		}
-		res.setId(id);
-		System.out.println(res);
+		
+		NnwdafEventsSubscriptionTable res = subscriptionService.create(body);
+//		NnwdafEventsSubscription res = body;
+		Long id = 0l;
+		if(res!=null) {
+			id=res.getId();
+		}
+//		res.setId(id);
+		System.out.println("id="+id);
+		System.out.println(body);
 //		System.out.println(subscriptionService.findOneByNotifURI(env.getProperty("nnwdaf-eventsubscription.client.dev-url")).toString());
 		responseHeaders.set("Location",subsUri+"/"+id);
 		ResponseEntity<NnwdafEventsSubscription> response = ResponseEntity.status(HttpStatus.OK).headers(responseHeaders).body(body);

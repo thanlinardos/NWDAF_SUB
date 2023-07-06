@@ -16,8 +16,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Validated
 public class NotificationMethod {
   public enum NotificationMethodEnum {
-    PERIODIC("PERIODIC"),
-    THRESHOLD("THRESHOLD");
+	  THRESHOLD("THRESHOLD"),
+	  PERIODIC("PERIODIC");
     private String value;
 
     NotificationMethodEnum(String value) {

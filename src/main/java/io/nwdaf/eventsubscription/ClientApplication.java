@@ -10,6 +10,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -47,19 +48,23 @@ public class ClientApplication {
 		return builder.build();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Bean
-	public CommandLineRunner run(RestTemplate restTemplate) throws JsonProcessingException{
+	public CommandLineRunner run() throws JsonProcessingException{
+		RestTemplate restTemplate = new RestTemplate();
 		String apiRoot = env.getProperty("nnwdaf-eventsubscription.openapi.dev-url");
 		CreateSubscriptionRequestBuilder rbuilder = new CreateSubscriptionRequestBuilder();
-		NnwdafEventsSubscription bodyObject = rbuilder.SubscriptionRequestBuilder();
+		NnwdafEventsSubscription bodyObject = rbuilder.InitSubscriptionRequest(env.getProperty("nnwdaf-eventsubscription.client.dev-url"));
 		return args -> {
-			HttpEntity<NnwdafEventsSubscription> res = restTemplate.postForObject(
-					apiRoot+"/nwdaf-eventsubscription/v1/subscriptions",new HttpEntity<NnwdafEventsSubscription>(bodyObject), HttpEntity.class);
+			HttpEntity<NnwdafEventsSubscription> req = new HttpEntity<>(bodyObject);
+			ResponseEntity<NnwdafEventsSubscription> res = restTemplate.postForEntity(
+					apiRoot+"/nwdaf-eventsubscription/v1/subscriptions",req, NnwdafEventsSubscription.class);
 			System.out.println("Location:"+res.getHeaders().getFirst("Location"));
-			log.info(res.toString());
+			log.info(res.getBody().toString());
 		};
 	}
 	
+	public static Logger getLogger() {
+		return ClientApplication.log;
+	}
 	
 }
