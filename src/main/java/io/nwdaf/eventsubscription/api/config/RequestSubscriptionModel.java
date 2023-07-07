@@ -52,6 +52,7 @@ public class RequestSubscriptionModel implements Serializable{
 	private String notifCorrId;
 	private String nfId;
 	private String nfSetId;
+	private String notificationURI;
 	
 	private List<RequestEventModel> eventList = new ArrayList<RequestEventModel>();
 	
@@ -390,6 +391,12 @@ public class RequestSubscriptionModel implements Serializable{
 			event = new RequestEventModel();
 		}
 		this.eventList.add(event);
+	}
+	public String getNotificationURI() {
+		return notificationURI;
+	}
+	public void setNotificationURI(String notificationURI) {
+		this.notificationURI = notificationURI;
 	}
 	
 }

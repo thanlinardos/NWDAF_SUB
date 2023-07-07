@@ -33,6 +33,7 @@ public class ClientHomeController {
     @GetMapping(value="/client/form")
     public String get(ModelMap model){
     	RequestSubscriptionModel object = new RequestSubscriptionModel();
+    	object.setNotificationURI(env.getProperty("nnwdaf-eventsubscription.client.dev-url"));
         model.addAttribute("nnwdafEventsSubscription",object);
         model.addAttribute("serverTime", OffsetDateTime.now());
         return "form";
@@ -50,10 +51,11 @@ public class ClientHomeController {
         
         for(int i=0;i<object.getEventList().size();i++) {
         	RequestEventModel e = object.getEventList().get(i);
-        	sub = subBuilder.AddEventToSubscription(sub, e.getEvent(), e.getNotifMethod(), null, null, null, null,
-        			null, null, null, null, null, null, null, null, null, null,
-        			null, null, null, null, null, null, null, null, null, null, null,
-        			null, null, null, null, null, null, null, null, null, null, null, null);
+        	e.setAllLists();
+        	sub = subBuilder.AddEventToSubscription(sub, e.getEvent(), e.getNotificationMethod(), e.getOptionals(), e.getAnaMeta(), e.getAnaMetaInd(), e.getDataStatProps(),
+        			e.getAccPerSubset(), e.getArgs(), e.getNfLoadLvlThds(), e.getSupis(), e.getIntGroupIds(), e.getNfInstanceIds(), e.getNfSetIds(), e.getAppIds(), e.getDnns(), e.getDnais(),
+        			e.getLadnDnns(), e.getNfTypes(), e.getVisitedAreas(), e.getNsiIdInfos(), e.getNsiLevelThrds(), e.getQosFlowRetThds(), e.getRanUeThrouThds(), e.getSnssaia(), e.getCongThresholds(), e.getNwPerfRequs(), e.getBwRequs(),
+        			e.getExcepRequs(), e.getRatFreqs(), e.getListOfAnaSubsets(), e.getDisperReqs(), e.getRedTransReqs(), e.getWlanReqs(), e.getAppServerAddrs(), e.getDnPerfReqs(), e.getNetworkArea(), e.getQosRequ(), e.getExptUeBehav(),e.getUpfInfo());
         }
         
         HttpEntity<NnwdafEventsSubscription> req = new HttpEntity<>(sub);

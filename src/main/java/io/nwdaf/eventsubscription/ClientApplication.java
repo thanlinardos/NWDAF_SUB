@@ -48,7 +48,7 @@ public class ClientApplication {
 		return builder.build();
 	}
 
-	@Bean
+//	@Bean
 	public CommandLineRunner run() throws JsonProcessingException{
 		RestTemplate restTemplate = new RestTemplate();
 		String apiRoot = env.getProperty("nnwdaf-eventsubscription.openapi.dev-url");

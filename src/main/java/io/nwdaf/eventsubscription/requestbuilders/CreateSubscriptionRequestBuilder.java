@@ -744,22 +744,19 @@ public class CreateSubscriptionRequestBuilder {
 			eventSub.loadLevelThreshold(Integer.parseInt(args.get(2)));
 		}
 		if(args.get(3)!=null) {
-			eventSub.notificationMethod(new NotificationMethod().notifMethod(NotificationMethodEnum.fromValue(args.get(3))));
+			eventSub.matchingDir(new MatchingDirection().matchingDir(MatchingDirectionEnum.fromValue(args.get(3))));
 		}
 		if(args.get(4)!=null) {
-			eventSub.matchingDir(new MatchingDirection().matchingDir(MatchingDirectionEnum.fromValue(args.get(4))));
+			eventSub.maxTopAppUlNbr(Integer.parseInt(args.get(4)));
 		}
 		if(args.get(5)!=null) {
-			eventSub.maxTopAppUlNbr(Integer.parseInt(args.get(5)));
+			eventSub.maxTopAppDlNbr(Integer.parseInt(args.get(5)));
 		}
 		if(args.get(6)!=null) {
-			eventSub.maxTopAppDlNbr(Integer.parseInt(args.get(6)));
+			eventSub.repetitionPeriod(Integer.parseInt(args.get(6)));
 		}
 		if(args.get(7)!=null) {
-			eventSub.repetitionPeriod(Integer.parseInt(args.get(7)));
-		}
-		if(args.get(8)!=null) {
-			eventSub.exptAnaType(new ExpectedAnalyticsType().exptAnaType(ExpectedAnalyticsTypeEnum.fromValue(args.get(8))));
+			eventSub.exptAnaType(new ExpectedAnalyticsType().exptAnaType(ExpectedAnalyticsTypeEnum.fromValue(args.get(7))));
 		}
 		
 		sub.addEventSubscriptionsItem(eventSub);

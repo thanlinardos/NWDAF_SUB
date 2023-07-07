@@ -8,55 +8,101 @@ import org.springframework.data.util.Pair;
 
 public class RequestEventModel {
 	private String event;
-	private String notifMethod;
+	private String notificationMethod;
 	private List<String>optionals = new ArrayList<String>(Arrays.asList(null,null,null,null,null,null,null));
-	private List<String> anaMeta;
-	private List<String> anaMetaInd;
-	private List<String> dataStatProps;
-	private List<String> accPerSubset;
-	private List<String>args = new ArrayList<String>(Arrays.asList(null,null,null,null,null,null,null,null,null));
-	private List<List<String>>nfLoadLvlThds;
-	private List<String> supis;
-	private List<String> intGroupIds;
-	private List<String> nfInstanceIds;
-	private List<String> nfSetIds;
-	private List<String> appIds;
-	private List<String> dnns;
-	private List<String> dnais;
-	private List<String> ladnDnns;
-	private List<String> nfTypes;
-	private List<List<List<List<String>>>> visitedAreas;
-	private List<List<List<String>>> nsiIdInfos;
-	private List<Integer> nsiLevelThrds;
-	private List<List<String>> qosFlowRetThds;
-	private List<String> ranUeThrouThds;
-	private List<List<String>> snssaia;
-	private List<List<String>> congThresholds;
-	private List<List<String>> nwPerfRequs;
-	private List<List<String>> bwRequs;
-	private List<List<String>> excepRequs;
-	private List<List<List<String>>> ratFreqs;
-	private List<String> listOfAnaSubsets;
-	private List<List<List<List<String>>>> disperReqs;
-	private List<List<String>> redTransReqs;
-	private List<List<List<String>>> wlanReqs;
-	private List<List<String>> appServerAddrs;
-	private List<List<List<List<String>>>> dnPerfReqs;
-	private List<List<List<String>>> networkArea;
-	private List<String> qosRequ;
-	private List<List<List<List<List<List<String>>>>>> exptUeBehav;
-	private List<String> upfInfo;
+	private List<String> anaMeta = new ArrayList<String>();
+	private List<String> anaMetaInd = new ArrayList<String>();
+	private List<String> dataStatProps = new ArrayList<String>();
+	private List<String> accPerSubset = new ArrayList<String>();
+	private List<String>args = new ArrayList<String>(Arrays.asList(null,null,null,null,null,null,null,null));
+	private List<List<String>>nfLoadLvlThds = new ArrayList<List<String>>();
+	private List<String> supis = new ArrayList<String>();
+	private List<String> intGroupIds = new ArrayList<String>();
+	private List<String> nfInstanceIds = new ArrayList<String>();
+	private List<String> nfSetIds = new ArrayList<String>();
+	private List<String> appIds = new ArrayList<String>();
+	private List<String> dnns = new ArrayList<String>();
+	private List<String> dnais = new ArrayList<String>();
+	private List<String> ladnDnns = new ArrayList<String>();
+	private List<String> nfTypes = new ArrayList<String>();
+	private List<List<List<List<String>>>> visitedAreas = new ArrayList<List<List<List<String>>>>();
+	private List<List<List<String>>> nsiIdInfos = new ArrayList<List<List<String>>>();
+	private List<Integer> nsiLevelThrds = new ArrayList<Integer>();
+	private List<List<String>> qosFlowRetThds = new ArrayList<List<String>>();
+	private List<String> ranUeThrouThds = new ArrayList<String>();
+	private List<List<String>> snssaia = new ArrayList<List<String>>();
+	private List<List<String>> congThresholds = new ArrayList<List<String>>();
+	private List<List<String>> nwPerfRequs = new ArrayList<List<String>>();
+	private List<List<String>> bwRequs = new ArrayList<List<String>>();
+	private List<List<String>> excepRequs = new ArrayList<List<String>>();
+	private List<List<List<String>>> ratFreqs = new ArrayList<List<List<String>>>();
+	private List<String> listOfAnaSubsets = new ArrayList<String>();
+	private List<List<List<List<String>>>> disperReqs = new ArrayList<List<List<List<String>>>>();
+	private List<List<String>> redTransReqs = new ArrayList<List<String>>();
+	private List<List<List<String>>> wlanReqs = new ArrayList<List<List<String>>>();
+	private List<List<String>> appServerAddrs = new ArrayList<List<String>>();
+	private List<List<List<List<String>>>> dnPerfReqs = new ArrayList<List<List<List<String>>>>();
+	private List<List<List<String>>> networkArea = new ArrayList<List<List<String>>>();
+	private List<String> qosRequ = new ArrayList<String>();
+	private List<List<List<List<List<List<String>>>>>> exptUeBehav = new ArrayList<List<List<List<List<List<String>>>>>>();
+	private List<String> upfInfo = new ArrayList<String>();
+	//show booleans
+	private Boolean showExtraRepReq=false;
+	private Boolean showTgtUe=false;
+	private Boolean showLoadLevelThreshold=false;
+	private Boolean showSnssais=false;
+	private Boolean showAnySlice=false;
+	private Boolean showNsiIdInfos=false;
+	private Boolean showNsiLevelThrds=false;
+	private Boolean showListOfAnaSubsets=false;
+	private Boolean showNetworkArea=false;
+	private Boolean showSupis=false;
+	private Boolean showNfLoadLvlThds=false;
+	private Boolean showNfInstanceIds=false;
+	private Boolean showNfSetIds=false;
+	private Boolean showMatchingDir=false;
+	private Boolean showIntGroupIds=false;
+	private Boolean showBwRequs=false;
+	private Boolean showRatFreqs=false;
+	private Boolean showUpfInfo=false;
+	private Boolean showAppServerAddrs=false;
+	private Boolean showLadnDnns=false;
+	private Boolean showVisitedAreas=false;
+	private Boolean showQosFlowRetThds=false;
+	private Boolean showRanUeThrouThds=false;
+	private Boolean showExptAnaType=false;
+	private Boolean showExptUeBehav=false;
+	private Boolean showGpsis=false;
+	private Boolean showCongThresholds=false;
+	private Boolean showMaxTopAppUlNbr=false;
+	private Boolean showMaxTopAppDlNbr=false;
+	private Boolean showDisperReqs=false;
+	private Boolean showRedTransReqs=false;
+	private Boolean showWlanReqs=false;
+	private Boolean showDnais=false;
+	private Boolean showDnPerfReqs=false;
+	//optionals
+	
+	//args
+	private Integer repetitionPeriod;
+	
+	public void setAllLists() {
+		if(repetitionPeriod!=null) {
+			args.set(6, String.valueOf(repetitionPeriod));
+		}
+	}
+	
 	public String getEvent() {
 		return event;
 	}
 	public void setEvent(String event) {
 		this.event = event;
 	}
-	public String getNotifMethod() {
-		return notifMethod;
+	public String getNotificationMethod() {
+		return notificationMethod;
 	}
-	public void setNotifMethod(String notifMethod) {
-		this.notifMethod = notifMethod;
+	public void setNotificationMethod(String notifMethod) {
+		this.notificationMethod = notifMethod;
 	}
 	public List<String> getOptionals() {
 		return optionals;
@@ -279,5 +325,285 @@ public class RequestEventModel {
 	}
 	public void setUpfInfo(List<String> upfInfo) {
 		this.upfInfo = upfInfo;
+	}
+
+	public Integer getRepetitionPeriod() {
+		return repetitionPeriod;
+	}
+
+	public void setRepetitionPeriod(Integer repetitionPeriod) {
+		this.repetitionPeriod = repetitionPeriod;
+	}
+
+	public Boolean getShowExtraRepReq() {
+		return showExtraRepReq;
+	}
+
+	public void setShowExtraRepReq(Boolean showExtraRepReq) {
+		this.showExtraRepReq = showExtraRepReq;
+	}
+
+	public Boolean getShowTgtUe() {
+		return showTgtUe;
+	}
+
+	public void setShowTgtUe(Boolean showTgtUe) {
+		this.showTgtUe = showTgtUe;
+	}
+
+	public Boolean getShowLoadLevelThreshold() {
+		return showLoadLevelThreshold;
+	}
+
+	public void setShowLoadLevelThreshold(Boolean showLoadLevelThreshold) {
+		this.showLoadLevelThreshold = showLoadLevelThreshold;
+	}
+
+	public Boolean getShowSnssais() {
+		return showSnssais;
+	}
+
+	public void setShowSnssais(Boolean showSnssais) {
+		this.showSnssais = showSnssais;
+	}
+
+	public Boolean getShowAnySlice() {
+		return showAnySlice;
+	}
+
+	public void setShowAnySlice(Boolean showAnySlice) {
+		this.showAnySlice = showAnySlice;
+	}
+
+	public Boolean getShowNsiIdInfos() {
+		return showNsiIdInfos;
+	}
+
+	public void setShowNsiIdInfos(Boolean showNsiIdInfos) {
+		this.showNsiIdInfos = showNsiIdInfos;
+	}
+
+	public Boolean getShowNsiLevelThrds() {
+		return showNsiLevelThrds;
+	}
+
+	public void setShowNsiLevelThrds(Boolean showNsiLevelThrds) {
+		this.showNsiLevelThrds = showNsiLevelThrds;
+	}
+
+	public Boolean getShowListOfAnaSubsets() {
+		return showListOfAnaSubsets;
+	}
+
+	public void setShowListOfAnaSubsets(Boolean showListOfAnaSubsets) {
+		this.showListOfAnaSubsets = showListOfAnaSubsets;
+	}
+
+	public Boolean getShowSupis() {
+		return showSupis;
+	}
+
+	public void setShowSupis(Boolean showSupis) {
+		this.showSupis = showSupis;
+	}
+
+	public Boolean getShowNetworkArea() {
+		return showNetworkArea;
+	}
+
+	public void setShowNetworkArea(Boolean showNetworkArea) {
+		this.showNetworkArea = showNetworkArea;
+	}
+
+	public Boolean getShowNfLoadLvlThds() {
+		return showNfLoadLvlThds;
+	}
+
+	public void setShowNfLoadLvlThds(Boolean showNfLoadLvlThds) {
+		this.showNfLoadLvlThds = showNfLoadLvlThds;
+	}
+
+	public Boolean getShowNfInstanceIds() {
+		return showNfInstanceIds;
+	}
+
+	public void setShowNfInstanceIds(Boolean showNfInstanceIds) {
+		this.showNfInstanceIds = showNfInstanceIds;
+	}
+
+	public Boolean getShowNfSetIds() {
+		return showNfSetIds;
+	}
+
+	public void setShowNfSetIds(Boolean showNfSetIds) {
+		this.showNfSetIds = showNfSetIds;
+	}
+
+	public Boolean getShowMatchingDir() {
+		return showMatchingDir;
+	}
+
+	public void setShowMatchingDir(Boolean showMatchingDir) {
+		this.showMatchingDir = showMatchingDir;
+	}
+
+	public Boolean getShowIntGroupIds() {
+		return showIntGroupIds;
+	}
+
+	public void setShowIntGroupIds(Boolean showIntGroupIds) {
+		this.showIntGroupIds = showIntGroupIds;
+	}
+
+	public Boolean getShowBwRequs() {
+		return showBwRequs;
+	}
+
+	public void setShowBwRequs(Boolean showBwRequs) {
+		this.showBwRequs = showBwRequs;
+	}
+
+	public Boolean getShowRatFreqs() {
+		return showRatFreqs;
+	}
+
+	public void setShowRatFreqs(Boolean showRatFreqs) {
+		this.showRatFreqs = showRatFreqs;
+	}
+
+	public Boolean getShowAppServerAddrs() {
+		return showAppServerAddrs;
+	}
+
+	public void setShowAppServerAddrs(Boolean showAppServerAddrs) {
+		this.showAppServerAddrs = showAppServerAddrs;
+	}
+
+	public Boolean getShowUpfInfo() {
+		return showUpfInfo;
+	}
+
+	public void setShowUpfInfo(Boolean showUpfInfo) {
+		this.showUpfInfo = showUpfInfo;
+	}
+
+	public Boolean getShowLadnDnns() {
+		return showLadnDnns;
+	}
+
+	public void setShowLadnDnns(Boolean showLadnDnns) {
+		this.showLadnDnns = showLadnDnns;
+	}
+
+	public Boolean getShowVisitedAreas() {
+		return showVisitedAreas;
+	}
+
+	public void setShowVisitedAreas(Boolean showVisitedAreas) {
+		this.showVisitedAreas = showVisitedAreas;
+	}
+
+	public Boolean getShowQosFlowRetThds() {
+		return showQosFlowRetThds;
+	}
+
+	public void setShowQosFlowRetThds(Boolean showQosFlowRetThds) {
+		this.showQosFlowRetThds = showQosFlowRetThds;
+	}
+
+	public Boolean getShowRanUeThrouThds() {
+		return showRanUeThrouThds;
+	}
+
+	public void setShowRanUeThrouThds(Boolean showRanUeThrouThds) {
+		this.showRanUeThrouThds = showRanUeThrouThds;
+	}
+
+	public Boolean getShowExptAnaType() {
+		return showExptAnaType;
+	}
+
+	public void setShowExptAnaType(Boolean showExptAnaType) {
+		this.showExptAnaType = showExptAnaType;
+	}
+
+	public Boolean getShowExptUeBehav() {
+		return showExptUeBehav;
+	}
+
+	public void setShowExptUeBehav(Boolean showExptUeBehav) {
+		this.showExptUeBehav = showExptUeBehav;
+	}
+
+	public Boolean getShowGpsis() {
+		return showGpsis;
+	}
+
+	public void setShowGpsis(Boolean showGpsis) {
+		this.showGpsis = showGpsis;
+	}
+
+	public Boolean getShowCongThresholds() {
+		return showCongThresholds;
+	}
+
+	public void setShowCongThresholds(Boolean showCongThresholds) {
+		this.showCongThresholds = showCongThresholds;
+	}
+
+	public Boolean getShowMaxTopAppUlNbr() {
+		return showMaxTopAppUlNbr;
+	}
+
+	public void setShowMaxTopAppUlNbr(Boolean showMaxTopAppUlNbr) {
+		this.showMaxTopAppUlNbr = showMaxTopAppUlNbr;
+	}
+
+	public Boolean getShowMaxTopAppDlNbr() {
+		return showMaxTopAppDlNbr;
+	}
+
+	public void setShowMaxTopAppDlNbr(Boolean showMaxTopAppDlNbr) {
+		this.showMaxTopAppDlNbr = showMaxTopAppDlNbr;
+	}
+
+	public Boolean getShowDisperReqs() {
+		return showDisperReqs;
+	}
+
+	public void setShowDisperReqs(Boolean showDisperReqs) {
+		this.showDisperReqs = showDisperReqs;
+	}
+
+	public Boolean getShowRedTransReqs() {
+		return showRedTransReqs;
+	}
+
+	public void setShowRedTransReqs(Boolean showRedTransReqs) {
+		this.showRedTransReqs = showRedTransReqs;
+	}
+
+	public Boolean getShowWlanReqs() {
+		return showWlanReqs;
+	}
+
+	public void setShowWlanReqs(Boolean showWlanReqs) {
+		this.showWlanReqs = showWlanReqs;
+	}
+
+	public Boolean getShowDnais() {
+		return showDnais;
+	}
+
+	public void setShowDnais(Boolean showDnais) {
+		this.showDnais = showDnais;
+	}
+
+	public Boolean getShowDnPerfReqs() {
+		return showDnPerfReqs;
+	}
+
+	public void setShowDnPerfReqs(Boolean showDnPerfReqs) {
+		this.showDnPerfReqs = showDnPerfReqs;
 	}
 }
