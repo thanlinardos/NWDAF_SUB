@@ -5,7 +5,7 @@ todo:
 	-fix data types (Accuracy,...) DONE
 	-make swagger post request generate OffsetDateTime.now() DONE
 	-add request builder with parameters (construct the body from these parameters) by making a Client DONE
-	-make js form for client INPROGRESS (ClientHomeController , ClientConfig)
+	-make html form for client INPROGRESS (ClientHomeController , ClientConfig)
 	-fix api annotations for swagger ui (+transfersapi)
 	-controller if statements for building the response (responsebuilder: same datatype as request but with added fields)
 	- Location Header = uri of created subscription DONE (need to test it with jpa)
@@ -13,20 +13,25 @@ todo:
 	-add database DONE
 	-make schema for database DONE (with jsonb)
 	-query filters for subs
-	-update and delete subs
-	-implement immediate reporting
-	-make some fake test data and store in db (for example using NFLoad model)
-	-graphana the data
-	-notify about subbed events (sends post to client with notifURI)
-	-simple api for client receiving notifications
-	-store notifications in db
+	-make some fake test data (for example for NFLoad) DONE
+	-massage the test data
+	-save massaged Prometheus data (NwdaNotification model) to a second DB(Influx or Postgres)
+	-graphana the data DONE (Could graphana the massaged data as well)
+	-implement periodic notifications (sends post to client with notifURI after making the notifications from Prometheus data)
+	-simple api for client receiving notifications (just a controller mapping for notifications + display below the form)
+	-do the NF_LOAD test (maybe add an nf simulated container)
+	-make 2 client dbs (one for sub responses and one for notifications) same as server
 
-	-implement periodic notifications
-	-implement transfer (use 29552-h40.pdf 5.4 )
+	-update and delete subs
+	-add another postgres db for grouping the data based on time windows of 1hour
+	-implement immediate reporting & time_offset (notify about grouped data)
+	-implement with real consumer nfs using the client already made (nrf for nf load)  OR add in seperate containers: client db to store api responses + client logic for subscribing and context transfers
 	-get real data and graphana it
-	-find an mltf use case and implement it with the given data (for example predict nfload going over 0.9)
-	-implement with real consumer nfs using the client already made (nrf for nf load)  OR add in seperate containers: client db to store api responses + client logic for subscribing and context transfers 
+	-do another use case (UE_Mobility)
+	
 	OPTIONAL:
+	-implement transfer (use 29552-h40.pdf 5.4 )
+	-find an mltf use case and implement it with the given data (for example predict nfload going over 0.9) 
 	-look at data collection architecture and implement one on the network (kafka broker)
 	-complete other use cases and consumer connections
 	-implement mlmodel api for mtlf/anlf seperation
@@ -55,3 +60,6 @@ Finished request builder
 Changed to jpa
 Fixed http entity not giving headers and body back to client -> changed to response entity type
 Started making form
+----7/7/23-------
+Build form up to basic NF_LOAD test
+Launched Prometheus metrics containers that get metrics from other containers (postman post requests)
