@@ -2,9 +2,6 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.vladmihalcea.hibernate.type.json.JsonType;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.ArrayList;

@@ -7,18 +7,18 @@ todo:
 	-add request builder with parameters (construct the body from these parameters) by making a Client DONE
 	-make html form for client INPROGRESS (ClientHomeController , ClientConfig)
 	-fix api annotations for swagger ui (+transfersapi)
-	-controller if statements for building the response (responsebuilder: same datatype as request but with added fields)
+	-controller if statements for building the response INPROGRESS (responsebuilder: same datatype as request but with added fields)
 	- Location Header = uri of created subscription DONE (need to test it with jpa)
 	- notifURI = client address DONE (in env variables like with apiRoot)
 	-add database DONE
 	-make schema for database DONE (with jsonb)
 	-query filters for subs
 	-make some fake test data (for example for NFLoad) DONE
-	-massage the test data
-	-save massaged Prometheus data (NwdaNotification model) to a second DB(Influx or Postgres)
+	-massage the test data INPROGRESS (make classes for it and for prometheus request)
+	-save massaged Prometheus data (NwdaNotification model) to a second DB(Influx or Postgres) INPROGRESS (error with inserting)
 	-graphana the data DONE (Could graphana the massaged data as well)
 	-implement periodic notifications (sends post to client with notifURI after making the notifications from Prometheus data)
-	-simple api for client receiving notifications (just a controller mapping for notifications + display below the form)
+	-simple api for client receiving notifications (just a controller mapping for notifications + display below the form) DONE
 	-do the NF_LOAD test (maybe add an nf simulated container)
 	-make 2 client dbs (one for sub responses and one for notifications) same as server
 
@@ -63,3 +63,9 @@ Started making form
 ----7/7/23-------
 Build form up to basic NF_LOAD test
 Launched Prometheus metrics containers that get metrics from other containers (postman post requests)
+----11/7/23------
+Connected to Prometheus and made post request for cpu metrics from any container by specifying its name (promql_client project)
+Then did a test by sending a NwdaNotification object to the client every 1 second after pulling the new cpu load
+Connected 2nd postgres database for storing notifications (uses the same server)
+Implemented controller response for notifMethod and repPeriod
+ERROR with storing notif !!

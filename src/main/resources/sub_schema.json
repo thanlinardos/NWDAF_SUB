@@ -1,0 +1,2946 @@
+{
+  "eventSubscriptions": [
+    {
+      "anySlice": true,
+      "appIds": [
+        "string"
+      ],
+      "dnns": [
+        "string"
+      ],
+      "dnais": [
+        "string"
+      ],
+      "event": {
+        "type": "SLICE_LOAD_LEVEL"
+      },
+      "extraReportReq": {
+        "accuracy": {
+          "accuracy": "LOW"
+        },
+        "accPerSubset": [
+          {
+            "accuracy": "LOW"
+          }
+        ],
+        "startTs": "2023-07-07T20:17:24.168Z",
+        "endTs": "2023-07-07T20:17:24.168Z",
+        "offsetPeriod": 0,
+        "sampRatio": 0,
+        "maxObjectNbr": 0,
+        "maxSupiNbr": 0,
+        "timeAnaNeeded": "2023-07-07T20:17:24.168Z",
+        "anaMeta": [
+          {
+            "anaMeta": "NUM_OF_SAMPLES"
+          }
+        ],
+        "anaMetaInd": {
+          "dataWindow": {
+            "startTime": "2023-07-07T20:17:24.168Z",
+            "stopTime": "2023-07-07T20:17:24.168Z"
+          },
+          "dataStatProps": [
+            {
+              "dataStatProps": "UNIFORM_DIST_DATA"
+            }
+          ],
+          "strategy": {
+            "strategy": "BINARY "
+          },
+          "aggrNwdafIds": [
+            "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          ]
+        }
+      },
+      "ladnDnns": [
+        "string"
+      ],
+      "loadLevelThreshold": 0,
+      "notificationMethod": {
+        "notifMethod": "THRESHOLD"
+      },
+      "matchingDir": {
+        "matchingDir": "ASCENDING"
+      },
+      "nfLoadLvlThds": [
+        {
+          "congLevel": 0,
+          "nfLoadLevel": 0,
+          "nfCpuUsage": 0,
+          "nfMemoryUsage": 0,
+          "nfStorageUsage": 0,
+          "avgTrafficRate": "string",
+          "maxTrafficRate": "string",
+          "avgPacketDelay": 0,
+          "maxPacketDelay": 0,
+          "avgPacketLossRate": 0,
+          "svcExpLevel": 0
+        }
+      ],
+      "nfInstanceIds": [
+        "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      ],
+      "nfSetIds": [
+        "string"
+      ],
+      "nfTypes": [
+        {
+          "nfType": "NRF"
+        }
+      ],
+      "networkArea": {
+        "granNodeIds": [
+          {
+            "enbId": "string",
+            "gnbId": {
+              "gnbvalue": "string",
+              "bitLength": 0,
+              "gNBValue": "string"
+            },
+            "plmnId": {
+              "mcc": "string",
+              "mnc": "string"
+            },
+            "n3IwfId": "string",
+            "gNbId": {
+              "gnbvalue": "string",
+              "bitLength": 0,
+              "gNBValue": "string"
+            },
+            "ngeNbId": "SMacroNGeNB-34B89",
+            "wagfId": "string",
+            "tngfId": "string",
+            "nid": "string",
+            "eNbId": "string"
+          }
+        ],
+        "ecgis": [
+          {
+            "plmnId": {
+              "mcc": "string",
+              "mnc": "string"
+            },
+            "eutraCellId": "string",
+            "nid": "string"
+          }
+        ],
+        "ncgis": [
+          {
+            "plmnId": {
+              "mcc": "string",
+              "mnc": "string"
+            },
+            "nrCellId": "string",
+            "nid": "string"
+          }
+        ],
+        "gRanNodeIds": [
+          {
+            "enbId": "string",
+            "gnbId": {
+              "gnbvalue": "string",
+              "bitLength": 0,
+              "gNBValue": "string"
+            },
+            "plmnId": {
+              "mcc": "string",
+              "mnc": "string"
+            },
+            "n3IwfId": "string",
+            "gNbId": {
+              "gnbvalue": "string",
+              "bitLength": 0,
+              "gNBValue": "string"
+            },
+            "ngeNbId": "SMacroNGeNB-34B89",
+            "wagfId": "string",
+            "tngfId": "string",
+            "nid": "string",
+            "eNbId": "string"
+          }
+        ],
+        "tais": [
+          {
+            "plmnId": {
+              "mcc": "string",
+              "mnc": "string"
+            },
+            "tac": "string",
+            "nid": "string"
+          }
+        ]
+      },
+      "visitedAreas": [
+        {
+          "granNodeIds": [
+            {
+              "enbId": "string",
+              "gnbId": {
+                "gnbvalue": "string",
+                "bitLength": 0,
+                "gNBValue": "string"
+              },
+              "plmnId": {
+                "mcc": "string",
+                "mnc": "string"
+              },
+              "n3IwfId": "string",
+              "gNbId": {
+                "gnbvalue": "string",
+                "bitLength": 0,
+                "gNBValue": "string"
+              },
+              "ngeNbId": "SMacroNGeNB-34B89",
+              "wagfId": "string",
+              "tngfId": "string",
+              "nid": "string",
+              "eNbId": "string"
+            }
+          ],
+          "ecgis": [
+            {
+              "plmnId": {
+                "mcc": "string",
+                "mnc": "string"
+              },
+              "eutraCellId": "string",
+              "nid": "string"
+            }
+          ],
+          "ncgis": [
+            {
+              "plmnId": {
+                "mcc": "string",
+                "mnc": "string"
+              },
+              "nrCellId": "string",
+              "nid": "string"
+            }
+          ],
+          "gRanNodeIds": [
+            {
+              "enbId": "string",
+              "gnbId": {
+                "gnbvalue": "string",
+                "bitLength": 0,
+                "gNBValue": "string"
+              },
+              "plmnId": {
+                "mcc": "string",
+                "mnc": "string"
+              },
+              "n3IwfId": "string",
+              "gNbId": {
+                "gnbvalue": "string",
+                "bitLength": 0,
+                "gNBValue": "string"
+              },
+              "ngeNbId": "SMacroNGeNB-34B89",
+              "wagfId": "string",
+              "tngfId": "string",
+              "nid": "string",
+              "eNbId": "string"
+            }
+          ],
+          "tais": [
+            {
+              "plmnId": {
+                "mcc": "string",
+                "mnc": "string"
+              },
+              "tac": "string",
+              "nid": "string"
+            }
+          ]
+        }
+      ],
+      "maxTopAppUlNbr": 0,
+      "maxTopAppDlNbr": 0,
+      "nsiIdInfos": [
+        {
+          "snssai": {
+            "sst": 0,
+            "sd": "string"
+          },
+          "nsiIds": [
+            "string"
+          ]
+        }
+      ],
+      "nsiLevelThrds": [
+        0
+      ],
+      "qosRequ": {
+        "5qi": 0,
+        "gfbrUl": "string",
+        "gfbrDl": "string",
+        "resType": {
+          "resType": "NON_GBR"
+        },
+        "pdb": 0,
+        "per": "string"
+      },
+      "qosFlowRetThds": [
+        {
+          "relFlowNum": 0,
+          "relTimeUnit": {
+            "relTimeUnit": "MINUTE"
+          },
+          "relFlowRatio": 0
+        }
+      ],
+      "ranUeThrouThds": [
+        "string"
+      ],
+      "repetitionPeriod": 0,
+      "snssaia": [
+        {
+          "sst": 0,
+          "sd": "string"
+        }
+      ],
+      "tgtUe": {
+        "anyUe": true,
+        "supis": [
+          "string"
+        ],
+        "gpsis": [
+          "string"
+        ],
+        "intGroupIds": [
+          "string"
+        ]
+      },
+      "congThresholds": [
+        {
+          "congLevel": 0,
+          "nfLoadLevel": 0,
+          "nfCpuUsage": 0,
+          "nfMemoryUsage": 0,
+          "nfStorageUsage": 0,
+          "avgTrafficRate": "string",
+          "maxTrafficRate": "string",
+          "avgPacketDelay": 0,
+          "maxPacketDelay": 0,
+          "avgPacketLossRate": 0,
+          "svcExpLevel": 0
+        }
+      ],
+      "nwPerfRequs": [
+        {
+          "nwPerfType": {
+            "nwPerfType": "GNB_ACTIVE_RATIO"
+          },
+          "relativeRatio": 0,
+          "absoluteNum": 0
+        }
+      ],
+      "bwRequs": [
+        {
+          "appId": "string",
+          "marBwDl": "string",
+          "marBwUl": "string",
+          "mirBwDl": "string",
+          "mirBwUl": "string"
+        }
+      ],
+      "excepRequs": [
+        {
+          "excepId": {
+            "excepId": "NUM_OF_SAMPLES"
+          },
+          "excepLevel": 0,
+          "excepTrend": {
+            "excepTrend": "UP"
+          }
+        }
+      ],
+      "exptAnaType": {
+        "exptAnaType": "MOBILITY"
+      },
+      "exptUeBehav": {
+        "stationaryIndication": {
+          "stationaryIndication": "STATIONARY"
+        },
+        "communicationDurationTime": 0,
+        "periodicTime": 0,
+        "scheduledCommunicationTime": {
+          "daysOfWeek": [
+            0
+          ],
+          "timeOfDayStart": "string",
+          "timeOfDayEnd": "string"
+        },
+        "scheduledCommunicationType": {
+          "anaMeta": "DOWNLINK_ONLY",
+          "scheduledCommunicationType": "DOWNLINK_ONLY"
+        },
+        "expectedUmts": [
+          {
+            "geographicAreas": [
+              {
+                "type": "string"
+              }
+            ],
+            "civicAddresses": [
+              {
+                "hno": "string",
+                "prd": "string",
+                "sts": "string",
+                "pod": "string",
+                "lmk": "string",
+                "plc": "string",
+                "unit": "string",
+                "nam": "string",
+                "hns": "string",
+                "pobox": "string",
+                "bld": "string",
+                "seat": "string",
+                "loc": "string",
+                "rd": "string",
+                "pcn": "string",
+                "rdsec": "string",
+                "pc": "string",
+                "room": "string",
+                "addcode": "string",
+                "flr": "string",
+                "rdbr": "string",
+                "prm": "string",
+                "rdsubbr": "string",
+                "pom": "string",
+                "country": "string",
+                "A1": "string",
+                "A2": "string",
+                "A3": "string",
+                "A4": "string",
+                "A5": "string",
+                "A6": "string",
+                "PRD": "string",
+                "POD": "string",
+                "STS": "string",
+                "HNO": "string",
+                "HNS": "string",
+                "LMK": "string",
+                "LOC": "string",
+                "NAM": "string",
+                "PC": "string",
+                "BLD": "string",
+                "UNIT": "string",
+                "FLR": "string",
+                "ROOM": "string",
+                "PLC": "string",
+                "PCN": "string",
+                "POBOX": "string",
+                "ADDCODE": "string",
+                "SEAT": "string",
+                "RD": "string",
+                "RDSEC": "string",
+                "RDBR": "string",
+                "RDSUBBR": "string",
+                "PRM": "string",
+                "POM": "string",
+                "usageRules": "string",
+                "method": "string",
+                "providedBy": "string"
+              }
+            ],
+            "nwAreaInfo": {
+              "granNodeIds": [
+                {
+                  "enbId": "string",
+                  "gnbId": {
+                    "gnbvalue": "string",
+                    "bitLength": 0,
+                    "gNBValue": "string"
+                  },
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "n3IwfId": "string",
+                  "gNbId": {
+                    "gnbvalue": "string",
+                    "bitLength": 0,
+                    "gNBValue": "string"
+                  },
+                  "ngeNbId": "SMacroNGeNB-34B89",
+                  "wagfId": "string",
+                  "tngfId": "string",
+                  "nid": "string",
+                  "eNbId": "string"
+                }
+              ],
+              "ecgis": [
+                {
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "eutraCellId": "string",
+                  "nid": "string"
+                }
+              ],
+              "ncgis": [
+                {
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "nrCellId": "string",
+                  "nid": "string"
+                }
+              ],
+              "gRanNodeIds": [
+                {
+                  "enbId": "string",
+                  "gnbId": {
+                    "gnbvalue": "string",
+                    "bitLength": 0,
+                    "gNBValue": "string"
+                  },
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "n3IwfId": "string",
+                  "gNbId": {
+                    "gnbvalue": "string",
+                    "bitLength": 0,
+                    "gNBValue": "string"
+                  },
+                  "ngeNbId": "SMacroNGeNB-34B89",
+                  "wagfId": "string",
+                  "tngfId": "string",
+                  "nid": "string",
+                  "eNbId": "string"
+                }
+              ],
+              "tais": [
+                {
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "tac": "string",
+                  "nid": "string"
+                }
+              ]
+            },
+            "umtTime": {
+              "timeOfDay": "string",
+              "dayOfWeek": 0
+            }
+          }
+        ],
+        "trafficProfile": {
+          "trafficProfile": "SINGLE_TRANS_UL"
+        },
+        "batteryIndication": {
+          "batteryInd": true,
+          "replaceableInd": true,
+          "rechargeableInd": true
+        },
+        "validityTime": "2023-07-07T20:17:24.168Z"
+      },
+      "ratFreqs": [
+        {
+          "allFreq": true,
+          "allRat": true,
+          "freq": 0,
+          "ratType": {
+            "ratType": "NR"
+          },
+          "svcExpThreshold": {
+            "congLevel": 0,
+            "nfLoadLevel": 0,
+            "nfCpuUsage": 0,
+            "nfMemoryUsage": 0,
+            "nfStorageUsage": 0,
+            "avgTrafficRate": "string",
+            "maxTrafficRate": "string",
+            "avgPacketDelay": 0,
+            "maxPacketDelay": 0,
+            "avgPacketLossRate": 0,
+            "svcExpLevel": 0
+          },
+          "matchingDir": {
+            "matchingDir": "ASCENDING"
+          }
+        }
+      ],
+      "listOfAnaSubsets": [
+        {
+          "anaSubset": "NUM_OF_UE_REG"
+        }
+      ],
+      "disperReqs": [
+        {
+          "disperType": {
+            "disperType": "DVDA"
+          },
+          "classCriters": [
+            {
+              "disperClass": {
+                "disperClass": "FIXED"
+              },
+              "classThreshold": 0,
+              "thresMatch": {
+                "matchingDir": "ASCENDING"
+              }
+            }
+          ],
+          "rankCriters": [
+            {
+              "highBase": 0,
+              "lowBase": 0
+            }
+          ],
+          "dispOrderCriter": {
+            "dispOrderCriter": "TIME_SLOT_START"
+          },
+          "order": {
+            "matchingDir": "ASCENDING"
+          }
+        }
+      ],
+      "redTransReqs": [
+        {
+          "redTOrderCriter": {
+            "redTOrderCriter": "TIME_SLOT_START"
+          },
+          "order": {
+            "matchingDir": "ASCENDING"
+          }
+        }
+      ],
+      "wlanReqs": [
+        {
+          "ssIds": [
+            "string"
+          ],
+          "bssIds": [
+            "string"
+          ],
+          "wlanOrderCriter": {
+            "wlanOrderCriter": "TIME_SLOT_START"
+          },
+          "order": {
+            "matchingDir": "ASCENDING"
+          }
+        }
+      ],
+      "upfInfo": {
+        "upfId": "string",
+        "upfAddr": {
+          "ipAddr": {
+            "ipv4Addr": "198.51.100.1",
+            "ipv6Addr": "string",
+            "ipv6Prefix": "string"
+          },
+          "fqdn": "string"
+        }
+      },
+      "appServerAddrs": [
+        {
+          "ipAddr": {
+            "ipv4Addr": "198.51.100.1",
+            "ipv6Addr": "string",
+            "ipv6Prefix": "string"
+          },
+          "fqdn": "string"
+        }
+      ],
+      "dnPerfReqs": [
+        {
+          "dnPerfOrderCriter": {
+            "dnPerfOrderCriter": "AVERAGE_TRAFFIC_RATE"
+          },
+          "order": {
+            "matchingDir": "ASCENDING"
+          },
+          "reportThresholds": [
+            {
+              "congLevel": 0,
+              "nfLoadLevel": 0,
+              "nfCpuUsage": 0,
+              "nfMemoryUsage": 0,
+              "nfStorageUsage": 0,
+              "avgTrafficRate": "string",
+              "maxTrafficRate": "string",
+              "avgPacketDelay": 0,
+              "maxPacketDelay": 0,
+              "avgPacketLossRate": 0,
+              "svcExpLevel": 0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "evtReq": {
+    "immRep": true,
+    "notifMethod": {
+      "notifMethod": "THRESHOLD"
+    },
+    "maxReportNbr": 0,
+    "monDur": "2023-07-07T20:17:24.168Z",
+    "repPeriod": 0,
+    "sampRatio": 0,
+    "partitionCriteria": [
+      {
+        "partitionCriteria": "TAC"
+      }
+    ],
+    "grpRepTime": 0,
+    "notifFlag": {
+      "notifFlag": "ACTIVATE"
+    }
+  },
+  "notificationURI": "string",
+  "notifCorrId": "string",
+  "supportedFeatures": "string",
+  "eventNotifications": [
+    {
+      "event": {
+        "type": "SLICE_LOAD_LEVEL"
+      },
+      "start": "2023-07-07T20:17:24.168Z",
+      "expiry": "2023-07-07T20:17:24.168Z",
+      "timeStampGen": "2023-07-07T20:17:24.168Z",
+      "failNotifyCode": {
+        "failureCode": "UNAVAILABLE_DATA"
+      },
+      "rvWaitTime": 0,
+      "anaMetaInfo": {
+        "numSamples": 0,
+        "dataWindow": {
+          "startTime": "2023-07-07T20:17:24.168Z",
+          "stopTime": "2023-07-07T20:17:24.168Z"
+        },
+        "dataStatProps": [
+          {
+            "dataStatProps": "UNIFORM_DIST_DATA"
+          }
+        ],
+        "strategy": {
+          "strategy": "BINARY "
+        },
+        "accuracy": {
+          "accuracy": "LOW"
+        }
+      },
+      "nfLoadLevelInfos": [
+        {
+          "nfType": {
+            "nfType": "NRF"
+          },
+          "nfInstanceId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "nfSetId": "string",
+          "nfStatus": {
+            "statusRegistered": 0,
+            "statusUnregistered": 0,
+            "statusUndiscoverable": 0
+          },
+          "nfCpuUsage": 0,
+          "nfMemoryUsage": 0,
+          "nfStorageUsage": 0,
+          "nfLoadLevelAverage": 0,
+          "nfLoadLevelpeak": 0,
+          "nfLoadAvgInAoi": 0,
+          "snssai": {
+            "sst": 0,
+            "sd": "string"
+          },
+          "confidence": 0
+        }
+      ],
+      "nsiLoadLevelInfos": [
+        {
+          "loadLevelInformation": 0,
+          "snssai": {
+            "sst": 0,
+            "sd": "string"
+          },
+          "nsiId": "string",
+          "resUsage": {
+            "cpuUsage": 0,
+            "memoryUsage": 0,
+            "storageUsage": 0
+          },
+          "numOfExceedLoadLevelThr": 0,
+          "exceedLoadLevelThrInd": true,
+          "networkArea": {
+            "granNodeIds": [
+              {
+                "enbId": "string",
+                "gnbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "n3IwfId": "string",
+                "gNbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "ngeNbId": "SMacroNGeNB-34B89",
+                "wagfId": "string",
+                "tngfId": "string",
+                "nid": "string",
+                "eNbId": "string"
+              }
+            ],
+            "ecgis": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "eutraCellId": "string",
+                "nid": "string"
+              }
+            ],
+            "ncgis": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "nrCellId": "string",
+                "nid": "string"
+              }
+            ],
+            "gRanNodeIds": [
+              {
+                "enbId": "string",
+                "gnbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "n3IwfId": "string",
+                "gNbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "ngeNbId": "SMacroNGeNB-34B89",
+                "wagfId": "string",
+                "tngfId": "string",
+                "nid": "string",
+                "eNbId": "string"
+              }
+            ],
+            "tais": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "tac": "string",
+                "nid": "string"
+              }
+            ]
+          },
+          "timePeriod": {
+            "startTime": "2023-07-07T20:17:24.168Z",
+            "stopTime": "2023-07-07T20:17:24.168Z"
+          },
+          "resUsgThrCrossTimePeriod": [
+            {
+              "startTime": "2023-07-07T20:17:24.168Z",
+              "stopTime": "2023-07-07T20:17:24.168Z"
+            }
+          ],
+          "numOfUes": {
+            "number": 0,
+            "variance": 0,
+            "skewness": 0
+          },
+          "numOfPduSess": {
+            "number": 0,
+            "variance": 0,
+            "skewness": 0
+          },
+          "confidence": 0
+        }
+      ],
+      "sliceLoadLevelInfo": {
+        "loadLevelInformation": 0,
+        "snssais": [
+          {
+            "sst": 0,
+            "sd": "string"
+          }
+        ]
+      },
+      "svcExps": [
+        {
+          "svcExprc": {
+            "mos": 0,
+            "upperRange": 0,
+            "lowerRange": 0
+          },
+          "svcExprcVariance": 0,
+          "supis": [
+            "string"
+          ],
+          "snssai": {
+            "sst": 0,
+            "sd": "string"
+          },
+          "appId": "string",
+          "srvExpcType": {
+            "srvExpcType": "VOICE"
+          },
+          "ueLocs": [
+            {
+              "loc": {
+                "eutraLocation": {
+                  "tai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "tac": "string",
+                    "nid": "string"
+                  },
+                  "ignoreTai": true,
+                  "ecgi": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "eutraCellId": "string",
+                    "nid": "string"
+                  },
+                  "ignoreEcgi": true,
+                  "ageOfLocationInformation": 0,
+                  "ueLocationTimestamp": "2023-07-07T20:17:24.168Z",
+                  "geographicalInformation": "string",
+                  "geodeticInformation": "string",
+                  "globalNgenbId": {
+                    "enbId": "string",
+                    "gnbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "n3IwfId": "string",
+                    "gNbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "ngeNbId": "SMacroNGeNB-34B89",
+                    "wagfId": "string",
+                    "tngfId": "string",
+                    "nid": "string",
+                    "eNbId": "string"
+                  },
+                  "globalENbId": {
+                    "enbId": "string",
+                    "gnbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "n3IwfId": "string",
+                    "gNbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "ngeNbId": "SMacroNGeNB-34B89",
+                    "wagfId": "string",
+                    "tngfId": "string",
+                    "nid": "string",
+                    "eNbId": "string"
+                  }
+                },
+                "nrLocation": {
+                  "tai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "tac": "string",
+                    "nid": "string"
+                  },
+                  "ncgi": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "nrCellId": "string",
+                    "nid": "string"
+                  },
+                  "ignoreNcgi": true,
+                  "ageOfLocationInformation": 0,
+                  "ueLocationTimestamp": "2023-07-07T20:17:24.168Z",
+                  "geographicalInformation": "string",
+                  "geodeticInformation": "string",
+                  "globalGnbId": {
+                    "enbId": "string",
+                    "gnbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "n3IwfId": "string",
+                    "gNbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "ngeNbId": "SMacroNGeNB-34B89",
+                    "wagfId": "string",
+                    "tngfId": "string",
+                    "nid": "string",
+                    "eNbId": "string"
+                  }
+                },
+                "n3gaLocation": {
+                  "n3gppTai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "tac": "string",
+                    "nid": "string"
+                  },
+                  "n3IwfId": "string",
+                  "ueIpv4Addr": "198.51.100.1",
+                  "ueIpv6Addr": "string",
+                  "portNumber": 0,
+                  "protocol": {
+                    "transportProtocol": "UDP"
+                  },
+                  "tnapId": {
+                    "ssId": "string",
+                    "bssId": "string",
+                    "civicAddress": "string"
+                  },
+                  "twapId": {
+                    "ssId": "string",
+                    "bssId": "string",
+                    "civicAddress": "string"
+                  },
+                  "hfcNodeId": {
+                    "hfcNId": "string"
+                  },
+                  "gli": {},
+                  "w5gbanLineType": {
+                    "ltype": "DSL",
+                    "lType": "DSL"
+                  },
+                  "gci": "string"
+                },
+                "utraLocation": {
+                  "cgi": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "cellId": "string"
+                  },
+                  "sai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "sac": "string"
+                  },
+                  "lai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string"
+                  },
+                  "rai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "rac": "string"
+                  },
+                  "ageOfLocationInformation": 0,
+                  "ueLocationTimestamp": "2023-07-07T20:17:24.168Z",
+                  "geographicalInformation": "string",
+                  "geodeticInformation": "string"
+                },
+                "geraLocation": {
+                  "locationNumber": "string",
+                  "cgi": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "cellId": "string"
+                  },
+                  "rai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "rac": "string"
+                  },
+                  "sai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "sac": "string"
+                  },
+                  "lai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string"
+                  },
+                  "vlrNumber": "string",
+                  "mscNumber": "string",
+                  "ageOfLocationInformation": 0,
+                  "ueLocationTimestamp": "2023-07-07T20:17:24.168Z",
+                  "geographicalInformation": "string",
+                  "geodeticInformation": "string"
+                }
+              },
+              "ratio": 0,
+              "confidence": 0
+            }
+          ],
+          "upfInfo": {
+            "upfId": "string",
+            "upfAddr": {
+              "ipAddr": {
+                "ipv4Addr": "198.51.100.1",
+                "ipv6Addr": "string",
+                "ipv6Prefix": "string"
+              },
+              "fqdn": "string"
+            }
+          },
+          "dnai": "string",
+          "appServerInst": {
+            "ipAddr": {
+              "ipv4Addr": "198.51.100.1",
+              "ipv6Addr": "string",
+              "ipv6Prefix": "string"
+            },
+            "fqdn": "string"
+          },
+          "confidence": 0,
+          "dnn": "string",
+          "networkArea": {
+            "granNodeIds": [
+              {
+                "enbId": "string",
+                "gnbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "n3IwfId": "string",
+                "gNbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "ngeNbId": "SMacroNGeNB-34B89",
+                "wagfId": "string",
+                "tngfId": "string",
+                "nid": "string",
+                "eNbId": "string"
+              }
+            ],
+            "ecgis": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "eutraCellId": "string",
+                "nid": "string"
+              }
+            ],
+            "ncgis": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "nrCellId": "string",
+                "nid": "string"
+              }
+            ],
+            "gRanNodeIds": [
+              {
+                "enbId": "string",
+                "gnbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "n3IwfId": "string",
+                "gNbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "ngeNbId": "SMacroNGeNB-34B89",
+                "wagfId": "string",
+                "tngfId": "string",
+                "nid": "string",
+                "eNbId": "string"
+              }
+            ],
+            "tais": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "tac": "string",
+                "nid": "string"
+              }
+            ]
+          },
+          "nsiId": "string",
+          "ratio": 0,
+          "ratFreq": {
+            "allFreq": true,
+            "allRat": true,
+            "freq": 0,
+            "ratType": {
+              "ratType": "NR"
+            },
+            "svcExpThreshold": {
+              "congLevel": 0,
+              "nfLoadLevel": 0,
+              "nfCpuUsage": 0,
+              "nfMemoryUsage": 0,
+              "nfStorageUsage": 0,
+              "avgTrafficRate": "string",
+              "maxTrafficRate": "string",
+              "avgPacketDelay": 0,
+              "maxPacketDelay": 0,
+              "avgPacketLossRate": 0,
+              "svcExpLevel": 0
+            },
+            "matchingDir": {
+              "matchingDir": "ASCENDING"
+            }
+          }
+        }
+      ],
+      "qosSustainInfos": [
+        {
+          "areaInfo": {
+            "granNodeIds": [
+              {
+                "enbId": "string",
+                "gnbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "n3IwfId": "string",
+                "gNbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "ngeNbId": "SMacroNGeNB-34B89",
+                "wagfId": "string",
+                "tngfId": "string",
+                "nid": "string",
+                "eNbId": "string"
+              }
+            ],
+            "ecgis": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "eutraCellId": "string",
+                "nid": "string"
+              }
+            ],
+            "ncgis": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "nrCellId": "string",
+                "nid": "string"
+              }
+            ],
+            "gRanNodeIds": [
+              {
+                "enbId": "string",
+                "gnbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "n3IwfId": "string",
+                "gNbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "ngeNbId": "SMacroNGeNB-34B89",
+                "wagfId": "string",
+                "tngfId": "string",
+                "nid": "string",
+                "eNbId": "string"
+              }
+            ],
+            "tais": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "tac": "string",
+                "nid": "string"
+              }
+            ]
+          },
+          "startTs": "2023-07-07T20:17:24.168Z",
+          "endTs": "2023-07-07T20:17:24.168Z",
+          "qosFlowRetThd": {
+            "relFlowNum": 0,
+            "relTimeUnit": {
+              "relTimeUnit": "MINUTE"
+            },
+            "relFlowRatio": 0
+          },
+          "ranUeThrouThd": "string",
+          "snssai": {
+            "sst": 0,
+            "sd": "string"
+          },
+          "confidence": 0
+        }
+      ],
+      "ueComms": [
+        {
+          "commDur": 0,
+          "commDurVariance": 0,
+          "perioTime": 0,
+          "perioTimeVariance": 0,
+          "ts": "2023-07-07T20:17:24.168Z",
+          "tsVariance": 0,
+          "recurringTime": {
+            "daysOfWeek": [
+              0
+            ],
+            "timeOfDayStart": "string",
+            "timeOfDayEnd": "string"
+          },
+          "trafChar": {
+            "fdescs": [
+              {
+                "ipTrafficFilter": "string",
+                "ethTrafficFilter": {
+                  "fdir": {
+                    "fdir": "DOWNLINK",
+                    "fDir": "DOWNLINK"
+                  },
+                  "fdesc": "string",
+                  "destMacAddr": "string",
+                  "ethType": "string",
+                  "fDesc": "string",
+                  "fDir": {
+                    "fdir": "DOWNLINK",
+                    "fDir": "DOWNLINK"
+                  },
+                  "sourceMacAddr": "string",
+                  "vlanTags": [
+                    "string"
+                  ],
+                  "srcMacAddrEnd": "string",
+                  "destMacAddrEnd": "string"
+                }
+              }
+            ],
+            "dnn": "string",
+            "snssai": {
+              "sst": 0,
+              "sd": "string"
+            },
+            "appId": "string",
+            "fDescs": [
+              {
+                "ipTrafficFilter": "string",
+                "ethTrafficFilter": {
+                  "fdir": {
+                    "fdir": "DOWNLINK",
+                    "fDir": "DOWNLINK"
+                  },
+                  "fdesc": "string",
+                  "destMacAddr": "string",
+                  "ethType": "string",
+                  "fDesc": "string",
+                  "fDir": {
+                    "fdir": "DOWNLINK",
+                    "fDir": "DOWNLINK"
+                  },
+                  "sourceMacAddr": "string",
+                  "vlanTags": [
+                    "string"
+                  ],
+                  "srcMacAddrEnd": "string",
+                  "destMacAddrEnd": "string"
+                }
+              }
+            ],
+            "ulVol": 0,
+            "ulVolVariance": 0,
+            "dlVol": 0,
+            "dlVolVariance": 0
+          },
+          "ratio": 0,
+          "perioCommInd": true,
+          "confidence": 0,
+          "anaOfAppList": {
+            "appId": "string",
+            "startTime": "2023-07-07T20:17:24.168Z",
+            "appDur": 0,
+            "occurRatio": 0,
+            "spatialValidity": {
+              "granNodeIds": [
+                {
+                  "enbId": "string",
+                  "gnbId": {
+                    "gnbvalue": "string",
+                    "bitLength": 0,
+                    "gNBValue": "string"
+                  },
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "n3IwfId": "string",
+                  "gNbId": {
+                    "gnbvalue": "string",
+                    "bitLength": 0,
+                    "gNBValue": "string"
+                  },
+                  "ngeNbId": "SMacroNGeNB-34B89",
+                  "wagfId": "string",
+                  "tngfId": "string",
+                  "nid": "string",
+                  "eNbId": "string"
+                }
+              ],
+              "ecgis": [
+                {
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "eutraCellId": "string",
+                  "nid": "string"
+                }
+              ],
+              "ncgis": [
+                {
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "nrCellId": "string",
+                  "nid": "string"
+                }
+              ],
+              "gRanNodeIds": [
+                {
+                  "enbId": "string",
+                  "gnbId": {
+                    "gnbvalue": "string",
+                    "bitLength": 0,
+                    "gNBValue": "string"
+                  },
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "n3IwfId": "string",
+                  "gNbId": {
+                    "gnbvalue": "string",
+                    "bitLength": 0,
+                    "gNBValue": "string"
+                  },
+                  "ngeNbId": "SMacroNGeNB-34B89",
+                  "wagfId": "string",
+                  "tngfId": "string",
+                  "nid": "string",
+                  "eNbId": "string"
+                }
+              ],
+              "tais": [
+                {
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "tac": "string",
+                  "nid": "string"
+                }
+              ]
+            }
+          },
+          "sessInactTimer": {
+            "n4SessId": 0,
+            "sessInactiveTimer": 0
+          }
+        }
+      ],
+      "ueMobs": [
+        {
+          "ts": "2023-07-07T20:17:24.168Z",
+          "recurringTime": {
+            "daysOfWeek": [
+              0
+            ],
+            "timeOfDayStart": "string",
+            "timeOfDayEnd": "string"
+          },
+          "duration": 0,
+          "durationVariance": 0,
+          "locInfos": [
+            {
+              "loc": {
+                "eutraLocation": {
+                  "tai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "tac": "string",
+                    "nid": "string"
+                  },
+                  "ignoreTai": true,
+                  "ecgi": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "eutraCellId": "string",
+                    "nid": "string"
+                  },
+                  "ignoreEcgi": true,
+                  "ageOfLocationInformation": 0,
+                  "ueLocationTimestamp": "2023-07-07T20:17:24.168Z",
+                  "geographicalInformation": "string",
+                  "geodeticInformation": "string",
+                  "globalNgenbId": {
+                    "enbId": "string",
+                    "gnbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "n3IwfId": "string",
+                    "gNbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "ngeNbId": "SMacroNGeNB-34B89",
+                    "wagfId": "string",
+                    "tngfId": "string",
+                    "nid": "string",
+                    "eNbId": "string"
+                  },
+                  "globalENbId": {
+                    "enbId": "string",
+                    "gnbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "n3IwfId": "string",
+                    "gNbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "ngeNbId": "SMacroNGeNB-34B89",
+                    "wagfId": "string",
+                    "tngfId": "string",
+                    "nid": "string",
+                    "eNbId": "string"
+                  }
+                },
+                "nrLocation": {
+                  "tai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "tac": "string",
+                    "nid": "string"
+                  },
+                  "ncgi": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "nrCellId": "string",
+                    "nid": "string"
+                  },
+                  "ignoreNcgi": true,
+                  "ageOfLocationInformation": 0,
+                  "ueLocationTimestamp": "2023-07-07T20:17:24.169Z",
+                  "geographicalInformation": "string",
+                  "geodeticInformation": "string",
+                  "globalGnbId": {
+                    "enbId": "string",
+                    "gnbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "n3IwfId": "string",
+                    "gNbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "ngeNbId": "SMacroNGeNB-34B89",
+                    "wagfId": "string",
+                    "tngfId": "string",
+                    "nid": "string",
+                    "eNbId": "string"
+                  }
+                },
+                "n3gaLocation": {
+                  "n3gppTai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "tac": "string",
+                    "nid": "string"
+                  },
+                  "n3IwfId": "string",
+                  "ueIpv4Addr": "198.51.100.1",
+                  "ueIpv6Addr": "string",
+                  "portNumber": 0,
+                  "protocol": {
+                    "transportProtocol": "UDP"
+                  },
+                  "tnapId": {
+                    "ssId": "string",
+                    "bssId": "string",
+                    "civicAddress": "string"
+                  },
+                  "twapId": {
+                    "ssId": "string",
+                    "bssId": "string",
+                    "civicAddress": "string"
+                  },
+                  "hfcNodeId": {
+                    "hfcNId": "string"
+                  },
+                  "gli": {},
+                  "w5gbanLineType": {
+                    "ltype": "DSL",
+                    "lType": "DSL"
+                  },
+                  "gci": "string"
+                },
+                "utraLocation": {
+                  "cgi": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "cellId": "string"
+                  },
+                  "sai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "sac": "string"
+                  },
+                  "lai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string"
+                  },
+                  "rai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "rac": "string"
+                  },
+                  "ageOfLocationInformation": 0,
+                  "ueLocationTimestamp": "2023-07-07T20:17:24.169Z",
+                  "geographicalInformation": "string",
+                  "geodeticInformation": "string"
+                },
+                "geraLocation": {
+                  "locationNumber": "string",
+                  "cgi": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "cellId": "string"
+                  },
+                  "rai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "rac": "string"
+                  },
+                  "sai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "sac": "string"
+                  },
+                  "lai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string"
+                  },
+                  "vlrNumber": "string",
+                  "mscNumber": "string",
+                  "ageOfLocationInformation": 0,
+                  "ueLocationTimestamp": "2023-07-07T20:17:24.169Z",
+                  "geographicalInformation": "string",
+                  "geodeticInformation": "string"
+                }
+              },
+              "ratio": 0,
+              "confidence": 0
+            }
+          ]
+        }
+      ],
+      "userDataCongInfos": [
+        {
+          "networkArea": {
+            "granNodeIds": [
+              {
+                "enbId": "string",
+                "gnbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "n3IwfId": "string",
+                "gNbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "ngeNbId": "SMacroNGeNB-34B89",
+                "wagfId": "string",
+                "tngfId": "string",
+                "nid": "string",
+                "eNbId": "string"
+              }
+            ],
+            "ecgis": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "eutraCellId": "string",
+                "nid": "string"
+              }
+            ],
+            "ncgis": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "nrCellId": "string",
+                "nid": "string"
+              }
+            ],
+            "gRanNodeIds": [
+              {
+                "enbId": "string",
+                "gnbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "n3IwfId": "string",
+                "gNbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "ngeNbId": "SMacroNGeNB-34B89",
+                "wagfId": "string",
+                "tngfId": "string",
+                "nid": "string",
+                "eNbId": "string"
+              }
+            ],
+            "tais": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "tac": "string",
+                "nid": "string"
+              }
+            ]
+          },
+          "congestionInfo": {
+            "congType": {
+              "congType": "USER_PLANE"
+            },
+            "timeIntev": {
+              "startTime": "2023-07-07T20:17:24.169Z",
+              "stopTime": "2023-07-07T20:17:24.169Z"
+            },
+            "nsi": {
+              "congLevel": 0,
+              "nfLoadLevel": 0,
+              "nfCpuUsage": 0,
+              "nfMemoryUsage": 0,
+              "nfStorageUsage": 0,
+              "avgTrafficRate": "string",
+              "maxTrafficRate": "string",
+              "avgPacketDelay": 0,
+              "maxPacketDelay": 0,
+              "avgPacketLossRate": 0,
+              "svcExpLevel": 0
+            },
+            "confidence": 0,
+            "topAppListUl": [
+              {
+                "appId": "string",
+                "ipTrafficFilter": {
+                  "flowId": 0,
+                  "flowDescriptions": [
+                    "string"
+                  ]
+                },
+                "ratio": 0
+              }
+            ],
+            "topAppListDl": [
+              {
+                "appId": "string",
+                "ipTrafficFilter": {
+                  "flowId": 0,
+                  "flowDescriptions": [
+                    "string"
+                  ]
+                },
+                "ratio": 0
+              }
+            ]
+          },
+          "snssai": {
+            "sst": 0,
+            "sd": "string"
+          }
+        }
+      ],
+      "abnorBehavrs": [
+        {
+          "supis": [
+            "string"
+          ],
+          "excep": {
+            "excepId": {
+              "excepId": "NUM_OF_SAMPLES"
+            },
+            "excepLevel": 0,
+            "excepTrend": {
+              "excepTrend": "UP"
+            }
+          },
+          "dnn": "string",
+          "snssai": {
+            "sst": 0,
+            "sd": "string"
+          },
+          "ratio": 0,
+          "confidence": 0,
+          "addtMeasInfo": {
+            "unexpLoc": {
+              "granNodeIds": [
+                {
+                  "enbId": "string",
+                  "gnbId": {
+                    "gnbvalue": "string",
+                    "bitLength": 0,
+                    "gNBValue": "string"
+                  },
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "n3IwfId": "string",
+                  "gNbId": {
+                    "gnbvalue": "string",
+                    "bitLength": 0,
+                    "gNBValue": "string"
+                  },
+                  "ngeNbId": "SMacroNGeNB-34B89",
+                  "wagfId": "string",
+                  "tngfId": "string",
+                  "nid": "string",
+                  "eNbId": "string"
+                }
+              ],
+              "ecgis": [
+                {
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "eutraCellId": "string",
+                  "nid": "string"
+                }
+              ],
+              "ncgis": [
+                {
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "nrCellId": "string",
+                  "nid": "string"
+                }
+              ],
+              "gRanNodeIds": [
+                {
+                  "enbId": "string",
+                  "gnbId": {
+                    "gnbvalue": "string",
+                    "bitLength": 0,
+                    "gNBValue": "string"
+                  },
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "n3IwfId": "string",
+                  "gNbId": {
+                    "gnbvalue": "string",
+                    "bitLength": 0,
+                    "gNBValue": "string"
+                  },
+                  "ngeNbId": "SMacroNGeNB-34B89",
+                  "wagfId": "string",
+                  "tngfId": "string",
+                  "nid": "string",
+                  "eNbId": "string"
+                }
+              ],
+              "tais": [
+                {
+                  "plmnId": {
+                    "mcc": "string",
+                    "mnc": "string"
+                  },
+                  "tac": "string",
+                  "nid": "string"
+                }
+              ]
+            },
+            "unexpFlowTeps": [
+              {
+                "ipTrafficFilter": "string",
+                "ethTrafficFilter": {
+                  "fdir": {
+                    "fdir": "DOWNLINK",
+                    "fDir": "DOWNLINK"
+                  },
+                  "fdesc": "string",
+                  "destMacAddr": "string",
+                  "ethType": "string",
+                  "fDesc": "string",
+                  "fDir": {
+                    "fdir": "DOWNLINK",
+                    "fDir": "DOWNLINK"
+                  },
+                  "sourceMacAddr": "string",
+                  "vlanTags": [
+                    "string"
+                  ],
+                  "srcMacAddrEnd": "string",
+                  "destMacAddrEnd": "string"
+                }
+              }
+            ],
+            "unexpWakes": [
+              "2023-07-07T20:17:24.169Z"
+            ],
+            "ddosAttack": {
+              "ipv4Addrs": [
+                "string"
+              ],
+              "ipv6Addrs": [
+                "string"
+              ]
+            },
+            "wrgDest": {
+              "ipv4Addrs": [
+                "string"
+              ],
+              "ipv6Addrs": [
+                "string"
+              ]
+            },
+            "circums": [
+              {
+                "freq": 0,
+                "tm": "2023-07-07T20:17:24.169Z",
+                "locArea": {
+                  "granNodeIds": [
+                    {
+                      "enbId": "string",
+                      "gnbId": {
+                        "gnbvalue": "string",
+                        "bitLength": 0,
+                        "gNBValue": "string"
+                      },
+                      "plmnId": {
+                        "mcc": "string",
+                        "mnc": "string"
+                      },
+                      "n3IwfId": "string",
+                      "gNbId": {
+                        "gnbvalue": "string",
+                        "bitLength": 0,
+                        "gNBValue": "string"
+                      },
+                      "ngeNbId": "SMacroNGeNB-34B89",
+                      "wagfId": "string",
+                      "tngfId": "string",
+                      "nid": "string",
+                      "eNbId": "string"
+                    }
+                  ],
+                  "ecgis": [
+                    {
+                      "plmnId": {
+                        "mcc": "string",
+                        "mnc": "string"
+                      },
+                      "eutraCellId": "string",
+                      "nid": "string"
+                    }
+                  ],
+                  "ncgis": [
+                    {
+                      "plmnId": {
+                        "mcc": "string",
+                        "mnc": "string"
+                      },
+                      "nrCellId": "string",
+                      "nid": "string"
+                    }
+                  ],
+                  "gRanNodeIds": [
+                    {
+                      "enbId": "string",
+                      "gnbId": {
+                        "gnbvalue": "string",
+                        "bitLength": 0,
+                        "gNBValue": "string"
+                      },
+                      "plmnId": {
+                        "mcc": "string",
+                        "mnc": "string"
+                      },
+                      "n3IwfId": "string",
+                      "gNbId": {
+                        "gnbvalue": "string",
+                        "bitLength": 0,
+                        "gNBValue": "string"
+                      },
+                      "ngeNbId": "SMacroNGeNB-34B89",
+                      "wagfId": "string",
+                      "tngfId": "string",
+                      "nid": "string",
+                      "eNbId": "string"
+                    }
+                  ],
+                  "tais": [
+                    {
+                      "plmnId": {
+                        "mcc": "string",
+                        "mnc": "string"
+                      },
+                      "tac": "string",
+                      "nid": "string"
+                    }
+                  ]
+                },
+                "vol": 0
+              }
+            ]
+          }
+        }
+      ],
+      "nwPerfs": [
+        {
+          "networkArea": {
+            "granNodeIds": [
+              {
+                "enbId": "string",
+                "gnbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "n3IwfId": "string",
+                "gNbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "ngeNbId": "SMacroNGeNB-34B89",
+                "wagfId": "string",
+                "tngfId": "string",
+                "nid": "string",
+                "eNbId": "string"
+              }
+            ],
+            "ecgis": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "eutraCellId": "string",
+                "nid": "string"
+              }
+            ],
+            "ncgis": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "nrCellId": "string",
+                "nid": "string"
+              }
+            ],
+            "gRanNodeIds": [
+              {
+                "enbId": "string",
+                "gnbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "n3IwfId": "string",
+                "gNbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "ngeNbId": "SMacroNGeNB-34B89",
+                "wagfId": "string",
+                "tngfId": "string",
+                "nid": "string",
+                "eNbId": "string"
+              }
+            ],
+            "tais": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "tac": "string",
+                "nid": "string"
+              }
+            ]
+          },
+          "nwPerfType": {
+            "nwPerfType": "GNB_ACTIVE_RATIO"
+          },
+          "relativeRatio": 0,
+          "absoluteNum": 0,
+          "confidence": 0
+        }
+      ],
+      "dnPerfInfos": [
+        {
+          "appId": "string",
+          "dnn": "string",
+          "snssai": {
+            "sst": 0,
+            "sd": "string"
+          },
+          "dnPerf": [
+            {
+              "appServerInsAddr": {
+                "ipAddr": {
+                  "ipv4Addr": "198.51.100.1",
+                  "ipv6Addr": "string",
+                  "ipv6Prefix": "string"
+                },
+                "fqdn": "string"
+              },
+              "upfInfo": {
+                "upfId": "string",
+                "upfAddr": {
+                  "ipAddr": {
+                    "ipv4Addr": "198.51.100.1",
+                    "ipv6Addr": "string",
+                    "ipv6Prefix": "string"
+                  },
+                  "fqdn": "string"
+                }
+              },
+              "dnai": "string",
+              "perfData": {
+                "avgTrafficRate": "string",
+                "maxTrafficRate": "string",
+                "avePacketDelay": 0,
+                "maxPacketDelay": 0,
+                "avgPacketLossRate": 0
+              },
+              "spatialValidCon": {
+                "granNodeIds": [
+                  {
+                    "enbId": "string",
+                    "gnbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "n3IwfId": "string",
+                    "gNbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "ngeNbId": "SMacroNGeNB-34B89",
+                    "wagfId": "string",
+                    "tngfId": "string",
+                    "nid": "string",
+                    "eNbId": "string"
+                  }
+                ],
+                "ecgis": [
+                  {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "eutraCellId": "string",
+                    "nid": "string"
+                  }
+                ],
+                "ncgis": [
+                  {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "nrCellId": "string",
+                    "nid": "string"
+                  }
+                ],
+                "gRanNodeIds": [
+                  {
+                    "enbId": "string",
+                    "gnbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "n3IwfId": "string",
+                    "gNbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "ngeNbId": "SMacroNGeNB-34B89",
+                    "wagfId": "string",
+                    "tngfId": "string",
+                    "nid": "string",
+                    "eNbId": "string"
+                  }
+                ],
+                "tais": [
+                  {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "tac": "string",
+                    "nid": "string"
+                  }
+                ]
+              },
+              "temporalValidCon": {
+                "startTime": "2023-07-07T20:17:24.169Z",
+                "stopTime": "2023-07-07T20:17:24.169Z"
+              }
+            }
+          ],
+          "confidence": 0
+        }
+      ],
+      "disperInfos": [
+        {
+          "tsStart": "2023-07-07T20:17:24.169Z",
+          "tsDuration": 0,
+          "disperCollects": [
+            {
+              "ueLoc": {
+                "eutraLocation": {
+                  "tai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "tac": "string",
+                    "nid": "string"
+                  },
+                  "ignoreTai": true,
+                  "ecgi": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "eutraCellId": "string",
+                    "nid": "string"
+                  },
+                  "ignoreEcgi": true,
+                  "ageOfLocationInformation": 0,
+                  "ueLocationTimestamp": "2023-07-07T20:17:24.169Z",
+                  "geographicalInformation": "string",
+                  "geodeticInformation": "string",
+                  "globalNgenbId": {
+                    "enbId": "string",
+                    "gnbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "n3IwfId": "string",
+                    "gNbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "ngeNbId": "SMacroNGeNB-34B89",
+                    "wagfId": "string",
+                    "tngfId": "string",
+                    "nid": "string",
+                    "eNbId": "string"
+                  },
+                  "globalENbId": {
+                    "enbId": "string",
+                    "gnbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "n3IwfId": "string",
+                    "gNbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "ngeNbId": "SMacroNGeNB-34B89",
+                    "wagfId": "string",
+                    "tngfId": "string",
+                    "nid": "string",
+                    "eNbId": "string"
+                  }
+                },
+                "nrLocation": {
+                  "tai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "tac": "string",
+                    "nid": "string"
+                  },
+                  "ncgi": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "nrCellId": "string",
+                    "nid": "string"
+                  },
+                  "ignoreNcgi": true,
+                  "ageOfLocationInformation": 0,
+                  "ueLocationTimestamp": "2023-07-07T20:17:24.169Z",
+                  "geographicalInformation": "string",
+                  "geodeticInformation": "string",
+                  "globalGnbId": {
+                    "enbId": "string",
+                    "gnbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "n3IwfId": "string",
+                    "gNbId": {
+                      "gnbvalue": "string",
+                      "bitLength": 0,
+                      "gNBValue": "string"
+                    },
+                    "ngeNbId": "SMacroNGeNB-34B89",
+                    "wagfId": "string",
+                    "tngfId": "string",
+                    "nid": "string",
+                    "eNbId": "string"
+                  }
+                },
+                "n3gaLocation": {
+                  "n3gppTai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "tac": "string",
+                    "nid": "string"
+                  },
+                  "n3IwfId": "string",
+                  "ueIpv4Addr": "198.51.100.1",
+                  "ueIpv6Addr": "string",
+                  "portNumber": 0,
+                  "protocol": {
+                    "transportProtocol": "UDP"
+                  },
+                  "tnapId": {
+                    "ssId": "string",
+                    "bssId": "string",
+                    "civicAddress": "string"
+                  },
+                  "twapId": {
+                    "ssId": "string",
+                    "bssId": "string",
+                    "civicAddress": "string"
+                  },
+                  "hfcNodeId": {
+                    "hfcNId": "string"
+                  },
+                  "gli": {},
+                  "w5gbanLineType": {
+                    "ltype": "DSL",
+                    "lType": "DSL"
+                  },
+                  "gci": "string"
+                },
+                "utraLocation": {
+                  "cgi": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "cellId": "string"
+                  },
+                  "sai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "sac": "string"
+                  },
+                  "lai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string"
+                  },
+                  "rai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "rac": "string"
+                  },
+                  "ageOfLocationInformation": 0,
+                  "ueLocationTimestamp": "2023-07-07T20:17:24.169Z",
+                  "geographicalInformation": "string",
+                  "geodeticInformation": "string"
+                },
+                "geraLocation": {
+                  "locationNumber": "string",
+                  "cgi": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "cellId": "string"
+                  },
+                  "rai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "rac": "string"
+                  },
+                  "sai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string",
+                    "sac": "string"
+                  },
+                  "lai": {
+                    "plmnId": {
+                      "mcc": "string",
+                      "mnc": "string"
+                    },
+                    "lac": "string"
+                  },
+                  "vlrNumber": "string",
+                  "mscNumber": "string",
+                  "ageOfLocationInformation": 0,
+                  "ueLocationTimestamp": "2023-07-07T20:17:24.169Z",
+                  "geographicalInformation": "string",
+                  "geodeticInformation": "string"
+                }
+              },
+              "snssai": {
+                "sst": 0,
+                "sd": "string"
+              },
+              "supis": [
+                "string"
+              ],
+              "gpsis": [
+                "string"
+              ],
+              "appVolumes": [
+                {
+                  "appId": "string",
+                  "appVolume": 0
+                }
+              ],
+              "disperAmount": 0,
+              "disperClass": {
+                "disperClass": "FIXED"
+              },
+              "usageRank": 0,
+              "percentileRank": 0,
+              "ueRatio": 0,
+              "confidence": 0
+            }
+          ],
+          "disperType": {
+            "disperType": "DVDA"
+          }
+        }
+      ],
+      "redTransInfos": [
+        {
+          "spatialValidCon": {
+            "granNodeIds": [
+              {
+                "enbId": "string",
+                "gnbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "n3IwfId": "string",
+                "gNbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "ngeNbId": "SMacroNGeNB-34B89",
+                "wagfId": "string",
+                "tngfId": "string",
+                "nid": "string",
+                "eNbId": "string"
+              }
+            ],
+            "ecgis": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "eutraCellId": "string",
+                "nid": "string"
+              }
+            ],
+            "ncgis": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "nrCellId": "string",
+                "nid": "string"
+              }
+            ],
+            "gRanNodeIds": [
+              {
+                "enbId": "string",
+                "gnbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "n3IwfId": "string",
+                "gNbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "ngeNbId": "SMacroNGeNB-34B89",
+                "wagfId": "string",
+                "tngfId": "string",
+                "nid": "string",
+                "eNbId": "string"
+              }
+            ],
+            "tais": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "tac": "string",
+                "nid": "string"
+              }
+            ]
+          },
+          "dnn": "string",
+          "redTransExps": [
+            {
+              "tsStart": "2023-07-07T20:17:24.169Z",
+              "tsDuration": 0,
+              "obsvRedTransExp": {
+                "avgPktDropRateUl": 0,
+                "varPktDropRateUl": 0,
+                "avgPktDropRateDl": 0,
+                "varPktDropRateDl": 0,
+                "avgPktDelayUl": 0,
+                "varPktDelayUl": 0,
+                "avgPktDelayDl": 0,
+                "varPktDelayDl": 0
+              },
+              "redTransStatus": true,
+              "ueRatio": 0,
+              "confidence": 0
+            }
+          ]
+        }
+      ],
+      "wlanInfos": [
+        {
+          "networkArea": {
+            "granNodeIds": [
+              {
+                "enbId": "string",
+                "gnbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "n3IwfId": "string",
+                "gNbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "ngeNbId": "SMacroNGeNB-34B89",
+                "wagfId": "string",
+                "tngfId": "string",
+                "nid": "string",
+                "eNbId": "string"
+              }
+            ],
+            "ecgis": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "eutraCellId": "string",
+                "nid": "string"
+              }
+            ],
+            "ncgis": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "nrCellId": "string",
+                "nid": "string"
+              }
+            ],
+            "gRanNodeIds": [
+              {
+                "enbId": "string",
+                "gnbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "n3IwfId": "string",
+                "gNbId": {
+                  "gnbvalue": "string",
+                  "bitLength": 0,
+                  "gNBValue": "string"
+                },
+                "ngeNbId": "SMacroNGeNB-34B89",
+                "wagfId": "string",
+                "tngfId": "string",
+                "nid": "string",
+                "eNbId": "string"
+              }
+            ],
+            "tais": [
+              {
+                "plmnId": {
+                  "mcc": "string",
+                  "mnc": "string"
+                },
+                "tac": "string",
+                "nid": "string"
+              }
+            ]
+          },
+          "wlanPerSsidInfos": [
+            {
+              "ssId": "string",
+              "wlanPerTsInfos": [
+                {
+                  "tsStart": "2023-07-07T20:17:24.169Z",
+                  "tsDuration": 0,
+                  "rssi": 0,
+                  "rtt": 0,
+                  "trafficInfo": {
+                    "uplinkRate": "string",
+                    "downlinkRate": "string",
+                    "uplinkVolume": 0,
+                    "downlinkVolume": 0,
+                    "totalVolume": 0
+                  },
+                  "numberOfUes": 0,
+                  "confidence": 0
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "smccExps": [
+        {
+          "dnn": "string",
+          "snssai": {
+            "sst": 0,
+            "sd": "string"
+          },
+          "smcceUeList": {
+            "highLevel": [
+              "string"
+            ],
+            "mediumLevel": [
+              "string"
+            ],
+            "lowLevel": [
+              "string"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "failEventReports": [
+    {
+      "event": {
+        "type": "SLICE_LOAD_LEVEL"
+      },
+      "failureCode": {
+        "failureCode": "UNAVAILABLE_DATA"
+      }
+    }
+  ],
+  "prevSub": {
+    "producerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "producerSetId": "string",
+    "subscriptionId": "string",
+    "nfAnaEvents": [
+      {
+        "type": "SLICE_LOAD_LEVEL"
+      }
+    ],
+    "ueAnaEvents": [
+      {
+        "supi": "string",
+        "anaTypes": [
+          {
+            "type": "SLICE_LOAD_LEVEL"
+          }
+        ]
+      }
+    ]
+  },
+  "consNfInfo": {
+    "nfId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "nfSetId": "string",
+    "taiList": [
+      {
+        "plmnId": {
+          "mcc": "string",
+          "mnc": "string"
+        },
+        "tac": "string",
+        "nid": "string"
+      }
+    ]
+  }
+}

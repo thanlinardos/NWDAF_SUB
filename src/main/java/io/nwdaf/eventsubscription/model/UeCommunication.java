@@ -2,11 +2,6 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.nwdaf.eventsubscription.model.AppListForUeComm;
-import io.nwdaf.eventsubscription.model.ScheduledCommunicationTime;
-import io.nwdaf.eventsubscription.model.SessInactTimerForUeComm;
-import io.nwdaf.eventsubscription.model.TrafficCharacterization;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import org.springframework.validation.annotation.Validated;

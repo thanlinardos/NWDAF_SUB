@@ -1,11 +1,8 @@
-package io.nwdaf.eventsubscription.repository;
+package io.nwdaf.eventsubscription.repository.eventsubscription;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
-import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionTable;
 
 @Repository
 public interface SubscriptionRepository extends JpaRepository<NnwdafEventsSubscriptionTable, Long>{

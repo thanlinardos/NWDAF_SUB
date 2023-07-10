@@ -165,7 +165,7 @@
 			        <ul>
 						<li th:each="j,j_stat: ${p}">
 						<label th:text="*{taiAttributes[__${j_stat.index}__]}"></label>
-				        <input th:field="*{taiList[__${p_stat.index}__][__${j_stat.index}__]}" th:value="${getTaiList(__${p_stat.index}__,__${j_stat.index}__)}" th:pattern="*{taiPatterns[__${j_stat.index}__]}"/>
+				        <input th:field="*{taiList[__${p_stat.index}__][__${j_stat.index}__]}" th:value="*{getTaiList(__${p_stat.index}__,__${j_stat.index}__)}" th:pattern="*{taiPatterns[__${j_stat.index}__]}"/>
 			          	</li>
 		        	</ul>
 			         <button th:if="${p_stat != null}" type="submit" name="removeRowtaiList" 

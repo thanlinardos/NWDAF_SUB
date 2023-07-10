@@ -2,10 +2,6 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.nwdaf.eventsubscription.model.NFType;
-import io.nwdaf.eventsubscription.model.NfStatus;
-import io.nwdaf.eventsubscription.model.Snssai;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import org.springframework.validation.annotation.Validated;

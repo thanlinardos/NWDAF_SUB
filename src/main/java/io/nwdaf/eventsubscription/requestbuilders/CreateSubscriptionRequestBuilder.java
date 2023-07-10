@@ -1,19 +1,11 @@
 package io.nwdaf.eventsubscription.requestbuilders;
 
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.data.util.Pair;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-
 import io.nwdaf.eventsubscription.model.Accuracy;
 import io.nwdaf.eventsubscription.model.Accuracy.AccuracyEnum;
 import io.nwdaf.eventsubscription.model.AddrFqdn;
@@ -59,7 +51,6 @@ import io.nwdaf.eventsubscription.model.ExpectedAnalyticsType;
 import io.nwdaf.eventsubscription.model.ExpectedAnalyticsType.ExpectedAnalyticsTypeEnum;
 import io.nwdaf.eventsubscription.model.ExpectedUeBehaviourData;
 import io.nwdaf.eventsubscription.model.GNbId;
-import io.nwdaf.eventsubscription.model.GeographicArea;
 import io.nwdaf.eventsubscription.model.GeographicalCoordinates;
 import io.nwdaf.eventsubscription.model.NFType;
 import io.nwdaf.eventsubscription.model.NFType.NFTypeEnum;

@@ -10,9 +10,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
-import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionTable;
-import io.nwdaf.eventsubscription.repository.SubscriptionRepository;
-import jakarta.transaction.Transactional;
+import io.nwdaf.eventsubscription.repository.eventsubscription.NnwdafEventsSubscriptionTable;
+import io.nwdaf.eventsubscription.repository.eventsubscription.SubscriptionRepository;
 
 @Service
 public class SubscriptionsService {

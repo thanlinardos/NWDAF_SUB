@@ -2,10 +2,6 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.nwdaf.eventsubscription.model.MatchingDirection;
-import io.nwdaf.eventsubscription.model.RatType;
-import io.nwdaf.eventsubscription.model.ThresholdLevel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;

@@ -2,13 +2,6 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.nwdaf.eventsubscription.model.BatteryIndication;
-import io.nwdaf.eventsubscription.model.LocationArea;
-import io.nwdaf.eventsubscription.model.ScheduledCommunicationTime1;
-import io.nwdaf.eventsubscription.model.ScheduledCommunicationType;
-import io.nwdaf.eventsubscription.model.StationaryIndication;
-import io.nwdaf.eventsubscription.model.TrafficProfile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
