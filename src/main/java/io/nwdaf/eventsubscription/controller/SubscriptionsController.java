@@ -1,17 +1,23 @@
 package io.nwdaf.eventsubscription.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
 import org.apache.tomcat.util.bcel.Const;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.Constants;
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;
@@ -38,6 +44,9 @@ public class SubscriptionsController implements SubscriptionsApi{
 
 	@Autowired
 	NotificationService notificationService;
+	
+	@Autowired
+	private ObjectMapper objectMapper;
 	
 	@Override
 	public ResponseEntity<NnwdafEventsSubscription> createNWDAFEventsSubscription(
@@ -120,7 +129,22 @@ public class SubscriptionsController implements SubscriptionsApi{
 			}
 			
 		}
-
+		List<NnwdafEventsSubscriptionTable> clientSubscriptions = subscriptionService.findAllByNotifURI(body.getNotificationURI());
+		for(int i=0;i<clientSubscriptions.size();i++) {
+//			+", uri: "+(NnwdafEventsSubscription)clientSubscriptions.get(i).getSub().values().toArray()[i]).getNotificationURI()
+			System.out.println("id_"+i+": "+clientSubscriptions.get(i).getId());
+			JSONObject json = new JSONObject(clientSubscriptions.get(i).getSub());
+			try {
+				NnwdafEventsSubscription sub = objectMapper.readValue(json.toString(), NnwdafEventsSubscription.class);
+				System.out.println(sub.getNotificationURI());
+			} catch (JsonMappingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		System.out.println("id="+id);
 		System.out.println(body);
 //		System.out.println(subscriptionService.findOneByNotifURI(env.getProperty("nnwdaf-eventsubscription.client.dev-url")).toString());

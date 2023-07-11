@@ -25,7 +25,7 @@ import jakarta.persistence.EntityManagerFactory;
 @EnableJpaRepositories(
   entityManagerFactoryRef = "eventnotificationEntityManagerFactory",
   transactionManagerRef = "eventnotificationTransactionManager",
-  basePackageClasses = NnwdafNotificationTable.class
+  basePackages = "io.nwdaf.eventsubscription.repository.eventnotification"
 )
 public class EventNotificationDbConfig {
 	@Bean(name="eventnotificationDataSourceProperties")
@@ -33,11 +33,11 @@ public class EventNotificationDbConfig {
 	  public DataSourceProperties eventNotificationProperties() {
 	      return new DataSourceProperties();
 	  }
-	  @Bean(name = "eventnotificationDataSource")
-	  public DataSource eventnotificationDataSource(DataSourceProperties eventNotificationProperties) {
-		    return eventNotificationProperties
-		      .initializeDataSourceBuilder()
-		      .build();
+	@Bean(name = "eventnotificationDataSource")
+	public DataSource eventnotificationDataSource(@Qualifier("eventnotificationDataSourceProperties") DataSourceProperties eventNotificationProperties) {
+		return eventNotificationProperties
+		    .initializeDataSourceBuilder()
+		    .build();
 		}
   
   @Bean(name = "eventnotificationEntityManagerFactory")
@@ -45,20 +45,25 @@ public class EventNotificationDbConfig {
   eventnotificationEntityManagerFactory(@Qualifier("eventnotificationDataSource") DataSource dataSource,
 		  @Qualifier("eventnotificationDataSourceProperties") DataSourceProperties dataSourceProperties
   ) {
-	  HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+	  final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 	  LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 	  factoryBean.setDataSource(eventnotificationDataSource(dataSourceProperties));
+	  factoryBean.setPackagesToScan("io.nwdaf.eventsubscription.repository.eventnotification");
       factoryBean.setJpaVendorAdapter(vendorAdapter);
-      factoryBean.setJpaVendorAdapter(vendorAdapter);
-      factoryBean.setPackagesToScan(EventNotificationDbConfig.class.getPackage().getName());
+      
       return factoryBean;
 	  
   }
   @Bean(name = "eventnotificationTransactionManager")
-  public PlatformTransactionManager eventnotificationTransactionManager(
-    @Qualifier("eventnotificationEntityManagerFactory") LocalContainerEntityManagerFactoryBean 
-    eventnotificationEntityManagerFactory
-  ) {
-    return new JpaTransactionManager(Objects.requireNonNull(eventnotificationEntityManagerFactory.getObject()));
+//  public PlatformTransactionManager eventnotificationTransactionManager(
+//    @Qualifier("eventnotificationEntityManagerFactory") LocalContainerEntityManagerFactoryBean 
+//    eventnotificationEntityManagerFactory
+//  ) {
+//    return new JpaTransactionManager(Objects.requireNonNull(eventnotificationEntityManagerFactory.getObject()));
+//  }
+  public PlatformTransactionManager eventnotificationTransactionManager() {
+      final JpaTransactionManager transactionManager = new JpaTransactionManager();
+      transactionManager.setEntityManagerFactory(eventnotificationEntityManagerFactory(eventnotificationDataSource(eventNotificationProperties()),eventNotificationProperties()).getObject());
+      return transactionManager;
   }
 }

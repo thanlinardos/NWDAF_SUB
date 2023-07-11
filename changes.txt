@@ -68,4 +68,4 @@ Connected to Prometheus and made post request for cpu metrics from any container
 Then did a test by sending a NwdaNotification object to the client every 1 second after pulling the new cpu load
 Connected 2nd postgres database for storing notifications (uses the same server)
 Implemented controller response for notifMethod and repPeriod
-ERROR with storing notif !!
+fixed storing notification (DataSourceConfig was missing Qualifier annotation in notifDbConfig)

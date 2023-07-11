@@ -1,6 +1,7 @@
 package io.nwdaf.eventsubscription.service;
 
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nwdaf.eventsubscription.ClientApplication;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.repository.eventsubscription.NnwdafEventsSubscriptionTable;
 import io.nwdaf.eventsubscription.repository.eventsubscription.SubscriptionRepository;
@@ -33,7 +35,12 @@ public class SubscriptionsService {
 		return repository.save(body_table);
 	}
 	
-//	public NnwdafEventsSubscription findOneByNotifURI(String clientURI) {
-//		return repository.findOneByNotificationURIEquals(clientURI);
-//	}
+	public List<NnwdafEventsSubscriptionTable> findAll() {
+		return repository.findAll();
+	}
+	public List<NnwdafEventsSubscriptionTable> findAllByNotifURI(String clientURI) {
+		final String filter = "'{\"notificationURI\":\""+clientURI+"\"}'";
+		ClientApplication.getLogger().info(filter);
+		return repository.findAllByNotifURI(filter);
+	}
 }
