@@ -1,13 +1,17 @@
 package io.nwdaf.eventsubscription.service;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.ClientApplication;
@@ -35,12 +39,21 @@ public class SubscriptionsService {
 		return repository.save(body_table);
 	}
 	
-	public List<NnwdafEventsSubscriptionTable> findAll() {
-		return repository.findAll();
+	public List<NnwdafEventsSubscription> findAll() throws JsonMappingException, JsonProcessingException {
+		List<NnwdafEventsSubscriptionTable> tables = repository.findAll();
+		List<NnwdafEventsSubscription> res = new ArrayList<>();
+		for(int i=0;i<tables.size();i++) {
+			res.add(objectMapper.readValue((new JSONObject(tables.get(i).getSub())).toString(),NnwdafEventsSubscription.class));
+		}
+		return res;
 	}
-	public List<NnwdafEventsSubscriptionTable> findAllByNotifURI(String clientURI) {
+	public List<NnwdafEventsSubscription> findAllByNotifURI(String clientURI) throws JsonMappingException, JsonProcessingException {
 		final String filter = "'{\"notificationURI\":\""+clientURI+"\"}'";
-		ClientApplication.getLogger().info(filter);
-		return repository.findAllByNotifURI(filter);
+		List<NnwdafEventsSubscriptionTable> tables = repository.findAllByNotifURI(filter);
+		List<NnwdafEventsSubscription> res = new ArrayList<>();
+		for(int i=0;i<tables.size();i++) {
+			res.add(objectMapper.readValue((new JSONObject(tables.get(i).getSub())).toString(),NnwdafEventsSubscription.class));
+		}
+		return res;
 	}
 }
