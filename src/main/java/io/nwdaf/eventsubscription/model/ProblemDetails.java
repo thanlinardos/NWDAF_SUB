@@ -2,10 +2,6 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.nwdaf.eventsubscription.model.AccessTokenErr;
-import io.nwdaf.eventsubscription.model.AccessTokenReq;
-import io.nwdaf.eventsubscription.model.InvalidParam;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;

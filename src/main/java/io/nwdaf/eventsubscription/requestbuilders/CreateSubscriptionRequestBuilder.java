@@ -1,19 +1,11 @@
 package io.nwdaf.eventsubscription.requestbuilders;
 
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.data.util.Pair;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-
 import io.nwdaf.eventsubscription.model.Accuracy;
 import io.nwdaf.eventsubscription.model.Accuracy.AccuracyEnum;
 import io.nwdaf.eventsubscription.model.AddrFqdn;
@@ -59,7 +51,6 @@ import io.nwdaf.eventsubscription.model.ExpectedAnalyticsType;
 import io.nwdaf.eventsubscription.model.ExpectedAnalyticsType.ExpectedAnalyticsTypeEnum;
 import io.nwdaf.eventsubscription.model.ExpectedUeBehaviourData;
 import io.nwdaf.eventsubscription.model.GNbId;
-import io.nwdaf.eventsubscription.model.GeographicArea;
 import io.nwdaf.eventsubscription.model.GeographicalCoordinates;
 import io.nwdaf.eventsubscription.model.NFType;
 import io.nwdaf.eventsubscription.model.NFType.NFTypeEnum;
@@ -744,22 +735,19 @@ public class CreateSubscriptionRequestBuilder {
 			eventSub.loadLevelThreshold(Integer.parseInt(args.get(2)));
 		}
 		if(args.get(3)!=null) {
-			eventSub.notificationMethod(new NotificationMethod().notifMethod(NotificationMethodEnum.fromValue(args.get(3))));
+			eventSub.matchingDir(new MatchingDirection().matchingDir(MatchingDirectionEnum.fromValue(args.get(3))));
 		}
 		if(args.get(4)!=null) {
-			eventSub.matchingDir(new MatchingDirection().matchingDir(MatchingDirectionEnum.fromValue(args.get(4))));
+			eventSub.maxTopAppUlNbr(Integer.parseInt(args.get(4)));
 		}
 		if(args.get(5)!=null) {
-			eventSub.maxTopAppUlNbr(Integer.parseInt(args.get(5)));
+			eventSub.maxTopAppDlNbr(Integer.parseInt(args.get(5)));
 		}
 		if(args.get(6)!=null) {
-			eventSub.maxTopAppDlNbr(Integer.parseInt(args.get(6)));
+			eventSub.repetitionPeriod(Integer.parseInt(args.get(6)));
 		}
 		if(args.get(7)!=null) {
-			eventSub.repetitionPeriod(Integer.parseInt(args.get(7)));
-		}
-		if(args.get(8)!=null) {
-			eventSub.exptAnaType(new ExpectedAnalyticsType().exptAnaType(ExpectedAnalyticsTypeEnum.fromValue(args.get(8))));
+			eventSub.exptAnaType(new ExpectedAnalyticsType().exptAnaType(ExpectedAnalyticsTypeEnum.fromValue(args.get(7))));
 		}
 		
 		sub.addEventSubscriptionsItem(eventSub);

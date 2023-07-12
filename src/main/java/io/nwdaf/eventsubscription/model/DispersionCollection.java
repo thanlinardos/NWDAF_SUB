@@ -2,11 +2,6 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.nwdaf.eventsubscription.model.ApplicationVolume;
-import io.nwdaf.eventsubscription.model.DispersionClass;
-import io.nwdaf.eventsubscription.model.Snssai;
-import io.nwdaf.eventsubscription.model.UserLocation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;

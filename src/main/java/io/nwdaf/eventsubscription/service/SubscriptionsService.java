@@ -1,18 +1,23 @@
 package io.nwdaf.eventsubscription.service;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nwdaf.eventsubscription.ClientApplication;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
-import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionTable;
-import io.nwdaf.eventsubscription.repository.SubscriptionRepository;
-import jakarta.transaction.Transactional;
+import io.nwdaf.eventsubscription.repository.eventsubscription.NnwdafEventsSubscriptionTable;
+import io.nwdaf.eventsubscription.repository.eventsubscription.SubscriptionRepository;
 
 @Service
 public class SubscriptionsService {
@@ -34,7 +39,21 @@ public class SubscriptionsService {
 		return repository.save(body_table);
 	}
 	
-//	public NnwdafEventsSubscription findOneByNotifURI(String clientURI) {
-//		return repository.findOneByNotificationURIEquals(clientURI);
-//	}
+	public List<NnwdafEventsSubscription> findAll() throws JsonMappingException, JsonProcessingException {
+		List<NnwdafEventsSubscriptionTable> tables = repository.findAll();
+		List<NnwdafEventsSubscription> res = new ArrayList<>();
+		for(int i=0;i<tables.size();i++) {
+			res.add(objectMapper.readValue((new JSONObject(tables.get(i).getSub())).toString(),NnwdafEventsSubscription.class));
+		}
+		return res;
+	}
+	public List<NnwdafEventsSubscription> findAllByNotifURI(String clientURI) throws JsonMappingException, JsonProcessingException {
+		final String filter = "'{\"notificationURI\":\""+clientURI+"\"}'";
+		List<NnwdafEventsSubscriptionTable> tables = repository.findAllByNotifURI(filter);
+		List<NnwdafEventsSubscription> res = new ArrayList<>();
+		for(int i=0;i<tables.size();i++) {
+			res.add(objectMapper.readValue((new JSONObject(tables.get(i).getSub())).toString(),NnwdafEventsSubscription.class));
+		}
+		return res;
+	}
 }

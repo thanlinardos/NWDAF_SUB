@@ -23,5 +23,45 @@
     "name": "nnwdaf-eventsubscription.init",
     "type": "java.lang.String",
     "description": "A description for 'nnwdaf-eventsubscription.init'"
+  },
+  {
+    "name": "eventnotification.datasource.generate-unique-name",
+    "type": "java.lang.String",
+    "description": "A description for 'eventnotification.datasource.generate-unique-name'"
+  },
+  {
+    "name": "eventnotification.datasource.name",
+    "type": "java.lang.String",
+    "description": "A description for 'eventnotification.datasource.name'"
+  },
+  {
+    "name": "eventnotification.datasource.url",
+    "type": "java.lang.String",
+    "description": "A description for 'eventnotification.datasource.url'"
+  },
+  {
+    "name": "eventnotification.datasource.username",
+    "type": "java.lang.String",
+    "description": "A description for 'eventnotification.datasource.username'"
+  },
+  {
+    "name": "eventnotification.datasource.password",
+    "type": "java.lang.String",
+    "description": "A description for 'eventnotification.datasource.password'"
+  },
+  {
+    "name": "eventnotification.datasource.driverClassName",
+    "type": "java.lang.String",
+    "description": "A description for 'eventnotification.datasource.driverClassName'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.prometheus_url",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.prometheus_url'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.containerNames",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.containerNames'"
   }
 ]}

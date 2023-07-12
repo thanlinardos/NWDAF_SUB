@@ -2,11 +2,8 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
 
 /**
  * Parameters \&quot;replaceableInd\&quot; and \&quot;rechargeableInd\&quot; are only included if the value of Parameter \&quot;batteryInd\&quot; is true. 

@@ -9,10 +9,10 @@
 	<div>Current time is <span th:text="${serverTime}" /></div>
     <form th:action="@{/client/form}" th:object="${nnwdafEventsSubscription}" method="post">
 		
-        <!--<div>
+        <div>
             <label>Notification URI</label> 
             <input type="text" th:field="*{notificationURI}" th:value=${notificationURI} disabled/>
-        </div> -->
+        </div>
         <!-- th:attrappend="selected=${type.toString() == 'THRESHOLD'}?@{selected}" -->
         <h3>Optional Subscription Info</h3>
 		<div>
@@ -130,7 +130,7 @@
 			        <ul>
 						<button type="submit" name="addRowueAnaEventsItem" th:text="AddEvent" th:value="${p_stat.index}">AddEvent</button>
 						<li th:each="j,j_stat: ${p[1]}">
-						<select th:field="*{ueAnaEvents[__${p_stat.index}__][1][__${j_stat.index}__]}" />
+						<select th:field="*{ueAnaEvents[__${p_stat.index}__][1][__${j_stat.index}__]}" th:value="*{getUeAnaEvents(__${p_stat.index}__,__${j_stat.index}__)}"/>
 				  			<option th:each="type : ${T(io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum).values()}" 
 				          	th:value="${type}" 
 				          	th:text="${type.toString()}"></option>
@@ -165,7 +165,7 @@
 			        <ul>
 						<li th:each="j,j_stat: ${p}">
 						<label th:text="*{taiAttributes[__${j_stat.index}__]}"></label>
-				        <input th:field="*{taiList[__${p_stat.index}__][__${j_stat.index}__]}" value="${getTaiList(__${p_stat.index}__,__${j_stat.index}__)}" th:pattern="*{taiPatterns[__${j_stat.index}__]}"/>
+				        <input th:field="*{taiList[__${p_stat.index}__][__${j_stat.index}__]}" th:value="*{getTaiList(__${p_stat.index}__,__${j_stat.index}__)}" th:pattern="*{taiPatterns[__${j_stat.index}__]}"/>
 			          	</li>
 		        	</ul>
 			         <button th:if="${p_stat != null}" type="submit" name="removeRowtaiList" 
@@ -176,11 +176,36 @@
         <br> 
         <br> 
         <h3>Events to Subscribe to</h3>
+        
         <ul>
 		<button type="submit" name="addEventRow" th:text="AddEvent">AddEvent</button>
 			<li th:each="e,e_stat:*{eventList}">
-				<span th:text="'Event no' + __${e_stat.index}__"></span>
-			</li>
+				<div>
+					<label>Show ExtraRepReq Fields</label>
+		        	<input type="checkbox" th:field="*{eventList[__${e_stat.index}__].showExtraRepReq}" th:value=${e.getShowExtraRepReq()}/>
+				</div>
+				
+				<span th:text="'Event no ' + __${e_stat.index}__"></span>
+				<label>Event Type</label>
+				<select th:field="*{eventList[__${e_stat.index}__].event}">
+			  			<option th:each="type : ${T(io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum).values()}" 
+			          	th:value="${type}" 
+			          	th:text="${type.toString()}"></option>
+			    </select>
+			    <label>Notification Method</label>
+			 	<select th:field="*{eventList[__${e_stat.index}__].notificationMethod}">
+			  			<option th:each="type : ${T(io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum).values()}" 
+			          	th:value="${type}" 
+			          	th:text="${type.toString()}"></option>
+			    </select>   
+			    <label>Repetition Period</label>
+			    <input type="number" th:field="*{eventList[__${e_stat.index}__].repetitionPeriod}" th:value="${e.getRepetitionPeriod()}"/>
+				<br>
+				<div th:if="${e.getShowExtraRepReq()==true}">
+				Extra Reporting Requirements
+				<hr>
+				</div>			 
+			 </li>
 		</ul>
         <input type="submit" value="Send" />
     </form>

@@ -2,14 +2,6 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.nwdaf.eventsubscription.model.Gli;
-import io.nwdaf.eventsubscription.model.HfcNodeId;
-import io.nwdaf.eventsubscription.model.LineType;
-import io.nwdaf.eventsubscription.model.Tai;
-import io.nwdaf.eventsubscription.model.TnapId;
-import io.nwdaf.eventsubscription.model.TransportProtocol;
-import io.nwdaf.eventsubscription.model.TwapId;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;

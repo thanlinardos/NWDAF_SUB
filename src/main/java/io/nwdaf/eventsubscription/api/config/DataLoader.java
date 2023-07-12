@@ -5,15 +5,13 @@ import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
-import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionTable;
-import io.nwdaf.eventsubscription.repository.SubscriptionRepository;
+import io.nwdaf.eventsubscription.repository.eventsubscription.NnwdafEventsSubscriptionTable;
+import io.nwdaf.eventsubscription.repository.eventsubscription.SubscriptionRepository;
 
 //@Profile("!dev")
 @ConditionalOnProperty(name="nnwdaf-eventsubscription.init")

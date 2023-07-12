@@ -2,9 +2,6 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.vladmihalcea.hibernate.type.json.JsonType;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.ArrayList;
@@ -24,7 +21,8 @@ import javax.validation.constraints.*;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2023-06-10T19:22:40.843464800+03:00[Europe/Athens]")
 
 public class NnwdafEventsSubscription   {
-
+  private Long id=null;	
+	
   @JsonProperty("eventSubscriptions")
   @Valid
   private List<EventSubscription> eventSubscriptions = new ArrayList<EventSubscription>();
@@ -306,4 +304,12 @@ public class NnwdafEventsSubscription   {
     }
     return o.toString().replace("\n", "\n    ");
   }
+
+public Long getId() {
+	return id;
+}
+
+public void setId(Long id) {
+	this.id = id;
+}
 }

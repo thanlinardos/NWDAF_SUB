@@ -2,16 +2,9 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.nwdaf.eventsubscription.model.EutraLocation;
-import io.nwdaf.eventsubscription.model.GeraLocation;
-import io.nwdaf.eventsubscription.model.N3gaLocation;
-import io.nwdaf.eventsubscription.model.NrLocation;
-import io.nwdaf.eventsubscription.model.UtraLocation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
 
 /**
  * At least one of eutraLocation, nrLocation and n3gaLocation shall be present. Several of them may be present. 

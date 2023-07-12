@@ -1,4 +1,4 @@
-package io.nwdaf.eventsubscription.model;
+package io.nwdaf.eventsubscription.repository.eventnotification;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -16,8 +16,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="nnwdaf_events_subscription")
-public class NnwdafEventsSubscriptionTable implements Serializable{
+@Table(name="nnwdaf_notification")
+public class NnwdafNotificationTable implements Serializable{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="id")
@@ -25,9 +25,9 @@ public class NnwdafEventsSubscriptionTable implements Serializable{
 	private Long id;
 	
 	@JdbcTypeCode(SqlTypes.JSON)
-	@Column(name="sub",columnDefinition = "jsonb")
-	@JsonProperty("sub")
-	private Map<String, Object> sub;
+	@Column(name="notif",columnDefinition = "jsonb")
+	@JsonProperty("notif")
+	private Map<String, Object> notif;
 	
 	public Long getId() {
 		return id;
@@ -37,11 +37,11 @@ public class NnwdafEventsSubscriptionTable implements Serializable{
 		this.id = id;
 	}
 	
-	public Map<String, Object> getSub() {
-		return sub;
+	public Map<String, Object> getNotif() {
+		return notif;
 	}
 	
-	public void setSub(Map<String, Object> sub) {
-		this.sub = sub;
+	public void setNotif(Map<String, Object> notif) {
+		this.notif = notif;
 	}
 }
