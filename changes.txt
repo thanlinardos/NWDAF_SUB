@@ -12,14 +12,14 @@ todo:
 	- notifURI = client address DONE (in env variables like with apiRoot)
 	-add database DONE
 	-make schema for database DONE (with jsonb)
-	-query filters for subs
+	-query filters for subs INPROGRESS (ready for clientURI)
 	-make some fake test data (for example for NFLoad) DONE
-	-massage the test data INPROGRESS (make classes for it and for prometheus request)
-	-save massaged Prometheus data (NwdaNotification model) to a second DB(Influx or Postgres) INPROGRESS (error with inserting)
+	-massage the test data DONE (make classes for it and for prometheus request)
+	-save massaged Prometheus data (NwdaNotification model) to a second DB(Influx or Postgres) DONE
 	-graphana the data DONE (Could graphana the massaged data as well)
-	-implement periodic notifications (sends post to client with notifURI after making the notifications from Prometheus data)
+	-implement periodic notifications DONE (sends post to client with notifURI after making the notifications from Prometheus data)
 	-simple api for client receiving notifications (just a controller mapping for notifications + display below the form) DONE
-	-do the NF_LOAD test (maybe add an nf simulated container)
+	-do the NF_LOAD test DONE (maybe add an nf simulated container)
 	-make 2 client dbs (one for sub responses and one for notifications) same as server
 
 	-update and delete subs
@@ -69,3 +69,7 @@ Then did a test by sending a NwdaNotification object to the client every 1 secon
 Connected 2nd postgres database for storing notifications (uses the same server)
 Implemented controller response for notifMethod and repPeriod
 fixed storing notification (DataSourceConfig was missing Qualifier annotation in notifDbConfig)
+---14/7/23-----
+Fixed notify (now works for 500ms minimum intervals and provides 1sec minimum periodic notifications)
+Ran test for 3 clients and 20 active subscriptions
+Compiled project to docker images (error with thymeleaf parsing and finding repo table class)
