@@ -28,15 +28,15 @@ services:
     image: thanlinardos/nwdaf_sub:0.0.1-SNAPSHOT
     restart: always
     ports:
-      - "8080:8080"
+      - "${server_port}:${server_port}"
     links:
       - db
     environment:
       SPRING.PROFILES.ACTIVE: production
-      nnwdaf-eventsubscription.openapi.dev_url: http://localhost:8080
-      nnwdaf-eventsubscription.openapi.prod_url: http://localhost:8080
-      nnwdaf-eventsubscription.client.dev_url: http://localhost:8082/client
-      nnwdaf-eventsubscription.client.prod_url: http://localhost:8082/client
+      nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
+      nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
+      nnwdaf-eventsubscription.client.dev_url: "${client_host}:${client_port}/client"
+      nnwdaf-eventsubscription.client.prod_url: "${client_host}:${client_port}/client"
       nnwdaf-eventsubscription.init: false
       nnwdaf-eventsubscription.prometheus_url: http://localhost:9090/api/v1/query
       nnwdaf-eventsubscription.containerNames: pg_container,pgadmin4_container,nwdaf_sub
@@ -50,24 +50,22 @@ services:
       EVENTNOTIFICATION.DATASOURCE.USERNAME: postgres
       EVENTNOTIFICATION.DATASOURCE.PASSWORD: password
       EVENTNOTIFICATION.DATASOURCE.DRIVERCLASSNAME: org.postgresql.Driver
-      SERVER.PORT: 8080
+      SERVER.PORT: "${server_port}"
       management.endpoint.health.show-details: always
   nwdaf_sub_client:
-    container_name: nwdaf_sub_client
+    # container_name: nwdaf_sub_client
     image: thanlinardos/nwdaf_sub_client:0.0.1-SNAPSHOT
     restart: always
     ports:
-      - "8083:8083"
-    links:
-      - db
+      - "${client_port}:${client_port}"
     environment:
       springdoc.enable-native-support: true
       springdoc.swagger-ui.path: /swagger-ui
-      server.port: 8083
-      nnwdaf-eventsubscription.openapi.dev_url: http://localhost:8080
-      nnwdaf-eventsubscription.openapi.prod_url: http://localhost:8080
-      nnwdaf-eventsubscription.client.dev_url: http://localhost:8083/client
-      nnwdaf-eventsubscription.client.prod_url: http://localhost:8083/client
+      server.port: "${client_port}"
+      nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
+      nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
+      nnwdaf-eventsubscription.client.dev_url: "${client_host}:${client_port}/client"
+      nnwdaf-eventsubscription.client.prod_url: "${client_host}:${client_port}/client"
       nnwdaf-eventsubscription.init: false
       #spring configuration:
       spring.datasource.generate-unique-name: false

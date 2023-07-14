@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  nwdaf_sub_client:
+      container_name: "nwdaf_sub_client_${c}"
+      image: thanlinardos/nwdaf_sub_client:0.0.1-SNAPSHOT
+      restart: always
+      ports:
+        - "${client_port}:${client_port}"
+      environment:
+        springdoc.enable-native-support: true
+        springdoc.swagger-ui.path: /swagger-ui
+        server.port: "${client_port}"
+        nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
+        nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
+        nnwdaf-eventsubscription.client.dev_url: "${client_host}:${client_port}/client"
+        nnwdaf-eventsubscription.client.prod_url: "${client_host}:${client_port}/client"
+        nnwdaf-eventsubscription.init: false
+        #spring configuration:
+        spring.datasource.generate-unique-name: false
+        spring.datasource.name: eventsubscription
+        spring.profiles.active: production
+
+        #endpoints:
+        management.endpoint.health.show-details: always
