@@ -4,6 +4,7 @@ services:
       container_name: "nwdaf_sub_client_${c}"
       image: thanlinardos/nwdaf_sub_client:0.0.1-SNAPSHOT
       restart: always
+      tty: true
       ports:
         - "${client_port}:${client_port}"
       environment:

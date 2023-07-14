@@ -165,8 +165,13 @@ public class SubscriptionsController implements SubscriptionsApi{
 		}
 		List<Integer> periods_to_serve_copy = new ArrayList<>(periods_to_serve);
 		Collections.sort(periods_to_serve_copy);
-		Integer periods_to_serve_min = periods_to_serve_copy.get(0);
-		Integer periods_to_serve_max = periods_to_serve_copy.get(periods_to_serve_copy.size()-1);
+		Integer periods_to_serve_min=null;
+		Integer periods_to_serve_max=null;
+		
+		if(periods_to_serve_copy.size()>0) {
+			periods_to_serve_min = periods_to_serve_copy.get(0);
+			periods_to_serve_max = periods_to_serve_copy.get(periods_to_serve_copy.size()-1);
+		}
 		if(count_of_notif==0) {
 			if(body.getEvtReq()==null) {
 				body.setEvtReq(new ReportingInformation());
@@ -181,9 +186,11 @@ public class SubscriptionsController implements SubscriptionsApi{
 		
 		//notify about new saved subscription
 		if(count_of_notif>0 && !muted) {
-			if(periods_to_serve_max-periods_to_serve_min<=60) {
-				//only 1 notify thread
-				notifyPublisher.publishNotification(id);
+			if(periods_to_serve_min!=null&&periods_to_serve_max!=null) {
+				if(periods_to_serve_max-periods_to_serve_min<=60) {
+					//only 1 notify thread
+					notifyPublisher.publishNotification(id);
+				}
 			}
 			else {
 				
