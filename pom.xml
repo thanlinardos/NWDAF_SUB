@@ -8,11 +8,11 @@
 		<version>3.1.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>io.nwdaf</groupId>
-	<artifactId>NWDAF_SUB</artifactId>
+	<groupId>com.example</groupId>
+	<artifactId>demo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>NWDAF_SUB</name>
-	<description>Demo project for Nwdaf_EventSubscription</description>
+	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
@@ -104,7 +104,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-			<plugin>
+			<!-- <plugin>
 			<groupId>io.swagger.codegen.v3</groupId>
 			<artifactId>swagger-codegen-maven-plugin</artifactId>
 			<version>3.0.46</version>
@@ -127,7 +127,7 @@
 					</configuration>
 				</execution>
 			</executions>
-			</plugin>
+			</plugin> -->
 			
 			<plugin>
 		         <groupId>org.graalvm.buildtools</groupId>
