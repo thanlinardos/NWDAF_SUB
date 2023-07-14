@@ -14,7 +14,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nwdaf.eventsubscription.ClientApplication;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.repository.eventsubscription.NnwdafEventsSubscriptionTable;
 import io.nwdaf.eventsubscription.repository.eventsubscription.SubscriptionRepository;
@@ -43,8 +42,11 @@ public class SubscriptionsService {
 		List<NnwdafEventsSubscriptionTable> tables = repository.findAll();
 		List<NnwdafEventsSubscription> res = new ArrayList<>();
 		for(int i=0;i<tables.size();i++) {
-			res.add(objectMapper.readValue((new JSONObject(tables.get(i).getSub())).toString(),NnwdafEventsSubscription.class));
+			NnwdafEventsSubscription sub = objectMapper.readValue((new JSONObject(tables.get(i).getSub())).toString(),NnwdafEventsSubscription.class);
+			sub.setId(tables.get(i).getId());
+			res.add(sub);
 		}
+		
 		return res;
 	}
 	public List<NnwdafEventsSubscription> findAllByNotifURI(String clientURI) throws JsonMappingException, JsonProcessingException {
@@ -52,7 +54,9 @@ public class SubscriptionsService {
 		List<NnwdafEventsSubscriptionTable> tables = repository.findAllByNotifURI(filter);
 		List<NnwdafEventsSubscription> res = new ArrayList<>();
 		for(int i=0;i<tables.size();i++) {
-			res.add(objectMapper.readValue((new JSONObject(tables.get(i).getSub())).toString(),NnwdafEventsSubscription.class));
+			NnwdafEventsSubscription sub = objectMapper.readValue((new JSONObject(tables.get(i).getSub())).toString(),NnwdafEventsSubscription.class);
+			sub.setId(tables.get(i).getId());
+			res.add(sub);
 		}
 		return res;
 	}

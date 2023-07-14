@@ -59,7 +59,7 @@ public class NotifyListener {
 			}
 		}
     	List<NnwdafEventsSubscription> subs = subscriptionService.findAll();
-    	//map with key each served event (pair of sub,event indexes)
+    	//map with key each served event (pair of sub id,event index)
     	//and value being the last time a notification was sent for this event to the corresponding client
     	Map<Pair<Long,Integer>,OffsetDateTime> lastNotifTimes = new HashMap<>();
     	//repetition period for each event
@@ -73,18 +73,19 @@ public class NotifyListener {
     	NotificationBuilder notifBuilder = new NotificationBuilder();
     	Integer c = 0;
     	for(int i=0;i<subs.size();i++) {
-    		for(int j=0;i<subs.get(i).getEventSubscriptions().size();j++) {
+    		for(int j=0;j<subs.get(i).getEventSubscriptions().size();j++) {
     			Integer period = needsServing(subs.get(i),j);
 		    	if(period!=null && period!=0) {
 		    		c++;
 		    		repPeriods.put(Pair.of(subs.get(i).getId(), j),period);
 		    		lastNotifTimes.put(Pair.of(subs.get(i).getId(), j),OffsetDateTime.now());
-		    		subIndexes.put(subId, i);
+		    		subIndexes.put(subs.get(i).getId(), i);
 		    	}
 		    	if(period==0) {
 		    		//threshold
 		    	}
     		}
+    		
     	}
     	System.out.println("no_subs="+subs.size());
     	System.out.println("no_Ssubs="+c);
@@ -95,20 +96,31 @@ public class NotifyListener {
     		for(Map.Entry<Pair<Long,Integer>,OffsetDateTime> entry:lastNotifTimes.entrySet()) {
     			Long id = entry.getKey().getFirst();
     			Integer repPeriod = subs.get(subIndexes.get(id)).getEventSubscriptions().get(entry.getKey().getSecond()).getRepetitionPeriod();
-    			if(subs.get(subIndexes.get(id)).getEvtReq().getRepPeriod()!=null) {
-    				repPeriod = subs.get(subIndexes.get(id)).getEvtReq().getRepPeriod();
+    			if(subs.get(subIndexes.get(id)).getEvtReq()!=null) {
+	    			if(subs.get(subIndexes.get(id)).getEvtReq().getRepPeriod()!=null) {
+	    				repPeriod = subs.get(subIndexes.get(id)).getEvtReq().getRepPeriod();
+	    			}
     			}
+//    			System.out.println("id: "+id+", now: "+OffsetDateTime.now());
+//    			System.out.println("lastNotif+Rep: "+entry.getValue().plusSeconds((long) repPeriod));
     			if(OffsetDateTime.now().compareTo(entry.getValue().plusSeconds((long) repPeriod))>0) {
+//    				long st  = System.nanoTime();
 	    			NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
 	        		notification = promReqBuilder.execute(subs.get(subIndexes.get(id)).getEventSubscriptions().get(entry.getKey().getSecond()), id,notification,env.getProperty("nnwdaf-eventsubscription.prometheus_url"),env.getProperty("nnwdaf-eventsubscription.containerNames"));
-	    			HttpEntity<NnwdafEventsSubscriptionNotification> req = new HttpEntity<>(notification);
+//	        		long diff = (System.nanoTime()-st) / 1000000l;
+//	            	System.out.println("prometheus req delay: "+diff+"ms");
+//	            	st = System.nanoTime();
+	        		HttpEntity<NnwdafEventsSubscriptionNotification> req = new HttpEntity<>(notification);
 	    			ResponseEntity<NnwdafEventsSubscriptionNotification> res = template.postForEntity(subs.get(subIndexes.get(id)).getNotificationURI()+"/notify",req, NnwdafEventsSubscriptionNotification.class);
+//	    			System.out.println("sending notif to client delay:"+(System.nanoTime()-st)/1000000l);
 //	    			System.out.println("NotifListener: subId="+res.getBody().getSubscriptionId()+", cpu_load="+res.getBody().getEventNotifications().get(0).getNfLoadLevelInfos().get(0));
 	    			if(res.getStatusCode().is2xxSuccessful()) {
 	    				lastNotifTimes.put(Pair.of(entry.getKey().getFirst(), entry.getKey().getSecond()), OffsetDateTime.now());
 	    			}
 	    			//save the sent notification to a second database
+//	    			st = System.nanoTime();
 	    			notificationService.create(notification);
+//	    			System.out.println("notif save delay: "+(System.nanoTime()-st)/1000000l+"ms");
     			}
     		}
     		
@@ -122,30 +134,35 @@ public class NotifyListener {
         	lastNotifTimes.clear();
         	repPeriods.clear();
         	subIndexes.clear();
+        	c=0;
         	for(int i=0;i<subs.size();i++) {
         		Long id = subs.get(i).getId();
-        		for(int j=0;i<subs.get(i).getEventSubscriptions().size();j++) {
+        		for(int j=0;j<subs.get(i).getEventSubscriptions().size();j++) {
         			Integer period = needsServing(subs.get(i),j);
+        			Pair<Long,Integer> p = Pair.of(id, j);
     		    	if(period!=null && period!=0) {
     		    		c++;
     		    		repPeriods.put(Pair.of(id, j),period);
-    		    		if(!oldNotifTimes.containsKey(Pair.of(i, j))) {
-    		    			lastNotifTimes.put(Pair.of(id, j),OffsetDateTime.now());
+    		    		if(oldNotifTimes.get(Pair.of(id, j))==null){
+    		    			lastNotifTimes.put(Pair.of(id,j),OffsetDateTime.now());
     		    		}
     		    		else {
-    		    			lastNotifTimes.put(Pair.of(id, j),oldNotifTimes.get(Pair.of(i, j)));
+    		    			lastNotifTimes.put(Pair.of(id, j),oldNotifTimes.get(Pair.of(id, j)));
     		    		}
-    		    		subIndexes.put(subId, i);
+    		    		subIndexes.put(subs.get(i).getId(), i);
     		    	}
     		    	if(period==0) {
     		    		//threshold
     		    	}
         		}
         	}
+        	System.out.println("no_subs="+subs.size());
+        	System.out.println("no_Ssubs="+c);
         	//wait till one second passes (10^9 nanoseconds)
-        	int diff = (int)(System.nanoTime()-start);
-        	if(diff<1000000000) {
-        		Thread.sleep(0l,1000000000-diff);
+        	long diff = (System.nanoTime()-start) / 1000000l;
+        	System.out.println("total delay: "+diff+"ms");
+        	if(diff<500l) {
+        		Thread.sleep(500l-diff);
         	}
     	}
     	System.out.println("==NotifListener("+no_notifEventListeners+") finished===");

@@ -9,7 +9,7 @@ services:
       - POSTGRES_PASSWORD=password
     ports:
       - "5432:5432"
-    volumes: 
+    volumes:
       - ./postgres-data:/var/lib/postgresql/data
       #- ./init_second_db.sql:/docker-entrypoint-initdb.d/init_second_db.sql
   gadmin:
@@ -23,17 +23,58 @@ services:
       - "5050:80"
     volumes: 
       - ./pgadmin-data:/var/lib/pgadmin
-  # nwdaf_sub:
-  #   container_name: nwdaf_sub
-  #   image: nwdaf_sub:0.0.1-SNAPSHOT
-  #   restart: always
-  #   ports:
-  #     - "8080:8080"
-  #   links:
-  #     - db
-  #   environment:
-  #     SPRING.PROFILES.ACTIVE: production
-  #     SPRING.DATASOURCE.URL: jdbc:postgresql://db:5432/postgres 
-  #     SPRING.DATASOURCE.USERNAME: postgres
-  #     SPRING.DATASOURCE.PASSWORD: password
+  nwdaf_sub:
+    container_name: nwdaf_sub
+    image: thanlinardos/nwdaf_sub:0.0.1-SNAPSHOT
+    restart: always
+    ports:
+      - "8080:8080"
+    links:
+      - db
+    environment:
+      SPRING.PROFILES.ACTIVE: production
+      nnwdaf-eventsubscription.openapi.dev_url: http://localhost:8080
+      nnwdaf-eventsubscription.openapi.prod_url: http://localhost:8080
+      nnwdaf-eventsubscription.client.dev_url: http://localhost:8082/client
+      nnwdaf-eventsubscription.client.prod_url: http://localhost:8082/client
+      nnwdaf-eventsubscription.init: false
+      nnwdaf-eventsubscription.prometheus_url: http://localhost:9090/api/v1/query
+      nnwdaf-eventsubscription.containerNames: pg_container,pgadmin4_container,nwdaf_sub
+      SPRING.DATASOURCE.NAME: eventsubscription
+      SPRING.DATASOURCE.URL: jdbc:postgresql://db:5432/postgres?currentSchema=public 
+      SPRING.DATASOURCE.USERNAME: postgres
+      SPRING.DATASOURCE.PASSWORD: password
+      SPRING.DATASOURCE.DRIVERCLASSNAME: org.postgresql.Driver
+      EVENTNOTIFICATION.DATASOURCE.NAME: eventnotification
+      EVENTNOTIFICATION.DATASOURCE.URL: jdbc:postgresql://db:5432/test?currentSchema=public 
+      EVENTNOTIFICATION.DATASOURCE.USERNAME: postgres
+      EVENTNOTIFICATION.DATASOURCE.PASSWORD: password
+      EVENTNOTIFICATION.DATASOURCE.DRIVERCLASSNAME: org.postgresql.Driver
+      SERVER.PORT: 8080
+      management.endpoint.health.show-details: always
+  nwdaf_sub_client:
+    container_name: nwdaf_sub_client
+    image: thanlinardos/nwdaf_sub_client:0.0.1-SNAPSHOT
+    restart: always
+    ports:
+      - "8083:8083"
+    links:
+      - db
+    environment:
+      springdoc.enable-native-support: true
+      springdoc.swagger-ui.path: /swagger-ui
+      server.port: 8083
+      nnwdaf-eventsubscription.openapi.dev_url: http://localhost:8080
+      nnwdaf-eventsubscription.openapi.prod_url: http://localhost:8080
+      nnwdaf-eventsubscription.client.dev_url: http://localhost:8083/client
+      nnwdaf-eventsubscription.client.prod_url: http://localhost:8083/client
+      nnwdaf-eventsubscription.init: false
+      #spring configuration:
+      spring.datasource.generate-unique-name: false
+      spring.datasource.name: eventsubscription
+      spring.profiles.active: production
+
+      #endpoints:
+      management.endpoint.health.show-details: always
+
       
