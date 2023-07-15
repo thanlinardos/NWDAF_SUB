@@ -73,3 +73,6 @@ fixed storing notification (DataSourceConfig was missing Qualifier annotation in
 Fixed notify (now works for 500ms minimum intervals and provides 1sec minimum periodic notifications)
 Ran test for 3 clients and 20 active subscriptions
 Compiled project to docker images (error with thymeleaf parsing and finding repo table class)
+---15/7/23-----
+finished docker compose for 5 clients
+ran benchmarks
