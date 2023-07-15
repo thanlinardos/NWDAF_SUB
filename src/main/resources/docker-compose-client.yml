@@ -1,12 +1,17 @@
 version: '3.8'
+networks:
+  monitor-net:
+    driver: bridge
 services:
-  nwdaf_sub_client:
-      container_name: "nwdaf_sub_client_${c}"
-      image: thanlinardos/nwdaf_sub_client:0.0.1-SNAPSHOT
+  nwdafSubClient:
+      # container_name: "nwdaf_sub_client_${c}"
+      image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
       restart: always
       tty: true
       ports:
         - "${client_port}:${client_port}"
+      networks:
+      - monitor-net
       environment:
         springdoc.enable-native-support: true
         springdoc.swagger-ui.path: /swagger-ui

@@ -16,6 +16,7 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -25,19 +26,14 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import io.nwdaf.eventsubscription.repository.eventnotification.EventNotificationDbConfig;
-import io.nwdaf.eventsubscription.repository.eventnotification.NnwdafNotificationTable;
 import jakarta.persistence.EntityManagerFactory;
 
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
   entityManagerFactoryRef = "entityManagerFactory",
-  transactionManagerRef = "transactionManager",
-  basePackages = "io.nwdaf.eventsubscription.repository.eventsubscription"
+  transactionManagerRef = "transactionManager"
 )
-@ComponentScan("io.nwdaf.eventsubscription")
-@EntityScan("io.nwdaf.eventsubscription")
 public class EventSubscriptionDbConfig {
 	@Autowired
     private Environment env;
@@ -68,7 +64,7 @@ public class EventSubscriptionDbConfig {
 	  final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 	  LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 	  factoryBean.setDataSource(eventsubscriptionDataSource(dataSourceProperties));
-	  factoryBean.setPackagesToScan(EventSubscriptionDbConfig.class.getPackage().getName());
+	  factoryBean.setPackagesToScan("io.nwdaf.eventsubscription.repository.eventsubscription.entities");
       factoryBean.setJpaVendorAdapter(vendorAdapter);
       
 //      final HashMap<String, Object> properties = new HashMap<String, Object>();

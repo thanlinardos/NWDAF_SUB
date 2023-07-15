@@ -27,7 +27,7 @@ import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
 import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
 import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
-import io.nwdaf.eventsubscription.repository.eventsubscription.NnwdafEventsSubscriptionTable;
+import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
 import io.nwdaf.eventsubscription.requestbuilders.PrometheusRequestBuilder;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.NotificationService;
@@ -161,8 +161,8 @@ public class NotifyListener {
         	//wait till one second passes (10^9 nanoseconds)
         	long diff = (System.nanoTime()-start) / 1000000l;
         	System.out.println("total delay: "+diff+"ms");
-        	if(diff<500l) {
-        		Thread.sleep(500l-diff);
+        	if(diff<250l) {
+        		Thread.sleep(250l-diff);
         	}
     	}
     	System.out.println("==NotifListener("+no_notifEventListeners+") finished===");

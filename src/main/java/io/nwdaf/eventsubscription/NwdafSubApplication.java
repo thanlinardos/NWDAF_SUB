@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,7 @@ import io.nwdaf.eventsubscription.api.config.NwdafSubProperties;
 @EnableConfigurationProperties(NwdafSubProperties.class)
 @SpringBootApplication
 @EnableAsync
+@EntityScan({"io.nwdaf.eventsubscription.repository"})
 public class NwdafSubApplication {
 	
 	@Autowired

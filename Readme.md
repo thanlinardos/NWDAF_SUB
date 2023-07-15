@@ -1,11 +1,9 @@
 To build the docker image:
-    .\mvnw -Pnative spring-boot:build-image
+    docker build . --tag thanlinardos/nwdaf_sub:0.0.2-SNAPSHOT   
 resulting image name: NWDAF_SUB:0.0.1-SNAPSHOT
 
 Then start all the containers:
-    docker compose up .
+    docker compose -f .\dockprom\docker-compose.yml up -d
+    docker compose -f .\src\main\resources\docker-compose.yml up -d
+    
 
-To build executable only:
-    .\mvnw -Pnative native:compile
-
-The excecutable will be in /target dir.

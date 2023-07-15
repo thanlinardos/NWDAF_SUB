@@ -333,7 +333,7 @@ public abstract class ConvertUtil {
 							if("resultType".equals(propertyName)) {
 								resultType = reader.nextString(); 
 							} else if("result".equals(propertyName)) {
-								System.out.println("resultType:"+ resultType);
+//								System.out.println("resultType:"+ resultType);
 								reader.beginArray();
 								while(reader.hasNext()) {
 									queryResult.addData((T) searchDataType(resultType).convert(reader));

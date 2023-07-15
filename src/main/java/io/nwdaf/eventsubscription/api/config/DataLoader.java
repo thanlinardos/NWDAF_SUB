@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nwdaf.eventsubscription.repository.eventsubscription.NnwdafEventsSubscriptionTable;
 import io.nwdaf.eventsubscription.repository.eventsubscription.SubscriptionRepository;
+import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
 
 //@Profile("!dev")
 @ConditionalOnProperty(name="nnwdaf-eventsubscription.init")

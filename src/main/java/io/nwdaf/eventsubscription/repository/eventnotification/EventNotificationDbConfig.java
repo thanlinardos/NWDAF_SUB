@@ -13,6 +13,7 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -26,11 +27,8 @@ import jakarta.persistence.EntityManagerFactory;
 @EnableTransactionManagement
 @EnableJpaRepositories(
   entityManagerFactoryRef = "eventnotificationEntityManagerFactory",
-  transactionManagerRef = "eventnotificationTransactionManager",
-  basePackages = "io.nwdaf.eventsubscription.repository.eventnotification"
+  transactionManagerRef = "eventnotificationTransactionManager"
 )
-@ComponentScan("io.nwdaf.eventsubscription")
-@EntityScan("io.nwdaf.eventsubscription")
 public class EventNotificationDbConfig {
 	@Bean(name="eventnotificationDataSourceProperties")
 	@ConfigurationProperties("eventnotification.datasource")
@@ -52,7 +50,7 @@ public class EventNotificationDbConfig {
 	  final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 	  LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 	  factoryBean.setDataSource(eventnotificationDataSource(dataSourceProperties));
-	  factoryBean.setPackagesToScan("io.nwdaf.eventsubscription.repository.eventnotification");
+	  factoryBean.setPackagesToScan("io.nwdaf.eventsubscription.repository.eventnotification.entities");
       factoryBean.setJpaVendorAdapter(vendorAdapter);
       
       return factoryBean;

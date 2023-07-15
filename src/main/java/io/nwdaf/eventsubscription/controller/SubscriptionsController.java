@@ -9,9 +9,8 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
-import org.apache.tomcat.util.bcel.Const;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.Constants;
@@ -36,8 +34,8 @@ import io.nwdaf.eventsubscription.model.ReportingInformation;
 import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
 import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
-import io.nwdaf.eventsubscription.repository.eventnotification.NnwdafNotificationTable;
-import io.nwdaf.eventsubscription.repository.eventsubscription.NnwdafEventsSubscriptionTable;
+import io.nwdaf.eventsubscription.repository.eventnotification.entities.NnwdafNotificationTable;
+import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
 import io.nwdaf.eventsubscription.requestbuilders.PrometheusRequestBuilder;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.NotificationService;
@@ -108,15 +106,17 @@ public class SubscriptionsController implements SubscriptionsApi{
 					else {
 						eventIndexToNotifMethodMap.put(i, notificationMethod);
 					}
-						
-					if(eventIndexToNotifMethodMap.get(i).equals(NotificationMethodEnum.PERIODIC)) {
-						if(repetionPeriod==null) {
-							eventIndexToRepPeriodMap.put(i,e.getRepetitionPeriod());
+					
+					if(eventIndexToNotifMethodMap.get(i)!=null) {
+						if(eventIndexToNotifMethodMap.get(i).equals(NotificationMethodEnum.PERIODIC)) {
+							if(repetionPeriod==null) {
+								eventIndexToRepPeriodMap.put(i,e.getRepetitionPeriod());
+							}
+							else{
+								eventIndexToRepPeriodMap.put(i,repetionPeriod);
+							}
+								
 						}
-						else{
-							eventIndexToRepPeriodMap.put(i,repetionPeriod);
-						}
-							
 					}
 						
 				}
