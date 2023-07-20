@@ -1,5 +1,10 @@
 package io.nwdaf.eventsubscription;
 
+
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +20,22 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 import io.nwdaf.eventsubscription.api.config.NwdafSubProperties;
+import io.nwdaf.eventsubscription.model.Ecgi;
+import io.nwdaf.eventsubscription.model.EutraLocation;
+import io.nwdaf.eventsubscription.model.LocationInfo;
+import io.nwdaf.eventsubscription.model.NFType;
+import io.nwdaf.eventsubscription.model.NFType.NFTypeEnum;
+import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
+import io.nwdaf.eventsubscription.model.NfStatus;
+import io.nwdaf.eventsubscription.model.Tai;
+import io.nwdaf.eventsubscription.model.UeMobility;
+import io.nwdaf.eventsubscription.model.UserLocation;
+import io.nwdaf.eventsubscription.notify.DataCollectionPublisher;
+import io.nwdaf.eventsubscription.notify.NotifyPublisher;
+import io.nwdaf.eventsubscription.service.MetricsService;
 
 @EnableConfigurationProperties(NwdafSubProperties.class)
 @SpringBootApplication
@@ -31,9 +49,13 @@ public class NwdafSubApplication {
 	private static final Logger log = LoggerFactory.getLogger(NwdafSubApplication.class);
 	
 	@Autowired
-	private ObjectMapper objectMapper;
+	private NotifyPublisher notifyPublisher;
 	
-	private RestTemplate template = null;
+	@Autowired
+	private DataCollectionPublisher dataCollectionPublisher;
+	
+//	@Autowired
+//	MetricsService metricsService;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(NwdafSubApplication.class, args);
@@ -49,94 +71,39 @@ public class NwdafSubApplication {
 	@Bean
 	public CommandLineRunner run() throws JsonProcessingException{
 		
-//		String apiRoot = env.getProperty("nnwdaf-eventsubscription.openapi.dev-url");
-//		CreateSubscriptionRequestBuilder rbuilder = new CreateSubscriptionRequestBuilder();
-//		NnwdafEventsSubscription bodyObject = rbuilder.InitSubscriptionRequest(env.getProperty("nnwdaf-eventsubscription.client.dev-url"));
-//		return args -> {
-//			HttpEntity<NnwdafEventsSubscription> req = new HttpEntity<>(bodyObject);
-//			ResponseEntity<NnwdafEventsSubscription> res = restTemplate.postForEntity(
-//					apiRoot+"/nwdaf-eventsubscription/v1/subscriptions",req, NnwdafEventsSubscription.class);
-//			System.out.println("Location:"+res.getHeaders().getFirst("Location"));
-//			log.info(res.getBody().toString());
-//		};
+		String clientURL = env.getProperty("nnwdaf-eventsubscription.client.dev_url");
+		String prometheusURL = env.getProperty("nnwdaf-eventsubscription.prometheus_url");
 		
-		String clientURL = "http://localhost:8082/client";
-		String prometheusURL = "http://localhost:9090/api/v1/query";
-		Long id = 202l;
-		
-//			log.info(res.getBody().toString());
 		return args -> {
-//			for(int i=0;i<100;i++) {
-//				NnwdafEventsSubscriptionNotification notification = new NnwdafEventsSubscriptionNotification();
-//				OffsetDateTime now = OffsetDateTime.now();
-//				String nowString = now.toString();
-//				PrometheusRequestModel reqModel = new PrometheusRequestModel();
-//				reqModel.setQuery("container_cpu_usage_seconds_total");
-//				reqModel.setTime(now);
-//				HttpHeaders headers = new HttpHeaders();
-//				headers.set("Content-Type", "application/x-www-form-urlencoded");
-//				headers.set("Accept-Encoding", "gzip, deflate, br");
-//				headers.set("Connection", "keep-alive");
-//				headers.set("Accept", "*/*");
-//				String encoding = Base64.getEncoder().encodeToString(("admin:admin").getBytes());
-//				log.info(encoding);
-//				headers.set(HttpHeaders.AUTHORIZATION, "Basic "+encoding);
-//				String json = objectMapper.writeValueAsString(reqModel);
-//				MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-//				map.add("query","container_cpu_usage_seconds_total");
-//				map.add("time",nowString);
-//				HttpEntity<MultiValueMap<String, String>> reqToPrometheus = new HttpEntity<>(map,headers);
-//				
-//				HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-//				httpRequestFactory.setConnectTimeout(1000);
-//				httpRequestFactory.setReadTimeout(2000);
-//				HttpClient httpClient = HttpClientBuilder.create().build();
-//				httpRequestFactory.setHttpClient(httpClient);
-//				template = new RestTemplate(httpRequestFactory);
-//				
-//				String rtVal = template.postForObject(prometheusURL, reqToPrometheus, String.class);
-//				DefaultQueryResult<VectorData> result = ConvertUtil.convertQueryResultString(rtVal);
-//
-//				String resTime=null;
-//				Double value=null;
-//				for(VectorData vectorData : result.getResult()) {
-//					if(vectorData.getMetric().get("name")!=null) {
-//						log.info(String.format("%s", vectorData.getMetric().get("name")));
-//						log.info(String.format("%s %10.2f ",
-//									OffsetDateTime.ofInstant(Instant.ofEpochMilli(Math.round(vectorData.getDataValue().getTimestamp()*1000)), ZoneId.of("UTC")),
-//									vectorData.getDataValue().getValue()
-//									));
-//						if(vectorData.getMetric().get("name").equals("pg_container") && vectorData.getMetric().get("cpu").equals("cpu00")) {
-//							resTime = OffsetDateTime.ofInstant(Instant.ofEpochMilli(Math.round(vectorData.getDataValue().getTimestamp()*1000)), ZoneId.of("UTC")).toString();
-//							value = vectorData.getDataValue().getValue();
-//						}
-//					}
-//					
-//				}
-//				
-//				Integer container_cpu_usage_seconds_total = (int) Math.round(value);
-//				log.info(resTime+": "+value);
-//				notification.setSubscriptionId(id.toString());
-//				
-//				EventNotification evnot = new EventNotification().event(new NwdafEvent().event(NwdafEventEnum.NF_LOAD)).timeStampGen(OffsetDateTime.parse(resTime));
-//				
-//				evnot.addNfLoadLevelInfosItem(new NfLoadLevelInformation().nfCpuUsage(container_cpu_usage_seconds_total).nfMemoryUsage(30).nfStorageUsage(100));
-//				notification.addEventNotificationsItem(evnot);
+//			NfLoadLevelInformation nfload = new NfLoadLevelInformation().time(Instant.now())
+//					.nfCpuUsage(100).nfMemoryUsage(50)
+//					.nfInstanceId(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
+//					.nfType(new NFType().nfType(NFTypeEnum.AMF))
+//					.nfStatus(new NfStatus().statusRegistered(1).statusUnregistered(2).statusUndiscoverable(3));
+//			metricsService.create(nfload);
 //			
-//				HttpEntity<NnwdafEventsSubscriptionNotification> req = new HttpEntity<>(notification);
-//				ResponseEntity<NnwdafEventsSubscriptionNotification> res = template.postForEntity(clientURL+"/notify",req, NnwdafEventsSubscriptionNotification.class);
-//				System.out.println("Location:"+res.getHeaders().getFirst("Location"));
-//				try {
-//					Thread.sleep(1000);
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//			}
+//			UeMobility uemob = new UeMobility().duration(12).ts(OffsetDateTime.now())
+//					.addLocInfosItem(new LocationInfo()
+//							.ratio(1)
+//							.loc(new UserLocation()
+//									.eutraLocation(new EutraLocation()
+//											.ageOfLocationInformation(0)
+//											.ecgi(new Ecgi()
+//													.eutraCellId("1F3A41B")
+//													.nid("FFFFFFFFFFF"))
+//													.tai(new Tai()
+//															.tac("FFFF")))));
+//			metricsService.create(uemob);
+			String params="";
+			Long subId = 0l;
+			
+			dataCollectionPublisher.publishDataCollection(params);
+			notifyPublisher.publishNotification(subId);			
 		};
 	}
 	
 	public static Logger getLogger() {
 		return NwdafSubApplication.log;
 	}
+	
 }

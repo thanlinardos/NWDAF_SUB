@@ -1,15 +1,13 @@
 package io.nwdaf.eventsubscription.controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
-
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -18,26 +16,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.Constants;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;
-import io.nwdaf.eventsubscription.model.EventNotification;
 import io.nwdaf.eventsubscription.model.EventSubscription;
+import io.nwdaf.eventsubscription.model.FailureEventInfo;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
 import io.nwdaf.eventsubscription.model.NotificationFlag;
-import io.nwdaf.eventsubscription.model.NotificationMethod;
+import io.nwdaf.eventsubscription.model.NwdafFailureCode;
 import io.nwdaf.eventsubscription.model.ReportingInformation;
 import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
 import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
+import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
+import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
-import io.nwdaf.eventsubscription.repository.eventnotification.entities.NnwdafNotificationTable;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
 import io.nwdaf.eventsubscription.requestbuilders.PrometheusRequestBuilder;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
+import io.nwdaf.eventsubscription.service.MetricsService;
 import io.nwdaf.eventsubscription.service.NotificationService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
 
@@ -54,14 +53,13 @@ public class SubscriptionsController implements SubscriptionsApi{
 	SubscriptionsService subscriptionService;
 
 	@Autowired
-	NotificationService notificationService;
+	MetricsService metricsService;
 	
-	@Autowired
-	private ObjectMapper objectMapper;
 	
 	@Override
 	public ResponseEntity<NnwdafEventsSubscription> createNWDAFEventsSubscription(
 			@Valid NnwdafEventsSubscription body) {
+		Logger logger = NwdafSubApplication.getLogger();
 		String subsUri = env.getProperty("nnwdaf-eventsubscription.openapi.dev-url")+"/nwdaf-eventsubscription/v1/subscriptions";
 		//System.out.println(body.toString());
 		System.out.println("Controller logic...");
@@ -125,7 +123,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 				}				
 			}
 		}
-			//check if period is valid (between 1sec and 10mins) and if not change it to the corresponding boundary
+		
 		PrometheusRequestBuilder promReqBuilder = new PrometheusRequestBuilder();
 		List<Boolean> canServeSubscription = new ArrayList<>();
 		for(int i=0;i<no_events;i++) {
@@ -133,26 +131,38 @@ public class SubscriptionsController implements SubscriptionsApi{
 		}
 		NotificationBuilder notifBuilder = new NotificationBuilder();
 		for(int i=0;i<no_events;i++) {
+			EventSubscription event = body.getEventSubscriptions().get(i);
+			NwdafEventEnum eType = event.getEvent().getEvent();
+			//check if period is valid (between 1sec and 10mins) and if not add failureReport
 			if(eventIndexToRepPeriodMap.get(i)!=null && eventIndexToNotifMethodMap.get(i).equals(NotificationMethodEnum.PERIODIC)) {
-				if(eventIndexToRepPeriodMap.get(i)<Constants.MIN_PERIOD_SECONDS) {
-					eventIndexToRepPeriodMap.put(i, Constants.MIN_PERIOD_SECONDS);
-				}
-				if(eventIndexToRepPeriodMap.get(i)>Constants.MAX_PERIOD_SECONDS) {
-					eventIndexToRepPeriodMap.put(i, Constants.MAX_PERIOD_SECONDS);
+				Boolean failed_notif = false;
+				NwdafFailureCodeEnum failCode = null;
+				if(eventIndexToRepPeriodMap.get(i)<Constants.MIN_PERIOD_SECONDS||eventIndexToRepPeriodMap.get(i)>Constants.MAX_PERIOD_SECONDS) {
+					failed_notif = true;
+					failCode = NwdafFailureCodeEnum.OTHER;
 				}
 				//check whether data is available to be gathered
-				NnwdafEventsSubscriptionNotification notification = null;
+				List<NfLoadLevelInformation> nfloadinfos=new ArrayList<>();
 				try {
-					notification = notifBuilder.initNotification(0l);
-					notification = promReqBuilder.execute(body.getEventSubscriptions().get(i), 0l,notification,env.getProperty("nnwdaf-eventsubscription.prometheus_url"),env.getProperty("nnwdaf-eventsubscription.containerNames"));
+					nfloadinfos = new PrometheusRequestBuilder().execute(eType, env.getProperty("nnwdaf-eventsubscription.prometheus_url"), env.getProperty("nnwdaf-eventsubscription.containerNames"));
 				} catch (JsonProcessingException e) {
-					e.printStackTrace();
+					failed_notif=true;
+					logger.error("Failed to collect data for event: "+eType,e);
+					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
 				}
-				if(notification!=null) {
+				if(nfloadinfos.size()==0) {
+					logger.error("Failed to collect data for event: "+eType);
+					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+				}
+				// add failureEventInfo
+				if(nfloadinfos.size()==0 || failed_notif) {
+    				body.addFailEventReportsItem(new FailureEventInfo().event(event.getEvent()).failureCode(new NwdafFailureCode().failureCode(failCode)));
+				}
+				else {
 					canServeSubscription.set(i, true);
-					System.out.println("avg_cpu="+notification.getEventNotifications().get(0).getNfLoadLevelInfos().get(0).getNfCpuUsage());
+					logger.info("avg_cpu="+nfloadinfos.get(0).getNfCpuUsage());
 				}
-				System.out.println("notifMethod="+eventIndexToNotifMethodMap.get(i)+", repPeriod="+eventIndexToRepPeriodMap.get(i));
+				logger.info("notifMethod="+eventIndexToNotifMethodMap.get(i)+", repPeriod="+eventIndexToRepPeriodMap.get(i));
 				}
 		}
 		Integer count_of_notif = 0;
@@ -162,15 +172,6 @@ public class SubscriptionsController implements SubscriptionsApi{
 				count_of_notif++;
 				periods_to_serve.add(eventIndexToRepPeriodMap.get(i));
 			}
-		}
-		List<Integer> periods_to_serve_copy = new ArrayList<>(periods_to_serve);
-		Collections.sort(periods_to_serve_copy);
-		Integer periods_to_serve_min=null;
-		Integer periods_to_serve_max=null;
-		
-		if(periods_to_serve_copy.size()>0) {
-			periods_to_serve_min = periods_to_serve_copy.get(0);
-			periods_to_serve_max = periods_to_serve_copy.get(periods_to_serve_copy.size()-1);
 		}
 		if(count_of_notif==0) {
 			if(body.getEvtReq()==null) {
@@ -186,22 +187,13 @@ public class SubscriptionsController implements SubscriptionsApi{
 		
 		//notify about new saved subscription
 		if(count_of_notif>0 && !muted) {
-			if(periods_to_serve_min!=null&&periods_to_serve_max!=null) {
-				if(periods_to_serve_max-periods_to_serve_min<=60) {
-					//only 1 notify thread
-					notifyPublisher.publishNotification(id);
-				}
-			}
-			else {
-				
-			}
+			notifyPublisher.publishNotification(id);
 		}
 
 		System.out.println("id="+id);
 		System.out.println(body);
-//		System.out.println(subscriptionService.findOneByNotifURI(env.getProperty("nnwdaf-eventsubscription.client.dev-url")).toString());
 		responseHeaders.set("Location",subsUri+"/"+id);
-		ResponseEntity<NnwdafEventsSubscription> response = ResponseEntity.status(HttpStatus.OK).headers(responseHeaders).body(body);
+		ResponseEntity<NnwdafEventsSubscription> response = ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders).body(body);
 		return response;
 	}
 

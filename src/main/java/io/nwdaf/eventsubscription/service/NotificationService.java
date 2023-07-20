@@ -3,6 +3,7 @@ package io.nwdaf.eventsubscription.service;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -26,10 +27,11 @@ public class NotificationService {
 	@Autowired
 	private ObjectMapper objectMapper;
 	
-	public NnwdafNotificationTable create(NnwdafEventsSubscriptionNotification body) {
+	@Async
+	public void create(NnwdafEventsSubscriptionNotification body) {
 		NnwdafNotificationTable body_table = new NnwdafNotificationTable();
 		body_table.setNotif(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));
 //		NwdafSubApplication.getLogger().info(body_table.getNotif().toString());
-		return repository.save(body_table);
+		repository.save(body_table);
 	}
 }

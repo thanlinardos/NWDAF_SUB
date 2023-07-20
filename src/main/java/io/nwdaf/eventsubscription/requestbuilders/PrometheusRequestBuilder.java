@@ -23,6 +23,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.bdwise.prometheus.client.converter.ConvertUtil;
@@ -69,15 +70,14 @@ public class PrometheusRequestBuilder {
 		return reqToPrometheus;
 	}
 	
-	public NnwdafEventsSubscriptionNotification execute(EventSubscription eventSub,Long id,NnwdafEventsSubscriptionNotification notification,String prometheus_url,String containerNamesEnv) throws JsonProcessingException {
+	@SuppressWarnings("unchecked")
+	public <T> List<T> execute(NwdafEventEnum eType,String prometheus_url,String containerNamesEnv) throws JsonProcessingException {
 		Logger log = NwdafSubApplication.getLogger();
 		OffsetDateTime now = OffsetDateTime.now();
 		//setup the connection rest template
 		template = setupTemplate();
 		
-		NwdafEventEnum eType = eventSub.getEvent().getEvent();
 		NotificationBuilder notifBuilder = new NotificationBuilder();
-		
 		switch(eType) {
 		case NF_LOAD:
 			String queryString = "container_cpu_usage_seconds_total{name=~\"";
@@ -92,7 +92,12 @@ public class PrometheusRequestBuilder {
 //			System.out.println("query: "+queryString);
 			HttpEntity<MultiValueMap<String, String>> reqToPrometheus = setupRequest(now,queryString);
 //			long start = System.nanoTime();
-			String rtVal = template.postForObject(prometheus_url, reqToPrometheus, String.class);
+			String rtVal;
+			try {
+			rtVal = template.postForObject(prometheus_url, reqToPrometheus, String.class);
+			}catch(RestClientException e) {
+				return null;
+			}
 //			long diff = (System.nanoTime()-start) / 1000000l;
 //        	System.out.println("prometheus actual post req delay: "+diff+"ms");
 			DefaultQueryResult<VectorData> result = ConvertUtil.convertQueryResultString(rtVal);
@@ -106,7 +111,7 @@ public class PrometheusRequestBuilder {
 			List<Double> maxs = new ArrayList<>();
 			for(int i=0;i<containerNames.size();i++) {
 				data.add(new ArrayList<>(Arrays.asList(null,null,null,null,null,null)));
-				dataOptionals.add(new ArrayList<>(Arrays.asList(null,null,null,null,null,null,null,null,null)));
+				dataOptionals.add(new ArrayList<>(Arrays.asList(null,null,null,null,null,null,null,null,null,null)));
 				means.add(0.0);
 				counters.add(0);
 				maxs.add(0.0);
@@ -116,6 +121,7 @@ public class PrometheusRequestBuilder {
 					if(containerNames.contains(vectorData.getMetric().get("name"))) {
 						Integer index = containerNames.indexOf(vectorData.getMetric().get("name"));
 						resTime = OffsetDateTime.ofInstant(Instant.ofEpochMilli(Math.round(vectorData.getDataValue().getTimestamp()*1000)), TimeZone.getDefault().toZoneId()).toString();
+						dataOptionals.get(index).set(9,resTime);
 						value = vectorData.getDataValue().getValue();
 						means.set(index,means.get(index)+value);
 						if(value>maxs.get(index)) {
@@ -135,19 +141,17 @@ public class PrometheusRequestBuilder {
 			for(int i=0;i<means.size();i++) {
 				means.set(i, means.get(i)/counters.get(i));
 				meanInts.add((int) Math.round(means.get(i)));
-//				data.get(i).set(0,(int) Math.round(means.get(i)));
+				data.get(i).set(0,(int) Math.round(means.get(i)));
 			}
 			for(int i=0;i<maxs.size();i++) {
-				data.get(i).set(0,(int) Math.round(maxs.get(i)));
+//				data.get(i).set(0,(int) Math.round(maxs.get(i)));
 			}
 //			log.info(data.toString());
-			notification = notifBuilder.addEvent(notification, NwdafEventEnum.NF_LOAD, null, null, now, null, null, null, data, dataOptionals);
-	
-			break;
+			return (List<T>) notifBuilder.makeNfLoadLevelInformation(data, dataOptionals);
 		default:
 			break;
 	}
 		
-		return notification;
+		return null;
 	}
 }

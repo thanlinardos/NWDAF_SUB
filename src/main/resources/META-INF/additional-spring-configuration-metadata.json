@@ -63,5 +63,55 @@
     "name": "nnwdaf-eventsubscription.containerNames",
     "type": "java.lang.String",
     "description": "A description for 'nnwdaf-eventsubscription.containerNames'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.influxdb.databaseURL",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.influxdb.databaseURL'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.influxdb.token",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.influxdb.token'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.influxdb.bucket",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.influxdb.bucket'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.influxdb.org",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.influxdb.org'"
+  },
+  {
+	"name": "eventmetrics.datasource.generate-unique-name",
+    "type": "java.lang.String",
+    "description": "A description for 'eventmetrics.datasource.generate-unique-name'"
+  },
+  {
+	"name": "eventmetrics.datasource.name",
+    "type": "java.lang.String",
+    "description": "A description for 'eventmetrics.datasource.name'"
+  },
+  {
+	"name": "eventmetrics.datasource.username",
+    "type": "java.lang.String",
+    "description": "A description for 'eventmetrics.datasource.username'"
+  },
+  {
+	"name": "eventmetrics.datasource.password",
+    "type": "java.lang.String",
+    "description": "A description for 'eventmetrics.datasource.password'"
+  },
+  {
+	"name": "eventmetrics.datasource.driverClassName",
+    "type": "java.lang.String",
+    "description": "A description for 'eventmetrics.datasource.driverClassName'"
+  },
+  {
+	"name": "eventmetrics.datasource.url",
+    "type": "java.lang.String",
+    "description": "A description for 'eventmetrics.datasource.url'"
   }
 ]}

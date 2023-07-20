@@ -1,9 +1,18 @@
 package io.nwdaf.eventsubscription.model;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Objects;
+import java.util.TimeZone;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.influxdb.annotations.Column;
+import com.influxdb.annotations.Measurement;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -15,8 +24,11 @@ import javax.validation.constraints.*;
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2023-06-10T19:22:40.843464800+03:00[Europe/Athens]")
 
-
 public class NfLoadLevelInformation   {
+  private Instant time;
+  
+  private OffsetDateTime timeStamp=null;
+  
   @JsonProperty("nfType")
   private NFType nfType = null;
 
@@ -58,6 +70,19 @@ public class NfLoadLevelInformation   {
     return this;
   }
 
+  	
+  public Instant getTime() {
+	return time;
+  }
+  public void setTime(Instant time) {
+	this.time = time;
+	this.timeStamp = OffsetDateTime.ofInstant(time, TimeZone.getDefault().toZoneId());
+  }
+  public NfLoadLevelInformation time(Instant time) {
+	this.time = time;
+	this.timeStamp = OffsetDateTime.ofInstant(time, TimeZone.getDefault().toZoneId());
+    return this;
+  }
   /**
    * Get nfType
    * @return nfType
@@ -347,4 +372,14 @@ public class NfLoadLevelInformation   {
     }
     return o.toString().replace("\n", "\n    ");
   }
+
+
+public OffsetDateTime getTimeStamp() {
+	return timeStamp;
+}
+
+
+public void setTimeStamp(OffsetDateTime timeStamp) {
+	this.timeStamp = timeStamp;
+}
 }

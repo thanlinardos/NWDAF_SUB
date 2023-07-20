@@ -31,6 +31,29 @@ services:
       - monitor-net
     volumes: 
       - ./pgadmin-data:/var/lib/pgadmin
+  # influxdb:
+  #   image: influxdb:2.6-alpine
+  #   env_file:
+  #     - influxv2.env
+  #   volumes:
+  #     # Mount for influxdb data directory and configuration
+  #     - ./influxdbv2:/var/lib/influxdb2:rw
+  #   networks:
+  #     - monitor-net
+  #   ports:
+  #     - "8086:8086"
+  timescaledb:
+    image: timescale/timescaledb:latest-pg12
+    restart: always
+    ports:
+      - 5433:5433
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    networks:
+      - monitor-net
+    volumes:
+      - ./timescaledb-data:/var/lib/postgresql/data
   nwdafSub:
     container_name: nwdafSub
     image: thanlinardos/nwdaf_sub:0.0.2-SNAPSHOT
@@ -88,105 +111,105 @@ services:
 
       #endpoints:
       management.endpoint.health.show-details: always
-  nwdafSubClient2:
-    container_name: nwdafSubClient2
-    image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
-    restart: always
-    tty: true
-    ports:
-      - "${client_port2}:${client_port2}"
-    networks:
-      - monitor-net
-    environment:
-      springdoc.enable-native-support: true
-      springdoc.swagger-ui.path: /swagger-ui
-      server.port: "${client_port2}"
-      nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
-      nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
-      nnwdaf-eventsubscription.client.dev_url: "${client_host2}:${client_port2}/client"
-      nnwdaf-eventsubscription.client.prod_url: "${client_host2}:${client_port2}/client"
-      nnwdaf-eventsubscription.init: false
-      #spring configuration:
-      spring.datasource.generate-unique-name: false
-      spring.datasource.name: eventsubscription
-      spring.profiles.active: production
+  # nwdafSubClient2:
+  #   container_name: nwdafSubClient2
+  #   image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
+  #   restart: always
+  #   tty: true
+  #   ports:
+  #     - "${client_port2}:${client_port2}"
+  #   networks:
+  #     - monitor-net
+  #   environment:
+  #     springdoc.enable-native-support: true
+  #     springdoc.swagger-ui.path: /swagger-ui
+  #     server.port: "${client_port2}"
+  #     nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.client.dev_url: "${client_host2}:${client_port2}/client"
+  #     nnwdaf-eventsubscription.client.prod_url: "${client_host2}:${client_port2}/client"
+  #     nnwdaf-eventsubscription.init: false
+  #     #spring configuration:
+  #     spring.datasource.generate-unique-name: false
+  #     spring.datasource.name: eventsubscription
+  #     spring.profiles.active: production
 
-      #endpoints:
-      management.endpoint.health.show-details: always
-  nwdafSubClient3:
-    container_name: nwdafSubClient3
-    image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
-    restart: always
-    tty: true
-    ports:
-      - "${client_port3}:${client_port3}"
-    networks:
-      - monitor-net
-    environment:
-      springdoc.enable-native-support: true
-      springdoc.swagger-ui.path: /swagger-ui
-      server.port: "${client_port3}"
-      nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
-      nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
-      nnwdaf-eventsubscription.client.dev_url: "${client_host3}:${client_port3}/client"
-      nnwdaf-eventsubscription.client.prod_url: "${client_host3}:${client_port3}/client"
-      nnwdaf-eventsubscription.init: false
-      #spring configuration:
-      spring.datasource.generate-unique-name: false
-      spring.datasource.name: eventsubscription
-      spring.profiles.active: production
+  #     #endpoints:
+  #     management.endpoint.health.show-details: always
+  # nwdafSubClient3:
+  #   container_name: nwdafSubClient3
+  #   image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
+  #   restart: always
+  #   tty: true
+  #   ports:
+  #     - "${client_port3}:${client_port3}"
+  #   networks:
+  #     - monitor-net
+  #   environment:
+  #     springdoc.enable-native-support: true
+  #     springdoc.swagger-ui.path: /swagger-ui
+  #     server.port: "${client_port3}"
+  #     nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.client.dev_url: "${client_host3}:${client_port3}/client"
+  #     nnwdaf-eventsubscription.client.prod_url: "${client_host3}:${client_port3}/client"
+  #     nnwdaf-eventsubscription.init: false
+  #     #spring configuration:
+  #     spring.datasource.generate-unique-name: false
+  #     spring.datasource.name: eventsubscription
+  #     spring.profiles.active: production
 
-      #endpoints:
-      management.endpoint.health.show-details: always
-  nwdafSubClient4:
-    container_name: nwdafSubClient4
-    image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
-    restart: always
-    tty: true
-    ports:
-      - "${client_port4}:${client_port4}"
-    networks:
-      - monitor-net
-    environment:
-      springdoc.enable-native-support: true
-      springdoc.swagger-ui.path: /swagger-ui
-      server.port: "${client_port4}"
-      nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
-      nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
-      nnwdaf-eventsubscription.client.dev_url: "${client_host4}:${client_port4}/client"
-      nnwdaf-eventsubscription.client.prod_url: "${client_host4}:${client_port4}/client"
-      nnwdaf-eventsubscription.init: false
-      #spring configuration:
-      spring.datasource.generate-unique-name: false
-      spring.datasource.name: eventsubscription
-      spring.profiles.active: production
+  #     #endpoints:
+  #     management.endpoint.health.show-details: always
+  # nwdafSubClient4:
+  #   container_name: nwdafSubClient4
+  #   image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
+  #   restart: always
+  #   tty: true
+  #   ports:
+  #     - "${client_port4}:${client_port4}"
+  #   networks:
+  #     - monitor-net
+  #   environment:
+  #     springdoc.enable-native-support: true
+  #     springdoc.swagger-ui.path: /swagger-ui
+  #     server.port: "${client_port4}"
+  #     nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.client.dev_url: "${client_host4}:${client_port4}/client"
+  #     nnwdaf-eventsubscription.client.prod_url: "${client_host4}:${client_port4}/client"
+  #     nnwdaf-eventsubscription.init: false
+  #     #spring configuration:
+  #     spring.datasource.generate-unique-name: false
+  #     spring.datasource.name: eventsubscription
+  #     spring.profiles.active: production
 
-      #endpoints:
-      management.endpoint.health.show-details: always
-  nwdafSubClient5:
-    container_name: nwdafSubClient5
-    image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
-    restart: always
-    tty: true
-    ports:
-      - "${client_port5}:${client_port5}"
-    networks:
-      - monitor-net
-    environment:
-      springdoc.enable-native-support: true
-      springdoc.swagger-ui.path: /swagger-ui
-      server.port: "${client_port5}"
-      nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
-      nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
-      nnwdaf-eventsubscription.client.dev_url: "${client_host5}:${client_port5}/client"
-      nnwdaf-eventsubscription.client.prod_url: "${client_host5}:${client_port5}/client"
-      nnwdaf-eventsubscription.init: false
-      #spring configuration:
-      spring.datasource.generate-unique-name: false
-      spring.datasource.name: eventsubscription
-      spring.profiles.active: production
+  #     #endpoints:
+  #     management.endpoint.health.show-details: always
+  # nwdafSubClient5:
+  #   container_name: nwdafSubClient5
+  #   image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
+  #   restart: always
+  #   tty: true
+  #   ports:
+  #     - "${client_port5}:${client_port5}"
+  #   networks:
+  #     - monitor-net
+  #   environment:
+  #     springdoc.enable-native-support: true
+  #     springdoc.swagger-ui.path: /swagger-ui
+  #     server.port: "${client_port5}"
+  #     nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.client.dev_url: "${client_host5}:${client_port5}/client"
+  #     nnwdaf-eventsubscription.client.prod_url: "${client_host5}:${client_port5}/client"
+  #     nnwdaf-eventsubscription.init: false
+  #     #spring configuration:
+  #     spring.datasource.generate-unique-name: false
+  #     spring.datasource.name: eventsubscription
+  #     spring.profiles.active: production
 
-      #endpoints:
-      management.endpoint.health.show-details: always
+  #     #endpoints:
+  #     management.endpoint.health.show-details: always
 
       

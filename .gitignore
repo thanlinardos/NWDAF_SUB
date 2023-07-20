@@ -34,5 +34,7 @@ build/
 
 src/main/resources/pgadmin-data
 src/main/resources/postgres-data
+src/main/resources/influxdbv2
+src/main/resources/timescaledb-data
 
 bin

@@ -101,6 +101,15 @@
 		  <artifactId>json</artifactId>
 		  <version>20220924</version>
 		</dependency>
+		<dependency>
+		  <groupId>com.fasterxml.jackson.datatype</groupId>
+		  <artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>com.influxdb</groupId>
+		    <artifactId>influxdb-client-java</artifactId>
+		    <version>6.8.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
