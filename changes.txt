@@ -15,7 +15,8 @@ todo:
 	-query filters for subs INPROGRESS (ready for clientURI)
 	-make some fake test data (for example for NFLoad) DONE
 	-massage the test data DONE (make classes for it and for prometheus request)
-	-save massaged Prometheus data (NwdaNotification model) to a second DB(Influx or Postgres) DONE
+	-save notifications to 2nd postges db DONE
+	-save massaged Prometheus data (NwdaNotification Info attributes) to a 3rd DB(Influx or Timescaledb) DONE (for NFload)
 	-graphana the data DONE (Could graphana the massaged data as well)
 	-implement periodic notifications DONE (sends post to client with notifURI after making the notifications from Prometheus data)
 	-simple api for client receiving notifications (just a controller mapping for notifications + display below the form) DONE
@@ -76,3 +77,6 @@ Compiled project to docker images (error with thymeleaf parsing and finding repo
 ---15/7/23-----
 finished docker compose for 5 clients
 ran benchmarks
+---21/7/23-----
+added timescaledb instead of influxdb
+added event listener for data collection
