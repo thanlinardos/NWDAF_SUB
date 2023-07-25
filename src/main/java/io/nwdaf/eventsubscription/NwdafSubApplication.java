@@ -1,9 +1,7 @@
 package io.nwdaf.eventsubscription;
 
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.util.UUID;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +13,6 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,19 +20,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 
 import io.nwdaf.eventsubscription.api.config.NwdafSubProperties;
-import io.nwdaf.eventsubscription.model.Ecgi;
-import io.nwdaf.eventsubscription.model.EutraLocation;
-import io.nwdaf.eventsubscription.model.LocationInfo;
-import io.nwdaf.eventsubscription.model.NFType;
-import io.nwdaf.eventsubscription.model.NFType.NFTypeEnum;
-import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
-import io.nwdaf.eventsubscription.model.NfStatus;
-import io.nwdaf.eventsubscription.model.Tai;
-import io.nwdaf.eventsubscription.model.UeMobility;
-import io.nwdaf.eventsubscription.model.UserLocation;
 import io.nwdaf.eventsubscription.notify.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
-import io.nwdaf.eventsubscription.service.MetricsService;
 
 @EnableConfigurationProperties(NwdafSubProperties.class)
 @SpringBootApplication
@@ -43,8 +29,8 @@ import io.nwdaf.eventsubscription.service.MetricsService;
 @EntityScan({"io.nwdaf.eventsubscription.repository"})
 public class NwdafSubApplication {
 	
-	@Autowired
-	private Environment env;
+	// @Autowired
+	// private Environment env;
 	
 	private static final Logger log = LoggerFactory.getLogger(NwdafSubApplication.class);
 	
@@ -71,8 +57,8 @@ public class NwdafSubApplication {
 	@Bean
 	public CommandLineRunner run() throws JsonProcessingException{
 		
-		String clientURL = env.getProperty("nnwdaf-eventsubscription.client.dev_url");
-		String prometheusURL = env.getProperty("nnwdaf-eventsubscription.prometheus_url");
+		// String clientURL = env.getProperty("nnwdaf-eventsubscription.client.dev_url");
+		// String prometheusURL = env.getProperty("nnwdaf-eventsubscription.prometheus_url");
 		
 		return args -> {
 //			NfLoadLevelInformation nfload = new NfLoadLevelInformation().time(Instant.now())

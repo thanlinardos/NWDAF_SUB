@@ -3,7 +3,6 @@ package io.nwdaf.eventsubscription.repository.eventmetrics;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.nwdaf.eventsubscription.repository.eventmetrics.entities.NfLoadLevelInformationTable;
 import io.nwdaf.eventsubscription.repository.eventmetrics.entities.UeMobilityTable;
-import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
 
 @Repository("eventmetrics")
 @EntityScan("io.nwdaf.eventsubscription.repository.eventmetrics")

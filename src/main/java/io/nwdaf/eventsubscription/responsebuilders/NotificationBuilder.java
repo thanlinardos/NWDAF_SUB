@@ -12,11 +12,8 @@ import io.nwdaf.eventsubscription.model.NFType.NFTypeEnum;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NfStatus;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
-import io.nwdaf.eventsubscription.model.NsiLoadLevelInfo;
 import io.nwdaf.eventsubscription.model.NwdafEvent;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode;
-import io.nwdaf.eventsubscription.model.ServiceExperienceInfo;
-import io.nwdaf.eventsubscription.model.SliceLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.Snssai;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 

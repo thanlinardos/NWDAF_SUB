@@ -18,7 +18,6 @@ import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.requestbuilders.PrometheusRequestBuilder;
 import io.nwdaf.eventsubscription.service.MetricsService;
-import io.nwdaf.eventsubscription.service.NotificationService;
 
 @Component
 public class DataCollectionListener {

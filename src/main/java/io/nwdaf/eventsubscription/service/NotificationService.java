@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
 import io.nwdaf.eventsubscription.repository.eventnotification.NotificationRepository;
 import io.nwdaf.eventsubscription.repository.eventnotification.entities.NnwdafNotificationTable;

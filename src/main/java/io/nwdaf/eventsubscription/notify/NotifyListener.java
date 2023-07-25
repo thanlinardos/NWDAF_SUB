@@ -33,7 +33,6 @@ import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnu
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
-import io.nwdaf.eventsubscription.requestbuilders.PrometheusRequestBuilder;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.MetricsService;
 import io.nwdaf.eventsubscription.service.NotificationService;

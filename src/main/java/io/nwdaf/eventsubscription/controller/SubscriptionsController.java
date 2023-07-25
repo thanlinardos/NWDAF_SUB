@@ -2,7 +2,6 @@ package io.nwdaf.eventsubscription.controller;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,13 +34,10 @@ import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
 import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
-import io.nwdaf.eventsubscription.notify.NotifyListener;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
-import io.nwdaf.eventsubscription.requestbuilders.PrometheusRequestBuilder;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.MetricsService;
-import io.nwdaf.eventsubscription.service.NotificationService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
 
 @RestController
@@ -246,14 +242,12 @@ public class SubscriptionsController implements SubscriptionsApi{
 
 	@Override
 	public ResponseEntity<Void> deleteNWDAFEventsSubscription(String subscriptionId) {
-		// TODO Auto-generated method stub
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
 	@Override
 	public ResponseEntity<NnwdafEventsSubscription> updateNWDAFEventsSubscription(String subscriptionId,
 			@Valid NnwdafEventsSubscription body) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

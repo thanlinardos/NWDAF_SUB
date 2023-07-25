@@ -17,14 +17,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
-import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
-import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
 import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.repository.eventmetrics.MetricsRepository;
 import io.nwdaf.eventsubscription.repository.eventmetrics.entities.NfLoadLevelInformationTable;
 import io.nwdaf.eventsubscription.repository.eventmetrics.entities.UeMobilityTable;
-import io.nwdaf.eventsubscription.repository.eventnotification.NotificationRepository;
-import io.nwdaf.eventsubscription.repository.eventnotification.entities.NnwdafNotificationTable;
 
 @Service
 public class MetricsService {
@@ -79,10 +75,8 @@ public class MetricsService {
 		try {
 			data = new JSONObject(objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(body)).toString();
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		NwdafSubApplication.getLogger().info(data);

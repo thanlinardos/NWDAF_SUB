@@ -6,12 +6,9 @@ import java.util.Objects;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.influxdb.annotations.Column;
-import com.influxdb.annotations.Measurement;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;

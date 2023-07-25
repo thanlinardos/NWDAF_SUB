@@ -4,7 +4,6 @@ import org.apache.hc.client5.http.classic.HttpClient;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -13,14 +12,9 @@ import java.util.TimeZone;
 
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
@@ -30,19 +24,9 @@ import com.bdwise.prometheus.client.converter.ConvertUtil;
 import com.bdwise.prometheus.client.converter.query.DefaultQueryResult;
 import com.bdwise.prometheus.client.converter.query.VectorData;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.nwdaf.eventsubscription.Constants;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
-import io.nwdaf.eventsubscription.model.EventNotification;
-import io.nwdaf.eventsubscription.model.EventSubscription;
-import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
-import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
-import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
-import io.nwdaf.eventsubscription.model.NotificationMethod;
-import io.nwdaf.eventsubscription.model.NwdafEvent;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
-import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 
 public class PrometheusRequestBuilder {
