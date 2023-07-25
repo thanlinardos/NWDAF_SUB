@@ -24,13 +24,14 @@ public class NotificationBuilder {
 	public NnwdafEventsSubscriptionNotification initNotification(Long subId) {
 		return new NnwdafEventsSubscriptionNotification().subscriptionId(subId.toString());
 	}
+	@SuppressWarnings("unchecked")
 	public <T> NnwdafEventsSubscriptionNotification addEvent(NnwdafEventsSubscriptionNotification self, NwdafEventEnum event, OffsetDateTime start,
 			OffsetDateTime expiry, OffsetDateTime timeStampGen, NwdafFailureCode failNotifyCode, Integer rvWaitTime, AnalyticsMetadataInfo anaMetaInfo,
-			List<NfLoadLevelInformation> nfloadinfos) {
+			List<T> nfloadinfos) {
 		EventNotification e = new EventNotification();
 		e.event(new NwdafEvent().event(event)).start(start).expiry(expiry).timeStampGen(timeStampGen).failNotifyCode(failNotifyCode).rvWaitTime(rvWaitTime).anaMetaInfo(anaMetaInfo);
 		if(event.equals(NwdafEventEnum.NF_LOAD)) {
-			e.nfLoadLevelInfos(nfloadinfos);
+			e.nfLoadLevelInfos((List<NfLoadLevelInformation>)nfloadinfos);
 		}
 		else if(event.equals(NwdafEventEnum.UE_MOBILITY)) {
 			e.ueMobs(new ArrayList<>());

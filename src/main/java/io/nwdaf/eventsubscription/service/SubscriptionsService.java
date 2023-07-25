@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.repository.eventsubscription.SubscriptionRepository;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
@@ -39,7 +40,9 @@ public class SubscriptionsService {
 	}
 	
 	public List<NnwdafEventsSubscription> findAll() throws JsonMappingException, JsonProcessingException {
+//		long st_sub = System.nanoTime();
 		List<NnwdafEventsSubscriptionTable> tables = repository.findAll();
+//		NwdafSubApplication.getLogger().info("actual sub query time: "+(System.nanoTime()-st_sub)/1000000l);
 		List<NnwdafEventsSubscription> res = new ArrayList<>();
 		for(int i=0;i<tables.size();i++) {
 			NnwdafEventsSubscription sub = objectMapper.readValue((new JSONObject(tables.get(i).getSub())).toString(),NnwdafEventsSubscription.class);

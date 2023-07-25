@@ -32,6 +32,7 @@ import com.bdwise.prometheus.client.converter.query.VectorData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nwdaf.eventsubscription.Constants;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.model.EventNotification;
 import io.nwdaf.eventsubscription.model.EventSubscription;
@@ -71,7 +72,7 @@ public class PrometheusRequestBuilder {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> List<T> execute(NwdafEventEnum eType,String prometheus_url,String containerNamesEnv) throws JsonProcessingException {
+	public <T> List<T> execute(NwdafEventEnum eType,String prometheus_url) throws JsonProcessingException {
 		Logger log = NwdafSubApplication.getLogger();
 		OffsetDateTime now = OffsetDateTime.now();
 		//setup the connection rest template
@@ -80,17 +81,8 @@ public class PrometheusRequestBuilder {
 		NotificationBuilder notifBuilder = new NotificationBuilder();
 		switch(eType) {
 		case NF_LOAD:
-			String queryString = "container_cpu_usage_seconds_total{name=~\"";
-			List<String> containerNames = new ArrayList<>(Arrays.asList(containerNamesEnv.split(",")));
-			for(int i=0;i<containerNames.size();i++) {
-				queryString+=containerNames.get(i);
-				if(i!=containerNames.size()-1) {
-					queryString+="|";
-				}
-			}
-			queryString+="\"}";
 //			System.out.println("query: "+queryString);
-			HttpEntity<MultiValueMap<String, String>> reqToPrometheus = setupRequest(now,queryString);
+			HttpEntity<MultiValueMap<String, String>> reqToPrometheus = setupRequest(now,Constants.cpuQuerry);
 //			long start = System.nanoTime();
 			String rtVal;
 			try {
@@ -104,49 +96,90 @@ public class PrometheusRequestBuilder {
 	
 			String resTime=null;
 			Double value=null;
-			List<Double> means = new ArrayList<>();
-			List<Integer> counters = new ArrayList<>();
 			List<List<Integer>> data = new ArrayList<>();
 			List<List<String>> dataOptionals = new ArrayList<>();
-			List<Double> maxs = new ArrayList<>();
-			for(int i=0;i<containerNames.size();i++) {
+			List<Double> maxCpus = new ArrayList<>();
+			List<Double> maxMems = new ArrayList<>();
+			List<Double> maxStorages = new ArrayList<>();
+			Integer c = 0;
+			for(int i=0;i<result.getResult().size();i++) {
 				data.add(new ArrayList<>(Arrays.asList(null,null,null,null,null,null)));
 				dataOptionals.add(new ArrayList<>(Arrays.asList(null,null,null,null,null,null,null,null,null,null)));
-				means.add(0.0);
-				counters.add(0);
-				maxs.add(0.0);
 			}
 			for(VectorData vectorData : result.getResult()) {
-				if(vectorData.getMetric().get("name")!=null) {
-					if(containerNames.contains(vectorData.getMetric().get("name"))) {
-						Integer index = containerNames.indexOf(vectorData.getMetric().get("name"));
-						resTime = OffsetDateTime.ofInstant(Instant.ofEpochMilli(Math.round(vectorData.getDataValue().getTimestamp()*1000)), TimeZone.getDefault().toZoneId()).toString();
-						dataOptionals.get(index).set(9,resTime);
-						value = vectorData.getDataValue().getValue();
-						means.set(index,means.get(index)+value);
-						if(value>maxs.get(index)) {
-							maxs.set(index,value);
-						}
-						counters.set(index,counters.get(index)+1);
-//						log.info(String.format("%s", vectorData.getMetric().get("name")));
-//						log.info(String.format("%s %10.2f ",
-//									OffsetDateTime.ofInstant(Instant.ofEpochMilli(Math.round(vectorData.getDataValue().getTimestamp()*1000)), TimeZone.getDefault().toZoneId()),
-//									vectorData.getDataValue().getValue()
-//									));
+				resTime = OffsetDateTime.ofInstant(Instant.ofEpochMilli(Math.round(vectorData.getDataValue().getTimestamp()*1000)), TimeZone.getDefault().toZoneId()).toString();
+				if(dataOptionals.get(c).get(9)==null) {
+					dataOptionals.get(c).set(9,resTime);
+				}
+				if(dataOptionals.get(c).get(0)==null) {
+					dataOptionals.get(c).set(0,vectorData.getMetric().get("nfType"));
+				}
+				if(dataOptionals.get(c).get(1)==null) {
+					// add hyphens '-' to docker/id/[first 32 digits] -> nf instance id (UUID)
+					dataOptionals.get(c).set(1,vectorData.getMetric().get("id").substring(8,39).replaceFirst( "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5" ));
+				}
+				value = vectorData.getDataValue().getValue();
+				log.info(String.format("%s", vectorData.getMetric().get("name")));
+				log.info(String.format("%s %10.2f ",
+						OffsetDateTime.ofInstant(Instant.ofEpochMilli(Math.round(vectorData.getDataValue().getTimestamp()*1000)), TimeZone.getDefault().toZoneId()),
+						vectorData.getDataValue().getValue()
+						));
+				data.get(c).set(0,(int) Math.round(value));	
+				c++;
+			}
+			reqToPrometheus = setupRequest(now,Constants.memQuerry);
+			try {
+				rtVal = template.postForObject(prometheus_url, reqToPrometheus, String.class);
+				}catch(RestClientException e) {
+					return null;
+				}
+			result = ConvertUtil.convertQueryResultString(rtVal);
+			c=0;
+			for(VectorData vectorData : result.getResult()) {
+				value = vectorData.getDataValue().getValue();
+				data.get(c).set(1,(int) Math.round(value));	
+				c++;
+			}
+			reqToPrometheus = setupRequest(now,Constants.storageQuerry);
+			try {
+				rtVal = template.postForObject(prometheus_url, reqToPrometheus, String.class);
+				}catch(RestClientException e) {
+					return null;
+				}
+			result = ConvertUtil.convertQueryResultString(rtVal);
+			c=0;
+			for(VectorData vectorData : result.getResult()) {
+				value = vectorData.getDataValue().getValue();
+				data.get(c).set(2,(int) Math.round(value));	
+				int loadAverage = (data.get(c).get(0) + data.get(c).get(1) + data.get(c).get(2)) / 3;
+				data.get(c).set(3, loadAverage);
+				c++;
+			}
+			String[] maxQuerries = {Constants.maxCpuQuerry,Constants.maxMemQuerry,Constants.maxStorageQuerry};
+			for(int i=0;i<3;i++) {
+				reqToPrometheus = setupRequest(now, maxQuerries[i]);
+				try {
+					rtVal = template.postForObject(prometheus_url, reqToPrometheus, String.class);
+					}catch(RestClientException e) {
+						return null;
+					}
+				result = ConvertUtil.convertQueryResultString(rtVal);
+				for(VectorData vectorData : result.getResult()) {
+					value = vectorData.getDataValue().getValue();
+					if(i==0) {
+						maxCpus.add(value);
+					}
+					else if(i==1) {
+						maxMems.add(value);
+					}
+					else {
+						maxStorages.add(value);
 					}
 				}
-				
 			}
-			List<Integer> meanInts = new ArrayList<>();
-			for(int i=0;i<means.size();i++) {
-				means.set(i, means.get(i)/counters.get(i));
-				meanInts.add((int) Math.round(means.get(i)));
-				data.get(i).set(0,(int) Math.round(means.get(i)));
+			for(int i=0;i<maxCpus.size();i++) {
+				data.get(i).set(4,(int) Math.round((maxCpus.get(i)+maxMems.get(i)+maxStorages.get(i))/3));
 			}
-			for(int i=0;i<maxs.size();i++) {
-//				data.get(i).set(0,(int) Math.round(maxs.get(i)));
-			}
-//			log.info(data.toString());
 			return (List<T>) notifBuilder.makeNfLoadLevelInformation(data, dataOptionals);
 		default:
 			break;

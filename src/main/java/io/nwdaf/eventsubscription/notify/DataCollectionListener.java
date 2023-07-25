@@ -55,7 +55,7 @@ public class DataCollectionListener {
     				List<NfLoadLevelInformation> nfloadinfos=new ArrayList<>();
     				try {
     					long t = System.nanoTime();
-						nfloadinfos = new PrometheusRequestBuilder().execute(eType, env.getProperty("nnwdaf-eventsubscription.prometheus_url"), env.getProperty("nnwdaf-eventsubscription.containerNames"));
+						nfloadinfos = new PrometheusRequestBuilder().execute(eType, env.getProperty("nnwdaf-eventsubscription.prometheus_url"));
 						prom_delay += (System.nanoTime() - t) / 1000000l;
     				} catch (JsonProcessingException e) {
 						logger.error("Failed to collect data for event: "+eType,e);
@@ -74,6 +74,7 @@ public class DataCollectionListener {
     				else {
     					for(int j=0;j<nfloadinfos.size();j++) {
     						try {
+    							System.out.println("nfloadinfo"+j+": "+nfloadinfos.get(j));
     							metricsService.create(nfloadinfos.get(j));
     						}
     						catch(Exception e) {

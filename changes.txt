@@ -80,3 +80,25 @@ ran benchmarks
 ---21/7/23-----
 added timescaledb instead of influxdb
 added event listener for data collection
+
+TODO:
+-update and delete (+on client)
+-add db to client and showallsubs (+ choose a sub to update  or show latest notif)
+-add mem,storage,nf_id,nf_type to prom query and show them to client (read spec)
+-fix all containers not showing on client (show them by nf_id/container_name)
+-add past offset to notify (+ show metrics from each event notif object to client in a list)
+-move timescaledb request outside of loop
+-implement thresholds & immediate reporting
+-make fake metrics for UE_Mobility and implement the use case
+-add second prometheus instance (implement data collection for list of prometheus instances)
+-add kafka broker inbetween to talk to prometheus instances through subscriptions
+-add master client to view all subs
+-add event listener that groups data with turncating in 60min timewindows with 1min averages and stores them permanently
+-graph grouped data with graphana
+
+
+ML stuff:
+-do simple data analysis on grouped data (for example predict cpu usage)
+-train an ml model that gives out predictions for cpu usage
+-make notify request ml model for data
+-add future offset to notify

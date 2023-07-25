@@ -43,6 +43,8 @@ public class MetricsService {
 		NfLoadLevelInformationTable body_table = new NfLoadLevelInformationTable();
 		body_table.setData(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));
 		body_table.setTime(body.getTimeStamp());
+		body_table.setNfInstanceId(body.getNfInstanceId());
+		body_table.setNfSetId(body.getNfSetId());
 		NwdafSubApplication.getLogger().info(body_table.getData().toString());
 		return repository.save(body_table);
 	}

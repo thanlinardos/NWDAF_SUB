@@ -70,7 +70,7 @@ public class NotifyListener {
     	Logger logger = NwdafSubApplication.getLogger();
     	List<NnwdafEventsSubscription> subs = null;
     	try {
-    	subs = subscriptionService.findAll();
+    		subs = subscriptionService.findAll();
     	}catch(Exception e) {
     		logger.error("Error with find subs in subscriptionService", e);
     		synchronized (notifLock) {
@@ -86,8 +86,6 @@ public class NotifyListener {
     	Map<Pair<Long,Integer>,OffsetDateTime> oldNotifTimes = new HashMap<>();
     	Map<Long,Integer> subIndexes = new HashMap<>();
     	RestTemplate template = new RestTemplate();
-    	//builder for prometheus data requests
-    	PrometheusRequestBuilder promReqBuilder = new PrometheusRequestBuilder();
     	//builder for converting data to notification objects
     	NotificationBuilder notifBuilder = new NotificationBuilder();
     	Integer c = 0;
@@ -169,7 +167,7 @@ public class NotifyListener {
 	        		try {
 	        			client_response = template.postForEntity(subs.get(subIndexes.get(id)).getNotificationURI()+"/notify",client_request, NnwdafEventsSubscriptionNotification.class);
 	        		}catch(RestClientException e) {
-	        			logger.error("Error connecting to client "+subs.get(subIndexes.get(id)).getNotificationURI(),e);
+	        			logger.error("Error connecting to client "+subs.get(subIndexes.get(id)).getNotificationURI());
 	        		}
 	        		client_delay += (System.nanoTime()-st)/1000000l;
 	    			if(client_response!=null) {
@@ -181,7 +179,9 @@ public class NotifyListener {
     			}
     		}
     		try {
-    		subs = subscriptionService.findAll();
+//    			long st_sub = System.nanoTime();
+    			subs = subscriptionService.findAll();
+//    			logger.info("sub query time: "+(System.nanoTime()-st_sub)/1000000l);
     		}catch(Exception e) {
         		logger.error("Error with find subs in subscriptionService", e);
         		synchronized (notifLock) {
