@@ -222,7 +222,7 @@ public class NotifyListener {
         	System.out.println("no_subs="+subs.size());
         	System.out.println("no_Ssubs="+c);
         	System.out.println("timescaledb req delay: "+prom_delay+"ms");
-    		System.out.println("notif save delay: "+notif_save_delay+"ms");
+    		// System.out.println("notif save delay: "+notif_save_delay+"ms");
     		System.out.println("sending notif to client delay:"+client_delay+"ms");
         	long diff = (System.nanoTime()-start) / 1000000l;
         	System.out.println("total delay: "+diff+"ms");

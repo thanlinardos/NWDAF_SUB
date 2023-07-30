@@ -213,4 +213,8 @@ public class EllipsoidArc extends GADShape implements GeographicArea {
     }
     return o.toString().replace("\n", "\n    ");
   }
+  @Override
+  public String getType() {
+    return getClass().getSimpleName();
+  }
 }

@@ -17,15 +17,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Validated
 public class SupportedGADShapes {
   public enum SupportedGADShapesEnum {
-    POINT("POINT"),
-    POINT_UNCERTAINTY_CIRCLE("POINT_UNCERTAINTY_CIRCLE"),
-    POINT_UNCERTAINTY_ELLIPSE("POINT_UNCERTAINTY_ELLIPSE"),
-    POLYGON("POLYGON"),
-    POINT_ALTITUDE("POINT_ALTITUDE"),
-    POINT_ALTITUDE_UNCERTAINTY("POINT_ALTITUDE_UNCERTAINTY"),
-    ELLIPSOID_ARC("ELLIPSOID_ARC"),
-    LOCAL_2D_POINT_UNCERTAINTY_ELLIPSE("LOCAL_2D_POINT_UNCERTAINTY_ELLIPSE"),
-    LOCAL_3D_POINT_UNCERTAINTY_ELLIPSOID("LOCAL_3D_POINT_UNCERTAINTY_ELLIPSOID");
+    Point("Point"),
+    PointUncertaintyCircle("PointUncertaintyCircle"),
+    PointUncertaintyEllipse("PointUncertaintyEllipse"),
+    Polygon("Polygon"),
+    PointAltitude("PointAltitude"),
+    PointAltitudeUncertainty("PointAltitudeUncertainty"),
+    EllipsoidArc("EllipsoidArc"),
+    Local2dPointUncertaintyEllipse("Local2dPointUncertaintyEllipse"),
+    Local3dPointUncertaintyEllipse("Local3dPointUncertaintyEllipse");
     private String value;
 
     SupportedGADShapesEnum(String value) {
@@ -88,22 +88,22 @@ public class SupportedGADShapes {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class SupportedGADShapes {\n");
+    // StringBuilder sb = new StringBuilder();
+    // sb.append("class SupportedGADShapes {\n");
     
-    sb.append("    supportedGADShapes: ").append(toIndentedString(supportedGADShapes)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    // sb.append("    supportedGADShapes: ").append(toIndentedString(supportedGADShapes)).append("\n");
+    // sb.append("}");
+    // return sb.toString();
+    return supportedGADShapes.toString();
   }
-
   /**
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
-    }
-    return o.toString().replace("\n", "\n    ");
-  }
+  // private String toIndentedString(java.lang.Object o) {
+  //   if (o == null) {
+  //     return "null";
+  //   }
+  //   return o.toString().replace("\n", "\n    ");
+  // }
 }

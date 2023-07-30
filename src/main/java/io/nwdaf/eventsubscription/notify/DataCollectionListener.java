@@ -73,7 +73,7 @@ public class DataCollectionListener {
     				else {
     					for(int j=0;j<nfloadinfos.size();j++) {
     						try {
-    							System.out.println("nfloadinfo"+j+": "+nfloadinfos.get(j));
+    							// System.out.println("nfloadinfo"+j+": "+nfloadinfos.get(j));
     							metricsService.create(nfloadinfos.get(j));
     						}
     						catch(Exception e) {

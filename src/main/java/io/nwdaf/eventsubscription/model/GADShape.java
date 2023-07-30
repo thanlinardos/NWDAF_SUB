@@ -17,15 +17,15 @@ import javax.validation.constraints.*;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2023-06-10T19:22:40.843464800+03:00[Europe/Athens]")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "shape", visible = true )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = Point.class, name = "POINT"),
-        @JsonSubTypes.Type(value = PointUncertaintyCircle.class, name = "POINT_UNCERTAINTY_CIRCLE"),
-        @JsonSubTypes.Type(value = PointUncertaintyEllipse.class, name = "POINT_UNCERTAINTY_ELLIPSE"),
-        @JsonSubTypes.Type(value = Polygon.class, name = "POLYGON"),
-        @JsonSubTypes.Type(value = PointAltitude.class, name = "POINT_ALTITUDE"),
-        @JsonSubTypes.Type(value = PointAltitudeUncertainty.class, name = "POINT_ALTITUDE_UNCERTAINTY"),
-        @JsonSubTypes.Type(value = EllipsoidArc.class, name = "ELLIPSOID_ARC"),
-        @JsonSubTypes.Type(value = Local2dPointUncertaintyEllipse.class, name = "LOCAL_2D_POINT_UNCERTAINTY_ELLIPSE"),
-        @JsonSubTypes.Type(value = Local3dPointUncertaintyEllipsoid.class, name = "LOCAL_3D_POINT_UNCERTAINTY_ELLIPSOID"),
+        @JsonSubTypes.Type(value = Point.class, name = "Point"),
+        @JsonSubTypes.Type(value = PointUncertaintyCircle.class, name = "PointUncertaintyCircle"),
+        @JsonSubTypes.Type(value = PointUncertaintyEllipse.class, name = "PointUncertaintyEllipse"),
+        @JsonSubTypes.Type(value = Polygon.class, name = "Polygon"),
+        @JsonSubTypes.Type(value = PointAltitude.class, name = "PointAltitude"),
+        @JsonSubTypes.Type(value = PointAltitudeUncertainty.class, name = "PointAltitudeUncertainty"),
+        @JsonSubTypes.Type(value = EllipsoidArc.class, name = "EllipsoidArc"),
+        @JsonSubTypes.Type(value = Local2dPointUncertaintyEllipse.class, name = "Local2dPointUncertaintyEllipse"),
+        @JsonSubTypes.Type(value = Local3dPointUncertaintyEllipsoid.class, name = "Local3dPointUncertaintyEllipsoid"),
 })
 
 

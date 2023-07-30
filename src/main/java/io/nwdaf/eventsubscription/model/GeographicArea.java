@@ -21,5 +21,5 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
   @JsonSubTypes.Type(value = EllipsoidArc.class, name = "EllipsoidArc")
 })
 public interface GeographicArea {
-
+  String getType();
 }

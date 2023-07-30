@@ -2,6 +2,8 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
@@ -14,7 +16,7 @@ import javax.validation.constraints.*;
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2023-06-10T19:22:40.843464800+03:00[Europe/Athens]")
 
-
+@JsonTypeName("PointAltitudeUncertainty")
 public class PointAltitudeUncertainty extends GADShape implements GeographicArea {
   @JsonProperty("point")
   private GeographicalCoordinates point = null;
@@ -184,5 +186,9 @@ public class PointAltitudeUncertainty extends GADShape implements GeographicArea
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+  @Override
+  public String getType() {
+    return getClass().getSimpleName();
   }
 }

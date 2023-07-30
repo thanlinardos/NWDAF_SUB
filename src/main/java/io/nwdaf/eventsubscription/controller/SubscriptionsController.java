@@ -1,5 +1,6 @@
 package io.nwdaf.eventsubscription.controller;
 
+import java.awt.Point;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,16 +25,21 @@ import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
+import io.nwdaf.eventsubscription.model.GADShape;
+import io.nwdaf.eventsubscription.model.GeographicArea;
+import io.nwdaf.eventsubscription.model.LocationArea;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
 import io.nwdaf.eventsubscription.model.NotificationFlag;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode;
 import io.nwdaf.eventsubscription.model.ReportingInformation;
+import io.nwdaf.eventsubscription.model.SupportedGADShapes;
 import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
 import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
+import io.nwdaf.eventsubscription.model.SupportedGADShapes.SupportedGADShapesEnum;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
@@ -57,8 +63,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 	
 	
 	@Override
-	public ResponseEntity<NnwdafEventsSubscription> createNWDAFEventsSubscription(
-			@Valid NnwdafEventsSubscription body) {
+	public ResponseEntity<NnwdafEventsSubscription> createNWDAFEventsSubscription(@Valid NnwdafEventsSubscription body) {
 		Logger logger = NwdafSubApplication.getLogger();
 		String subsUri = env.getProperty("nnwdaf-eventsubscription.openapi.dev-url")+"/nwdaf-eventsubscription/v1/subscriptions";
 		System.out.println("Controller logic...");
@@ -136,7 +141,8 @@ public class SubscriptionsController implements SubscriptionsApi{
 								
 						}
 					}
-						
+				e = setShapes(e);
+				body.getEventSubscriptions().set(i, e);
 				}
 				else {
 					no_valid_events--;
@@ -208,7 +214,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 			if(body.getEvtReq()==null) {
 				body.setEvtReq(new ReportingInformation());
 			}
-			body.setEvtReq(body.getEvtReq().notifFlag(new NotificationFlag().notifFlag(NotificationFlagEnum.DEACTIVATE)));
+			body.getEvtReq().notifFlag(new NotificationFlag().notifFlag(NotificationFlagEnum.DEACTIVATE));
 		}
 		//save sub to db and get back the created id
 		NnwdafEventsSubscriptionTable res = null;
@@ -287,5 +293,41 @@ public class SubscriptionsController implements SubscriptionsApi{
 			}
 		}
 		return res;
+	}
+	private EventSubscription setShapes(EventSubscription e){
+		if(e.getExptUeBehav()!=null){
+			if(e.getExptUeBehav().getExpectedUmts()!=null){
+				for(int j=0;j<e.getExptUeBehav().getExpectedUmts().size();j++){
+					LocationArea area = e.getExptUeBehav().getExpectedUmts().get(j);
+					if(area.getGeographicAreas()!=null){
+						for(int k=0;k<area.getGeographicAreas().size();k++){
+    						String shapeType = area.getGeographicAreas().get(k).getType();
+							if(shapeType.equals("Point")){
+								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.Point));
+							}
+							else if(shapeType.equals("PointAltitude")){
+								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.PointAltitude));
+							}
+							else if(shapeType.equals("PointAltitudeUncertainty")){
+								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.PointAltitudeUncertainty));
+							}
+							else if(shapeType.equals("PointUncertaintyCircle")){
+								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.PointUncertaintyCircle));
+							}
+							else if(shapeType.equals("PointUncertaintyEllipse")){
+								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.PointUncertaintyEllipse));
+							}
+							else if(shapeType.equals("Polygon")){
+								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.Polygon));
+							}
+							else if(shapeType.equals("EllipsoidArc")){
+								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.EllipsoidArc));
+							}
+						}
+					}
+				}
+			}
+		}
+		return e;	
 	}
 }
