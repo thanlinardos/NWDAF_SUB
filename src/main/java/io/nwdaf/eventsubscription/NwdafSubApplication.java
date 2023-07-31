@@ -83,8 +83,8 @@ public class NwdafSubApplication {
 			String params="";
 			Long subId = 0l;
 			
-			dataCollectionPublisher.publishDataCollection(params);
-			notifyPublisher.publishNotification(subId);			
+			// dataCollectionPublisher.publishDataCollection(params);
+			// notifyPublisher.publishNotification(subId);			
 		};
 	}
 	

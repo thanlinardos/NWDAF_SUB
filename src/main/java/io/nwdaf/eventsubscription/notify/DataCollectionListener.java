@@ -21,8 +21,10 @@ import io.nwdaf.eventsubscription.service.MetricsService;
 
 @Component
 public class DataCollectionListener {
-	private Integer no_dataCollectionEventListeners = 0;
-	private final Object dataCollectionLock = new Object();
+	private static Integer no_dataCollectionEventListeners = 0;
+	private static final Object dataCollectionLock = new Object();
+	private static Boolean started_saving_data = false;
+	private static final Object started_saving_data_lock = new Object();
 
 	@Autowired
 	MetricsService metricsService;
@@ -75,6 +77,9 @@ public class DataCollectionListener {
     						try {
     							// System.out.println("nfloadinfo"+j+": "+nfloadinfos.get(j));
     							metricsService.create(nfloadinfos.get(j));
+								synchronized(started_saving_data_lock){
+									started_saving_data = true;
+								}
     						}
     						catch(Exception e) {
     							logger.error("Failed to save nfloadlevelinfo to timescaledb",e);
@@ -105,4 +110,16 @@ public class DataCollectionListener {
     	}
     	
     }
+	public static Object getDatacollectionlock() {
+		return dataCollectionLock;
+	}
+	public static Integer getNo_dataCollectionEventListeners() {
+		return no_dataCollectionEventListeners;
+	}
+	public static Object getStartedSavingDataLock() {
+		return started_saving_data_lock;
+	}
+	public static Boolean getStarted_saving_data() {
+		return started_saving_data;
+	}
 }

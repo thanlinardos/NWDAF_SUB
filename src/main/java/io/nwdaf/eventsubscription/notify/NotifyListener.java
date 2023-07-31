@@ -178,9 +178,9 @@ public class NotifyListener {
     			}
     		}
     		try {
-//    			long st_sub = System.nanoTime();
+   			long st_sub = System.nanoTime();
     			subs = subscriptionService.findAll();
-//    			logger.info("sub query time: "+(System.nanoTime()-st_sub)/1000000l);
+   			System.out.println("sub query time: "+(System.nanoTime()-st_sub)/1000000l);
     		}catch(Exception e) {
         		logger.error("Error with find subs in subscriptionService", e);
         		synchronized (notifLock) {

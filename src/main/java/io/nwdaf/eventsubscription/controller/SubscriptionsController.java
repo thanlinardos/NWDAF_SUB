@@ -26,7 +26,6 @@ import io.nwdaf.eventsubscription.api.SubscriptionsApi;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
 import io.nwdaf.eventsubscription.model.GADShape;
-import io.nwdaf.eventsubscription.model.GeographicArea;
 import io.nwdaf.eventsubscription.model.LocationArea;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
@@ -40,6 +39,8 @@ import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnu
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
 import io.nwdaf.eventsubscription.model.SupportedGADShapes.SupportedGADShapesEnum;
+import io.nwdaf.eventsubscription.notify.DataCollectionListener;
+import io.nwdaf.eventsubscription.notify.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
@@ -55,6 +56,9 @@ public class SubscriptionsController implements SubscriptionsApi{
 	@Autowired
 	private NotifyPublisher notifyPublisher;
 	
+	@Autowired
+	private DataCollectionPublisher dataCollectionPublisher;
+
 	@Autowired
 	SubscriptionsService subscriptionService;
 
@@ -175,6 +179,11 @@ public class SubscriptionsController implements SubscriptionsApi{
 				NotificationBuilder notifBuilder = new NotificationBuilder();
 				NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
 				try {
+					dataCollectionPublisher.publishDataCollection("");
+					//wait for 
+					while(!DataCollectionListener.getStarted_saving_data()){
+						Thread.sleep(50);
+					}
 					notification=getNotification(event, notification);
 				} catch (JsonProcessingException e) {
 					failed_notif=true;
@@ -231,9 +240,10 @@ public class SubscriptionsController implements SubscriptionsApi{
 		
 		id = res.getId();
 		body.setId(id);
-		
-		//notify about new saved subscription
+		String params="";
+		//notify about new saved subscription and start collecting data
 		if(count_of_notif>0 && !muted) {
+			dataCollectionPublisher.publishDataCollection(params);
 			notifyPublisher.publishNotification(id);
 		}
 
