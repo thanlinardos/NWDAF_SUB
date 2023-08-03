@@ -88,12 +88,15 @@ fixed prom querries desynced (put them in the same try-catch block)
 ---1/8/23-----
 added supportedFeatures to form
 added converterToForm for update (failedEventReports not working)
+---3/8/23-----
+refactored client buttons
+update and delete (+on client) (still have to do the controller part)
+fixed datacollection errors when containers offline
 
 TODO:
 
 -fix prom querry , data coll, notif listener and subcontroller for filtering the nfs by id,setid,...
 -add optionals to nf load and create job for pushing test data to timescaledb
--update and delete (+on client)
 -add db to client and showallsubs (+ choose a sub to update  or show latest notif)
 -add past offset to notify (+ show metrics from each event notif object to client in a list)
 -implement thresholds & immediate reporting

@@ -182,7 +182,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 				try {
 					dataCollectionPublisher.publishDataCollection("");
 					//wait for 
-					while(!DataCollectionListener.getStarted_saving_data()){
+					while((!DataCollectionListener.getStarted_saving_data()) && DataCollectionListener.getNo_dataCollectionEventListeners()>0){
 						Thread.sleep(50);
 					}
 					notification=getNotification(event, notification);
@@ -284,9 +284,14 @@ public class SubscriptionsController implements SubscriptionsApi{
 		NotificationBuilder notifBuilder = new NotificationBuilder();
 		switch(eType) {
 		case NF_LOAD:
-			List<NfLoadLevelInformation> nfloadlevels;
-			nfloadlevels = metricsService.findAllInLastSecond();
-			if(nfloadlevels.size()==0) {
+			List<NfLoadLevelInformation> nfloadlevels = new ArrayList<>();
+			try{
+				nfloadlevels = metricsService.findAllInLastSecond();
+			}catch(Exception e){
+				System.out.println("Cant find metrics from database");
+				return null;
+			}
+			if(nfloadlevels==null || nfloadlevels.size()==0) {
 				return null;
 			}
 			notification = notifBuilder.addEvent(notification, NwdafEventEnum.NF_LOAD, null, null, now, null, null, null, nfloadlevels);	

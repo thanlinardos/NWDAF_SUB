@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
 
 @Repository("eventsubscription")
@@ -23,9 +24,9 @@ public interface SubscriptionRepository extends JpaRepository<NnwdafEventsSubscr
 			nativeQuery=true)
 	List<NnwdafEventsSubscriptionTable> findAllByNotifURI(String filterForClientURI);
 
-	@Query(value="update nnwdaf_events_subscription set sub = '?1' where id=?2",
+	@Query(value="update nnwdaf_events_subscription set sub @> ?1 where id=?2",
 			nativeQuery=true)
-    NnwdafEventsSubscriptionTable update(NnwdafEventsSubscriptionTable body_table, Long id);
+    NnwdafEventsSubscriptionTable update(NnwdafEventsSubscription body, Long id);
 
 	@Query(value="delete from nnwdaf_events_subscription where id=?",
 			nativeQuery=true)

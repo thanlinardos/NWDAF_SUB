@@ -65,7 +65,7 @@ public class DataCollectionListener {
 				    	}
 						return;
 					}
-    				if(nfloadinfos.size()==0) {
+    				if(nfloadinfos==null || nfloadinfos.size()==0) {
     					logger.error("Failed to collect data for event: "+eType);
     					synchronized (dataCollectionLock) {
 				    		no_dataCollectionEventListeners--;

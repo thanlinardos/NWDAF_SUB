@@ -30,7 +30,7 @@ services:
     networks:
       - monitor-net
     volumes: 
-      - ./pgadmin-data:/var/lib/pgadmin
+      - /home/thanlinardos/Documents/eclipse-workspace-spring/NWDAF_SUB/pgadmin-data:/var/lib/pgadmin
   # influxdb:
   #   image: influxdb:2.6-alpine
   #   env_file:

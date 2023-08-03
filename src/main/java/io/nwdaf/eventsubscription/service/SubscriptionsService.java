@@ -68,7 +68,8 @@ public class SubscriptionsService {
     public NnwdafEventsSubscriptionTable update(Long id,NnwdafEventsSubscription body) {
 		NnwdafEventsSubscriptionTable body_table = new NnwdafEventsSubscriptionTable();
 		body_table.setSub(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));
-		return repository.update(body_table,id);
+		body_table.setId(id);
+		return repository.save(body_table);
     }
 	public NnwdafEventsSubscriptionTable delete(Long id) {
 		return repository.delete(id);

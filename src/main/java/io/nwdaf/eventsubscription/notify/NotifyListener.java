@@ -2,6 +2,7 @@ package io.nwdaf.eventsubscription.notify;
 
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -290,9 +291,14 @@ public class NotifyListener {
 		NotificationBuilder notifBuilder = new NotificationBuilder();
 		switch(eType) {
 		case NF_LOAD:
-			List<NfLoadLevelInformation> nfloadlevels;
-			nfloadlevels = metricsService.findAllInLastSecond();
-			if(nfloadlevels.size()==0) {
+			List<NfLoadLevelInformation> nfloadlevels = new ArrayList<>();
+			try{
+				nfloadlevels = metricsService.findAllInLastSecond();
+			} catch(Exception e){
+				System.out.println("Cant find metrics from database");
+				return null;
+			}
+			if(nfloadlevels==null || nfloadlevels.size()==0) {
 				return null;
 			}
 			notification = notifBuilder.addEvent(notification, NwdafEventEnum.NF_LOAD, null, null, now, null, null, null, nfloadlevels);	
