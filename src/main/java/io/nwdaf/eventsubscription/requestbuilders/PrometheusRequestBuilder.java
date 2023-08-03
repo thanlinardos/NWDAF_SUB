@@ -68,9 +68,19 @@ public class PrometheusRequestBuilder {
 //			System.out.println("query: "+queryString);
 			HttpEntity<MultiValueMap<String, String>> reqToPrometheus = setupRequest(now,Constants.cpuQuerry);
 //			long start = System.nanoTime();
-			String rtVal;
+			String rtVal,memrtVal,storagertVal;
+			String[] maxRtVals = {"","",""};
+			String[] maxQuerries = {Constants.maxCpuQuerry,Constants.maxMemQuerry,Constants.maxStorageQuerry};
 			try {
 			rtVal = template.postForObject(prometheus_url, reqToPrometheus, String.class);
+			reqToPrometheus = setupRequest(now,Constants.memQuerry);
+			memrtVal = template.postForObject(prometheus_url, reqToPrometheus, String.class);
+			reqToPrometheus = setupRequest(now,Constants.storageQuerry);
+			storagertVal = template.postForObject(prometheus_url, reqToPrometheus, String.class);
+			for(int i=0;i<3;i++){
+				reqToPrometheus = setupRequest(now,maxQuerries[i]);
+				maxRtVals[i] = template.postForObject(prometheus_url, reqToPrometheus, String.class);
+			}
 			}catch(RestClientException e) {
 				return null;
 			}
@@ -106,48 +116,37 @@ public class PrometheusRequestBuilder {
 				log.info(String.format("%s", vectorData.getMetric().get("name")));
 				log.info(String.format("%s %10.2f ",
 						OffsetDateTime.ofInstant(Instant.ofEpochMilli(Math.round(vectorData.getDataValue().getTimestamp()*1000)), TimeZone.getDefault().toZoneId()),
-						vectorData.getDataValue().getValue()
+						value
 						));
 				data.get(c).set(0,(int) Math.round(value));	
 				c++;
 			}
-			reqToPrometheus = setupRequest(now,Constants.memQuerry);
-			try {
-				rtVal = template.postForObject(prometheus_url, reqToPrometheus, String.class);
-				}catch(RestClientException e) {
-					return null;
-				}
-			result = ConvertUtil.convertQueryResultString(rtVal);
+			
+			result = ConvertUtil.convertQueryResultString(memrtVal);
 			c=0;
 			for(VectorData vectorData : result.getResult()) {
 				value = vectorData.getDataValue().getValue();
-				data.get(c).set(1,(int) Math.round(value));	
-				c++;
-			}
-			reqToPrometheus = setupRequest(now,Constants.storageQuerry);
-			try {
-				rtVal = template.postForObject(prometheus_url, reqToPrometheus, String.class);
-				}catch(RestClientException e) {
-					return null;
+				if(data.size()>c){
+					data.get(c).set(1,(int) Math.round(value));	
+					c++;
 				}
-			result = ConvertUtil.convertQueryResultString(rtVal);
+			}
+			result = ConvertUtil.convertQueryResultString(storagertVal);
 			c=0;
 			for(VectorData vectorData : result.getResult()) {
 				value = vectorData.getDataValue().getValue();
-				data.get(c).set(2,(int) Math.round(value));	
-				int loadAverage = (data.get(c).get(0) + data.get(c).get(1) + data.get(c).get(2)) / 3;
-				data.get(c).set(3, loadAverage);
-				c++;
-			}
-			String[] maxQuerries = {Constants.maxCpuQuerry,Constants.maxMemQuerry,Constants.maxStorageQuerry};
-			for(int i=0;i<3;i++) {
-				reqToPrometheus = setupRequest(now, maxQuerries[i]);
-				try {
-					rtVal = template.postForObject(prometheus_url, reqToPrometheus, String.class);
-					}catch(RestClientException e) {
-						return null;
+				if(data.size()>c){
+					data.get(c).set(2,(int) Math.round(value));
+					if(data.get(c).get(0)!=null && data.get(c).get(1)!=null && data.get(c).get(2)!=null){
+						int loadAverage = (data.get(c).get(0) + data.get(c).get(1) + data.get(c).get(2)) / 3;
+						data.get(c).set(3, loadAverage);
 					}
-				result = ConvertUtil.convertQueryResultString(rtVal);
+					c++;
+				}
+			}
+			
+			for(int i=0;i<3;i++) {
+				result = ConvertUtil.convertQueryResultString(maxRtVals[i]);
 				for(VectorData vectorData : result.getResult()) {
 					value = vectorData.getDataValue().getValue();
 					if(i==0) {

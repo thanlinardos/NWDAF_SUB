@@ -83,9 +83,14 @@ added event listener for data collection
 ---31/7/23-----
 finished form fields
 tweaked datacollection so that subcontroller can wait for it to start saving metrics to timescaledb
+added hidebuttons button, showoptionals buttons for each event and show all notifications
+fixed prom querries desynced (put them in the same try-catch block)
+---1/8/23-----
+added supportedFeatures to form
+added converterToForm for update (failedEventReports not working)
 
 TODO:
--add hidebuttons button, add showoptionals buttons for each event and show all notifications , add supportedFeatures to form
+
 -fix prom querry , data coll, notif listener and subcontroller for filtering the nfs by id,setid,...
 -add optionals to nf load and create job for pushing test data to timescaledb
 -update and delete (+on client)

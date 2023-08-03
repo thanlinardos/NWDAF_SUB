@@ -22,6 +22,14 @@ public interface SubscriptionRepository extends JpaRepository<NnwdafEventsSubscr
 	@Query(value="select id, sub from nnwdaf_events_subscription where sub @> '{\"notificationURI\":\"http://localhost:8082/client\"}'",
 			nativeQuery=true)
 	List<NnwdafEventsSubscriptionTable> findAllByNotifURI(String filterForClientURI);
+
+	@Query(value="update nnwdaf_events_subscription set sub = '?1' where id=?2",
+			nativeQuery=true)
+    NnwdafEventsSubscriptionTable update(NnwdafEventsSubscriptionTable body_table, Long id);
+
+	@Query(value="delete from nnwdaf_events_subscription where id=?",
+			nativeQuery=true)
+    NnwdafEventsSubscriptionTable delete(Long id);
 	
 	
 }

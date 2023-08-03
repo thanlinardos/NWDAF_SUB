@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -62,4 +64,13 @@ public class SubscriptionsService {
 		}
 		return res;
 	}
+
+    public NnwdafEventsSubscriptionTable update(Long id,NnwdafEventsSubscription body) {
+		NnwdafEventsSubscriptionTable body_table = new NnwdafEventsSubscriptionTable();
+		body_table.setSub(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));
+		return repository.update(body_table,id);
+    }
+	public NnwdafEventsSubscriptionTable delete(Long id) {
+		return repository.delete(id);
+    }
 }

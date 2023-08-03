@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import io.nwdaf.eventsubscription.Constants;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
+import io.nwdaf.eventsubscription.ParserUtil;
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
@@ -258,13 +259,23 @@ public class SubscriptionsController implements SubscriptionsApi{
 
 	@Override
 	public ResponseEntity<Void> deleteNWDAFEventsSubscription(String subscriptionId) {
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		try{
+			subscriptionService.delete(ParserUtil.safeParseLong(subscriptionId));
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		}catch(Exception e){
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		}
 	}
 
 	@Override
 	public ResponseEntity<NnwdafEventsSubscription> updateNWDAFEventsSubscription(String subscriptionId,
 			@Valid NnwdafEventsSubscription body) {
-		return null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+		String subsUri = env.getProperty("nnwdaf-eventsubscription.openapi.dev-url")+"/nwdaf-eventsubscription/v1/subscriptions"+"/"+subscriptionId;
+		
+		subscriptionService.update(ParserUtil.safeParseLong(subscriptionId),body);
+		responseHeaders.set("Location",subsUri);
+		return ResponseEntity.status(HttpStatus.OK).headers(responseHeaders).body(body);
 	}
 	
 	private NnwdafEventsSubscriptionNotification getNotification(EventSubscription eventSub,NnwdafEventsSubscriptionNotification notification) throws JsonMappingException, JsonProcessingException, Exception {
@@ -287,22 +298,17 @@ public class SubscriptionsController implements SubscriptionsApi{
 		return notification;
 	}
 	private List<Integer> convertFeaturesToList(String features){
-		char[] ch = new char[features.length()];
-		List<Integer> res = new ArrayList<>();
-		int n=0;
-		int i=features.length()-1;
-		int digits=0;
-		for(char c:ch) {
-			n = i*4 + 1;
-			digits = Character.digit(c,16);
-			for(int j=0;j<4;j++){
-				if((digits&(1<<j))!=0) {
-					res.add(n+j);
-				}
-				
-			}
-		}
-		return res;
+		int in = Integer.parseInt(features, 16);
+        List<Integer> res = new ArrayList<>();
+
+        for (int i = 1; i <= 24; i++) {
+            int featureBit = 1 << (i - 1);
+            if ((in & featureBit) != 0) {
+                res.add(i);
+            }
+        }
+
+        return res;
 	}
 	private EventSubscription setShapes(EventSubscription e){
 		if(e.getExptUeBehav()!=null){

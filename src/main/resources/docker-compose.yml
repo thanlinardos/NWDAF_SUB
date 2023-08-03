@@ -84,6 +84,11 @@ services:
       EVENTNOTIFICATION.DATASOURCE.USERNAME: postgres
       EVENTNOTIFICATION.DATASOURCE.PASSWORD: password
       EVENTNOTIFICATION.DATASOURCE.DRIVERCLASSNAME: org.postgresql.Driver
+      EVENTMETRICS.DATASOURCE.NAME: eventmetrics
+      EVENTMETRICS.DATASOURCE.URL: jdbc:postgresql://timescaledb:5433/metrics?currentSchema=public
+      EVENTMETRICS.DATASOURCE.USERNAME: postgres
+      EVENTMETRICS.DATASOURCE.PASSWORD: password
+      EVENTMETRICS.DATASOURCE.DRIVERCLASSNAME: org.postgresql.Driver
       SERVER.PORT: "${server_port}"
       management.endpoint.health.show-details: always
   nwdafSubClient:
