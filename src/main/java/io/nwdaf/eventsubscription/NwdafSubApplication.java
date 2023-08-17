@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.client.RestTemplate;
@@ -39,6 +40,9 @@ public class NwdafSubApplication {
 	
 	@Autowired
 	private DataCollectionPublisher dataCollectionPublisher;
+
+	@Autowired
+    private ApplicationContext applicationContext;
 	
 //	@Autowired
 //	MetricsService metricsService;
@@ -47,11 +51,6 @@ public class NwdafSubApplication {
 		SpringApplication.run(NwdafSubApplication.class, args);
 		
 		
-	}
-	
-	@Bean
-	public RestTemplate restTemplate(RestTemplateBuilder builder) {
-		return builder.build();
 	}
 	
 	@Bean
@@ -91,5 +90,9 @@ public class NwdafSubApplication {
 	public static Logger getLogger() {
 		return NwdafSubApplication.log;
 	}
+
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
 	
 }

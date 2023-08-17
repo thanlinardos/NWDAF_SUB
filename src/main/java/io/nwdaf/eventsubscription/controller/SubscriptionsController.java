@@ -181,11 +181,11 @@ public class SubscriptionsController implements SubscriptionsApi{
 				NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
 				try {
 					dataCollectionPublisher.publishDataCollection("");
-					//wait for 
+					//wait for data collection to start
 					while((!DataCollectionListener.getStarted_saving_data()) && DataCollectionListener.getNo_dataCollectionEventListeners()>0){
 						Thread.sleep(50);
 					}
-					notification=getNotification(event, notification);
+					notification=getNotification(body, i, notification);
 				} catch (JsonProcessingException e) {
 					failed_notif=true;
 					logger.error("Failed to collect data for event: "+eType,e);
@@ -278,17 +278,91 @@ public class SubscriptionsController implements SubscriptionsApi{
 		return ResponseEntity.status(HttpStatus.OK).headers(responseHeaders).body(body);
 	}
 	
-	private NnwdafEventsSubscriptionNotification getNotification(EventSubscription eventSub,NnwdafEventsSubscriptionNotification notification) throws JsonMappingException, JsonProcessingException, Exception {
+	//check if subscription needs to be served and return the repetition period (0 for threshold)
+	private Integer needsServing(NnwdafEventsSubscription body, Integer eventIndex) {
+		NotificationMethodEnum notificationMethod=null;
+		Integer repetitionPeriod=null;
+		
+		if(body.getEventSubscriptions().get(eventIndex)!=null) {
+			if(body.getEventSubscriptions().get(eventIndex).getNotificationMethod()!=null) {
+				notificationMethod = body.getEventSubscriptions().get(eventIndex).getNotificationMethod().getNotifMethod();
+				if(notificationMethod.equals(NotificationMethodEnum.PERIODIC)) {
+					repetitionPeriod = body.getEventSubscriptions().get(eventIndex).getRepetitionPeriod();
+				}
+			}
+		}
+		
+		if(body.getEvtReq()!=null) {
+			if(body.getEvtReq().getNotifFlag()!=null) {
+				if(body.getEvtReq().getNotifFlag().getNotifFlag()!=null) {
+					if(body.getEvtReq().getNotifFlag().getNotifFlag().equals(NotificationFlagEnum.DEACTIVATE)) {
+						return null;
+					}
+				}
+			}
+			if(body.getEvtReq().getNotifMethod()!=null) {
+				notificationMethod = body.getEvtReq().getNotifMethod().getNotifMethod();
+				if(body.getEvtReq().getNotifMethod().getNotifMethod().equals(NotificationMethodEnum.PERIODIC)) {
+					repetitionPeriod = body.getEvtReq().getRepPeriod();
+				}
+			}
+		}
+		if(notificationMethod==null) {
+			return null;
+		}
+		if(notificationMethod.equals(NotificationMethodEnum.THRESHOLD)) {
+			return 0;
+		}
+		return repetitionPeriod;
+	}
+
+	private NnwdafEventsSubscriptionNotification getNotification(NnwdafEventsSubscription sub,Integer index,NnwdafEventsSubscriptionNotification notification) throws JsonMappingException, JsonProcessingException, Exception {
 		OffsetDateTime now = OffsetDateTime.now();
+		EventSubscription eventSub = sub.getEventSubscriptions().get(index);
 		NwdafEventEnum eType = eventSub.getEvent().getEvent();
 		NotificationBuilder notifBuilder = new NotificationBuilder();
+		String params=null;
+		Integer no_secs=null;
+		Integer repPeriod=null;
+		if(eventSub.getExtraReportReq().getEndTs()!=null){
+			no_secs = eventSub.getExtraReportReq().getEndTs().getSecond()-eventSub.getExtraReportReq().getStartTs().getSecond();
+		}
+		else{
+			if(eventSub.getExtraReportReq().getStartTs()!=null){
+				no_secs = OffsetDateTime.now().getSecond()-eventSub.getExtraReportReq().getStartTs().getSecond();
+			}
+			else{
+				if(eventSub.getExtraReportReq().getOffsetPeriod()!=null){
+					if(eventSub.getExtraReportReq().getOffsetPeriod()<0){
+						no_secs = (-1) * eventSub.getExtraReportReq().getOffsetPeriod();
+					}
+					else if(eventSub.getExtraReportReq().getOffsetPeriod()>0){
+						//not implemented for future data
+					}
+				}
+			}
+		}
+		repPeriod = needsServing(sub, index);
+		System.out.println("getNotification: repPeriod="+repPeriod+", params="+params+", no_secs="+no_secs);
 		switch(eType) {
 		case NF_LOAD:
 			List<NfLoadLevelInformation> nfloadlevels = new ArrayList<>();
+			if(eventSub.getNfInstanceIds()!=null){
+				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfInstanceId"));
+			}
+			else if(eventSub.getNfSetIds()!=null){
+				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfSetId"));
+			}
 			try{
-				nfloadlevels = metricsService.findAllInLastSecond();
-			}catch(Exception e){
+				if(repPeriod!=null){
+					nfloadlevels = metricsService.findAllInLastIntervalByFilterAndOffset(params,no_secs,repPeriod);
+				}
+				else{
+					nfloadlevels = metricsService.findAllInLastIntervalByFilter(params,no_secs);
+				}
+			} catch(Exception e){
 				System.out.println("Cant find metrics from database");
+				System.out.println(e);
 				return null;
 			}
 			if(nfloadlevels==null || nfloadlevels.size()==0) {
@@ -302,8 +376,14 @@ public class SubscriptionsController implements SubscriptionsApi{
 		
 		return notification;
 	}
+
 	private List<Integer> convertFeaturesToList(String features){
-		int in = Integer.parseInt(features, 16);
+		int in;
+		try{
+		in = Integer.parseInt(features, 16);
+		}catch(NumberFormatException e){
+			return new ArrayList<>();
+		}
         List<Integer> res = new ArrayList<>();
 
         for (int i = 1; i <= 24; i++) {

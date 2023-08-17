@@ -6,7 +6,13 @@ CREATE TABLE IF NOT EXISTS nf_load_metrics (
   time TIMESTAMPTZ,
   data JSONB,
   nfInstanceId UUID,
-  nfSetId varchar(100)
+  nfSetId varchar(100),
+  nfCpuUsage int,
+  nfMemoryUsage int,
+  nfStorageUsage int,
+  nfLoadLevelAverage int,
+  nfLoadLevelpeak int,
+  nfLoadAvgInAoi int
 );
 SELECT create_hypertable('nf_load_metrics','time');
 

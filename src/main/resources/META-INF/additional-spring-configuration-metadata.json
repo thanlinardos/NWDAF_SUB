@@ -85,33 +85,43 @@
     "description": "A description for 'nnwdaf-eventsubscription.influxdb.org'"
   },
   {
-	"name": "eventmetrics.datasource.generate-unique-name",
+    "name": "eventmetrics.datasource.generate-unique-name",
     "type": "java.lang.String",
     "description": "A description for 'eventmetrics.datasource.generate-unique-name'"
   },
   {
-	"name": "eventmetrics.datasource.name",
+    "name": "eventmetrics.datasource.name",
     "type": "java.lang.String",
     "description": "A description for 'eventmetrics.datasource.name'"
   },
   {
-	"name": "eventmetrics.datasource.username",
+    "name": "eventmetrics.datasource.username",
     "type": "java.lang.String",
     "description": "A description for 'eventmetrics.datasource.username'"
   },
   {
-	"name": "eventmetrics.datasource.password",
+    "name": "eventmetrics.datasource.password",
     "type": "java.lang.String",
     "description": "A description for 'eventmetrics.datasource.password'"
   },
   {
-	"name": "eventmetrics.datasource.driverClassName",
+    "name": "eventmetrics.datasource.driverClassName",
     "type": "java.lang.String",
     "description": "A description for 'eventmetrics.datasource.driverClassName'"
   },
   {
-	"name": "eventmetrics.datasource.url",
+    "name": "eventmetrics.datasource.url",
     "type": "java.lang.String",
     "description": "A description for 'eventmetrics.datasource.url'"
+  },
+  {
+    "name": "trust.store",
+    "type": "java.lang.String",
+    "description": "A description for 'trust.store'"
+  },
+  {
+    "name": "trust.store.password",
+    "type": "java.lang.String",
+    "description": "A description for 'trust.store.password'"
   }
 ]}

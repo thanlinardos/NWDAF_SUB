@@ -23,5 +23,14 @@ FROM eclipse-temurin:17-jre-alpine
 VOLUME /tmp
 EXPOSE 8080
 ARG JAR_FILE=target/demo-0.0.1-SNAPSHOT.jar
+ARG CERT_FILE=src/main/resources/local-cert.crt
+ARG SSL_FILE=src/main/resources/local-ssl.p12
+ARG CLIENT_SSL_FILE=src/main/resources/local-client-ssl.p12
+ARG CLIENT_CERT_FILE=src/main/resources/local-client-cert.crt
 ADD ${JAR_FILE} app.jar
+ADD ${CERT_FILE} /usr/local/share/ca-certificates/local-cert.crt
+ADD ${SSL_FILE} src/main/resources/local-ssl.p12
+ADD ${CLIENT_CERT_FILE} /usr/local/share/ca-certificates/local-client-cert.crt
+ADD ${CLIENT_SSL_FILE} src/main/resources/local-client-ssl.p12
+RUN chmod 644 /usr/local/share/ca-certificates/local-cert.crt && chmod 644 /usr/local/share/ca-certificates/local-client-cert.crt && update-ca-certificates
 ENTRYPOINT ["java","-jar","/app.jar"]

@@ -91,4 +91,28 @@ public class ParserUtil {
             return null;
         }
     }
+    public static <T> List<String> parseListToFilterList (List<T> list,String name){
+		List<String> filterList = new ArrayList<>();
+		for(int i=0;i<list.size();i++){
+			if(list.get(i).getClass().equals(Integer.class)){
+				filterList.add("{\""+name+"\":"+list.get(i)+"}");
+			}
+			else{
+				filterList.add("{\""+name+"\":\""+list.get(i)+"\"}");
+			}
+		}
+		return filterList;
+	}
+
+	public static String parseQuerryFilter(List<String> filterList){
+		String res = "";
+		for(int i=0;i<filterList.size();i++){
+			res += "data @> cast('"+filterList.get(i)+"' as jsonb)";
+			if(i!=filterList.size()-1){
+				res += " or ";
+			}
+		}
+
+		return res;
+	}
 }

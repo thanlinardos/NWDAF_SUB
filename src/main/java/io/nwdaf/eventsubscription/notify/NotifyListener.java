@@ -21,9 +21,11 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.Constants;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
+import io.nwdaf.eventsubscription.ParserUtil;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
@@ -55,6 +57,12 @@ public class NotifyListener {
 	
 	@Autowired
 	Environment env;
+
+	@Autowired
+	ObjectMapper objectMapper;
+
+	@Autowired
+	RestTemplate template;
 	
     @Async
     @EventListener
@@ -85,7 +93,6 @@ public class NotifyListener {
     	Map<Pair<Long,Integer>,Integer> repPeriods = new HashMap<>();
     	Map<Pair<Long,Integer>,OffsetDateTime> oldNotifTimes = new HashMap<>();
     	Map<Long,Integer> subIndexes = new HashMap<>();
-    	RestTemplate template = new RestTemplate();
     	//builder for converting data to notification objects
     	NotificationBuilder notifBuilder = new NotificationBuilder();
     	Integer c = 0;
@@ -117,26 +124,27 @@ public class NotifyListener {
     		client_delay=0;
     		for(Map.Entry<Pair<Long,Integer>,OffsetDateTime> entry:lastNotifTimes.entrySet()) {
     			Long id = entry.getKey().getFirst();
-    			EventSubscription event = subs.get(subIndexes.get(id)).getEventSubscriptions().get(entry.getKey().getSecond());
+				NnwdafEventsSubscription sub = subs.get(subIndexes.get(id));
+    			EventSubscription event = sub.getEventSubscriptions().get(entry.getKey().getSecond());
     			Integer repPeriod = event.getRepetitionPeriod();
-    			if(subs.get(subIndexes.get(id)).getEvtReq()!=null) {
-	    			if(subs.get(subIndexes.get(id)).getEvtReq().getRepPeriod()!=null) {
-	    				repPeriod = subs.get(subIndexes.get(id)).getEvtReq().getRepPeriod();
+    			if(sub.getEvtReq()!=null) {
+	    			if(sub.getEvtReq().getRepPeriod()!=null) {
+	    				repPeriod = sub.getEvtReq().getRepPeriod();
 	    			}
     			}
     			NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
     			long st  = System.nanoTime();
     			try {
-    				notification = getNotification(event, notification);
+    				notification = getNotification(sub, entry.getKey().getSecond(), notification);
     			}catch(JsonMappingException e) {
     				logger.error("Error building the notification for sub: "+id+". Data is no longer available for this event",e);
     				// add failureEventInfo
-    				subs.get(subIndexes.get(id)).addFailEventReportsItem(new FailureEventInfo().event(event.getEvent()).failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.UNAVAILABLE_DATA)));
+    				sub.addFailEventReportsItem(new FailureEventInfo().event(event.getEvent()).failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.UNAVAILABLE_DATA)));
     				continue;
     			}catch(JsonProcessingException e) {
     				logger.error("Error building the notification for sub: "+id+". Data is no longer available for this event",e);
     				// add failureEventInfo
-    				subs.get(subIndexes.get(id)).addFailEventReportsItem(new FailureEventInfo().event(event.getEvent()).failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.UNAVAILABLE_DATA)));
+    				sub.addFailEventReportsItem(new FailureEventInfo().event(event.getEvent()).failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.UNAVAILABLE_DATA)));
     				continue;
     			}
     			catch(Exception e) {
@@ -149,7 +157,7 @@ public class NotifyListener {
     			if(notification==null) {
 //    				logger.error("Error building the notification for sub: "+id+". Data is no longer available for this event");
     				// add failureEventInfo
-//    				subs.get(subIndexes.get(id)).addFailEventReportsItem(new FailureEventInfo().event(event.getEvent()).failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.UNAVAILABLE_DATA)));
+//    				sub.addFailEventReportsItem(new FailureEventInfo().event(event.getEvent()).failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.UNAVAILABLE_DATA)));
     				continue;
     			}
         		prom_delay += (System.nanoTime()-st) / 1000000l;
@@ -165,9 +173,9 @@ public class NotifyListener {
 	        		HttpEntity<NnwdafEventsSubscriptionNotification> client_request = new HttpEntity<>(notification);
 	        		ResponseEntity<NnwdafEventsSubscriptionNotification> client_response=null;
 	        		try {
-	        			client_response = template.postForEntity(subs.get(subIndexes.get(id)).getNotificationURI()+"/notify",client_request, NnwdafEventsSubscriptionNotification.class);
+	        			client_response = template.postForEntity(sub.getNotificationURI()+"/notify",client_request, NnwdafEventsSubscriptionNotification.class);
 	        		}catch(RestClientException e) {
-	        			logger.error("Error connecting to client "+subs.get(subIndexes.get(id)).getNotificationURI());
+	        			logger.error("Error connecting to client "+sub.getNotificationURI());
 	        		}
 	        		client_delay += (System.nanoTime()-st)/1000000l;
 	    			if(client_response!=null) {
@@ -285,17 +293,53 @@ public class NotifyListener {
 		return repetitionPeriod;
 	}
 	
-	private NnwdafEventsSubscriptionNotification getNotification(EventSubscription eventSub,NnwdafEventsSubscriptionNotification notification) throws JsonMappingException, JsonProcessingException, Exception {
+	private NnwdafEventsSubscriptionNotification getNotification(NnwdafEventsSubscription sub,Integer index,NnwdafEventsSubscriptionNotification notification) throws JsonMappingException, JsonProcessingException, Exception {
 		OffsetDateTime now = OffsetDateTime.now();
+		EventSubscription eventSub = sub.getEventSubscriptions().get(index);
 		NwdafEventEnum eType = eventSub.getEvent().getEvent();
 		NotificationBuilder notifBuilder = new NotificationBuilder();
+		String params=null;
+		Integer no_secs=null;
+		Integer repPeriod=null;
+		if(eventSub.getExtraReportReq().getEndTs()!=null){
+			no_secs = eventSub.getExtraReportReq().getEndTs().getSecond()-eventSub.getExtraReportReq().getStartTs().getSecond();
+		}
+		else{
+			if(eventSub.getExtraReportReq().getStartTs()!=null){
+				no_secs = OffsetDateTime.now().getSecond()-eventSub.getExtraReportReq().getStartTs().getSecond();
+			}
+			else{
+				if(eventSub.getExtraReportReq().getOffsetPeriod()!=null){
+					if(eventSub.getExtraReportReq().getOffsetPeriod()<0){
+						no_secs = (-1) * eventSub.getExtraReportReq().getOffsetPeriod();
+					}
+					else if(eventSub.getExtraReportReq().getOffsetPeriod()>0){
+						//not implemented for future data
+					}
+				}
+			}
+		}
+		repPeriod = needsServing(sub, index);
+		
 		switch(eType) {
 		case NF_LOAD:
 			List<NfLoadLevelInformation> nfloadlevels = new ArrayList<>();
+			if(eventSub.getNfInstanceIds()!=null){
+				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfInstanceId"));
+			}
+			else if(eventSub.getNfSetIds()!=null){
+				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfSetId"));
+			}
 			try{
-				nfloadlevels = metricsService.findAllInLastSecond();
+				if(repPeriod!=null){
+					nfloadlevels = metricsService.findAllInLastIntervalByFilterAndOffset(params,no_secs,repPeriod);
+				}
+				else{
+					nfloadlevels = metricsService.findAllInLastIntervalByFilter(params,no_secs);
+				}
 			} catch(Exception e){
 				System.out.println("Cant find metrics from database");
+				System.out.println("exception:"+e.getCause().getClass().getName());
 				return null;
 			}
 			if(nfloadlevels==null || nfloadlevels.size()==0) {
@@ -309,4 +353,5 @@ public class NotifyListener {
 		
 		return notification;
 	}
+
 }

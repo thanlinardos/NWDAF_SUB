@@ -15,9 +15,13 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name="nf_load_metrics")
+@Getter
+@Setter
 public class NfLoadLevelInformationTable implements Serializable{
 	
 	@EmbeddedId
@@ -30,6 +34,24 @@ public class NfLoadLevelInformationTable implements Serializable{
 	
 	@Column(name="nfSetId")
 	private String nfSetId;
+	
+	@Column(name="nfCpuUsage")
+	private Integer nfCpuUsage;
+	
+	@Column(name="nfMemoryUsage")
+	private Integer nfMemoryUsage;
+	
+	@Column(name="nfStorageUsage")
+	private Integer nfStorageUsage;
+	
+	@Column(name="nfLoadLevelAverage")
+	private Integer nfLoadLevelAverage;
+	
+	@Column(name="nfLoadLevelpeak")
+	private Integer nfLoadLevelpeak;
+	
+	@Column(name="nfLoadAvgInAoi")
+	private Integer nfLoadAvgInAoi;
 	
 	public OffsetDateTime getTime() {
 		return Id.time;
@@ -62,7 +84,7 @@ public class NfLoadLevelInformationTable implements Serializable{
 	public void setNfSetId(String nfSetId) {
 		this.nfSetId = nfSetId;
 	}
-	
+
 	@Embeddable
 	static class NfLoadLevelId implements Serializable {
 		
@@ -99,6 +121,7 @@ public class NfLoadLevelInformationTable implements Serializable{
 			this.nfInstanceId = nfInstanceId;
 		}
 
+		
 	    
 	}
 }

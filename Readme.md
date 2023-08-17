@@ -7,7 +7,7 @@ and run the docker build command.
 
 Then start all the containers:
     docker compose -f .\dockprom\docker-compose.yml up -d
-    docker compose -f .\src\main\resources\docker-compose.yml up -d
+    docker compose -f .\src\main\resources\compose_files\docker-compose.yml up -d
 Or only for the databases:
-    docker compose -f .\src\main\resources\docker-compose-db.yml up -d
+    docker compose -f .\src\main\resources\compose_files\docker-compose-db.yml up -d
 

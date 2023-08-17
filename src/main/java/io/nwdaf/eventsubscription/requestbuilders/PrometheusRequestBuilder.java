@@ -112,7 +112,10 @@ public class PrometheusRequestBuilder {
 					// add hyphens '-' to docker/id/[first 32 digits] -> nf instance id (UUID)
 					String str = vectorData.getMetric().get("id");
 					int start = str.indexOf("docker-")+"docker-".length();
-					dataOptionals.get(c).set(1,vectorData.getMetric().get("id").substring(start,start+32).replaceFirst( "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5" ));
+					String uuid = str.substring(start,start+32).replaceFirst( "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5" );
+					uuid = uuid.substring(0, 14) + "4" + uuid.substring(15);
+					uuid = uuid.substring(0, 19) + "8" + uuid.substring(20);
+					dataOptionals.get(c).set(1,uuid);
 				}
 				value = vectorData.getDataValue().getValue();
 				log.info(String.format("%s", vectorData.getMetric().get("name")));
