@@ -176,6 +176,7 @@ public class NotifyListener {
 	        			client_response = template.postForEntity(sub.getNotificationURI()+"/notify",client_request, NnwdafEventsSubscriptionNotification.class);
 	        		}catch(RestClientException e) {
 	        			logger.error("Error connecting to client "+sub.getNotificationURI());
+						logger.info(e.toString());
 	        		}
 	        		client_delay += (System.nanoTime()-st)/1000000l;
 	    			if(client_response!=null) {

@@ -116,6 +116,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 			
 		}
 		Integer no_valid_events = 0;
+		List<Integer> invalid_events = new ArrayList<>();
 		//get period and notification method for each event
 		if(body.getEventSubscriptions()!=null) {
 			no_valid_events = body.getEventSubscriptions().size();
@@ -151,7 +152,11 @@ public class SubscriptionsController implements SubscriptionsApi{
 				}
 				else {
 					no_valid_events--;
+					invalid_events.add(i);
 				}				
+			}
+			for(int i=0;i<invalid_events.size();i++){
+				body.getEventSubscriptions().remove((int)invalid_events.get(i));
 			}
 		}
 		
@@ -324,6 +329,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 		String params=null;
 		Integer no_secs=null;
 		Integer repPeriod=null;
+		repPeriod = needsServing(sub, index);
 		if(eventSub.getExtraReportReq().getEndTs()!=null){
 			no_secs = eventSub.getExtraReportReq().getEndTs().getSecond()-eventSub.getExtraReportReq().getStartTs().getSecond();
 		}
@@ -342,7 +348,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 				}
 			}
 		}
-		repPeriod = needsServing(sub, index);
+		
 		System.out.println("getNotification: repPeriod="+repPeriod+", params="+params+", no_secs="+no_secs);
 		switch(eType) {
 		case NF_LOAD:

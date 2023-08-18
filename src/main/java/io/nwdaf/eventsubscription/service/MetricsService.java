@@ -97,7 +97,7 @@ public class MetricsService {
 		}
 		if(params!=null){
 			System.out.println(params);
-			tables = repository.findAllInLastIntervalByFilterAndOffset(params,no_secs,offset+" SECOND");
+			tables = repository.findAllInLastIntervalByFilterAndOffset(params,no_secs+" second",offset+" second");
 		}
 		else{
 			tables = repository.findAllInLastIntervalByOffset(no_secs,offset);

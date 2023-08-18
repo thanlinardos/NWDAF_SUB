@@ -4,7 +4,6 @@ package io.nwdaf.eventsubscription.repository.eventmetrics;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,12 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.repository.eventmetrics.entities.NfLoadLevelInformationTable;
 import io.nwdaf.eventsubscription.repository.eventmetrics.entities.UeMobilityTable;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 @Repository("eventmetrics")
 @EntityScan("io.nwdaf.eventsubscription.repository.eventmetrics")
-public interface MetricsRepository extends JpaRepository<NfLoadLevelInformationTable, OffsetDateTime>{
+public interface MetricsRepository extends JpaRepository<NfLoadLevelInformationTable, OffsetDateTime>,CustomMetricsRepository{
 	
 	List<NfLoadLevelInformationTable> findAll();
 	
@@ -49,20 +45,20 @@ public interface MetricsRepository extends JpaRepository<NfLoadLevelInformationT
 			nativeQuery=true)
 	List<NfLoadLevelInformationTable> findAllInLastInterval(Integer no_secs);
 
-	@Query(value="select distinct on (time_bucket(:offset, time), nfInstanceId, nfSetId) time_bucket(:offset, time)"+
-	" AS time , data , nfInstanceId, nfSetId,"+
-    "CAST(ROUND(AVG(CAST(data->>'nfCpuUsage' as numeric))) as integer) AS nfCpuUsage,"+
-	"CAST(ROUND(AVG(CAST(data->>'nfMemoryUsage' as numeric))) as integer) AS nfMemoryUsage,"+
-	"CAST(ROUND(AVG(CAST(data->>'nfStorageUsage' as numeric))) as integer) AS nfStorageUsage,"+
-	"CAST(ROUND(AVG(CAST(data->>'nfLoadLevelAverage' as numeric))) as integer) AS nfLoadLevelAverage,"+
-	"CAST(ROUND(MAX(CAST(data->>'nfLoadLevelpeak' as numeric))) as integer) AS nfLoadLevelpeak,"+
-	"CAST(ROUND(AVG(CAST(data->>'nfLoadAvgInAoi' as numeric))) as integer) AS nfLoadAvgInAoi"+
-	" from nf_load_metrics where time > NOW() - INTERVAL  ':no_secs' SECOND"+
-	" and (:filter)"+
-	" GROUP BY time_bucket(:offset, time) ,data, nfInstanceId, nfSetId"+
-	" ORDER BY time_bucket(:offset, time) DESC;",
-			nativeQuery=true)
-	List<NfLoadLevelInformationTable> findAllInLastIntervalByFilterAndOffset(@Param("filter") String filter,@Param("no_secs") Integer no_secs,@Param("offset") String offset);
+	// @Query(value="select distinct on (time_bucket(cast(:offset as interval), time), nfInstanceId, nfSetId) time_bucket(cast(:offset as interval), time)"+
+	// " AS time , data , nfInstanceId, nfSetId,"+
+    // "CAST(ROUND(AVG(CAST(data->>'nfCpuUsage' as numeric))) as integer) AS nfCpuUsage,"+
+	// "CAST(ROUND(AVG(CAST(data->>'nfMemoryUsage' as numeric))) as integer) AS nfMemoryUsage,"+
+	// "CAST(ROUND(AVG(CAST(data->>'nfStorageUsage' as numeric))) as integer) AS nfStorageUsage,"+
+	// "CAST(ROUND(AVG(CAST(data->>'nfLoadLevelAverage' as numeric))) as integer) AS nfLoadLevelAverage,"+
+	// "CAST(ROUND(MAX(CAST(data->>'nfLoadLevelpeak' as numeric))) as integer) AS nfLoadLevelpeak,"+
+	// "CAST(ROUND(AVG(CAST(data->>'nfLoadAvgInAoi' as numeric))) as integer) AS nfLoadAvgInAoi"+
+	// " from nf_load_metrics where time > NOW() - cast(:no_secs as interval)"+
+	// " and (:filter)"+
+	// " GROUP BY time_bucket(cast(:offset as interval), time) ,data, nfInstanceId, nfSetId"+
+	// " ORDER BY time_bucket(cast(:offset as interval), time) DESC;",
+	// 		nativeQuery=true)
+	// List<NfLoadLevelInformationTable> findAllInLastIntervalByFilterAndOffset(@Param("filter") String filter,@Param("no_secs") String no_secs,@Param("offset") String offset);
 
 	@Query(value="select distinct on (time_bucket('?2 second', time), nfInstanceId, nfSetId) time_bucket('?2 second', time)"+
 	" AS time , data , nfInstanceId, nfSetId,"+
