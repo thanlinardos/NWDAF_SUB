@@ -63,6 +63,9 @@ public class DataCollectionListener {
 						synchronized (dataCollectionLock) {
 				    		no_dataCollectionEventListeners--;
 				    	}
+						synchronized(started_saving_data_lock){
+							started_saving_data = false;
+						}
 						return;
 					}
     				if(nfloadinfos==null || nfloadinfos.size()==0) {
@@ -70,6 +73,9 @@ public class DataCollectionListener {
     					synchronized (dataCollectionLock) {
 				    		no_dataCollectionEventListeners--;
 				    	}
+						synchronized(started_saving_data_lock){
+							started_saving_data = false;
+						}
 						return;
     				}
     				else {
@@ -86,6 +92,9 @@ public class DataCollectionListener {
     							synchronized (dataCollectionLock) {
     					    		no_dataCollectionEventListeners--;
     					    	}
+								synchronized(started_saving_data_lock){
+									started_saving_data = false;
+								}
     							return;
     						}
     					}
@@ -102,6 +111,9 @@ public class DataCollectionListener {
 					synchronized (dataCollectionLock) {
 			    		no_dataCollectionEventListeners--;
 			    	}
+					synchronized(started_saving_data_lock){
+						started_saving_data = false;
+					}
 					return;
 				}
     		}

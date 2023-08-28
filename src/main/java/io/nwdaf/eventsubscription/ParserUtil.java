@@ -94,6 +94,9 @@ public class ParserUtil {
     public static <T> List<String> parseListToFilterList (List<T> list,String name){
 		List<String> filterList = new ArrayList<>();
 		for(int i=0;i<list.size();i++){
+            if(list.get(i)==null || list.get(i).getClass()==null){
+                continue;
+            }
 			if(list.get(i).getClass().equals(Integer.class)){
 				filterList.add("{\""+name+"\":"+list.get(i)+"}");
 			}
@@ -106,6 +109,9 @@ public class ParserUtil {
 
 	public static String parseQuerryFilter(List<String> filterList){
 		String res = "";
+        if(filterList.size()==0){
+            return null;
+        }
 		for(int i=0;i<filterList.size();i++){
 			res += "data @> cast('"+filterList.get(i)+"' as jsonb)";
 			if(i!=filterList.size()-1){

@@ -7,13 +7,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
+import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
+import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
+import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
@@ -41,6 +50,20 @@ import io.nwdaf.eventsubscription.service.MetricsService;
 import io.nwdaf.eventsubscription.service.NotificationService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
 
+import org.springframework.core.io.Resource;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.http.HttpClient;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import javax.net.ssl.SSLContext;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.config.Registry;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
+
+
 @Component
 public class NotifyListener {
 	
@@ -61,8 +84,13 @@ public class NotifyListener {
 	@Autowired
 	ObjectMapper objectMapper;
 
-	@Autowired
+	// @Autowired
 	RestTemplate template;
+
+	@Value("${trust.store}")
+    private Resource trustStore;
+    @Value("${trust.store.password}")
+    private String trustStorePassword;
 	
     @Async
     @EventListener
@@ -172,6 +200,7 @@ public class NotifyListener {
 	            	st = System.nanoTime();
 	        		HttpEntity<NnwdafEventsSubscriptionNotification> client_request = new HttpEntity<>(notification);
 	        		ResponseEntity<NnwdafEventsSubscriptionNotification> client_response=null;
+					template = new RestTemplate(createRestTemplateFactory());
 	        		try {
 	        			client_response = template.postForEntity(sub.getNotificationURI()+"/notify",client_request, NnwdafEventsSubscriptionNotification.class);
 	        		}catch(RestClientException e) {
@@ -179,6 +208,7 @@ public class NotifyListener {
 						logger.info(e.toString());
 	        		}
 	        		client_delay += (System.nanoTime()-st)/1000000l;
+					// if notifying the client was successful update the map with the current time
 	    			if(client_response!=null) {
 		        		if(client_response.getStatusCode().is2xxSuccessful()) {
 		    				lastNotifTimes.put(Pair.of(entry.getKey().getFirst(), entry.getKey().getSecond()), OffsetDateTime.now());
@@ -302,7 +332,7 @@ public class NotifyListener {
 		String params=null;
 		Integer no_secs=null;
 		Integer repPeriod=null;
-		if(eventSub.getExtraReportReq().getEndTs()!=null){
+		if(eventSub.getExtraReportReq().getEndTs()!=null && eventSub.getExtraReportReq().getStartTs()!=null){
 			no_secs = eventSub.getExtraReportReq().getEndTs().getSecond()-eventSub.getExtraReportReq().getStartTs().getSecond();
 		}
 		else{
@@ -354,5 +384,24 @@ public class NotifyListener {
 		
 		return notification;
 	}
-
+	private ClientHttpRequestFactory createRestTemplateFactory(){
+		SSLContext sslContext;
+		try {
+			sslContext = new SSLContextBuilder()
+			  .loadTrustMaterial(trustStore.getURL(), trustStorePassword.toCharArray()).build();
+			SSLConnectionSocketFactory sslConFactory = new SSLConnectionSocketFactory(sslContext);
+			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create()
+			.register("https", sslConFactory)
+			.register("http", new PlainConnectionSocketFactory())
+			.build();
+			BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry);
+			CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
+			ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+			return requestFactory;
+		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | CertificateException
+				| IOException e) {
+			e.printStackTrace();
+		}
+        return null;
+	}
 }

@@ -118,11 +118,11 @@ public class PrometheusRequestBuilder {
 					dataOptionals.get(c).set(1,uuid);
 				}
 				value = vectorData.getDataValue().getValue();
-				log.info(String.format("%s", vectorData.getMetric().get("name")));
-				log.info(String.format("%s %10.2f ",
-						OffsetDateTime.ofInstant(Instant.ofEpochMilli(Math.round(vectorData.getDataValue().getTimestamp()*1000)), TimeZone.getDefault().toZoneId()),
-						value
-						));
+				// log.info(String.format("%s", vectorData.getMetric().get("name")));
+				// log.info(String.format("%s %10.2f ",
+				// 		OffsetDateTime.ofInstant(Instant.ofEpochMilli(Math.round(vectorData.getDataValue().getTimestamp()*1000)), TimeZone.getDefault().toZoneId()),
+				// 		value
+				// 		));
 				data.get(c).set(0,(int) Math.round(value));	
 				c++;
 			}

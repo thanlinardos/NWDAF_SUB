@@ -11,6 +11,7 @@ import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties.Data;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -185,9 +186,14 @@ public class SubscriptionsController implements SubscriptionsApi{
 				NotificationBuilder notifBuilder = new NotificationBuilder();
 				NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
 				try {
-					dataCollectionPublisher.publishDataCollection("");
-					//wait for data collection to start
-					while((!DataCollectionListener.getStarted_saving_data()) && DataCollectionListener.getNo_dataCollectionEventListeners()>0){
+					// check if it needs to wake up data collector
+					if(DataCollectionListener.getNo_dataCollectionEventListeners()==0){
+						dataCollectionPublisher.publishDataCollection("");
+						//wait for data collection to start
+						Thread.sleep(50);
+						while((!DataCollectionListener.getStarted_saving_data()) && DataCollectionListener.getNo_dataCollectionEventListeners()>0){
+							Thread.sleep(50);
+						}
 						Thread.sleep(50);
 					}
 					notification=getNotification(body, i, notification);
@@ -330,7 +336,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 		Integer no_secs=null;
 		Integer repPeriod=null;
 		repPeriod = needsServing(sub, index);
-		if(eventSub.getExtraReportReq().getEndTs()!=null){
+		if(eventSub.getExtraReportReq().getEndTs()!=null && eventSub.getExtraReportReq().getStartTs()!=null){
 			no_secs = eventSub.getExtraReportReq().getEndTs().getSecond()-eventSub.getExtraReportReq().getStartTs().getSecond();
 		}
 		else{
@@ -349,7 +355,6 @@ public class SubscriptionsController implements SubscriptionsApi{
 			}
 		}
 		
-		System.out.println("getNotification: repPeriod="+repPeriod+", params="+params+", no_secs="+no_secs);
 		switch(eType) {
 		case NF_LOAD:
 			List<NfLoadLevelInformation> nfloadlevels = new ArrayList<>();
@@ -359,6 +364,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 			else if(eventSub.getNfSetIds()!=null){
 				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfSetId"));
 			}
+			System.out.println("getNotification: repPeriod="+repPeriod+", params="+params+", no_secs="+no_secs);
 			try{
 				if(repPeriod!=null){
 					nfloadlevels = metricsService.findAllInLastIntervalByFilterAndOffset(params,no_secs,repPeriod);
@@ -382,7 +388,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 		
 		return notification;
 	}
-
+	// converts the hex bits to a list of integers, each representing the presence of a feature, using bit masking
 	private List<Integer> convertFeaturesToList(String features){
 		int in;
 		try{
@@ -401,6 +407,8 @@ public class SubscriptionsController implements SubscriptionsApi{
 
         return res;
 	}
+	// set the shape attribute for each geographicArea 
+	// because of polymoprhic inheritance bug when jackson is deserialising the json
 	private EventSubscription setShapes(EventSubscription e){
 		if(e.getExptUeBehav()!=null){
 			if(e.getExptUeBehav().getExpectedUmts()!=null){

@@ -7,9 +7,12 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.TlsConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
@@ -48,27 +51,28 @@ public class OpenAPIConfig {
 	@Value("${nnwdaf-eventsubscription.openapi.prod-url}")
 	private String prodUrl;
 	
-	@Value("${trust.store}")
-    private Resource trustStore;
-    @Value("${trust.store.password}")
-    private String trustStorePassword;
+	// @Value("${trust.store}")
+    // private Resource trustStore;
+    // @Value("${trust.store.password}")
+    // private String trustStorePassword;
 
-    @Bean
-    public RestTemplate restTemplate() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException,
-      CertificateException, MalformedURLException, IOException {
+    // @Bean
+    // public RestTemplate restTemplate() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException,
+    //   CertificateException, MalformedURLException, IOException {
       
-        SSLContext sslContext = new SSLContextBuilder()
-          .loadTrustMaterial(trustStore.getURL(), trustStorePassword.toCharArray()).build();
-        SSLConnectionSocketFactory sslConFactory = new SSLConnectionSocketFactory(sslContext);
-        Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create()
-        .register("https", sslConFactory)
-        .register("http", new PlainConnectionSocketFactory())
-        .build();
-        BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry);
-        CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
-        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        return new RestTemplate(requestFactory);
-    }
+    //     // SSLContext sslContext = new SSLContextBuilder()
+    //     //   .loadTrustMaterial(trustStore.getURL(), trustStorePassword.toCharArray()).build();
+    //     // SSLConnectionSocketFactory sslConFactory = new SSLConnectionSocketFactory(sslContext);
+    //     Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create()
+    //     // .register("https", sslConFactory)
+    //     .register("http", new PlainConnectionSocketFactory())
+    //     .build();
+    //     BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry);
+	// 	// connectionManager.setTlsConfig(TlsConfig.custom().setHandshakeTimeout(2000, TimeUnit.MILLISECONDS).build());
+    //     CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
+    //     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+    //     return new RestTemplate(requestFactory);
+    // }
 
 	@Bean
 	public OpenAPI myOpenAPI() {

@@ -92,13 +92,23 @@ added converterToForm for update (failedEventReports not working)
 refactored client buttons
 update and delete (+on client) (still have to do the controller part)
 fixed datacollection errors when containers offline
+---28/8/23----
+added https with self signed certificates to server and client (TLS)
+fixed broken pipe error by moving from config for resttemplate to local function 'createRestTemplateFactory()'
+fixed some client buttons
+added filtering by nfInstanceId,offset and past interval using timescaledb querries
+decided on kafka architecture: publishers will push data (from timescaledbs in this example) 
+	and the consumers will put it into the timescaledb the notifylistener currently uses
+	(a seperate background thread will save the data to permanent storage (postgres) if needed)
 
 TODO:
 
--fix prom querry , data coll, notif listener and subcontroller for filtering the nfs by id,setid,...
--add optionals to nf load and create job for pushing test data to timescaledb
+-expand filter for other nfload cases (setId,nfType,AOI...)
+-create job for pushing test data to timescaledb
+-add optionals to nf load 
 -add db to client and showallsubs (+ choose a sub to update  or show latest notif)
--add past offset to notify (+ show metrics from each event notif object to client in a list)
+-add past offset to notify DONE
+-show metrics from each event notif object to client in a list
 -implement thresholds & immediate reporting
 -make fake metrics for UE_Mobility and implement the use case
 -add second prometheus instance (implement data collection for list of prometheus instances)
