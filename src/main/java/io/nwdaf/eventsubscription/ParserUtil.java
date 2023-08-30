@@ -6,6 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.nwdaf.eventsubscription.model.EventSubscription;
+import io.nwdaf.eventsubscription.model.GADShape;
+import io.nwdaf.eventsubscription.model.LocationArea;
+import io.nwdaf.eventsubscription.model.SupportedGADShapes;
+import io.nwdaf.eventsubscription.model.SupportedGADShapes.SupportedGADShapesEnum;
+
 public class ParserUtil {
     public static Integer safeParseInteger(String str) {
         try {
@@ -120,5 +126,64 @@ public class ParserUtil {
 		}
 
 		return res;
+	}
+
+    // set the shape attribute for each geographicArea 
+	// because of polymoprhic inheritance bug when jackson is deserialising the json
+	public static EventSubscription setShapes(EventSubscription e){
+		if(e.getExptUeBehav()!=null){
+			if(e.getExptUeBehav().getExpectedUmts()!=null){
+				for(int j=0;j<e.getExptUeBehav().getExpectedUmts().size();j++){
+					LocationArea area = e.getExptUeBehav().getExpectedUmts().get(j);
+					if(area.getGeographicAreas()!=null){
+						for(int k=0;k<area.getGeographicAreas().size();k++){
+    						String shapeType = area.getGeographicAreas().get(k).getType();
+							if(shapeType.equals("Point")){
+								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.Point));
+							}
+							else if(shapeType.equals("PointAltitude")){
+								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.PointAltitude));
+							}
+							else if(shapeType.equals("PointAltitudeUncertainty")){
+								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.PointAltitudeUncertainty));
+							}
+							else if(shapeType.equals("PointUncertaintyCircle")){
+								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.PointUncertaintyCircle));
+							}
+							else if(shapeType.equals("PointUncertaintyEllipse")){
+								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.PointUncertaintyEllipse));
+							}
+							else if(shapeType.equals("Polygon")){
+								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.Polygon));
+							}
+							else if(shapeType.equals("EllipsoidArc")){
+								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.EllipsoidArc));
+							}
+						}
+					}
+				}
+			}
+		}
+		return e;	
+	}
+
+    // converts the hex bits to a list of integers, each representing the presence of a feature, using bit masking
+	public static List<Integer> convertFeaturesToList(String features){
+		int in;
+		try{
+		in = Integer.parseInt(features, 16);
+		}catch(NumberFormatException e){
+			return new ArrayList<>();
+		}
+        List<Integer> res = new ArrayList<>();
+
+        for (int i = 1; i <= 24; i++) {
+            int featureBit = 1 << (i - 1);
+            if ((in & featureBit) != 0) {
+                res.add(i);
+            }
+        }
+
+        return res;
 	}
 }

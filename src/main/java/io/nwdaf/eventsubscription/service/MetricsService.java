@@ -117,18 +117,12 @@ public class MetricsService {
 		return res;
 	}
 	//UE_MOBILITY
-	public UeMobilityTable create(UeMobility body) {
+	public UeMobilityTable create(UeMobility body) throws JsonProcessingException, JSONException {
 		UeMobilityTable body_table = new UeMobilityTable();
 		body_table.setData(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));
 		body_table.setTime(body.getTs());
 		String data=null;
-		try {
-			data = new JSONObject(objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(body)).toString();
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
+		data = new JSONObject(objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(body)).toString();
 		NwdafSubApplication.getLogger().info(data);
 		repository.saveMobilityTable(body.getTs(),data);
 		return body_table;

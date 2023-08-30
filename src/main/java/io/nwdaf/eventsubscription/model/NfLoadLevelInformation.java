@@ -26,6 +26,9 @@ public class NfLoadLevelInformation   {
   
   private OffsetDateTime timeStamp=null;
   
+  @JsonProperty("areaOfInterestId")
+  private UUID areaOfInterestId = null;
+
   @JsonProperty("nfType")
   private NFType nfType = null;
 
@@ -62,11 +65,23 @@ public class NfLoadLevelInformation   {
   @JsonProperty("confidence")
   private Integer confidence = null;
 
+  public NfLoadLevelInformation areaOfInterestId(UUID id){
+    this.areaOfInterestId = id;
+    return this;
+  }
+
+  public UUID getAreaOfInterestId(){
+    return this.areaOfInterestId;
+  }
+
+  public void setAreaOfInterestId(UUID id){
+    this.areaOfInterestId = id;
+  }
+
   public NfLoadLevelInformation nfType(NFType nfType) {
     this.nfType = nfType;
     return this;
   }
-
   	
   public Instant getTime() {
 	return time;

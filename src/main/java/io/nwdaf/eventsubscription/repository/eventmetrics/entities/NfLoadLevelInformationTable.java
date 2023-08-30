@@ -52,6 +52,18 @@ public class NfLoadLevelInformationTable implements Serializable{
 	
 	@Column(name="nfLoadAvgInAoi")
 	private Integer nfLoadAvgInAoi;
+
+	@JdbcTypeCode(SqlTypes.UUID)
+	@Column(name="areaOfInterestId",columnDefinition="UUID")
+	private UUID areaOfInterestId;
+
+	public UUID getAreaOfInterestId(){
+		return this.areaOfInterestId;
+	}
+
+	public void setAreaOfInterestId(UUID aoiId){
+		this.areaOfInterestId = aoiId;
+	}
 	
 	public OffsetDateTime getTime() {
 		return Id.time;

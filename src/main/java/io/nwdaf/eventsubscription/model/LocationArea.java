@@ -25,7 +25,7 @@ public class LocationArea   {
   private List<CivicAddress> civicAddresses = null;
 
   @JsonProperty("nwAreaInfo")
-  private NetworkAreaInfo1 nwAreaInfo = null;
+  private NetworkAreaInfo nwAreaInfo = null;
 
   @JsonProperty("umtTime")
   private UmtTime umtTime = null;
@@ -84,7 +84,7 @@ public class LocationArea   {
     this.civicAddresses = civicAddresses;
   }
 
-  public LocationArea nwAreaInfo(NetworkAreaInfo1 nwAreaInfo) {
+  public LocationArea nwAreaInfo(NetworkAreaInfo nwAreaInfo) {
     this.nwAreaInfo = nwAreaInfo;
     return this;
   }
@@ -96,11 +96,11 @@ public class LocationArea   {
   @Schema(description = "")
   
     @Valid
-    public NetworkAreaInfo1 getNwAreaInfo() {
+    public NetworkAreaInfo getNwAreaInfo() {
     return nwAreaInfo;
   }
 
-  public void setNwAreaInfo(NetworkAreaInfo1 nwAreaInfo) {
+  public void setNwAreaInfo(NetworkAreaInfo nwAreaInfo) {
     this.nwAreaInfo = nwAreaInfo;
   }
 

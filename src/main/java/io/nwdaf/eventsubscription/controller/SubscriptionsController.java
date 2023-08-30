@@ -1,7 +1,5 @@
 package io.nwdaf.eventsubscription.controller;
 
-import java.awt.Point;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,9 +7,9 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.apache.tomcat.util.bcel.Const;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties.Data;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,28 +17,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 import io.nwdaf.eventsubscription.Constants;
+import io.nwdaf.eventsubscription.NotificationUtil;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.ParserUtil;
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
-import io.nwdaf.eventsubscription.model.GADShape;
-import io.nwdaf.eventsubscription.model.LocationArea;
-import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
 import io.nwdaf.eventsubscription.model.NotificationFlag;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode;
 import io.nwdaf.eventsubscription.model.ReportingInformation;
-import io.nwdaf.eventsubscription.model.SupportedGADShapes;
 import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
 import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
-import io.nwdaf.eventsubscription.model.SupportedGADShapes.SupportedGADShapesEnum;
 import io.nwdaf.eventsubscription.notify.DataCollectionListener;
 import io.nwdaf.eventsubscription.notify.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
@@ -92,7 +84,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 		
 		if(body.getSupportedFeatures()!=null) {
 			if(!Constants.supportedFeatures.equals(body.getSupportedFeatures())) {
-				negotiatedFeaturesList = convertFeaturesToList(body.getSupportedFeatures());
+				negotiatedFeaturesList = ParserUtil.convertFeaturesToList(body.getSupportedFeatures());
 			}
 		}
 		else {
@@ -148,7 +140,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 								
 						}
 					}
-				e = setShapes(e);
+				e = ParserUtil.setShapes(e);
 				body.getEventSubscriptions().set(i, e);
 				}
 				else {
@@ -182,6 +174,14 @@ public class SubscriptionsController implements SubscriptionsApi{
 					failed_notif = true;
 					failCode = NwdafFailureCodeEnum.OTHER;
 				}
+				//check if for this event subscription the requested area of interest 
+				// is inside (or equals to) the service area of this NWDAF instance
+				if(event.getNetworkArea()!=null){
+					if(!Constants.ServingAreaOfInterest.containsArea(event.getNetworkArea())){
+						failed_notif = true;
+						failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+					}
+				}
 				//check whether data is available to be gathered
 				NotificationBuilder notifBuilder = new NotificationBuilder();
 				NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
@@ -196,12 +196,14 @@ public class SubscriptionsController implements SubscriptionsApi{
 						}
 						Thread.sleep(50);
 					}
-					notification=getNotification(body, i, notification);
+					notification=NotificationUtil.getNotification(body, i, notification, metricsService);
 				} catch (JsonProcessingException e) {
 					failed_notif=true;
 					logger.error("Failed to collect data for event: "+eType,e);
 					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
-				}catch(Exception e) {
+				} catch(InterruptedException e){
+					logger.error("Thread failed to wait for datacollection to start for event: "+eType,e);
+				} catch(Exception e) {
 					failed_notif=true;
 					logger.error("Failed to collect data for event(couldnt connect to timescaledb): "+eType,e);
 					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
@@ -289,160 +291,4 @@ public class SubscriptionsController implements SubscriptionsApi{
 		return ResponseEntity.status(HttpStatus.OK).headers(responseHeaders).body(body);
 	}
 	
-	//check if subscription needs to be served and return the repetition period (0 for threshold)
-	private Integer needsServing(NnwdafEventsSubscription body, Integer eventIndex) {
-		NotificationMethodEnum notificationMethod=null;
-		Integer repetitionPeriod=null;
-		
-		if(body.getEventSubscriptions().get(eventIndex)!=null) {
-			if(body.getEventSubscriptions().get(eventIndex).getNotificationMethod()!=null) {
-				notificationMethod = body.getEventSubscriptions().get(eventIndex).getNotificationMethod().getNotifMethod();
-				if(notificationMethod.equals(NotificationMethodEnum.PERIODIC)) {
-					repetitionPeriod = body.getEventSubscriptions().get(eventIndex).getRepetitionPeriod();
-				}
-			}
-		}
-		
-		if(body.getEvtReq()!=null) {
-			if(body.getEvtReq().getNotifFlag()!=null) {
-				if(body.getEvtReq().getNotifFlag().getNotifFlag()!=null) {
-					if(body.getEvtReq().getNotifFlag().getNotifFlag().equals(NotificationFlagEnum.DEACTIVATE)) {
-						return null;
-					}
-				}
-			}
-			if(body.getEvtReq().getNotifMethod()!=null) {
-				notificationMethod = body.getEvtReq().getNotifMethod().getNotifMethod();
-				if(body.getEvtReq().getNotifMethod().getNotifMethod().equals(NotificationMethodEnum.PERIODIC)) {
-					repetitionPeriod = body.getEvtReq().getRepPeriod();
-				}
-			}
-		}
-		if(notificationMethod==null) {
-			return null;
-		}
-		if(notificationMethod.equals(NotificationMethodEnum.THRESHOLD)) {
-			return 0;
-		}
-		return repetitionPeriod;
-	}
-
-	private NnwdafEventsSubscriptionNotification getNotification(NnwdafEventsSubscription sub,Integer index,NnwdafEventsSubscriptionNotification notification) throws JsonMappingException, JsonProcessingException, Exception {
-		OffsetDateTime now = OffsetDateTime.now();
-		EventSubscription eventSub = sub.getEventSubscriptions().get(index);
-		NwdafEventEnum eType = eventSub.getEvent().getEvent();
-		NotificationBuilder notifBuilder = new NotificationBuilder();
-		String params=null;
-		Integer no_secs=null;
-		Integer repPeriod=null;
-		repPeriod = needsServing(sub, index);
-		if(eventSub.getExtraReportReq().getEndTs()!=null && eventSub.getExtraReportReq().getStartTs()!=null){
-			no_secs = eventSub.getExtraReportReq().getEndTs().getSecond()-eventSub.getExtraReportReq().getStartTs().getSecond();
-		}
-		else{
-			if(eventSub.getExtraReportReq().getStartTs()!=null){
-				no_secs = OffsetDateTime.now().getSecond()-eventSub.getExtraReportReq().getStartTs().getSecond();
-			}
-			else{
-				if(eventSub.getExtraReportReq().getOffsetPeriod()!=null){
-					if(eventSub.getExtraReportReq().getOffsetPeriod()<0){
-						no_secs = (-1) * eventSub.getExtraReportReq().getOffsetPeriod();
-					}
-					else if(eventSub.getExtraReportReq().getOffsetPeriod()>0){
-						//not implemented for future data
-					}
-				}
-			}
-		}
-		
-		switch(eType) {
-		case NF_LOAD:
-			List<NfLoadLevelInformation> nfloadlevels = new ArrayList<>();
-			if(eventSub.getNfInstanceIds()!=null){
-				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfInstanceId"));
-			}
-			else if(eventSub.getNfSetIds()!=null){
-				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfSetId"));
-			}
-			System.out.println("getNotification: repPeriod="+repPeriod+", params="+params+", no_secs="+no_secs);
-			try{
-				if(repPeriod!=null){
-					nfloadlevels = metricsService.findAllInLastIntervalByFilterAndOffset(params,no_secs,repPeriod);
-				}
-				else{
-					nfloadlevels = metricsService.findAllInLastIntervalByFilter(params,no_secs);
-				}
-			} catch(Exception e){
-				System.out.println("Cant find metrics from database");
-				System.out.println(e);
-				return null;
-			}
-			if(nfloadlevels==null || nfloadlevels.size()==0) {
-				return null;
-			}
-			notification = notifBuilder.addEvent(notification, NwdafEventEnum.NF_LOAD, null, null, now, null, null, null, nfloadlevels);	
-			break;
-		default:
-			break;
-		}
-		
-		return notification;
-	}
-	// converts the hex bits to a list of integers, each representing the presence of a feature, using bit masking
-	private List<Integer> convertFeaturesToList(String features){
-		int in;
-		try{
-		in = Integer.parseInt(features, 16);
-		}catch(NumberFormatException e){
-			return new ArrayList<>();
-		}
-        List<Integer> res = new ArrayList<>();
-
-        for (int i = 1; i <= 24; i++) {
-            int featureBit = 1 << (i - 1);
-            if ((in & featureBit) != 0) {
-                res.add(i);
-            }
-        }
-
-        return res;
-	}
-	// set the shape attribute for each geographicArea 
-	// because of polymoprhic inheritance bug when jackson is deserialising the json
-	private EventSubscription setShapes(EventSubscription e){
-		if(e.getExptUeBehav()!=null){
-			if(e.getExptUeBehav().getExpectedUmts()!=null){
-				for(int j=0;j<e.getExptUeBehav().getExpectedUmts().size();j++){
-					LocationArea area = e.getExptUeBehav().getExpectedUmts().get(j);
-					if(area.getGeographicAreas()!=null){
-						for(int k=0;k<area.getGeographicAreas().size();k++){
-    						String shapeType = area.getGeographicAreas().get(k).getType();
-							if(shapeType.equals("Point")){
-								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.Point));
-							}
-							else if(shapeType.equals("PointAltitude")){
-								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.PointAltitude));
-							}
-							else if(shapeType.equals("PointAltitudeUncertainty")){
-								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.PointAltitudeUncertainty));
-							}
-							else if(shapeType.equals("PointUncertaintyCircle")){
-								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.PointUncertaintyCircle));
-							}
-							else if(shapeType.equals("PointUncertaintyEllipse")){
-								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.PointUncertaintyEllipse));
-							}
-							else if(shapeType.equals("Polygon")){
-								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.Polygon));
-							}
-							else if(shapeType.equals("EllipsoidArc")){
-								((GADShape)area.getGeographicAreas().get(k)).setShape(new SupportedGADShapes().supportedGADShapes(SupportedGADShapesEnum.EllipsoidArc));
-							}
-						}
-					}
-				}
-			}
-		}
-		return e;	
-	}
 }

@@ -2,17 +2,10 @@ package io.nwdaf.eventsubscription.notify;
 
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
-import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
-import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
-import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,8 +14,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
@@ -33,16 +24,13 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.Constants;
+import io.nwdaf.eventsubscription.NotificationUtil;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
-import io.nwdaf.eventsubscription.ParserUtil;
+import io.nwdaf.eventsubscription.RestTemplateFactoryConfig;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
-import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
-import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
-import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
-import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
@@ -51,17 +39,6 @@ import io.nwdaf.eventsubscription.service.NotificationService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
 
 import org.springframework.core.io.Resource;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.http.HttpClient;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import javax.net.ssl.SSLContext;
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
-import org.apache.hc.core5.http.config.Registry;
-import org.apache.hc.core5.ssl.SSLContextBuilder;
 
 
 @Component
@@ -92,6 +69,9 @@ public class NotifyListener {
     @Value("${trust.store.password}")
     private String trustStorePassword;
 	
+	RestTemplateFactoryConfig restTemplateFactoryConfig = new RestTemplateFactoryConfig(trustStore, trustStorePassword);
+
+
     @Async
     @EventListener
     void sendNotifications(Long subId){
@@ -126,7 +106,7 @@ public class NotifyListener {
     	Integer c = 0;
     	for(int i=0;i<subs.size();i++) {
     		for(int j=0;j<subs.get(i).getEventSubscriptions().size();j++) {
-    			Integer period = needsServing(subs.get(i),j);
+    			Integer period = NotificationUtil.needsServing(subs.get(i),j);
 		    	if(period!=null) {
 		    		if(period!=0) {
 			    		c++;
@@ -144,11 +124,10 @@ public class NotifyListener {
     	System.out.println("no_subs="+subs.size());
     	System.out.println("no_Ssubs="+c);
     	
-    	long start,prom_delay,notif_save_delay,client_delay;
+    	long start,prom_delay,client_delay;
     	while(c>0) {
     		start = System.nanoTime();
     		prom_delay=0;
-    		notif_save_delay=0;
     		client_delay=0;
     		for(Map.Entry<Pair<Long,Integer>,OffsetDateTime> entry:lastNotifTimes.entrySet()) {
     			Long id = entry.getKey().getFirst();
@@ -163,7 +142,7 @@ public class NotifyListener {
     			NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
     			long st  = System.nanoTime();
     			try {
-    				notification = getNotification(sub, entry.getKey().getSecond(), notification);
+    				notification = NotificationUtil.getNotification(sub, entry.getKey().getSecond(), notification, metricsService);
     			}catch(JsonMappingException e) {
     				logger.error("Error building the notification for sub: "+id+". Data is no longer available for this event",e);
     				// add failureEventInfo
@@ -190,9 +169,7 @@ public class NotifyListener {
     			}
         		prom_delay += (System.nanoTime()-st) / 1000000l;
     			//save the sent notification to a second database
-    			st = System.nanoTime();
     			notificationService.create(notification);
-    			notif_save_delay += (System.nanoTime()-st)/1000000l;
     			
     			//check if period has passed -> notify client
     			if(OffsetDateTime.now().compareTo(entry.getValue().plusSeconds((long) repPeriod))>0) {
@@ -200,7 +177,7 @@ public class NotifyListener {
 	            	st = System.nanoTime();
 	        		HttpEntity<NnwdafEventsSubscriptionNotification> client_request = new HttpEntity<>(notification);
 	        		ResponseEntity<NnwdafEventsSubscriptionNotification> client_response=null;
-					template = new RestTemplate(createRestTemplateFactory());
+					template = new RestTemplate(restTemplateFactoryConfig.createRestTemplateFactory());
 	        		try {
 	        			client_response = template.postForEntity(sub.getNotificationURI()+"/notify",client_request, NnwdafEventsSubscriptionNotification.class);
 	        		}catch(RestClientException e) {
@@ -240,7 +217,7 @@ public class NotifyListener {
         	for(int i=0;i<subs.size();i++) {
         		Long id = subs.get(i).getId();
         		for(int j=0;j<subs.get(i).getEventSubscriptions().size();j++) {
-        			Integer period = needsServing(subs.get(i),j);
+        			Integer period = NotificationUtil.needsServing(subs.get(i),j);
     		    	if(period!=null) {
     		    		if(period!=0) {
 	    		    		c++;
@@ -262,7 +239,6 @@ public class NotifyListener {
         	System.out.println("no_subs="+subs.size());
         	System.out.println("no_Ssubs="+c);
         	System.out.println("timescaledb req delay: "+prom_delay+"ms");
-    		// System.out.println("notif save delay: "+notif_save_delay+"ms");
     		System.out.println("sending notif to client delay:"+client_delay+"ms");
         	long diff = (System.nanoTime()-start) / 1000000l;
         	System.out.println("total delay: "+diff+"ms");
@@ -285,123 +261,5 @@ public class NotifyListener {
     		no_notifEventListeners--;
     	}
     }
-
-    //check if subscription needs to be served and return the repetition period (0 for threshold)
-	private Integer needsServing(NnwdafEventsSubscription body, Integer eventIndex) {
-		NotificationMethodEnum notificationMethod=null;
-		Integer repetitionPeriod=null;
-		
-		if(body.getEventSubscriptions().get(eventIndex)!=null) {
-			if(body.getEventSubscriptions().get(eventIndex).getNotificationMethod()!=null) {
-				notificationMethod = body.getEventSubscriptions().get(eventIndex).getNotificationMethod().getNotifMethod();
-				if(notificationMethod.equals(NotificationMethodEnum.PERIODIC)) {
-					repetitionPeriod = body.getEventSubscriptions().get(eventIndex).getRepetitionPeriod();
-				}
-			}
-		}
-		
-		if(body.getEvtReq()!=null) {
-			if(body.getEvtReq().getNotifFlag()!=null) {
-				if(body.getEvtReq().getNotifFlag().getNotifFlag()!=null) {
-					if(body.getEvtReq().getNotifFlag().getNotifFlag().equals(NotificationFlagEnum.DEACTIVATE)) {
-						return null;
-					}
-				}
-			}
-			if(body.getEvtReq().getNotifMethod()!=null) {
-				notificationMethod = body.getEvtReq().getNotifMethod().getNotifMethod();
-				if(body.getEvtReq().getNotifMethod().getNotifMethod().equals(NotificationMethodEnum.PERIODIC)) {
-					repetitionPeriod = body.getEvtReq().getRepPeriod();
-				}
-			}
-		}
-		if(notificationMethod==null) {
-			return null;
-		}
-		if(notificationMethod.equals(NotificationMethodEnum.THRESHOLD)) {
-			return 0;
-		}
-		return repetitionPeriod;
-	}
 	
-	private NnwdafEventsSubscriptionNotification getNotification(NnwdafEventsSubscription sub,Integer index,NnwdafEventsSubscriptionNotification notification) throws JsonMappingException, JsonProcessingException, Exception {
-		OffsetDateTime now = OffsetDateTime.now();
-		EventSubscription eventSub = sub.getEventSubscriptions().get(index);
-		NwdafEventEnum eType = eventSub.getEvent().getEvent();
-		NotificationBuilder notifBuilder = new NotificationBuilder();
-		String params=null;
-		Integer no_secs=null;
-		Integer repPeriod=null;
-		if(eventSub.getExtraReportReq().getEndTs()!=null && eventSub.getExtraReportReq().getStartTs()!=null){
-			no_secs = eventSub.getExtraReportReq().getEndTs().getSecond()-eventSub.getExtraReportReq().getStartTs().getSecond();
-		}
-		else{
-			if(eventSub.getExtraReportReq().getStartTs()!=null){
-				no_secs = OffsetDateTime.now().getSecond()-eventSub.getExtraReportReq().getStartTs().getSecond();
-			}
-			else{
-				if(eventSub.getExtraReportReq().getOffsetPeriod()!=null){
-					if(eventSub.getExtraReportReq().getOffsetPeriod()<0){
-						no_secs = (-1) * eventSub.getExtraReportReq().getOffsetPeriod();
-					}
-					else if(eventSub.getExtraReportReq().getOffsetPeriod()>0){
-						//not implemented for future data
-					}
-				}
-			}
-		}
-		repPeriod = needsServing(sub, index);
-		
-		switch(eType) {
-		case NF_LOAD:
-			List<NfLoadLevelInformation> nfloadlevels = new ArrayList<>();
-			if(eventSub.getNfInstanceIds()!=null){
-				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfInstanceId"));
-			}
-			else if(eventSub.getNfSetIds()!=null){
-				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfSetId"));
-			}
-			try{
-				if(repPeriod!=null){
-					nfloadlevels = metricsService.findAllInLastIntervalByFilterAndOffset(params,no_secs,repPeriod);
-				}
-				else{
-					nfloadlevels = metricsService.findAllInLastIntervalByFilter(params,no_secs);
-				}
-			} catch(Exception e){
-				System.out.println("Cant find metrics from database");
-				System.out.println("exception:"+e.getCause().getClass().getName());
-				return null;
-			}
-			if(nfloadlevels==null || nfloadlevels.size()==0) {
-				return null;
-			}
-			notification = notifBuilder.addEvent(notification, NwdafEventEnum.NF_LOAD, null, null, now, null, null, null, nfloadlevels);	
-			break;
-		default:
-			break;
-		}
-		
-		return notification;
-	}
-	private ClientHttpRequestFactory createRestTemplateFactory(){
-		SSLContext sslContext;
-		try {
-			sslContext = new SSLContextBuilder()
-			  .loadTrustMaterial(trustStore.getURL(), trustStorePassword.toCharArray()).build();
-			SSLConnectionSocketFactory sslConFactory = new SSLConnectionSocketFactory(sslContext);
-			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create()
-			.register("https", sslConFactory)
-			.register("http", new PlainConnectionSocketFactory())
-			.build();
-			BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry);
-			CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
-			ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-			return requestFactory;
-		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | CertificateException
-				| IOException e) {
-			e.printStackTrace();
-		}
-        return null;
-	}
 }

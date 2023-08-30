@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS nf_load_metrics (
   nfStorageUsage int,
   nfLoadLevelAverage int,
   nfLoadLevelpeak int,
-  nfLoadAvgInAoi int
+  nfLoadAvgInAoi int,
+  areaOfInterestId UUID
 );
 SELECT create_hypertable('nf_load_metrics','time');
 
