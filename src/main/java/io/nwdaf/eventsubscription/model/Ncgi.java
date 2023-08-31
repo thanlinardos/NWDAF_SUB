@@ -2,6 +2,8 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import io.nwdaf.eventsubscription.requestbuilders.ParserUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
@@ -47,7 +49,7 @@ public class Ncgi   {
   }
 
   public Ncgi nrCellId(String nrCellId) {
-    this.nrCellId = nrCellId;
+    this.nrCellId = ParserUtil.convertEmptyStringToNull(nrCellId);
     return this;
   }
 
@@ -63,11 +65,11 @@ public class Ncgi   {
   }
 
   public void setNrCellId(String nrCellId) {
-    this.nrCellId = nrCellId;
+    this.nrCellId = ParserUtil.convertEmptyStringToNull(nrCellId);
   }
 
   public Ncgi nid(String nid) {
-    this.nid = nid;
+    this.nid = ParserUtil.convertEmptyStringToNull(nid);
     return this;
   }
 
@@ -82,7 +84,7 @@ public class Ncgi   {
   }
 
   public void setNid(String nid) {
-    this.nid = nid;
+    this.nid = ParserUtil.convertEmptyStringToNull(nid);
   }
 
 

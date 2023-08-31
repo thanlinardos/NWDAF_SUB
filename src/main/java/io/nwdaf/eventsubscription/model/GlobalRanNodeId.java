@@ -2,6 +2,8 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import io.nwdaf.eventsubscription.requestbuilders.ParserUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
@@ -61,7 +63,7 @@ public class GlobalRanNodeId  implements OneOfGlobalRanNodeId {
   }
 
   public GlobalRanNodeId n3IwfId(String n3IwfId) {
-    this.n3IwfId = n3IwfId;
+    this.n3IwfId = ParserUtil.convertEmptyStringToNull(n3IwfId);
     return this;
   }
 
@@ -76,7 +78,7 @@ public class GlobalRanNodeId  implements OneOfGlobalRanNodeId {
   }
 
   public void setN3IwfId(String n3IwfId) {
-    this.n3IwfId = n3IwfId;
+    this.n3IwfId = ParserUtil.convertEmptyStringToNull(n3IwfId);
   }
 
   public GlobalRanNodeId gNbId(GNbId gNbId) {
@@ -100,7 +102,7 @@ public class GlobalRanNodeId  implements OneOfGlobalRanNodeId {
   }
 
   public GlobalRanNodeId ngeNbId(String ngeNbId) {
-    this.ngeNbId = ngeNbId;
+    this.ngeNbId = ParserUtil.convertEmptyStringToNull(ngeNbId);
     return this;
   }
 
@@ -115,11 +117,11 @@ public class GlobalRanNodeId  implements OneOfGlobalRanNodeId {
   }
 
   public void setNgeNbId(String ngeNbId) {
-    this.ngeNbId = ngeNbId;
+    this.ngeNbId = ParserUtil.convertEmptyStringToNull(ngeNbId);
   }
 
   public GlobalRanNodeId wagfId(String wagfId) {
-    this.wagfId = wagfId;
+    this.wagfId = ParserUtil.convertEmptyStringToNull(wagfId);
     return this;
   }
 
@@ -134,11 +136,11 @@ public class GlobalRanNodeId  implements OneOfGlobalRanNodeId {
   }
 
   public void setWagfId(String wagfId) {
-    this.wagfId = wagfId;
+    this.wagfId = ParserUtil.convertEmptyStringToNull(wagfId);
   }
 
   public GlobalRanNodeId tngfId(String tngfId) {
-    this.tngfId = tngfId;
+    this.tngfId = ParserUtil.convertEmptyStringToNull(tngfId);
     return this;
   }
 
@@ -153,11 +155,11 @@ public class GlobalRanNodeId  implements OneOfGlobalRanNodeId {
   }
 
   public void setTngfId(String tngfId) {
-    this.tngfId = tngfId;
+    this.tngfId = ParserUtil.convertEmptyStringToNull(tngfId);
   }
 
   public GlobalRanNodeId nid(String nid) {
-    this.nid = nid;
+    this.nid = ParserUtil.convertEmptyStringToNull(nid);
     return this;
   }
 
@@ -172,11 +174,11 @@ public class GlobalRanNodeId  implements OneOfGlobalRanNodeId {
   }
 
   public void setNid(String nid) {
-    this.nid = nid;
+    this.nid = ParserUtil.convertEmptyStringToNull(nid);
   }
 
   public GlobalRanNodeId eNbId(String eNbId) {
-    this.eNbId = eNbId;
+    this.eNbId = ParserUtil.convertEmptyStringToNull(eNbId);
     return this;
   }
 
@@ -191,7 +193,7 @@ public class GlobalRanNodeId  implements OneOfGlobalRanNodeId {
   }
 
   public void setENbId(String eNbId) {
-    this.eNbId = eNbId;
+    this.eNbId = ParserUtil.convertEmptyStringToNull(eNbId);
   }
 
 

@@ -2,6 +2,8 @@ package io.nwdaf.eventsubscription.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import io.nwdaf.eventsubscription.requestbuilders.ParserUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.constraints.*;
@@ -22,7 +24,7 @@ public class PlmnId   {
   private String mnc = null;
 
   public PlmnId mcc(String mcc) {
-    this.mcc = mcc;
+    this.mcc = ParserUtil.convertEmptyStringToNull(mcc);
     return this;
   }
 
@@ -38,11 +40,11 @@ public class PlmnId   {
   }
 
   public void setMcc(String mcc) {
-    this.mcc = mcc;
+    this.mcc = ParserUtil.convertEmptyStringToNull(mcc);
   }
 
   public PlmnId mnc(String mnc) {
-    this.mnc = mnc;
+    this.mnc = ParserUtil.convertEmptyStringToNull(mnc);
     return this;
   }
 
@@ -58,7 +60,7 @@ public class PlmnId   {
   }
 
   public void setMnc(String mnc) {
-    this.mnc = mnc;
+    this.mnc = ParserUtil.convertEmptyStringToNull(mnc);
   }
 
 

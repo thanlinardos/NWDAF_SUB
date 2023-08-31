@@ -1,4 +1,4 @@
-package io.nwdaf.eventsubscription;
+package io.nwdaf.eventsubscription.requestbuilders;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
@@ -127,6 +127,23 @@ public class ParserUtil {
 
 		return res;
 	}
+
+    // checks if input string is neither null nor empty string ("")
+    public static Boolean checkNotNullNorEmptyString(String in){
+        if(in!=null && in!=""){
+            return true;
+        }
+        return false;
+    }
+    // converts empty string to null
+    public static String convertEmptyStringToNull(String in){
+        if(in==""){
+            return null;
+        }
+        else{
+            return in;
+        }
+    }
 
     // set the shape attribute for each geographicArea 
 	// because of polymoprhic inheritance bug when jackson is deserialising the json

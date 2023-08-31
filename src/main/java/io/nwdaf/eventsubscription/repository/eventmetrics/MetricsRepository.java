@@ -45,21 +45,6 @@ public interface MetricsRepository extends JpaRepository<NfLoadLevelInformationT
 			nativeQuery=true)
 	List<NfLoadLevelInformationTable> findAllInLastInterval(Integer no_secs);
 
-	// @Query(value="select distinct on (time_bucket(cast(:offset as interval), time), nfInstanceId, nfSetId) time_bucket(cast(:offset as interval), time)"+
-	// " AS time , data , nfInstanceId, nfSetId,"+
-    // "CAST(ROUND(AVG(CAST(data->>'nfCpuUsage' as numeric))) as integer) AS nfCpuUsage,"+
-	// "CAST(ROUND(AVG(CAST(data->>'nfMemoryUsage' as numeric))) as integer) AS nfMemoryUsage,"+
-	// "CAST(ROUND(AVG(CAST(data->>'nfStorageUsage' as numeric))) as integer) AS nfStorageUsage,"+
-	// "CAST(ROUND(AVG(CAST(data->>'nfLoadLevelAverage' as numeric))) as integer) AS nfLoadLevelAverage,"+
-	// "CAST(ROUND(MAX(CAST(data->>'nfLoadLevelpeak' as numeric))) as integer) AS nfLoadLevelpeak,"+
-	// "CAST(ROUND(AVG(CAST(data->>'nfLoadAvgInAoi' as numeric))) as integer) AS nfLoadAvgInAoi"+
-	// " from nf_load_metrics where time > NOW() - cast(:no_secs as interval)"+
-	// " and (:filter)"+
-	// " GROUP BY time_bucket(cast(:offset as interval), time) ,data, nfInstanceId, nfSetId"+
-	// " ORDER BY time_bucket(cast(:offset as interval), time) DESC;",
-	// 		nativeQuery=true)
-	// List<NfLoadLevelInformationTable> findAllInLastIntervalByFilterAndOffset(@Param("filter") String filter,@Param("no_secs") String no_secs,@Param("offset") String offset);
-
 	@Query(value="select distinct on (time_bucket('?2 second', time), nfInstanceId, nfSetId) time_bucket('?2 second', time)"+
 	" AS time , data , nfInstanceId, nfSetId,"+
     "CAST(ROUND(AVG(CAST(data->>'nfCpuUsage' as numeric))) as integer) AS nfCpuUsage,"+
@@ -67,9 +52,10 @@ public interface MetricsRepository extends JpaRepository<NfLoadLevelInformationT
 	"CAST(ROUND(AVG(CAST(data->>'nfStorageUsage' as numeric))) as integer) AS nfStorageUsage,"+
 	"CAST(ROUND(AVG(CAST(data->>'nfLoadLevelAverage' as numeric))) as integer) AS nfLoadLevelAverage,"+
 	"CAST(ROUND(MAX(CAST(data->>'nfLoadLevelpeak' as numeric))) as integer) AS nfLoadLevelpeak,"+
-	"CAST(ROUND(AVG(CAST(data->>'nfLoadAvgInAoi' as numeric))) as integer) AS nfLoadAvgInAoi"+
+	"CAST(ROUND(AVG(CAST(data->>'nfLoadAvgInAoi' as numeric))) as integer) AS nfLoadAvgInAoi,"+
+	"areaOfInterestId"+
 	" from nf_load_metrics where time > NOW() - INTERVAL '?1 second'"+
-	" GROUP BY time_bucket('?2 second', time) ,data, nfInstanceId, nfSetId"+
+	" GROUP BY time_bucket('?2 second', time) ,data, nfInstanceId, nfSetId, areaofinterestid"+
 	" ORDER BY time_bucket('?2 second', time) DESC;",
 			nativeQuery=true)
 	List<NfLoadLevelInformationTable> findAllInLastIntervalByOffset(Integer no_secs,Integer offset);

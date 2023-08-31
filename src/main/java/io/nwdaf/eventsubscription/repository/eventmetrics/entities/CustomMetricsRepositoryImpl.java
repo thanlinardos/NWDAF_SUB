@@ -20,9 +20,11 @@ public class CustomMetricsRepositoryImpl implements CustomMetricsRepository{
         "CAST(ROUND(AVG(CAST(data->>'nfStorageUsage' as numeric))) as integer) AS nfStorageUsage,"+
         "CAST(ROUND(AVG(CAST(data->>'nfLoadLevelAverage' as numeric))) as integer) AS nfLoadLevelAverage,"+
         "CAST(ROUND(MAX(CAST(data->>'nfLoadLevelpeak' as numeric))) as integer) AS nfLoadLevelpeak,"+
-        "CAST(ROUND(AVG(CAST(data->>'nfLoadAvgInAoi' as numeric))) as integer) AS nfLoadAvgInAoi"+
+        "CAST(ROUND(AVG(CAST(data->>'nfLoadAvgInAoi' as numeric))) as integer) AS nfLoadAvgInAoi,"+
+        "areaOfInterestId"+
         " from nf_load_metrics where time > NOW() - cast(:no_secs as interval)"+
-        " and " + filter + " GROUP BY time_bucket(cast(:offset as interval), time), time, data, nfInstanceId, nfSetId"
+        " and " + filter +
+        " GROUP BY time_bucket(cast(:offset as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid"
         // +" ORDER BY time_bucket(cast(:offset as interval), time) DESC, time, nfInstanceId, nfSetId;"
         ;
         return entityManager.createNativeQuery(querry, NfLoadLevelInformationTable.class).setParameter("offset",offset).setParameter("no_secs",no_secs).getResultList();

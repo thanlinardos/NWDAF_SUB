@@ -209,24 +209,76 @@ public class NetworkAreaInfo   {
 
   // checks if given networkarea is contained within this object by checking each registered cell object
   public boolean containsArea(NetworkAreaInfo area){
-    for(int i=0;i<area.getEcgis().size();i++){
-      if(!this.getEcgis().contains(area.getEcgis().get(i))){
-        return false;
+    if(area.getEcgis()!=null){
+      if(this.ecgis!=null){
+        for(int i=0;i<area.getEcgis().size();i++){
+          if(!this.getEcgis().contains(area.getEcgis().get(i))){
+            return false;
+          }
+        }
+      }
+      else{
+        if(area.getEcgis().size()>0){
+          for(int i=0;i<area.getEcgis().size();i++){
+            if(area.getEcgis().get(i)!=null){
+              return false;
+            }
+          }
+        }
       }
     }
-    for(int i=0;i<area.getGRanNodeIds().size();i++){
-      if(!this.getGRanNodeIds().contains(area.getGRanNodeIds().get(i))){
-        return false;
+    if(area.getGRanNodeIds()!=null){
+      if(this.gRanNodeIds!=null){
+        for(int i=0;i<area.getGRanNodeIds().size();i++){
+          if(!this.getGRanNodeIds().contains(area.getGRanNodeIds().get(i))){
+            return false;
+          }
+        }
+      }
+      else{
+        if(area.getGRanNodeIds().size()>0){
+          for(int i=0;i<area.getGRanNodeIds().size();i++){
+            if(area.getGRanNodeIds().get(i)!=null){
+              return false;
+            }
+          }
+        }
       }
     }
-    for(int i=0;i<area.getNcgis().size();i++){
-      if(!this.getNcgis().contains(area.getNcgis().get(i))){
-        return false;
+    if(area.getNcgis()!=null){
+      if(this.ncgis!=null){
+        for(int i=0;i<area.getNcgis().size();i++){
+          if(!this.getNcgis().contains(area.getNcgis().get(i))){
+            return false;
+          }
+        }
+      }
+      else{
+        if(area.getNcgis().size()>0){
+          for(int i=0;i<area.getNcgis().size();i++){
+            if(area.getNcgis().get(i)!=null){
+              return false;
+            }
+          }
+        }
       }
     }
-    for(int i=0;i<area.getTais().size();i++){
-      if(!this.getTais().contains(area.getTais().get(i))){
-        return false;
+    if(area.getTais()!=null){
+      if(this.tais!=null){
+        for(int i=0;i<area.getTais().size();i++){
+          if(!this.getTais().contains(area.getTais().get(i))){
+            return false;
+          }
+        }
+      }
+      else{
+        if(area.getTais().size()>0){
+          for(int i=0;i<area.getTais().size();i++){
+            if(area.getTais().get(i)!=null){
+              return false;
+            }
+          }
+        }
       }
     }
     return true;

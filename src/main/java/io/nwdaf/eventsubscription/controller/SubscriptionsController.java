@@ -7,7 +7,6 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
-import org.apache.tomcat.util.bcel.Const;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -20,7 +19,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.nwdaf.eventsubscription.Constants;
 import io.nwdaf.eventsubscription.NotificationUtil;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
-import io.nwdaf.eventsubscription.ParserUtil;
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
@@ -37,6 +35,7 @@ import io.nwdaf.eventsubscription.notify.DataCollectionListener;
 import io.nwdaf.eventsubscription.notify.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
+import io.nwdaf.eventsubscription.requestbuilders.ParserUtil;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.MetricsService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
@@ -91,7 +90,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 			body.setSupportedFeatures(Constants.supportedFeatures);
 			negotiatedFeaturesList = Constants.supportedFeaturesList;
 		}
-		
+		logger.info("negotiatedFeaturesList:" + negotiatedFeaturesList.toString());
 		if(body.getEvtReq()!=null) {
 			// get global notification method and period if they exist
 			if(body.getEvtReq().getNotifMethod()!=null) {

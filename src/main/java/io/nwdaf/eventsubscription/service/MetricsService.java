@@ -42,6 +42,7 @@ public class MetricsService {
 		body_table.setTime(body.getTimeStamp());
 		body_table.setNfInstanceId(body.getNfInstanceId());
 		body_table.setNfSetId(body.getNfSetId());
+		body_table.setAreaOfInterestId(body.getAreaOfInterestId());
 		NwdafSubApplication.getLogger().info(body_table.getData().toString());
 		return repository.save(body_table);
 	}

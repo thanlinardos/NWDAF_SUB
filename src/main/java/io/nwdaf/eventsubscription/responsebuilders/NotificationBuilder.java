@@ -95,6 +95,7 @@ public class NotificationBuilder {
 					Integer nfLoadAvgInAoi = (Integer)data.get(i).get(5);
 					info.nfLoadAvgInAoi(nfLoadAvgInAoi);
 				}
+				info.areaOfInterestId(null);
 			}
 			res.add(info);
 		}

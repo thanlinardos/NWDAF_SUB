@@ -69,7 +69,7 @@ public class NotifyListener {
     @Value("${trust.store.password}")
     private String trustStorePassword;
 	
-	RestTemplateFactoryConfig restTemplateFactoryConfig = new RestTemplateFactoryConfig(trustStore, trustStorePassword);
+	RestTemplateFactoryConfig restTemplateFactoryConfig;
 
 
     @Async
@@ -123,7 +123,7 @@ public class NotifyListener {
     	}
     	System.out.println("no_subs="+subs.size());
     	System.out.println("no_Ssubs="+c);
-    	
+		restTemplateFactoryConfig = new RestTemplateFactoryConfig(trustStore, trustStorePassword);
     	long start,prom_delay,client_delay;
     	while(c>0) {
     		start = System.nanoTime();
@@ -177,8 +177,8 @@ public class NotifyListener {
 	            	st = System.nanoTime();
 	        		HttpEntity<NnwdafEventsSubscriptionNotification> client_request = new HttpEntity<>(notification);
 	        		ResponseEntity<NnwdafEventsSubscriptionNotification> client_response=null;
-					template = new RestTemplate(restTemplateFactoryConfig.createRestTemplateFactory());
 	        		try {
+						template = new RestTemplate(restTemplateFactoryConfig.createRestTemplateFactory());
 	        			client_response = template.postForEntity(sub.getNotificationURI()+"/notify",client_request, NnwdafEventsSubscriptionNotification.class);
 	        		}catch(RestClientException e) {
 	        			logger.error("Error connecting to client "+sub.getNotificationURI());
