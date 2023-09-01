@@ -6,6 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.boot.configurationprocessor.json.JSONException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.GADShape;
 import io.nwdaf.eventsubscription.model.LocationArea;
@@ -115,7 +120,7 @@ public class ParserUtil {
 
 	public static String parseQuerryFilter(List<String> filterList){
 		String res = "";
-        if(filterList.size()==0){
+        if(filterList==null || filterList.size()==0){
             return null;
         }
 		for(int i=0;i<filterList.size();i++){
@@ -130,14 +135,14 @@ public class ParserUtil {
 
     // checks if input string is neither null nor empty string ("")
     public static Boolean checkNotNullNorEmptyString(String in){
-        if(in!=null && in!=""){
+        if(in!=null && !in.equals("")){
             return true;
         }
         return false;
     }
     // converts empty string to null
     public static String convertEmptyStringToNull(String in){
-        if(in==""){
+        if(in.equals("")){
             return null;
         }
         else{
@@ -203,4 +208,32 @@ public class ParserUtil {
 
         return res;
 	}
+    // remove edge cases from list of filters
+    public static List<String> parseObjectListToFilterList(List<String> list) {
+        List<String> filterList = new ArrayList<>();
+        if(list==null){
+            return null;
+        }
+		for(int i=0;i<list.size();i++){
+            if(list.get(i)==null || list.get(i).getClass()==null || list.get(i)=="" || list.get(i)=="{}"){
+                continue;
+            }
+			else{
+				filterList.add(list.get(i));
+			}
+		}
+		return filterList;
+    }
+    // converts a list of objects to a list of jsons in string format using objectWriter & jsonObject
+    public static <T> List<String> convertObjectWriterList(List<T> list, ObjectWriter ow){
+        List<String> res = new ArrayList<>();
+        for(int i=0;i<list.size();i++){
+            try {
+                res.add(ow.writeValueAsString(list.get(i)));
+            } catch (JsonProcessingException e) {
+                continue;
+            }
+        }
+        return res;
+    }
 }

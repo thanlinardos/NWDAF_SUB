@@ -102,4 +102,13 @@ public class Snssai   {
     }
     return o.toString().replace("\n", "\n    ");
   }
+
+  public String toKeyString(){
+    StringBuilder sb = new StringBuilder();
+    sb.append(sst.toString());
+    if(sd!=null&& !sd.equals("")){
+      sb.append("-").append(sd);
+    }
+    return sb.toString();
+  }
 }

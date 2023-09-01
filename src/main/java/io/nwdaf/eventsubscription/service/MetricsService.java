@@ -43,7 +43,7 @@ public class MetricsService {
 		body_table.setNfInstanceId(body.getNfInstanceId());
 		body_table.setNfSetId(body.getNfSetId());
 		body_table.setAreaOfInterestId(body.getAreaOfInterestId());
-		NwdafSubApplication.getLogger().info(body_table.getData().toString());
+		// NwdafSubApplication.getLogger().info("nfloadlevelinfo saved: "+body_table.getData().toString());
 		return repository.save(body_table);
 	}
 	
@@ -57,9 +57,11 @@ public class MetricsService {
 		}
 		List<NfLoadLevelInformation> res = new ArrayList<>();
 		for(int i=0;i<tables.size();i++) {
-			NfLoadLevelInformation info = objectMapper.readValue((new JSONObject(tables.get(i).getData())).toString(),NfLoadLevelInformation.class);
-			info.setTime(tables.get(i).getTime().toInstant());
-			res.add(info);
+			if(tables.get(i)!=null){
+				NfLoadLevelInformation info = objectMapper.readValue((new JSONObject(tables.get(i).getData())).toString(),NfLoadLevelInformation.class);
+				info.setTime(tables.get(i).getTime().toInstant());
+				res.add(info);
+			}
 		}
 		return res;
 	}
@@ -84,9 +86,11 @@ public class MetricsService {
 		}
 		List<NfLoadLevelInformation> res = new ArrayList<>();
 		for(int i=0;i<tables.size();i++) {
-			NfLoadLevelInformation info = objectMapper.readValue((new JSONObject(tables.get(i).getData())).toString(),NfLoadLevelInformation.class);
-			info.setTime(tables.get(i).getTime().toInstant());
-			res.add(info);
+			if(tables.get(i)!=null){
+				NfLoadLevelInformation info = objectMapper.readValue((new JSONObject(tables.get(i).getData())).toString(),NfLoadLevelInformation.class);
+				info.setTime(tables.get(i).getTime().toInstant());
+				res.add(info);
+			}
 		}
 		return res;
 	}
@@ -105,15 +109,17 @@ public class MetricsService {
 		}
 		List<NfLoadLevelInformation> res = new ArrayList<>();
 		for(int i=0;i<tables.size();i++) {
-			NfLoadLevelInformation info = objectMapper.readValue((new JSONObject(tables.get(i).getData())).toString(),NfLoadLevelInformation.class);
-			info.setTime(tables.get(i).getTime().toInstant());
-			info.setNfCpuUsage(tables.get(i).getNfCpuUsage());
-			info.setNfMemoryUsage(tables.get(i).getNfMemoryUsage());
-			info.setNfStorageUsage(tables.get(i).getNfStorageUsage());
-			info.setNfLoadLevelAverage(tables.get(i).getNfLoadLevelAverage());
-			info.setNfLoadLevelpeak(tables.get(i).getNfLoadLevelpeak());
-			info.setNfLoadAvgInAoi(tables.get(i).getNfLoadAvgInAoi());
-			res.add(info);
+			if(tables.get(i)!=null){
+				NfLoadLevelInformation info = objectMapper.readValue((new JSONObject(tables.get(i).getData())).toString(),NfLoadLevelInformation.class);
+				info.setTime(tables.get(i).getTime().toInstant());
+				info.setNfCpuUsage(tables.get(i).getNfCpuUsage());
+				info.setNfMemoryUsage(tables.get(i).getNfMemoryUsage());
+				info.setNfStorageUsage(tables.get(i).getNfStorageUsage());
+				info.setNfLoadLevelAverage(tables.get(i).getNfLoadLevelAverage());
+				info.setNfLoadLevelpeak(tables.get(i).getNfLoadLevelpeak());
+				info.setNfLoadAvgInAoi(tables.get(i).getNfLoadAvgInAoi());
+				res.add(info);
+			}
 		}
 		return res;
 	}

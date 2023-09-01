@@ -126,19 +126,30 @@ public class NotifyListener {
 		restTemplateFactoryConfig = new RestTemplateFactoryConfig(trustStore, trustStorePassword);
     	long start,prom_delay,client_delay;
     	while(c>0) {
+			// check if the notifier has been stopped manually
+			synchronized(notifLock){
+				if(no_notifEventListeners == 0){
+					logger.info("NotifyListener stopped!");
+					return;
+				}
+			}
+
     		start = System.nanoTime();
     		prom_delay=0;
     		client_delay=0;
+			// loop through the event subscriptions and the dates of last producing a notification for each of them
     		for(Map.Entry<Pair<Long,Integer>,OffsetDateTime> entry:lastNotifTimes.entrySet()) {
+				// match the id to the subscription
     			Long id = entry.getKey().getFirst();
 				NnwdafEventsSubscription sub = subs.get(subIndexes.get(id));
+				// match the event index to the event subscription
     			EventSubscription event = sub.getEventSubscriptions().get(entry.getKey().getSecond());
     			Integer repPeriod = event.getRepetitionPeriod();
-    			if(sub.getEvtReq()!=null) {
-	    			if(sub.getEvtReq().getRepPeriod()!=null) {
-	    				repPeriod = sub.getEvtReq().getRepPeriod();
-	    			}
+				// repetition period from the evtReq field overrides the value from the eventSUbscription if given according to spec
+    			if(sub.getEvtReq()!=null && sub.getEvtReq().getRepPeriod()!=null) {
+					repPeriod = sub.getEvtReq().getRepPeriod();
     			}
+				// build the notification
     			NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
     			long st  = System.nanoTime();
     			try {
