@@ -24,7 +24,7 @@ import com.bdwise.prometheus.client.converter.ConvertUtil;
 import com.bdwise.prometheus.client.converter.query.DefaultQueryResult;
 import com.bdwise.prometheus.client.converter.query.VectorData;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.nwdaf.eventsubscription.Constants;
+import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;

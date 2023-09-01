@@ -13,7 +13,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import io.nwdaf.eventsubscription.Constants;
+import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.model.NFType;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;

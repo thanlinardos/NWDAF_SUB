@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.nwdaf.eventsubscription.Constants;
+import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.NotificationUtil;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;

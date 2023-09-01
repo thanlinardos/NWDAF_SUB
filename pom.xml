@@ -8,8 +8,8 @@
 		<version>3.1.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>demo</artifactId>
+	<groupId>io.nwdaf</groupId>
+	<artifactId>NWDAF_SUB</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>NWDAF_SUB</name>
 	<description>Demo project for Spring Boot</description>
@@ -113,6 +113,11 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.nwdaf</groupId>
+			<artifactId>nwdaf_library</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
