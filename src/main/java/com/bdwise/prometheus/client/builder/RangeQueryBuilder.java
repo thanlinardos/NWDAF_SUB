@@ -51,6 +51,7 @@ public class RangeQueryBuilder implements QueryBuilder {
 		return URI.create(Utils.namedFormat(targetUriPattern, params));
 	}
 	
+	@SuppressWarnings("unused")
 	private boolean validate() {
 		return true;
 	}

@@ -27,6 +27,7 @@ public class LabelMetaQueryBuilder implements QueryBuilder{
 		return URI.create(Utils.namedFormat(targetUriPattern, params));
 	}
 	
+	@SuppressWarnings("unused")
 	private boolean validate() {
 		return true;
 	}	

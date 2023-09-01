@@ -58,6 +58,7 @@ public class PrometheusRequestBuilder {
 	@SuppressWarnings("unchecked")
 	public <T> List<T> execute(NwdafEventEnum eType,String prometheus_url) throws JsonProcessingException {
 		Logger log = NwdafSubApplication.getLogger();
+		log.hashCode();
 		OffsetDateTime now = OffsetDateTime.now();
 		//setup the connection rest template
 		template = setupTemplate();

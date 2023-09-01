@@ -13,6 +13,7 @@ public class CustomMetricsRepositoryImpl implements CustomMetricsRepository{
     private EntityManager entityManager;
 
     @Override
+    @SuppressWarnings("unchecked") 
     public List<NfLoadLevelInformationTable> findAllInLastIntervalByFilterAndOffset(String filter, String no_secs,String offset) {
         String querry = "select distinct on (time_bucket(cast(:offset as interval), time), nfInstanceId, nfSetId) time_bucket(cast(:offset as interval), time) AS time , data , nfInstanceId, nfSetId,"+
         "CAST(ROUND(AVG(CAST(data->>'nfCpuUsage' as numeric))) as integer) AS nfCpuUsage,"+

@@ -1,13 +1,8 @@
 package com.bdwise.prometheus.client.builder;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.bdwise.prometheus.client.converter.query.QueryDataType;
-import com.google.gson.stream.JsonReader;
 
 public class Utils {
     private final static Pattern namedFormatPattern = Pattern.compile("#\\{(?<key>.*?)}");

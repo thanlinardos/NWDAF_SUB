@@ -15,6 +15,7 @@ public class StatusMetaQueryBuilder implements QueryBuilder {
 		return URI.create(targetUriPattern);
 	}
 	
+	@SuppressWarnings("unused")
 	private boolean validate() {
 		return true;
 	}	

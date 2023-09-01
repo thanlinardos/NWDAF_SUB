@@ -42,7 +42,6 @@ public abstract class ConvertUtil {
 		return resultMap;
 	}	
 
-	@SuppressWarnings("unchecked")
 	public static DefaultAlertManagerResult  convertAlertManagerResultString(String jsonString) {
 		Gson gson = new GsonBuilder().registerTypeAdapter(DefaultAlertManagerResult.class, new TypeAdapter<DefaultAlertManagerResult>() {
 
@@ -114,7 +113,6 @@ public abstract class ConvertUtil {
 	}
 
 	
-	@SuppressWarnings("unchecked")
 	public static DefaultTargetResult  convertTargetResultString(String jsonString) {
 		Gson gson = new GsonBuilder().registerTypeAdapter(DefaultTargetResult.class, new TypeAdapter<DefaultTargetResult>() {
 
@@ -192,7 +190,6 @@ public abstract class ConvertUtil {
 	}
 
 	
-	@SuppressWarnings("unchecked")
 	public static DefaultConfigResult convertConfigResultString(String jsonString) {
 		Gson gson = new GsonBuilder().registerTypeAdapter(DefaultConfigResult.class, new TypeAdapter<DefaultConfigResult>() {
 
@@ -233,7 +230,6 @@ public abstract class ConvertUtil {
 		
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static DefaultLabelResult convertLabelResultString(String jsonString) {
 		Gson gson = new GsonBuilder().registerTypeAdapter(DefaultLabelResult.class, new TypeAdapter<DefaultLabelResult>() {
 
@@ -270,7 +266,6 @@ public abstract class ConvertUtil {
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	public static DefaultSeriesResult convertSeriesResultString(String jsonString) {
 		Gson gson = new GsonBuilder().registerTypeAdapter(DefaultSeriesResult.class, new TypeAdapter<DefaultSeriesResult>() {
 

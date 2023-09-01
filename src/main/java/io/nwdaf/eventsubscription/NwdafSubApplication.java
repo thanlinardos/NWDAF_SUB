@@ -11,18 +11,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 
 import io.nwdaf.eventsubscription.api.config.NwdafSubProperties;
-import io.nwdaf.eventsubscription.notify.DataCollectionPublisher;
-import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 
 @EnableConfigurationProperties(NwdafSubProperties.class)
 @SpringBootApplication
@@ -35,11 +31,11 @@ public class NwdafSubApplication {
 	
 	private static final Logger log = LoggerFactory.getLogger(NwdafSubApplication.class);
 	
-	@Autowired
-	private NotifyPublisher notifyPublisher;
+	// @Autowired
+	// private NotifyPublisher notifyPublisher;
 	
-	@Autowired
-	private DataCollectionPublisher dataCollectionPublisher;
+	// @Autowired
+	// private DataCollectionPublisher dataCollectionPublisher;
 
 	@Autowired
     private ApplicationContext applicationContext;
@@ -79,8 +75,8 @@ public class NwdafSubApplication {
 //													.tai(new Tai()
 //															.tac("FFFF")))));
 //			metricsService.create(uemob);
-			String params="";
-			Long subId = 0l;
+			// String params="";
+			// Long subId = 0l;
 			
 			// dataCollectionPublisher.publishDataCollection(params);
 			// notifyPublisher.publishNotification(subId);			

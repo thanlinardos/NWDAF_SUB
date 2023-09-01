@@ -28,7 +28,7 @@ public class MetricsService {
 	
 	private final MetricsRepository repository;
 	
-	@Autowired
+	// @Autowired
 	public MetricsService(MetricsRepository repository) {
 		this.repository = repository;
 	}

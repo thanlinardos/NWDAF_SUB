@@ -44,6 +44,7 @@ public class SeriesMetaQueryBuilder implements QueryBuilder{
 		return URI.create(Utils.namedFormat(serverUrl + Utils.namedFormat(TARGET_URI_PATTERN_SUFFIX, params), params));
 	}
 	
+	@SuppressWarnings("unused")
 	private boolean validate() {
 		return true;
 	}	
