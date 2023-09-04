@@ -47,6 +47,7 @@ public class MetricsService {
 		return repository.save(body_table);
 	}
 	
+	// NF_LOAD
 	public List<NfLoadLevelInformation> findAllByTimeAndFilter(OffsetDateTime time,String params) throws JsonMappingException, JsonProcessingException{
 		List<NfLoadLevelInformationTable> tables;
 		if(params!=null){
@@ -66,6 +67,7 @@ public class MetricsService {
 		return res;
 	}
 
+	// NF_LOAD
 	public List<NfLoadLevelInformation> findAllInLastIntervalByFilter(String params,Integer no_secs) throws JsonMappingException, JsonProcessingException{
 		List<NfLoadLevelInformationTable> tables;
 		if(no_secs!=null){
@@ -95,18 +97,14 @@ public class MetricsService {
 		return res;
 	}
 	
-	public List<NfLoadLevelInformation> findAllInLastIntervalByFilterAndOffset(String params,Integer no_secs,Integer offset) throws JsonMappingException, JsonProcessingException{
+	// NF_LOAD
+	public List<NfLoadLevelInformation> findAllInLastIntervalByFilterAndOffset(String params,Integer no_secs,Integer offset,String columns) throws JsonMappingException, JsonProcessingException{
 		List<NfLoadLevelInformationTable> tables;
-		if(no_secs==null){
+		if(no_secs == null){
 			no_secs = Constants.MIN_PERIOD_SECONDS;
 		}
-		if(params!=null){
-			System.out.println(params);
-			tables = repository.findAllInLastIntervalByFilterAndOffset(params,no_secs+" second",offset+" second");
-		}
-		else{
-			tables = repository.findAllInLastIntervalByOffset(no_secs,offset);
-		}
+		System.out.println(params);
+		tables = repository.findAllInLastIntervalByFilterAndOffset(params,no_secs+" second",offset+" second",columns);
 		List<NfLoadLevelInformation> res = new ArrayList<>();
 		for(int i=0;i<tables.size();i++) {
 			if(tables.get(i)!=null){
@@ -123,7 +121,8 @@ public class MetricsService {
 		}
 		return res;
 	}
-	//UE_MOBILITY
+
+	// UE_MOBILITY
 	public UeMobilityTable create(UeMobility body) throws JsonProcessingException, JSONException {
 		UeMobilityTable body_table = new UeMobilityTable();
 		body_table.setData(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));

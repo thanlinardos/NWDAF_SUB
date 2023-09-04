@@ -31,12 +31,13 @@ import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
 import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
+import io.nwdaf.eventsubscription.notify.DataCollectionListener;
 import io.nwdaf.eventsubscription.notify.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.notify.DummyDataProducerListener;
 import io.nwdaf.eventsubscription.notify.DummyDataProducerPublisher;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
-import io.nwdaf.eventsubscription.requestbuilders.ParserUtil;
+import io.nwdaf.eventsubscription.utilities.ParserUtil;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.MetricsService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
@@ -189,28 +190,8 @@ public class SubscriptionsController implements SubscriptionsApi{
 				NotificationBuilder notifBuilder = new NotificationBuilder();
 				NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
 				try {
-					// check if it needs to wake up data collector
-					// if(DataCollectionListener.getNo_dataCollectionEventListeners()==0){
-					// 	dataCollectionPublisher.publishDataCollection("");
-					// 	//wait for data collection to start
-					// 	Thread.sleep(50);
-					// 	while((!DataCollectionListener.getStarted_saving_data()) && DataCollectionListener.getNo_dataCollectionEventListeners()>0){
-					// 		Thread.sleep(50);
-					// 	}
-					// 	Thread.sleep(50);
-					// }
-
-					// check if it needs to wake up dummy data producer
-					if(DummyDataProducerListener.getNo_dummyDataProducerEventListeners()==0){
-						dummyDataProducerPublisher.publishDataCollection("dummy data production");
-						//wait for data publishing to start
-						Thread.sleep(50);
-						while((!DummyDataProducerListener.getStarted_saving_data()) && DummyDataProducerListener.getNo_dummyDataProducerEventListeners()>0){
-							Thread.sleep(50);
-						}
-						Thread.sleep(50);
-					}
-
+					wakeUpDataProducer("dummy");
+					// wakeUpDataProducer("prom");
 					notification=NotificationUtil.getNotification(body, i, notification, metricsService);
 				} catch (JsonProcessingException e) {
 					failed_notif=true;
@@ -306,4 +287,34 @@ public class SubscriptionsController implements SubscriptionsApi{
 		return ResponseEntity.status(HttpStatus.OK).headers(responseHeaders).body(body);
 	}
 	
+	public void wakeUpDataProducer(String choise) throws InterruptedException{
+		switch(choise){
+			case "prom":
+				// check if it needs to wake up data collector
+				if(DataCollectionListener.getNo_dataCollectionEventListeners()==0){
+					dataCollectionPublisher.publishDataCollection("");
+					//wait for data collection to start
+					Thread.sleep(50);
+					while((!DataCollectionListener.getStarted_saving_data()) && DataCollectionListener.getNo_dataCollectionEventListeners()>0){
+						Thread.sleep(50);
+					}
+					Thread.sleep(50);
+				}
+				break;
+			case "dummy":
+				// check if it needs to wake up dummy data producer
+				if(DummyDataProducerListener.getNo_dummyDataProducerEventListeners()==0){
+					dummyDataProducerPublisher.publishDataCollection("dummy data production");
+					//wait for data publishing to start
+					Thread.sleep(50);
+					while((!DummyDataProducerListener.getStarted_saving_data()) && DummyDataProducerListener.getNo_dummyDataProducerEventListeners()>0){
+						Thread.sleep(50);
+					}
+					Thread.sleep(50);
+				}
+				break;
+			default:
+				break;	
+		}		
+	}
 }

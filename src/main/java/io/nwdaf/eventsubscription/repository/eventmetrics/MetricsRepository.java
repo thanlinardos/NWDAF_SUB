@@ -42,21 +42,6 @@ public interface MetricsRepository extends JpaRepository<NfLoadLevelInformationT
 	@Query(value="select * from nf_load_metrics where time > NOW() - INTERVAL '? second'",
 			nativeQuery=true)
 	List<NfLoadLevelInformationTable> findAllInLastInterval(Integer no_secs);
-
-	@Query(value="select distinct on (time_bucket('?2 second', time), nfInstanceId, nfSetId) time_bucket('?2 second', time)"+
-	" AS time , data , nfInstanceId, nfSetId,"+
-    "CAST(ROUND(AVG(CAST(data->>'nfCpuUsage' as numeric))) as integer) AS nfCpuUsage,"+
-	"CAST(ROUND(AVG(CAST(data->>'nfMemoryUsage' as numeric))) as integer) AS nfMemoryUsage,"+
-	"CAST(ROUND(AVG(CAST(data->>'nfStorageUsage' as numeric))) as integer) AS nfStorageUsage,"+
-	"CAST(ROUND(AVG(CAST(data->>'nfLoadLevelAverage' as numeric))) as integer) AS nfLoadLevelAverage,"+
-	"CAST(ROUND(MAX(CAST(data->>'nfLoadLevelpeak' as numeric))) as integer) AS nfLoadLevelpeak,"+
-	"CAST(ROUND(AVG(CAST(data->>'nfLoadAvgInAoi' as numeric))) as integer) AS nfLoadAvgInAoi,"+
-	"areaOfInterestId"+
-	" from nf_load_metrics where time > NOW() - INTERVAL '?1 second'"+
-	" GROUP BY time_bucket('?2 second', time) ,data, nfInstanceId, nfSetId, areaofinterestid"+
-	" ORDER BY time_bucket('?2 second', time) DESC;",
-			nativeQuery=true)
-	List<NfLoadLevelInformationTable> findAllInLastIntervalByOffset(Integer no_secs,Integer offset);
 	
 	@Query(value="select * from ue_mobility_metrics",
 			nativeQuery=true)

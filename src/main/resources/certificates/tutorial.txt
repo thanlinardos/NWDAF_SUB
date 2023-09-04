@@ -1,0 +1,11 @@
+keytool -genkeypair -alias local_ssl -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore local-ssl.p12 -validity 365 -ext san=dns:localhost,dns:nwdafSub
+
+(password:123456,name: ATHANASIOS LINARDOS , org_unit: localhost , org: Development, city: Athens, province: Attiki, countrycode: GR)
+
+keytool -export -keystore local-ssl.p12 -alias local_ssl -file local-cert.crt
+sudo cp local-cert.crt /usr/local/share/ca-certificates/
+cd /usr/local/share/ca-certificates/
+sudo chmod -777 local-cert.crt
+sudo update-ca-certificates
+while read -r -d $'\0' i ; do    sudo certutil -d 'sql:'"$i" -A -t "C,," -n local_cert -i local-cert.crt; done < <(sudo find "$HOME" -type f -iregex '.*[/]cert[89][.]db' -printf '%h\0')
+
