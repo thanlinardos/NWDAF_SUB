@@ -22,7 +22,7 @@
 FROM eclipse-temurin:17-jre-alpine
 VOLUME /tmp
 EXPOSE 8080
-ARG JAR_FILE=target/NWDAF_SUB-0.0.1-SNAPSHOT.jar
+ARG JAR_FILE=target/NWDAF_SUB.jar
 ARG CERT_FILE=src/main/resources/certificates/local-cert.crt
 ARG SSL_FILE=src/main/resources/certificates/local-ssl.p12
 ARG CLIENT_SSL_FILE=src/main/resources/certificates/local-client-ssl.p12

@@ -10,16 +10,13 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import io.nwdaf.eventsubscription.model.AnalyticsSubset;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
-import io.nwdaf.eventsubscription.model.AnalyticsSubset.AnalyticsSubsetEnum;
 import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
 import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
-import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
 import io.nwdaf.eventsubscription.utilities.OtherUtil;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
