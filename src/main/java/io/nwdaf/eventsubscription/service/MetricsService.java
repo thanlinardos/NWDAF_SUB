@@ -103,7 +103,6 @@ public class MetricsService {
 		if(no_secs == null){
 			no_secs = Constants.MIN_PERIOD_SECONDS;
 		}
-		System.out.println(params);
 		tables = repository.findAllInLastIntervalByFilterAndOffset(params,no_secs+" second",offset+" second",columns);
 		List<NfLoadLevelInformation> res = new ArrayList<>();
 		for(int i=0;i<tables.size();i++) {

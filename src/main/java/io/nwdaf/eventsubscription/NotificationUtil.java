@@ -21,6 +21,7 @@ import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnu
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
+import io.nwdaf.eventsubscription.utilities.OtherUtil;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.MetricsService;
 
@@ -128,23 +129,10 @@ public class NotificationUtil {
 			}
 			// if given analyticsubsets list in the sub request, select only the appropriate columns in the request
 			String columns = "";
-			String columnFormat = Constants.nfloadPostgresColumnFormat;
-			if(ParserUtil.safeParseContains(eventSub.getListOfAnaSubsets(),new AnalyticsSubset().anaSubset(AnalyticsSubsetEnum.NF_RESOURCE_USAGE))){
-				columns += String.format(columnFormat,"nfCpuUsage");
-				columns += String.format(columnFormat,"nfMemoryUsage");
-				columns += String.format(columnFormat,"nfStorageUsage");
-			}
-			if(ParserUtil.safeParseContains(eventSub.getListOfAnaSubsets(),new AnalyticsSubset().anaSubset(AnalyticsSubsetEnum.NF_LOAD))){
-				columns += String.format(columnFormat,"nfLoadLevelAverage");
-			}
-			if(ParserUtil.safeParseContains(eventSub.getListOfAnaSubsets(),new AnalyticsSubset().anaSubset(AnalyticsSubsetEnum.NF_LOAD_AVG_IN_AOI))){
-				columns += String.format(columnFormat,"nfLoadAvgInAoi");
-			}
-			if(ParserUtil.safeParseContains(eventSub.getListOfAnaSubsets(),new AnalyticsSubset().anaSubset(AnalyticsSubsetEnum.NF_PEAK_LOAD))){
-				columns += String.format(columnFormat,"nfLoadLevelpeak");
-			}
+			columns = OtherUtil.setNfloadPostgresColumns(columns, eventSub.getListOfAnaSubsets());
+			
 			try{
-				// repetition period is used also as the granularity for the querry
+				// repetition period is used also as the granularity (offset) for the querry
 				nfloadlevels = metricsService.findAllInLastIntervalByFilterAndOffset(params,no_secs,repPeriod,columns);
 			} catch(Exception e){
 				NwdafSubApplication.getLogger().error("Can't find metrics from database", e);
@@ -153,32 +141,9 @@ public class NotificationUtil {
 			if(nfloadlevels==null || nfloadlevels.size()==0) {
 				return null;
 			}
+			System.out.println(nfloadlevels.get(0));
 			// if given analyticsubsets list in the sub request, set the non-included info to null
-			if(!ParserUtil.safeParseContains(eventSub.getListOfAnaSubsets(),new AnalyticsSubset().anaSubset(AnalyticsSubsetEnum.NF_RESOURCE_USAGE))){
-				for(int i=0;i<nfloadlevels.size();i++){
-					nfloadlevels.get(i).nfCpuUsage(null).nfMemoryUsage(null).nfStorageUsage(null);
-				}
-			}
-			if(!ParserUtil.safeParseContains(eventSub.getListOfAnaSubsets(),new AnalyticsSubset().anaSubset(AnalyticsSubsetEnum.NF_LOAD))){
-				for(int i=0;i<nfloadlevels.size();i++){
-					nfloadlevels.get(i).nfLoadLevelAverage(null);
-				}
-			}
-			if(!ParserUtil.safeParseContains(eventSub.getListOfAnaSubsets(),new AnalyticsSubset().anaSubset(AnalyticsSubsetEnum.NF_LOAD_AVG_IN_AOI))){
-				for(int i=0;i<nfloadlevels.size();i++){
-					nfloadlevels.get(i).nfLoadAvgInAoi(null);
-				}
-			}
-			if(!ParserUtil.safeParseContains(eventSub.getListOfAnaSubsets(),new AnalyticsSubset().anaSubset(AnalyticsSubsetEnum.NF_PEAK_LOAD))){
-				for(int i=0;i<nfloadlevels.size();i++){
-				nfloadlevels.get(i).nfLoadLevelpeak(null);
-			}
-			}
-			if(!ParserUtil.safeParseContains(eventSub.getListOfAnaSubsets(),new AnalyticsSubset().anaSubset(AnalyticsSubsetEnum.NF_STATUS))){
-				for(int i=0;i<nfloadlevels.size();i++){
-					nfloadlevels.get(i).nfStatus(null);
-				}
-			}
+			nfloadlevels = OtherUtil.setNfloadNonIncludedInfoNull(nfloadlevels, eventSub.getListOfAnaSubsets());
 			notification = notifBuilder.addEvent(notification, NwdafEventEnum.NF_LOAD, null, null, now, null, null, null, nfloadlevels);	
 			// notifCorrId field is used as the eventSubscription index, so that the client can group the notifications it receives
 			notification.setNotifCorrId(index.toString());

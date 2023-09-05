@@ -14,9 +14,9 @@ public class CustomMetricsRepositoryImpl implements CustomMetricsRepository{
 
     @Override
     @SuppressWarnings("unchecked") 
-    public List<NfLoadLevelInformationTable> findAllInLastIntervalByFilterAndOffset(String filter, String no_secs,String offset, String columns) {
+    public List<NfLoadLevelInformationTable> findAllInLastIntervalByFilterAndOffset(String params, String no_secs,String offset, String columns) {
         String querry = "select distinct on (time_bucket(cast(:offset as interval), time), nfInstanceId, nfSetId) time_bucket(cast(:offset as interval), time) AS time , data , nfInstanceId, nfSetId,";
-        if(columns == null){
+        if(columns == ""){
             querry += 
                 "CAST(ROUND(AVG(CAST(data->>'nfCpuUsage' as numeric))) as integer) AS nfCpuUsage,"+
                 "CAST(ROUND(AVG(CAST(data->>'nfMemoryUsage' as numeric))) as integer) AS nfMemoryUsage,"+
@@ -29,8 +29,8 @@ public class CustomMetricsRepositoryImpl implements CustomMetricsRepository{
             querry += columns;
         }
         querry += "areaOfInterestId" + " from nf_load_metrics where time > NOW() - cast(:no_secs as interval)";
-        if(filter!=null){
-            querry += " and " + filter;
+        if(params!=null){
+            querry += " and " + params;
         }
         querry += " GROUP BY time_bucket(cast(:offset as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid"
         // +" ORDER BY time_bucket(cast(:offset as interval), time) DESC, time, nfInstanceId, nfSetId;"

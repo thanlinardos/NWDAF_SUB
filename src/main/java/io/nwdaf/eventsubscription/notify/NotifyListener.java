@@ -166,7 +166,7 @@ public class NotifyListener {
     				continue;
     			}
     			catch(Exception e) {
-    				logger.error("Error connecting to timescale db");
+    				logger.error("Failed to collect data for event(timescaledb error)",e);
     				synchronized (notifLock) {
     	        		no_notifEventListeners--;
     	        	}

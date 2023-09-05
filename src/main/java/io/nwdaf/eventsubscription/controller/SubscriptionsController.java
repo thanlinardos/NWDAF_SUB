@@ -201,7 +201,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 					logger.error("Thread failed to wait for datacollection to start for event: "+eType,e);
 				} catch(Exception e) {
 					failed_notif=true;
-					logger.error("Failed to collect data for event(couldnt connect to timescaledb): "+eType,e);
+					logger.error("Failed to collect data for event(timescaledb error): "+eType,e);
 					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
 				}
 				if(notification==null) {
