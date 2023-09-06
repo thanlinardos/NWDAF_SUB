@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.validation.Valid;
 
@@ -16,7 +17,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import ch.qos.logback.core.pattern.parser.Parser;
+import io.nwdaf.eventsubscription.utilities.CheckUtil;
 import io.nwdaf.eventsubscription.utilities.Constants;
+import io.nwdaf.eventsubscription.utilities.ConvertUtil;
+import io.nwdaf.eventsubscription.utilities.OtherUtil;
 import io.nwdaf.eventsubscription.NotificationUtil;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;
@@ -86,9 +92,14 @@ public class SubscriptionsController implements SubscriptionsApi{
 			return response;
 		}
 		
-		if(body.getSupportedFeatures()!=null) {
-			if(!Constants.supportedFeatures.equals(body.getSupportedFeatures())) {
-				negotiatedFeaturesList = ParserUtil.convertFeaturesToList(body.getSupportedFeatures());
+		if(body.getSupportedFeatures()!=null && !body.getSupportedFeatures().equals("")) {
+			if(!Constants.supportedFeatures.equals(body.getSupportedFeatures()) && 
+				CheckUtil.listInside(Constants.supportedFeaturesList, ConvertUtil.convertFeaturesToList(body.getSupportedFeatures()))) {
+				negotiatedFeaturesList = ConvertUtil.convertFeaturesToList(body.getSupportedFeatures());
+			}
+			else{
+				body.setSupportedFeatures(Constants.supportedFeatures);
+				negotiatedFeaturesList = Constants.supportedFeaturesList;
 			}
 		}
 		else {
@@ -144,7 +155,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 								
 						}
 					}
-				e = ParserUtil.setShapes(e);
+				e = OtherUtil.setShapes(e);
 				body.getEventSubscriptions().set(i, e);
 				}
 				else {
@@ -178,12 +189,31 @@ public class SubscriptionsController implements SubscriptionsApi{
 					failed_notif = true;
 					failCode = NwdafFailureCodeEnum.OTHER;
 				}
-				//check if for this event subscription the requested area of interest 
+				// check if for this event subscription the requested area of interest 
 				// is inside (or equals to) the service area of this NWDAF instance
-				if(event.getNetworkArea()!=null){
+				// the checks are for when the serializer initializes the lists inside aoi object with null
+				if(event.getNetworkArea()!=null && (CheckUtil.safeCheckListNotEmpty(event.getNetworkArea().getEcgis()) ||
+					CheckUtil.safeCheckListNotEmpty(event.getNetworkArea().getNcgis()) || 
+					CheckUtil.safeCheckListNotEmpty(event.getNetworkArea().getGRanNodeIds()) || 
+					CheckUtil.safeCheckListNotEmpty(event.getNetworkArea().getTais())
+					)){
 					if(!Constants.ServingAreaOfInterest.containsArea(event.getNetworkArea())){
 						failed_notif = true;
 						failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+					}
+					else{
+						// check if inside the known AOIs -> set the id
+						if(Constants.ExampleAOIsToUUIDsMap.containsKey(event.getNetworkArea())){
+							event.getNetworkArea().id(Constants.ExampleAOIsToUUIDsMap.get(event.getNetworkArea()));
+						}
+						// if new AOI create id if it doesnt have one and add it to the known AOIs
+						else{
+							if(event.getNetworkArea().getId() == null){
+								event.getNetworkArea().id(UUID.randomUUID());
+							}
+							Constants.ExampleAOIsMap.put(event.getNetworkArea().getId(), event.getNetworkArea());
+							Constants.ExampleAOIsToUUIDsMap.put(event.getNetworkArea(), event.getNetworkArea().getId());
+						}
 					}
 				}
 				//check whether data is available to be gathered

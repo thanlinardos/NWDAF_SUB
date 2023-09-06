@@ -32,9 +32,9 @@ public class CustomMetricsRepositoryImpl implements CustomMetricsRepository{
         if(params!=null){
             querry += " and " + params;
         }
-        querry += " GROUP BY time_bucket(cast(:offset as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid"
+        querry += " GROUP BY time_bucket(cast(:offset as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;";
+        // System.out.println(querry);
         // +" ORDER BY time_bucket(cast(:offset as interval), time) DESC, time, nfInstanceId, nfSetId;"
-        ;
         return entityManager.createNativeQuery(querry, NfLoadLevelInformationTable.class).setParameter("offset",offset).setParameter("no_secs",no_secs).getResultList();
     }
 }

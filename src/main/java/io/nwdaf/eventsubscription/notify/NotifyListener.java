@@ -173,9 +173,6 @@ public class NotifyListener {
     	    		return;	
     			}
     			if(notification==null) {
-//    				logger.error("Error building the notification for sub: "+id+". Data is no longer available for this event");
-    				// add failureEventInfo
-//    				sub.addFailEventReportsItem(new FailureEventInfo().event(event.getEvent()).failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.UNAVAILABLE_DATA)));
     				continue;
     			}
         		prom_delay += (System.nanoTime()-st) / 1000000l;

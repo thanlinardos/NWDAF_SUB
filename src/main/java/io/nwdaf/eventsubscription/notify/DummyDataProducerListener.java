@@ -51,6 +51,7 @@ public class DummyDataProducerListener{
         Logger logger = NwdafSubApplication.getLogger();
     	logger.info("producing dummy data...");
         long start;
+        List<NfLoadLevelInformation> nfloadinfos=generateDummyNfloadLevelInfo(10);
         while(true){
             start = System.nanoTime();
             synchronized(dummyDataProducerLock){
@@ -62,11 +63,10 @@ public class DummyDataProducerListener{
             for(int j=0;j<NwdafEventEnum.values().length;j++){
                 NwdafEventEnum eType = NwdafEventEnum.values()[j];
                 if(eType.equals(NwdafEventEnum.NF_LOAD)){
-                    List<NfLoadLevelInformation> nfloadinfos=generateDummyNfloadLevelInfo(10);
-
+                    nfloadinfos = changeNfLoadTimeDependentProperties(nfloadinfos);
                     for(int k=0;k<nfloadinfos.size();k++) {
                         try {
-                            metricsService.create(nfloadinfos.get(j));
+                            metricsService.create(nfloadinfos.get(k));
                             synchronized(started_saving_data_lock){
                                 started_saving_data = true;
                             }
@@ -113,44 +113,48 @@ public class DummyDataProducerListener{
         for(int i=0;i<res.size();i++){
             int[] nums = {r.nextInt(101),r.nextInt(101),r.nextInt(101)};
             int[] maxs = {r.nextInt(nums[0],101),r.nextInt(nums[1],101),r.nextInt(nums[2],101)};
-            res.set(i,res.get(i).nfCpuUsage(nums[0])
+            res.get(i).nfCpuUsage(nums[0])
             .nfMemoryUsage(nums[1]).nfStorageUsage(nums[2]).nfLoadLevelAverage((nums[0]+nums[1]+nums[2])/3)
             .nfLoadLevelpeak((maxs[0]+maxs[1]+maxs[2])/3).nfLoadAvgInAoi(r.nextInt(101))
-            .time(now)
-            );
-            int aoiIndex = r.nextInt(6);
+            .time(now).nfInstanceId(UUID.randomUUID());
+            int aoiIndex = r.nextInt(3);
             NFTypeEnum nfType = NFTypeEnum.values()[r.nextInt(NFTypeEnum.values().length)];
             switch(aoiIndex){
                 case 0:
-                    res.set(i,res.get(i).areaOfInterestId(Constants.AreaOfInterestExample1.getId()));
+                    int t = r.nextInt(3);
+                    if(t==0) res.get(i).areaOfInterestId(Constants.AreaOfInterestExample1.getId());
+                    else if(t==1) res.get(i).areaOfInterestId(Constants.AreaOfInterestExample2.getId());
+                    else res.get(i).areaOfInterestId(Constants.AreaOfInterestExample3.getId());
                     break;
                 case 1:
-                    res.set(i,res.get(i).areaOfInterestId(Constants.AreaOfInterestExample2.getId()));
+                    res.get(i).nfSetId("set"+(char)(r.nextInt(26) + 'a')+(char)(r.nextInt(26) + 'a')+(char)(r.nextInt(26) + 'a')+ "." +
+                    nfType.toString()+"set.5gc.mnc"+r.nextInt(10)+r.nextInt(10)+r.nextInt(10)+".mcc"+r.nextInt(10)+r.nextInt(10)+r.nextInt(10)
+                    );
                     break;
                 case 2:
-                    res.set(i,res.get(i).areaOfInterestId(Constants.AreaOfInterestExample3.getId()));
-                    break;
-                case 3:
-                    res.set(i,res.get(i).nfSetId("set"+(char)(r.nextInt(26) + 'a')+(char)(r.nextInt(26) + 'a')+(char)(r.nextInt(26) + 'a')+
-                    nfType.toString()+"set.5gc."+
-                    r.nextInt(10)+r.nextInt(10)+r.nextInt(10)+"mnc."+
-                    r.nextInt(10)+r.nextInt(10)+r.nextInt(10)+"mcc"
-                    ));
-                case 4:
-                    res.set(i, res.get(i).snssai(new Snssai().sd(Integer.toHexString(r.nextInt(0,16777216))).sst(r.nextInt(0,256))));
-                default:
-                    res.set(i,res.get(i).nfInstanceId(UUID.randomUUID()));
+                    res.get(i).snssai(new Snssai().sd(Integer.toHexString(r.nextInt(0,16777216))).sst(r.nextInt(0,256)));
                     break;
             }
             int reg = r.nextInt(1,51);
             int undisc = r.nextInt(1,50);
-            res.set(i,res.get(i).nfType(new NFType().nfType(nfType))
+            res.get(i).nfType(new NFType().nfType(nfType))
                 .nfStatus(new NfStatus().statusRegistered(reg).statusUndiscoverable(undisc).statusUnregistered(100-reg-undisc))
-                .confidence(r.nextInt(101))
-            );
+                .confidence(r.nextInt(101));
         }
         
         return res;
+    }
+    private List<NfLoadLevelInformation> changeNfLoadTimeDependentProperties(List<NfLoadLevelInformation> nfloadinfos){
+        Instant now = Instant.now();
+        Random r = new Random();
+        for(int i=0;i<nfloadinfos.size();i++){
+            int[] nums = {r.nextInt(101),r.nextInt(101),r.nextInt(101)};
+            int[] maxs = {r.nextInt(nums[0],101),r.nextInt(nums[1],101),r.nextInt(nums[2],101)};
+            nfloadinfos.get(i).nfCpuUsage(nums[0])
+            .nfMemoryUsage(nums[1]).nfStorageUsage(nums[2]).nfLoadLevelAverage((nums[0]+nums[1]+nums[2])/3)
+            .nfLoadLevelpeak((maxs[0]+maxs[1]+maxs[2])/3).nfLoadAvgInAoi(r.nextInt(101)).time(now);
+        }
+        return nfloadinfos;
     }
     public static Object getDummydataproducerlock() {
         return dummyDataProducerLock;

@@ -82,8 +82,8 @@ services:
       EVENTMETRICS.DATASOURCE.DRIVERCLASSNAME: org.postgresql.Driver
       SERVER.PORT: "${server_port}"
       management.endpoint.health.show-details: always
-      logging.level.org.hibernate.SQL: DEBUG
-      logging.level.org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+      # logging.level.org.hibernate.SQL: DEBUG
+      # logging.level.org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   nwdafSubClient:
     container_name: nwdafSubClient
     image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT

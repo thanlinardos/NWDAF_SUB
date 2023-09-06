@@ -18,6 +18,8 @@ import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
 import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
+import io.nwdaf.eventsubscription.utilities.CheckUtil;
+import io.nwdaf.eventsubscription.utilities.ConvertUtil;
 import io.nwdaf.eventsubscription.utilities.OtherUtil;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.MetricsService;
@@ -71,8 +73,7 @@ public class NotificationUtil {
 		String params=null;
 		Integer no_secs=null;
 		Integer repPeriod=null;
-		ObjectMapper mapper= new ObjectMapper();
-		ObjectWriter ow = mapper.writer();
+		ObjectWriter ow = new ObjectMapper().writer();
 		// check if client wants past/future data by setting no_secs parameter
 		if(eventSub.getExtraReportReq().getEndTs()!=null && eventSub.getExtraReportReq().getStartTs()!=null){
 			no_secs = eventSub.getExtraReportReq().getEndTs().getSecond()-eventSub.getExtraReportReq().getStartTs().getSecond();
@@ -103,26 +104,26 @@ public class NotificationUtil {
 			List<NfLoadLevelInformation> nfloadlevels = new ArrayList<>();
 			// choose the querry filter: nfinstanceids take priority over nfsetids and supis over all
 			// Supis filter (checks if the supis list on each nfinstance contains any of the supis in the sub request)
-			if(!eventSub.getTgtUe().isAnyUe() && eventSub.getTgtUe().getSupis()!=null){
+			if(!eventSub.getTgtUe().isAnyUe() && CheckUtil.safeCheckListNotEmpty(eventSub.getTgtUe().getSupis())){
 				params = ParserUtil.parseQuerryFilterContains(eventSub.getTgtUe().getSupis(),"supis");
 			}
-			else if(eventSub.getNfInstanceIds()!=null){
+			else if(CheckUtil.safeCheckListNotEmpty(eventSub.getNfInstanceIds())){
 				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfInstanceId"));
 			}
-			else if(eventSub.getNfSetIds()!=null){
-				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfSetId"));
+			else if(CheckUtil.safeCheckListNotEmpty(eventSub.getNfSetIds())){
+				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfSetIds(), "nfSetId"));
 			}
 			// AOI filter
-			else if(eventSub.getNetworkArea()!=null){
+			else if(eventSub.getNetworkArea()!=null && (eventSub.getNetworkArea().getEcgis()!=null || eventSub.getNetworkArea().getNcgis()!=null || eventSub.getNetworkArea().getTais()!=null || eventSub.getNetworkArea().getGRanNodeIds()!=null)){
 				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(Arrays.asList(eventSub.getNetworkArea().getId()), "areaOfInterestId"));
 			}
 			// Network Slice Instances filter
-			else if(eventSub.getSnssaia()!=null){
-				params = ParserUtil.parseQuerryFilter(ParserUtil.parseObjectListToFilterList(ParserUtil.convertObjectWriterList(eventSub.getSnssaia(),ow)));
+			else if(CheckUtil.safeCheckListNotEmpty(eventSub.getSnssaia())){
+				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(ParserUtil.parseObjectListToFilterList(ConvertUtil.convertObjectWriterList(eventSub.getSnssaia(),ow)),"snssai"));
 			}
 			// NfTypes filter
-			else if(eventSub.getNfTypes()!=null){
-				params = ParserUtil.parseQuerryFilter(ParserUtil.parseObjectListToFilterList(ParserUtil.convertObjectWriterList(eventSub.getNfTypes(), ow)));
+			else if(CheckUtil.safeCheckListNotEmpty(eventSub.getNfTypes())){
+				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(ParserUtil.parseObjectListToFilterList(ConvertUtil.convertObjectWriterList(eventSub.getNfTypes(), ow)),"nfType"));
 			}
 			// if given analyticsubsets list in the sub request, select only the appropriate columns in the request
 			String columns = "";
@@ -138,7 +139,6 @@ public class NotificationUtil {
 			if(nfloadlevels==null || nfloadlevels.size()==0) {
 				return null;
 			}
-			System.out.println(nfloadlevels.get(0));
 			// if given analyticsubsets list in the sub request, set the non-included info to null
 			nfloadlevels = OtherUtil.setNfloadNonIncludedInfoNull(nfloadlevels, eventSub.getListOfAnaSubsets());
 			notification = notifBuilder.addEvent(notification, NwdafEventEnum.NF_LOAD, null, null, now, null, null, null, nfloadlevels);	
