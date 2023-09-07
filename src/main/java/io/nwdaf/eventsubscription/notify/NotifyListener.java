@@ -244,12 +244,12 @@ public class NotifyListener {
     		    	}
         		}
         	}
-        	System.out.println("no_subs="+subs.size());
-        	System.out.println("no_Ssubs="+c);
-        	System.out.println("timescaledb req delay: "+prom_delay+"ms");
-    		System.out.println("sending notif to client delay:"+client_delay+"ms");
+        	System.out.print("no_subs="+subs.size());
+        	System.out.print(" || no_Ssubs="+c);
+        	System.out.print(" || timescaledb req delay: "+prom_delay+"ms");
+    		System.out.print(" || sending notif to client delay:"+client_delay+"ms");
         	long diff = (System.nanoTime()-start) / 1000000l;
-        	System.out.println("total delay: "+diff+"ms");
+        	System.out.print(" || total delay: "+diff+"ms\n");
         	//wait till one quarter of a second (min period) passes (10^9/4 nanoseconds)
         	long wait_time = (long)Constants.MIN_PERIOD_SECONDS*250l;
         	if(diff<wait_time) {

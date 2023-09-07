@@ -2,7 +2,9 @@ package io.nwdaf.eventsubscription.notify;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -20,6 +22,7 @@ import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NfStatus;
 import io.nwdaf.eventsubscription.model.Snssai;
 import io.nwdaf.eventsubscription.model.NFType.NFTypeEnum;
+import io.nwdaf.eventsubscription.model.NetworkAreaInfo;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.service.MetricsService;
 
@@ -117,14 +120,14 @@ public class DummyDataProducerListener{
             .nfMemoryUsage(nums[1]).nfStorageUsage(nums[2]).nfLoadLevelAverage((nums[0]+nums[1]+nums[2])/3)
             .nfLoadLevelpeak((maxs[0]+maxs[1]+maxs[2])/3).nfLoadAvgInAoi(r.nextInt(101))
             .time(now).nfInstanceId(UUID.randomUUID());
-            int aoiIndex = r.nextInt(3);
+            int aoiIndex = r.nextInt(4);
             NFTypeEnum nfType = NFTypeEnum.values()[r.nextInt(NFTypeEnum.values().length)];
             switch(aoiIndex){
                 case 0:
-                    int t = r.nextInt(3);
-                    if(t==0) res.get(i).areaOfInterestId(Constants.AreaOfInterestExample1.getId());
-                    else if(t==1) res.get(i).areaOfInterestId(Constants.AreaOfInterestExample2.getId());
-                    else res.get(i).areaOfInterestId(Constants.AreaOfInterestExample3.getId());
+                    List<UUID> keys = new ArrayList<>(Constants.ExampleAOIsMap.keySet());
+                    keys.remove(Constants.ServingAreaOfInterest.getId());
+                    int t = r.nextInt(keys.size());
+                    res.get(i).areaOfInterestId(keys.get(t));
                     break;
                 case 1:
                     res.get(i).nfSetId("set"+(char)(r.nextInt(26) + 'a')+(char)(r.nextInt(26) + 'a')+(char)(r.nextInt(26) + 'a')+ "." +
@@ -133,6 +136,13 @@ public class DummyDataProducerListener{
                     break;
                 case 2:
                     res.get(i).snssai(new Snssai().sd(Integer.toHexString(r.nextInt(0,16777216))).sst(r.nextInt(0,256)));
+                    break;
+                case 3:
+                    for(int j=0;j<3;j++){
+                        res.get(i).addSupi("imsi-123123"+r.nextInt(100000000,999999999));
+                    }
+                    res.get(i).addSupi("nai-user@example.com").addSupi("gci-00-00-5E-00-53-00@5gc.mnc123.mcc123.example.com")
+                    .addSupi("gli-YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZg==");
                     break;
             }
             int reg = r.nextInt(1,51);

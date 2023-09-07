@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -106,6 +107,7 @@ public class NotificationUtil {
 			// Supis filter (checks if the supis list on each nfinstance contains any of the supis in the sub request)
 			if(!eventSub.getTgtUe().isAnyUe() && CheckUtil.safeCheckListNotEmpty(eventSub.getTgtUe().getSupis())){
 				params = ParserUtil.parseQuerryFilterContains(eventSub.getTgtUe().getSupis(),"supis");
+				System.out.println("params for supis: "+params);
 			}
 			else if(CheckUtil.safeCheckListNotEmpty(eventSub.getNfInstanceIds())){
 				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfInstanceId"));
@@ -114,8 +116,13 @@ public class NotificationUtil {
 				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfSetIds(), "nfSetId"));
 			}
 			// AOI filter
-			else if(eventSub.getNetworkArea()!=null && (eventSub.getNetworkArea().getEcgis()!=null || eventSub.getNetworkArea().getNcgis()!=null || eventSub.getNetworkArea().getTais()!=null || eventSub.getNetworkArea().getGRanNodeIds()!=null)){
-				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(Arrays.asList(eventSub.getNetworkArea().getId()), "areaOfInterestId"));
+			else if(eventSub.getNetworkArea()!=null && CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getContainerAreaIds()) && (CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getEcgis()) ||
+					CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getNcgis()) || 
+					CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getGRanNodeIds()) || 
+					CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getTais())
+			)){
+				// aggregate container areas for the aoi inside the sub object as valid filters
+				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNetworkArea().getContainerAreaIds(), "areaOfInterestId"));
 			}
 			// Network Slice Instances filter
 			else if(CheckUtil.safeCheckListNotEmpty(eventSub.getSnssaia())){

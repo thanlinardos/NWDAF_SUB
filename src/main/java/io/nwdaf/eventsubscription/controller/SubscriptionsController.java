@@ -27,6 +27,7 @@ import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
+import io.nwdaf.eventsubscription.model.NetworkAreaInfo;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
 import io.nwdaf.eventsubscription.model.NotificationFlag;
@@ -191,19 +192,39 @@ public class SubscriptionsController implements SubscriptionsApi{
 				// check if for this event subscription the requested area of interest 
 				// is inside (or equals to) the service area of this NWDAF instance
 				// the checks are for when the serializer initializes the lists inside aoi object with null
-				if(event.getNetworkArea()!=null && (CheckUtil.safeCheckListNotEmpty(event.getNetworkArea().getEcgis()) ||
+				Boolean safeCheckListNotEmpty = false;
+				if(event.getNetworkArea()!=null && ((safeCheckListNotEmpty = CheckUtil.safeCheckListNotEmpty(event.getNetworkArea().getEcgis()) ||
 					CheckUtil.safeCheckListNotEmpty(event.getNetworkArea().getNcgis()) || 
 					CheckUtil.safeCheckListNotEmpty(event.getNetworkArea().getGRanNodeIds()) || 
-					CheckUtil.safeCheckListNotEmpty(event.getNetworkArea().getTais())
+					CheckUtil.safeCheckListNotEmpty(event.getNetworkArea().getTais())) || event.getNetworkArea().getId() != null
 					)){
-					if(!Constants.ServingAreaOfInterest.containsArea(event.getNetworkArea())){
+					if((!safeCheckListNotEmpty || !Constants.ServingAreaOfInterest.containsArea(event.getNetworkArea())) &&
+						!(event.getNetworkArea().getId() != null &&
+							(Constants.ExampleAOIsMap.get(event.getNetworkArea().getId())!=null &&
+							 Constants.ServingAreaOfInterest.containsArea(Constants.ExampleAOIsMap.get(event.getNetworkArea().getId()))))){
 						failed_notif = true;
 						failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+						System.out.println("not inside serving aoi");
 					}
 					else{
-						// check if inside the known AOIs -> set the id
+						// aggregate known areas as container areas for this aoi (if it is inside them)
+						for (Map.Entry<UUID,NetworkAreaInfo> entry : Constants.ExampleAOIsMap.entrySet()){
+							UUID key = entry.getKey(); NetworkAreaInfo aoi = entry.getValue();
+							if((event.getNetworkArea().getId() != null && Constants.ExampleAOIsMap.containsKey(event.getNetworkArea().getId())) ||
+							aoi.containsArea(event.getNetworkArea()) || Constants.ExampleAOIsToUUIDsMap.containsKey(event.getNetworkArea())){
+								event.getNetworkArea().addContainerAreaIdsItem(key);
+							}
+						}
+						// check if it equals one of the known AOIs -> set the id
 						if(Constants.ExampleAOIsToUUIDsMap.containsKey(event.getNetworkArea())){
 							event.getNetworkArea().id(Constants.ExampleAOIsToUUIDsMap.get(event.getNetworkArea()));
+							System.out.println("same as aoi with id: "+event.getNetworkArea().getId());
+						}
+						// check if id equals to a known AOI -> set the area object
+						else if(event.getNetworkArea().getId() != null && Constants.ExampleAOIsMap.containsKey(event.getNetworkArea().getId())){
+							NetworkAreaInfo matchingAOI = Constants.ExampleAOIsMap.get(event.getNetworkArea().getId());
+							event.getNetworkArea().ecgis(matchingAOI.getEcgis()).ncgis(matchingAOI.getNcgis())
+									.gRanNodeIds(matchingAOI.getGRanNodeIds()).tais(matchingAOI.getTais());
 						}
 						// if new AOI create id if it doesnt have one and add it to the known AOIs
 						else{
@@ -213,6 +234,8 @@ public class SubscriptionsController implements SubscriptionsApi{
 							Constants.ExampleAOIsMap.put(event.getNetworkArea().getId(), event.getNetworkArea());
 							Constants.ExampleAOIsToUUIDsMap.put(event.getNetworkArea(), event.getNetworkArea().getId());
 						}
+						event.getNetworkArea().addContainerAreaIdsItem(event.getNetworkArea().getId());
+						event.getNetworkArea().setContainerAreaIds(ParserUtil.removeDuplicates(event.getNetworkArea().getContainerAreaIds()));
 					}
 				}
 				//check whether data is available to be gathered

@@ -5,7 +5,7 @@ todo:
 	-fix data types (Accuracy,...) DONE
 	-make swagger post request generate OffsetDateTime.now() DONE
 	-add request builder with parameters (construct the body from these parameters) by making a Client DONE
-	-make html form for client INPROGRESS (ClientHomeController , ClientConfig)
+	-make html form for client DONE
 	-fix api annotations for swagger ui (+transfersapi)
 	-controller if statements for building the response INPROGRESS (responsebuilder: same datatype as request but with added fields)
 	- Location Header = uri of created subscription DONE (need to test it with jpa)

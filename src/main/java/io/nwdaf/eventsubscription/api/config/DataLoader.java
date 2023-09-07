@@ -3,6 +3,7 @@ package io.nwdaf.eventsubscription.api.config;
 import java.io.InputStream;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,8 @@ import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEv
 public class DataLoader implements CommandLineRunner{
 	
 	private final SubscriptionRepository repository;
-	private final ObjectMapper objectMapper;
+	@Autowired
+	private ObjectMapper objectMapper;
 	
 	public DataLoader(SubscriptionRepository repository,ObjectMapper objectMapper) {
 		this.repository = repository;
