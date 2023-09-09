@@ -1,4 +1,4 @@
-package io.nwdaf.eventsubscription.notify;
+package io.nwdaf.eventsubscription.datacollection;
 
 import java.util.ArrayList;
 import java.util.List;

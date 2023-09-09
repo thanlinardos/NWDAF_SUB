@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.tomcat.util.bcel.Const;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,6 +103,9 @@ public class MetricsService {
 		List<NfLoadLevelInformationTable> tables;
 		if(no_secs == null){
 			no_secs = Constants.MIN_PERIOD_SECONDS;
+		}
+		if(offset==0){
+			offset = Constants.MIN_PERIOD_SECONDS;
 		}
 		tables = repository.findAllInLastIntervalByFilterAndOffset(params,no_secs+" second",offset+" second",columns);
 		List<NfLoadLevelInformation> res = new ArrayList<>();

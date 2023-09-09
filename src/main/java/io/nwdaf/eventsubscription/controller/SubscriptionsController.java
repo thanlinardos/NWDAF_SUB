@@ -25,6 +25,10 @@ import io.nwdaf.eventsubscription.utilities.OtherUtil;
 import io.nwdaf.eventsubscription.NotificationUtil;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;
+import io.nwdaf.eventsubscription.datacollection.DataCollectionListener;
+import io.nwdaf.eventsubscription.datacollection.DataCollectionPublisher;
+import io.nwdaf.eventsubscription.datacollection.DummyDataProducerListener;
+import io.nwdaf.eventsubscription.datacollection.DummyDataProducerPublisher;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
 import io.nwdaf.eventsubscription.model.NetworkAreaInfo;
@@ -37,10 +41,6 @@ import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
 import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
-import io.nwdaf.eventsubscription.notify.DataCollectionListener;
-import io.nwdaf.eventsubscription.notify.DataCollectionPublisher;
-import io.nwdaf.eventsubscription.notify.DummyDataProducerListener;
-import io.nwdaf.eventsubscription.notify.DummyDataProducerPublisher;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
@@ -87,11 +87,11 @@ public class SubscriptionsController implements SubscriptionsApi{
 		Long id = 0l;
 		List<Integer> periods_to_serve = new ArrayList<>();
 		List<Integer> negotiatedFeaturesList = new ArrayList<>();
-		if(body==null) {
+		if(body==null || !CheckUtil.safeCheckListNotEmpty(body.getEventSubscriptions())) {
 			ResponseEntity<NnwdafEventsSubscription> response = ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(responseHeaders).body(body);
 			return response;
 		}
-		
+		// negotiate the supported features with the client
 		if(body.getSupportedFeatures()!=null && !body.getSupportedFeatures().equals("")) {
 			if(!Constants.supportedFeatures.equals(body.getSupportedFeatures()) && 
 				CheckUtil.listInside(Constants.supportedFeaturesList, ConvertUtil.convertFeaturesToList(body.getSupportedFeatures()))) {
@@ -109,7 +109,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 		logger.info("negotiatedFeaturesList:" + negotiatedFeaturesList.toString());
 		if(body.getEvtReq()!=null) {
 			// get global notification method and period if they exist
-			if(body.getEvtReq().getNotifMethod()!=null) {
+			if(body.getEvtReq().getNotifMethod()!=null && body.getEvtReq().getNotifMethod().getNotifMethod()!=null) {
 				notificationMethod = body.getEvtReq().getNotifMethod().getNotifMethod();
 				if(body.getEvtReq().getNotifMethod().getNotifMethod().equals(NotificationMethodEnum.PERIODIC)) {
 					repetionPeriod = body.getEvtReq().getRepPeriod();
@@ -126,46 +126,42 @@ public class SubscriptionsController implements SubscriptionsApi{
 		Integer no_valid_events = 0;
 		List<Integer> invalid_events = new ArrayList<>();
 		//get period and notification method for each event
-		if(body.getEventSubscriptions()!=null) {
-			no_valid_events = body.getEventSubscriptions().size();
-			for(int i=0;i<body.getEventSubscriptions().size();i++) {
-				EventSubscription e = body.getEventSubscriptions().get(i);
-				if(e!=null) {
-					if(notificationMethod==null) {
-						if(e.getNotificationMethod()!=null) {
-							eventIndexToNotifMethodMap.put(i, e.getNotificationMethod().getNotifMethod());
-						}
-						else {
-							eventIndexToNotifMethodMap.put(i,NotificationMethodEnum.THRESHOLD);
-						}
-						
-					}
-					else {
-						eventIndexToNotifMethodMap.put(i, notificationMethod);
-					}
-					
-					if(eventIndexToNotifMethodMap.get(i)!=null) {
-						if(eventIndexToNotifMethodMap.get(i).equals(NotificationMethodEnum.PERIODIC)) {
-							if(repetionPeriod==null) {
-								eventIndexToRepPeriodMap.put(i,e.getRepetitionPeriod());
-							}
-							else{
-								eventIndexToRepPeriodMap.put(i,repetionPeriod);
-							}
-								
-						}
-					}
-				e = OtherUtil.setShapes(e);
-				body.getEventSubscriptions().set(i, e);
+		no_valid_events = body.getEventSubscriptions().size();
+		for(int i=0;i<body.getEventSubscriptions().size();i++) {
+			EventSubscription e = body.getEventSubscriptions().get(i);
+			if(e==null) {
+				no_valid_events--;
+				invalid_events.add(i);
+				continue;
+			}
+			if(notificationMethod==null) {
+				if(e.getNotificationMethod()!=null) {
+					eventIndexToNotifMethodMap.put(i, e.getNotificationMethod().getNotifMethod());
 				}
 				else {
-					no_valid_events--;
-					invalid_events.add(i);
-				}				
+					eventIndexToNotifMethodMap.put(i,NotificationMethodEnum.THRESHOLD);
+				}
+					
 			}
-			for(int i=0;i<invalid_events.size();i++){
-				body.getEventSubscriptions().remove((int)invalid_events.get(i));
+			else {
+				eventIndexToNotifMethodMap.put(i, notificationMethod);
 			}
+			if(eventIndexToNotifMethodMap.get(i)!=null) {
+				if(eventIndexToNotifMethodMap.get(i).equals(NotificationMethodEnum.PERIODIC)) {
+					if(repetionPeriod==null) {
+						eventIndexToRepPeriodMap.put(i,e.getRepetitionPeriod());
+					}
+					else{
+						eventIndexToRepPeriodMap.put(i,repetionPeriod);
+					}
+							
+				}
+			}
+			e = OtherUtil.setShapes(e);
+			body.getEventSubscriptions().set(i, e);			
+		}
+		for(int i=0;i<invalid_events.size();i++){
+			body.getEventSubscriptions().remove((int)invalid_events.get(i));
 		}
 		
 		// check which subscriptions can be served
@@ -175,105 +171,107 @@ public class SubscriptionsController implements SubscriptionsApi{
 		for(int i=0;i<no_valid_events;i++) {
 			EventSubscription event = body.getEventSubscriptions().get(i);
 			NwdafEventEnum eType = event.getEvent().getEvent();
-			
-			if(eventIndexToRepPeriodMap.get(i)!=null && eventIndexToNotifMethodMap.get(i).equals(NotificationMethodEnum.PERIODIC)) {
-				Boolean failed_notif = false;
-				NwdafFailureCodeEnum failCode = null;
-				//check if eventType is supported
-				if(!Constants.supportedEvents.contains(eType)) {
-					failed_notif=true;
-					failCode=NwdafFailureCodeEnum.UNAVAILABLE_DATA;
-				}
-				//check if period is valid (between 1sec and 10mins) and if not add failureReport
-				if(eventIndexToRepPeriodMap.get(i)<Constants.MIN_PERIOD_SECONDS||eventIndexToRepPeriodMap.get(i)>Constants.MAX_PERIOD_SECONDS) {
+			Boolean periodic = false;
+			if(eventIndexToRepPeriodMap.get(i)!=null) {
+				periodic = eventIndexToNotifMethodMap.get(i).equals(NotificationMethodEnum.PERIODIC);
+			}
+			Boolean failed_notif = false;
+			NwdafFailureCodeEnum failCode = null;
+			//check if eventType is supported
+			if(!Constants.supportedEvents.contains(eType)) {
+				failed_notif=true;
+				failCode=NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+			}
+			//check if period is valid (between 1sec and 10mins) and if not add failureReport
+			if(periodic && (eventIndexToRepPeriodMap.get(i)<Constants.MIN_PERIOD_SECONDS || eventIndexToRepPeriodMap.get(i)>Constants.MAX_PERIOD_SECONDS)) {
+				failed_notif = true;
+				failCode = NwdafFailureCodeEnum.OTHER;
+			}
+			// check if for this event subscription the requested area of interest 
+			// is inside (or equals to) the service area of this NWDAF instance
+			// the checks are for when the serializer initializes the lists inside aoi object with null
+			NetworkAreaInfo matchingArea = null;
+			Boolean insideServiceArea = false;
+			if(event.getNetworkArea().getId() != null){
+				matchingArea = Constants.ExampleAOIsMap.get(event.getNetworkArea().getId());
+				insideServiceArea = Constants.ServingAreaOfInterest.containsArea(matchingArea);
+			}
+			Constants.ExampleAOIsMap.get(event.getNetworkArea().getId());
+			if(event.getNetworkArea()!=null && (CheckUtil.safeCheckNetworkAreaNotEmpty(event.getNetworkArea()) || event.getNetworkArea().getId() != null)){
+				if(!(CheckUtil.safeCheckNetworkAreaNotEmpty(event.getNetworkArea()) && Constants.ServingAreaOfInterest.containsArea(event.getNetworkArea()))
+					&& (matchingArea == null || !insideServiceArea)){
 					failed_notif = true;
-					failCode = NwdafFailureCodeEnum.OTHER;
+					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+					System.out.println("not inside serving aoi");
 				}
-				// check if for this event subscription the requested area of interest 
-				// is inside (or equals to) the service area of this NWDAF instance
-				// the checks are for when the serializer initializes the lists inside aoi object with null
-				Boolean safeCheckListNotEmpty = false;
-				if(event.getNetworkArea()!=null && ((safeCheckListNotEmpty = CheckUtil.safeCheckListNotEmpty(event.getNetworkArea().getEcgis()) ||
-					CheckUtil.safeCheckListNotEmpty(event.getNetworkArea().getNcgis()) || 
-					CheckUtil.safeCheckListNotEmpty(event.getNetworkArea().getGRanNodeIds()) || 
-					CheckUtil.safeCheckListNotEmpty(event.getNetworkArea().getTais())) || event.getNetworkArea().getId() != null
-					)){
-					if((!safeCheckListNotEmpty || !Constants.ServingAreaOfInterest.containsArea(event.getNetworkArea())) &&
-						!(event.getNetworkArea().getId() != null &&
-							(Constants.ExampleAOIsMap.get(event.getNetworkArea().getId())!=null &&
-							 Constants.ServingAreaOfInterest.containsArea(Constants.ExampleAOIsMap.get(event.getNetworkArea().getId()))))){
-						failed_notif = true;
-						failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
-						System.out.println("not inside serving aoi");
+				else{
+					// check if its lists equal one of the known AOIs -> set the id
+					if(Constants.ExampleAOIsToUUIDsMap.containsKey(event.getNetworkArea())){
+						event.getNetworkArea().id(Constants.ExampleAOIsToUUIDsMap.get(event.getNetworkArea()));
+						System.out.println("same as aoi with id: "+event.getNetworkArea().getId());
 					}
+					// check if id equals to a known AOI -> set the area lists
+					else if(event.getNetworkArea().getId() != null && Constants.ExampleAOIsMap.containsKey(event.getNetworkArea().getId())){
+						NetworkAreaInfo matchingAOI = Constants.ExampleAOIsMap.get(event.getNetworkArea().getId());
+						event.getNetworkArea().ecgis(matchingAOI.getEcgis()).ncgis(matchingAOI.getNcgis())
+								.gRanNodeIds(matchingAOI.getGRanNodeIds()).tais(matchingAOI.getTais());
+					}
+					// if new AOI create id if it doesnt have one and add it to the known AOIs
 					else{
-						// aggregate known areas as container areas for this aoi (if it is inside them)
-						for (Map.Entry<UUID,NetworkAreaInfo> entry : Constants.ExampleAOIsMap.entrySet()){
-							UUID key = entry.getKey(); NetworkAreaInfo aoi = entry.getValue();
-							if((event.getNetworkArea().getId() != null && Constants.ExampleAOIsMap.containsKey(event.getNetworkArea().getId())) ||
-							aoi.containsArea(event.getNetworkArea()) || Constants.ExampleAOIsToUUIDsMap.containsKey(event.getNetworkArea())){
-								event.getNetworkArea().addContainerAreaIdsItem(key);
-							}
+						if(event.getNetworkArea().getId() == null){
+							event.getNetworkArea().id(UUID.randomUUID());
 						}
-						// check if it equals one of the known AOIs -> set the id
-						if(Constants.ExampleAOIsToUUIDsMap.containsKey(event.getNetworkArea())){
-							event.getNetworkArea().id(Constants.ExampleAOIsToUUIDsMap.get(event.getNetworkArea()));
-							System.out.println("same as aoi with id: "+event.getNetworkArea().getId());
-						}
-						// check if id equals to a known AOI -> set the area object
-						else if(event.getNetworkArea().getId() != null && Constants.ExampleAOIsMap.containsKey(event.getNetworkArea().getId())){
-							NetworkAreaInfo matchingAOI = Constants.ExampleAOIsMap.get(event.getNetworkArea().getId());
-							event.getNetworkArea().ecgis(matchingAOI.getEcgis()).ncgis(matchingAOI.getNcgis())
-									.gRanNodeIds(matchingAOI.getGRanNodeIds()).tais(matchingAOI.getTais());
-						}
-						// if new AOI create id if it doesnt have one and add it to the known AOIs
-						else{
-							if(event.getNetworkArea().getId() == null){
-								event.getNetworkArea().id(UUID.randomUUID());
-							}
-							Constants.ExampleAOIsMap.put(event.getNetworkArea().getId(), event.getNetworkArea());
-							Constants.ExampleAOIsToUUIDsMap.put(event.getNetworkArea(), event.getNetworkArea().getId());
-						}
-						event.getNetworkArea().addContainerAreaIdsItem(event.getNetworkArea().getId());
-						event.getNetworkArea().setContainerAreaIds(ParserUtil.removeDuplicates(event.getNetworkArea().getContainerAreaIds()));
+						Constants.ExampleAOIsMap.put(event.getNetworkArea().getId(), event.getNetworkArea());
+						Constants.ExampleAOIsToUUIDsMap.put(event.getNetworkArea(), event.getNetworkArea().getId());
 					}
-				}
-				//check whether data is available to be gathered
-				NotificationBuilder notifBuilder = new NotificationBuilder();
-				NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
-				try {
-					wakeUpDataProducer("dummy");
-					// wakeUpDataProducer("prom");
-					notification=NotificationUtil.getNotification(body, i, notification, metricsService);
-				} catch (JsonProcessingException e) {
-					failed_notif=true;
-					logger.error("Failed to collect data for event: "+eType,e);
-					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
-				} catch(InterruptedException e){
-					logger.error("Thread failed to wait for datacollection to start for event: "+eType,e);
-				} catch(Exception e) {
-					failed_notif=true;
-					logger.error("Failed to collect data for event(timescaledb error): "+eType,e);
-					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
-				}
-				if(notification==null) {
-					logger.error("Failed to collect data for event: "+eType);
-					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
-				}
-				// add failureEventInfo
-				if(notification==null || failed_notif) {
-    				body.addFailEventReportsItem(new FailureEventInfo().event(event.getEvent()).failureCode(new NwdafFailureCode().failureCode(failCode)));
-				}
-				else {
-					canServeSubscription.set(i, true);
-					if(immRep) {
-						body.addEventNotificationsItem(notification.getEventNotifications().get(0));
+					// aggregate known areas that are inside of this area of interest
+					for (Map.Entry<UUID,NetworkAreaInfo> entry : Constants.ExampleAOIsMap.entrySet()){
+						UUID key = entry.getKey(); NetworkAreaInfo aoi = entry.getValue();
+						if(event.getNetworkArea().containsArea(aoi) || key.equals(event.getNetworkArea().getId())){
+							event.getNetworkArea().addContainedAreaIdsItem(key);
+						}
 					}
+					event.getNetworkArea().setContainedAreaIds(ParserUtil.removeDuplicates(event.getNetworkArea().getContainedAreaIds()));
 				}
-				logger.info("notifMethod="+eventIndexToNotifMethodMap.get(i)+", repPeriod="+eventIndexToRepPeriodMap.get(i));
+			}
+			//check whether data is available to be gathered
+			NotificationBuilder notifBuilder = new NotificationBuilder();
+			NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
+			try {
+				wakeUpDataProducer("dummy");
+				// wakeUpDataProducer("prom");
+				notification=NotificationUtil.getNotification(body, i, notification, metricsService);
+				if(body.getEvtReq()!=null && body.getEvtReq().isImmRep() && notification!=null){
+					body.addEventNotificationsItem(notification.getEventNotifications().get(i));
 				}
+			} catch (JsonProcessingException e) {
+				failed_notif=true;
+				logger.error("Failed to collect data for event: "+eType,e);
+				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+			} catch(InterruptedException e){
+				logger.error("Thread failed to wait for datacollection to start for event: "+eType,e);
+			} catch(Exception e) {
+				failed_notif=true;
+				logger.error("Failed to collect data for event(timescaledb error): "+eType,e);
+				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+			}
+			if(notification==null) {
+				logger.error("Failed to collect data for event: "+eType);
+				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+			}
+			// add failureEventInfo
+			if(notification==null || failed_notif) {
+    			body.addFailEventReportsItem(new FailureEventInfo().event(event.getEvent()).failureCode(new NwdafFailureCode().failureCode(failCode)));
+			}
+			else {
+				canServeSubscription.set(i, true);
+				if(immRep) {
+					body.addEventNotificationsItem(notification.getEventNotifications().get(0));
+				}
+			}
+			logger.info("notifMethod="+eventIndexToNotifMethodMap.get(i)+", repPeriod="+eventIndexToRepPeriodMap.get(i));
 		}
-		//check the amount of subscriptions that need to be notifed
+		// check the amount of subscriptions that need to be notifed
 		for(int i=0;i<canServeSubscription.size();i++) {
 			if(canServeSubscription.get(i)) {
 				count_of_notif++;

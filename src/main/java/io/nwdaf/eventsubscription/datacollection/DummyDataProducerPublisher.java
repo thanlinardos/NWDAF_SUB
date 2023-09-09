@@ -1,4 +1,4 @@
-package io.nwdaf.eventsubscription.notify;
+package io.nwdaf.eventsubscription.datacollection;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;

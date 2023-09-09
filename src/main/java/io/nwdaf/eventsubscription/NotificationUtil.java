@@ -2,9 +2,7 @@ package io.nwdaf.eventsubscription;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -33,7 +31,7 @@ public class NotificationUtil {
 		Integer repetitionPeriod=null;
 		
 		if(body.getEventSubscriptions().get(eventIndex)!=null) {
-			if(body.getEventSubscriptions().get(eventIndex).getNotificationMethod()!=null) {
+			if(body.getEventSubscriptions().get(eventIndex).getNotificationMethod()!=null &&body.getEventSubscriptions().get(eventIndex).getNotificationMethod().getNotifMethod()!=null) {
 				notificationMethod = body.getEventSubscriptions().get(eventIndex).getNotificationMethod().getNotifMethod();
 				if(notificationMethod.equals(NotificationMethodEnum.PERIODIC)) {
 					repetitionPeriod = body.getEventSubscriptions().get(eventIndex).getRepetitionPeriod();
@@ -49,17 +47,14 @@ public class NotificationUtil {
 					}
 				}
 			}
-			if(body.getEvtReq().getNotifMethod()!=null) {
+			if(body.getEvtReq().getNotifMethod()!=null && body.getEvtReq().getNotifMethod().getNotifMethod()!=null) {
 				notificationMethod = body.getEvtReq().getNotifMethod().getNotifMethod();
 				if(body.getEvtReq().getNotifMethod().getNotifMethod().equals(NotificationMethodEnum.PERIODIC)) {
 					repetitionPeriod = body.getEvtReq().getRepPeriod();
 				}
 			}
 		}
-		if(notificationMethod==null) {
-			return null;
-		}
-		if(notificationMethod.equals(NotificationMethodEnum.THRESHOLD)) {
+		if(notificationMethod==null || notificationMethod.equals(NotificationMethodEnum.THRESHOLD)) {
 			return 0;
 		}
 		return repetitionPeriod;
@@ -107,7 +102,6 @@ public class NotificationUtil {
 			// Supis filter (checks if the supis list on each nfinstance contains any of the supis in the sub request)
 			if(!eventSub.getTgtUe().isAnyUe() && CheckUtil.safeCheckListNotEmpty(eventSub.getTgtUe().getSupis())){
 				params = ParserUtil.parseQuerryFilterContains(eventSub.getTgtUe().getSupis(),"supis");
-				System.out.println("params for supis: "+params);
 			}
 			else if(CheckUtil.safeCheckListNotEmpty(eventSub.getNfInstanceIds())){
 				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfInstanceId"));
@@ -116,13 +110,13 @@ public class NotificationUtil {
 				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfSetIds(), "nfSetId"));
 			}
 			// AOI filter
-			else if(eventSub.getNetworkArea()!=null && CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getContainerAreaIds()) && (CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getEcgis()) ||
+			else if(eventSub.getNetworkArea()!=null && CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getContainedAreaIds()) && (CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getEcgis()) ||
 					CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getNcgis()) || 
 					CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getGRanNodeIds()) || 
 					CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getTais())
 			)){
 				// aggregate container areas for the aoi inside the sub object as valid filters
-				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNetworkArea().getContainerAreaIds(), "areaOfInterestId"));
+				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNetworkArea().getContainedAreaIds(), "areaOfInterestId"));
 			}
 			// Network Slice Instances filter
 			else if(CheckUtil.safeCheckListNotEmpty(eventSub.getSnssaia())){
