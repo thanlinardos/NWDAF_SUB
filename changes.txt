@@ -105,17 +105,23 @@ fixed readme and db init configs
 fixed dummy data gen (need to add supis)
 fixed all nfload filters other than aoi and supi (+fix null nid error)
 organised utilities in categories
+---19/9/23----
+fixed all nfload filters
+added ue mobility filters
+organised notificationutils
+benchmarks
+optimized notify listener speed (moved to connection pooling with max of 2000 connections)
 
 TODO:
 
--expand filter for other nfload cases (setId,nfType,AOI...) DONE (only fix supi & aoi)
--create job for pushing test data to timescaledb	DONE	(to add supis)
--add optionals to nf load 
+-expand filter for other nfload cases (setId,nfType,AOI...) DONE
+-create job for pushing test data to timescaledb	DONE
+-add optionals to nf load DONE
 -add db to client and showallsubs (+ choose a sub to update  or show latest notif)
 -add past offset to notify DONE
 -show metrics from each event notif object to client in a list	DONE
 -implement thresholds & immediate reporting DONE
--make fake metrics for UE_Mobility and implement the use case
+-make fake metrics for UE_Mobility and implement the use case DONE
 -add second prometheus instance (implement data collection for list of prometheus instances)
 -add kafka broker inbetween to talk to timescaledbs through subscriptions
 -add master client to view all subs	& admin to control for eventlisteners (notifiers & data collectors/generators)
