@@ -10,7 +10,7 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
 import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
@@ -28,23 +28,13 @@ import lombok.Setter;
 @Getter @Setter
 public class RestTemplateFactoryConfig {
 
-    private Resource trustStore;
-    private String trustStorePassword;
+    private static Resource trustStore;
+    private static String trustStorePassword;
 
-    public RestTemplateFactoryConfig(){
-        this.trustStore = null;
-        this.trustStorePassword = null;
-    }
-
-    public RestTemplateFactoryConfig(Resource trustStore,String trustStorePassword){
-        this.trustStore = trustStore;
-        this.trustStorePassword = trustStorePassword;
-    }
-
-    public ClientHttpRequestFactory createRestTemplateFactory(){
+    public static ClientHttpRequestFactory createRestTemplateFactory(){
 		SSLContext sslContext;
         //if there is no trust store configured use http instead
-        if(this.trustStore == null || this.trustStorePassword == null){
+        if(trustStore == null || trustStorePassword == null){
             return new HttpComponentsClientHttpRequestFactory();
         }
 		try {
@@ -55,7 +45,9 @@ public class RestTemplateFactoryConfig {
 			.register("https", sslConFactory)
 			.register("http", new PlainConnectionSocketFactory())
 			.build();
-			BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry);
+			PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+			connectionManager.setMaxTotal(2000);
+			connectionManager.setDefaultMaxPerRoute(2000);
 			CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
 			ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
 			return requestFactory;
@@ -64,5 +56,12 @@ public class RestTemplateFactoryConfig {
 			e.printStackTrace();
 		}
         return null;
+	}
+
+	public static void setTrustStore(Resource trustStore) {
+		RestTemplateFactoryConfig.trustStore = trustStore;
+	}
+	public static void setTrustStorePassword(String trustStorePassword) {
+		RestTemplateFactoryConfig.trustStorePassword = trustStorePassword;
 	}
 }

@@ -1,0 +1,29 @@
+avg_client_delay_per_notif=7.7009063444108765ms, 7.609865470852018ms, 7.52ms, 7.5423ms	(4644/5000)
+
+after resttemplate change:
+
+avg_client_delay_per_notif=0.19083969465648856ms, 1.844311377245509ms, 1.0358744394618835ms, 0.7333333333333333ms	(4800,4844,4800,4803)
+
+after period sync:
+
+avg_client_delay_per_notif=0.08ms	(2500)
+
+after period sync/2:
+
+avg_client_delay_per_notif=0.07317073170731707ms	(3550)
+
+after period sync/8:
+
+avg_client_delay_per_notif=0.041666666666666664ms, 0.035555555555555556ms, 1.0358744394618835ms, 0.7333333333333333ms	(4800,4800)
+
+ue_mobs (/4):
+
+avg_client_delay_per_notif=0.44976076555023925ms (4770)  its double the data!!
+
+100 ue_mobs (/4):
+
+0.05ms 		(9549/10000 -> 4775/5000)
+
+inside containers (same as above):
+
+0.5ms , 9542/10000

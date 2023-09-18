@@ -13,6 +13,7 @@ import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
+import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
 import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
@@ -67,6 +68,7 @@ public class NotificationUtil {
 		NwdafEventEnum eType = eventSub.getEvent().getEvent();
 		NotificationBuilder notifBuilder = new NotificationBuilder();
 		String params=null;
+		String columns="";
 		Integer no_secs=null;
 		Integer repPeriod=null;
 		ObjectWriter ow = new ObjectMapper().writer();
@@ -127,14 +129,14 @@ public class NotificationUtil {
 				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(ParserUtil.parseObjectListToFilterList(ConvertUtil.convertObjectWriterList(eventSub.getNfTypes(), ow)),"nfType"));
 			}
 			// if given analyticsubsets list in the sub request, select only the appropriate columns in the request
-			String columns = "";
+			columns = "";
 			columns = OtherUtil.setNfloadPostgresColumns(columns, eventSub.getListOfAnaSubsets());
 			
 			try{
 				// repetition period is used also as the granularity (offset) for the querry
-				nfloadlevels = metricsService.findAllInLastIntervalByFilterAndOffset(params,no_secs,repPeriod,columns);
+				nfloadlevels = metricsService.findAllInLastIntervalByFilterAndOffset(params, no_secs, repPeriod, columns);
 			} catch(Exception e){
-				NwdafSubApplication.getLogger().error("Can't find metrics from database", e);
+				NwdafSubApplication.getLogger().error("Can't find nf load metrics from database", e);
 				return null;
 			}
 			if(nfloadlevels==null || nfloadlevels.size()==0) {
@@ -143,12 +145,27 @@ public class NotificationUtil {
 			// if given analyticsubsets list in the sub request, set the non-included info to null
 			nfloadlevels = OtherUtil.setNfloadNonIncludedInfoNull(nfloadlevels, eventSub.getListOfAnaSubsets());
 			notification = notifBuilder.addEvent(notification, NwdafEventEnum.NF_LOAD, null, null, now, null, null, null, nfloadlevels);	
-			// notifCorrId field is used as the eventSubscription index, so that the client can group the notifications it receives
-			notification.setNotifCorrId(index.toString());
+			break;
+		case UE_MOBILITY:
+			List<UeMobility> ueMobilities = new ArrayList<>();
+			params = null;
+			columns = "";
+			try{
+				ueMobilities = metricsService.findAllUeMobilityInLastIntervalByFilterAndOffset(params, no_secs, repPeriod, columns);
+			} catch(Exception e){
+				NwdafSubApplication.getLogger().error("Can't ue mobility find metrics from database", e);
+				return null;
+			}
+			if(ueMobilities==null || ueMobilities.size()==0) {
+				return null;
+			}
+			notification = notifBuilder.addEvent(notification, NwdafEventEnum.UE_MOBILITY, null, null, now, null, null, null, ueMobilities);
 			break;
 		default:
 			break;
 		}
+		// notifCorrId field is used as the eventSubscription index, so that the client can group the notifications it receives
+		notification.setNotifCorrId(index.toString());
 		return notification;
 	}
 	

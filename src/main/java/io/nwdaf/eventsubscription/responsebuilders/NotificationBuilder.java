@@ -15,6 +15,7 @@ import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
 import io.nwdaf.eventsubscription.model.NwdafEvent;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode;
 import io.nwdaf.eventsubscription.model.Snssai;
+import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 
 public class NotificationBuilder {
@@ -24,14 +25,14 @@ public class NotificationBuilder {
 	@SuppressWarnings("unchecked")
 	public <T> NnwdafEventsSubscriptionNotification addEvent(NnwdafEventsSubscriptionNotification self, NwdafEventEnum event, OffsetDateTime start,
 			OffsetDateTime expiry, OffsetDateTime timeStampGen, NwdafFailureCode failNotifyCode, Integer rvWaitTime, AnalyticsMetadataInfo anaMetaInfo,
-			List<T> nfloadinfos) {
+			List<T> infoList) {
 		EventNotification e = new EventNotification();
 		e.event(new NwdafEvent().event(event)).start(start).expiry(expiry).timeStampGen(timeStampGen).failNotifyCode(failNotifyCode).rvWaitTime(rvWaitTime).anaMetaInfo(anaMetaInfo);
 		if(event.equals(NwdafEventEnum.NF_LOAD)) {
-			e.nfLoadLevelInfos((List<NfLoadLevelInformation>)nfloadinfos);
+			e.nfLoadLevelInfos((List<NfLoadLevelInformation>)infoList);
 		}
 		else if(event.equals(NwdafEventEnum.UE_MOBILITY)) {
-			e.ueMobs(new ArrayList<>());
+			e.ueMobs((List<UeMobility>)infoList);
 		}
 		self.addEventNotificationsItem(e);
 		return self;

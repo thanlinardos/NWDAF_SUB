@@ -115,6 +115,11 @@
 			<artifactId>nwdaf_library</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>io.nwdaf</groupId>
+			<artifactId>NWDAF_SUB_CLIENT</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>

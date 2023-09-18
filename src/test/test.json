@@ -1,0 +1,39 @@
+{
+  "notifCorrId": "",
+  "notificationURI": "https://nwdafSubClient2:10001/client",
+  "supportedFeatures": "210442",
+  "eventSubscriptions": [
+    {
+      "event": {
+        "type": "UE_MOBILITY"
+      },
+      "tgtUe": {
+        "anyUe": false
+      },
+      "qosRequ": {
+        "resType": {}
+      },
+      "anySlice": false,
+      "exptAnaType": {},
+      "exptUeBehav": {
+        "trafficProfile": {},
+        "batteryIndication": {},
+        "stationaryIndication": {},
+        "scheduledCommunicationTime": {},
+        "scheduledCommunicationType": {}
+      },
+      "matchingDir": {},
+      "networkArea": {},
+      "extraReportReq": {
+        "accuracy": {},
+        "anaMetaInd": {
+          "strategy": {}
+        }
+      },
+      "repetitionPeriod": 1,
+      "notificationMethod": {
+        "notifMethod": "PERIODIC"
+      }
+    }
+  ]
+}

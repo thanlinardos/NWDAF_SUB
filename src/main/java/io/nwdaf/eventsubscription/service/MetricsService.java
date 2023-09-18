@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.tomcat.util.bcel.Const;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.utilities.Constants;
-import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.repository.eventmetrics.MetricsRepository;
@@ -132,8 +130,27 @@ public class MetricsService {
 		body_table.setTime(body.getTs());
 		String data=null;
 		data = new JSONObject(objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(body)).toString();
-		NwdafSubApplication.getLogger().info(data);
+		// NwdafSubApplication.getLogger().info(data);
 		repository.saveMobilityTable(body.getTs(),data);
 		return body_table;
+	}
+	public List<UeMobility> findAllUeMobilityInLastIntervalByFilterAndOffset(String params,Integer no_secs,Integer offset,String columns) throws JsonMappingException, JsonProcessingException{
+		List<UeMobilityTable> tables;
+		if(no_secs == null){
+			no_secs = Constants.MIN_PERIOD_SECONDS;
+		}
+		if(offset==0){
+			offset = Constants.MIN_PERIOD_SECONDS;
+		}
+		tables = repository.findAllUeMobilityInLastIntervalByFilterAndOffset(params,no_secs+" second",offset+" second",columns);
+		List<UeMobility> res = new ArrayList<>();
+		for(int i=0;i<tables.size();i++) {
+			if(tables.get(i)!=null){
+				UeMobility info = objectMapper.readValue((new JSONObject(tables.get(i).getData())).toString(),UeMobility.class);
+				info.setTime(tables.get(i).getTime().toInstant());
+				res.add(info);
+			}
+		}
+		return res;
 	}
 }
