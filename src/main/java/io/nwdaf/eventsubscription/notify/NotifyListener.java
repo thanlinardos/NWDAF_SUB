@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.NotificationUtil;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
-import io.nwdaf.eventsubscription.RestTemplateFactoryConfig;
+import io.nwdaf.eventsubscription.api.config.RestTemplateFactoryConfig;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
@@ -122,11 +122,9 @@ public class NotifyListener {
 		ResponseEntity<NnwdafEventsSubscriptionNotification> client_response;
 		RestTemplateFactoryConfig.setTrustStore(trustStore);
 		RestTemplateFactoryConfig.setTrustStorePassword(trustStorePassword);
+		template = new RestTemplate(RestTemplateFactoryConfig.createRestTemplateFactory());
     	while(no_served_subs>0 && no_notifEventListeners>0) {
 			long st;
-			// long st1 = System.nanoTime();
-			template = new RestTemplate(RestTemplateFactoryConfig.createRestTemplateFactory());
-			// System.out.println("template_delay="+(System.nanoTime()-st1)/1000000l+"ms");
 			no_sent_notifs=0;
 			no_sent_kilobytes=0;
     		start = System.nanoTime();
@@ -166,6 +164,7 @@ public class NotifyListener {
     			catch(Exception e) {
     				logger.error("Failed to collect data for event(timescaledb error)",e);
     				this.stop();
+					continue;
     			}
     			if(notification==null) {
     				continue;
@@ -213,6 +212,7 @@ public class NotifyListener {
     		}catch(Exception e) {
         		logger.error("Error with find subs in subscriptionService", e);
         		this.stop();
+				continue;
         	}
 			System.out.print(" || sub query time: "+(System.nanoTime()-st_sub)/1000000l+"ms");
 			st  = System.nanoTime();
@@ -262,6 +262,7 @@ public class NotifyListener {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					this.stop();
+					continue;
 				}
         	}
     	}
@@ -334,11 +335,10 @@ public class NotifyListener {
 		return notifLock;
 	}
 
-	private void stop(){
+	public static void stop(){
 		synchronized (notifLock) {
         		no_notifEventListeners--;
         	}
-    	return;
 	} 
 	
 }

@@ -1,40 +1,50 @@
-package io.nwdaf.eventsubscription.datacollection;
+package io.nwdaf.eventsubscription.kafka;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import io.nwdaf.eventsubscription.utilities.Constants;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.nwdaf.eventsubscription.NwdafSubApplication;
+import io.nwdaf.eventsubscription.datacollection.DummyDataGenerator;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
-import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
-import io.nwdaf.eventsubscription.service.MetricsService;
+import io.nwdaf.eventsubscription.model.UeMobility;
+import io.nwdaf.eventsubscription.utilities.Constants;
 
 @Component
-public class DummyDataProducerListener{
-    private static Integer no_dummyDataProducerEventListeners = 0;
-	private static final Object dummyDataProducerLock = new Object();
-	private static Boolean started_saving_data = false;
-	private static final Object started_saving_data_lock = new Object();
-
-	@Autowired
-	MetricsService metricsService;
+public class KafkaDummyDataListener {
+    private static Integer no_kafkaDummyDataListeners = 0;
+	private static final Object kafkaDummyDataLock = new Object();
+	private static Boolean started_sending_data = false;
+	private static final Object started_sending_data_lock = new Object();
 	
 	@Autowired
 	Environment env;
+    
+    @Autowired
+    KafkaProducer producer;
+
+    @Value(value = "${nnwdaf-eventsubscription.kafka.topic}")
+    String topicName;
 	
+    @Autowired
+    ObjectMapper objectMapper;
+
     @Async
     @EventListener
-    public void onApplicationEvent(final DummyDataProducerEvent event){
-        synchronized (dummyDataProducerLock) {
-			if(no_dummyDataProducerEventListeners<1) {
-				no_dummyDataProducerEventListeners++;
+    public void onApplicationEvent(final KafkaDummyDataEvent event){
+        synchronized (kafkaDummyDataLock) {
+			if(no_kafkaDummyDataListeners<1) {
+				no_kafkaDummyDataListeners++;
 			}
 			else {
 				return;
@@ -42,11 +52,11 @@ public class DummyDataProducerListener{
 		}
 
         Logger logger = NwdafSubApplication.getLogger();
-    	logger.info("producing dummy data...");
+    	logger.info("producing dummy data to send to kafka...");
         long start;
         List<NfLoadLevelInformation> nfloadinfos=DummyDataGenerator.generateDummyNfloadLevelInfo(10);
         List<UeMobility> ueMobilities = DummyDataGenerator.generateDummyUeMobilities(10);
-        while(no_dummyDataProducerEventListeners>0){
+        while(no_kafkaDummyDataListeners>0){
             start = System.nanoTime();
             for(int j=0;j<NwdafEventEnum.values().length;j++){
                 NwdafEventEnum eType = NwdafEventEnum.values()[j];
@@ -54,13 +64,13 @@ public class DummyDataProducerListener{
                     nfloadinfos = DummyDataGenerator.changeNfLoadTimeDependentProperties(nfloadinfos);
                     for(int k=0;k<nfloadinfos.size();k++) {
                         try {
-                            metricsService.create(nfloadinfos.get(k));
-                            synchronized(started_saving_data_lock){
-                                started_saving_data = true;
+                            producer.sendMessage(objectMapper.writeValueAsString(nfloadinfos.get(k)), Optional.of(topicName));
+                            synchronized(started_sending_data_lock){
+                                started_sending_data = true;
                             }
                         }
                         catch(Exception e) {
-                            logger.error("Failed to save dummy nfloadlevelinfo to timescaledb",e);
+                            logger.error("Failed to send dummy nfloadlevelinfo to broker",e);
                             this.stop();
                             continue;
                         }
@@ -70,13 +80,13 @@ public class DummyDataProducerListener{
                     ueMobilities = DummyDataGenerator.changeUeMobilitiesTimeDependentProperties(ueMobilities);
                     for(int k=0;k<ueMobilities.size();k++) {
                         try {
-                            metricsService.create(ueMobilities.get(k));
-                            synchronized(started_saving_data_lock){
-                                started_saving_data = true;
+                            producer.sendMessage(objectMapper.writeValueAsString(ueMobilities.get(k)), Optional.of(topicName));
+                            synchronized(started_sending_data_lock){
+                                started_sending_data = true;
                             }
                         }
                         catch(Exception e) {
-                            logger.error("Failed to save dummy ueMobilities to timescaledb",e);
+                            logger.error("Failed to send dummy ueMobilities to broker",e);
                             this.stop();
                             continue;
                         }
@@ -99,25 +109,25 @@ public class DummyDataProducerListener{
         return;
     }
 
-    public static Object getDummydataproducerlock() {
-        return dummyDataProducerLock;
+    public static Object getKafkadummydatalock() {
+        return kafkaDummyDataLock;
     }
-    public static Integer getNo_dummyDataProducerEventListeners() {
-        return no_dummyDataProducerEventListeners;
+    public static Integer getNo_kafkaDummyDataListeners() {
+        return no_kafkaDummyDataListeners;
     }
-    public static Object getStartedSavingDataLock() {
-        return started_saving_data_lock;
+    public static Object getStartedSendingDataLock() {
+        return started_sending_data_lock;
     }
-    public static Boolean getStarted_saving_data() {
-        return started_saving_data;
+    public static Boolean getStarted_sending_data() {
+        return started_sending_data;
     }
 
     private void stop(){
-        synchronized (dummyDataProducerLock) {
-			no_dummyDataProducerEventListeners--;
+        synchronized (kafkaDummyDataLock) {
+			no_kafkaDummyDataListeners--;
 		}
-		synchronized(started_saving_data_lock){
-			started_saving_data = false;
+		synchronized(started_sending_data_lock){
+			started_sending_data = false;
 		}
     }
 }

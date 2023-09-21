@@ -1,4 +1,4 @@
-package io.nwdaf.eventsubscription;
+package io.nwdaf.eventsubscription.api.config;
 
 import java.io.IOException;
 import java.security.KeyManagementException;

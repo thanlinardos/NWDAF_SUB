@@ -72,4 +72,14 @@ public class SubscriptionsService {
 	public NnwdafEventsSubscriptionTable delete(Long id) {
 		return repository.delete(id);
     }
+
+	public boolean truncate(){
+		try{
+			repository.truncate();
+			return true;
+		} catch(Exception e){
+			System.out.println(e);
+			return false;
+		}
+	}
 }

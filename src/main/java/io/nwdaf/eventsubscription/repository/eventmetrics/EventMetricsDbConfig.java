@@ -51,12 +51,6 @@ public class EventMetricsDbConfig {
 	  
   }
   @Bean(name = "eventmetricsTransactionManager")
-//  public PlatformTransactionManager eventmetricsTransactionManager(
-//    @Qualifier("eventmetricsEntityManagerFactory") LocalContainerEntityManagerFactoryBean 
-//    eventmetricsEntityManagerFactory
-//  ) {
-//    return new JpaTransactionManager(Objects.requireNonNull(eventmetricsEntityManagerFactory.getObject()));
-//  }
   public PlatformTransactionManager eventmetricsTransactionManager() {
       final JpaTransactionManager transactionManager = new JpaTransactionManager();
       transactionManager.setEntityManagerFactory(eventmetricsEntityManagerFactory(eventmetricsDataSource(eventmetricsProperties()),eventmetricsProperties()).getObject());

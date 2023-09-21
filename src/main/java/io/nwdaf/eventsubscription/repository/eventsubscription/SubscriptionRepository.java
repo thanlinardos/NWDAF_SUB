@@ -5,11 +5,13 @@ import java.util.List;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
+import jakarta.transaction.Transactional;
 
 @Repository("eventsubscription")
 @EntityScan("io.nwdaf.eventsubscription.repository.eventsubscription")
@@ -31,6 +33,10 @@ public interface SubscriptionRepository extends JpaRepository<NnwdafEventsSubscr
 	@Query(value="delete from nnwdaf_events_subscription where id=?",
 			nativeQuery=true)
     NnwdafEventsSubscriptionTable delete(Long id);
-	
+
+	@Modifying
+	@Transactional
+    @Query(value = "truncate table nnwdaf_events_subscription", nativeQuery = true)
+    void truncate();
 	
 }

@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -29,6 +30,9 @@ import io.nwdaf.eventsubscription.datacollection.DataCollectionListener;
 import io.nwdaf.eventsubscription.datacollection.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.datacollection.DummyDataProducerListener;
 import io.nwdaf.eventsubscription.datacollection.DummyDataProducerPublisher;
+import io.nwdaf.eventsubscription.kafka.KafkaConsumer;
+import io.nwdaf.eventsubscription.kafka.KafkaDummyDataListener;
+import io.nwdaf.eventsubscription.kafka.KafkaDummyDataPublisher;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
 import io.nwdaf.eventsubscription.model.NetworkAreaInfo;
@@ -62,6 +66,9 @@ public class SubscriptionsController implements SubscriptionsApi{
 	
 	@Autowired
 	private DummyDataProducerPublisher dummyDataProducerPublisher;
+
+	@Autowired
+	private KafkaDummyDataPublisher kafkaDummyDataPublisher;
 
 	@Autowired
 	SubscriptionsService subscriptionService;
@@ -238,8 +245,9 @@ public class SubscriptionsController implements SubscriptionsApi{
 			NotificationBuilder notifBuilder = new NotificationBuilder();
 			NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
 			try {
-				wakeUpDataProducer("dummy");
-				// wakeUpDataProducer("prom");
+				// wakeUpDataProducer("dummy",eType.toString());
+				// wakeUpDataProducer("prom",eType.toString());
+				wakeUpDataProducer("kafka_local", eType.toString());
 				notification=NotificationUtil.getNotification(body, i, notification, metricsService);
 				if(body.getEvtReq()!=null && body.getEvtReq().isImmRep() && notification!=null){
 					body.addEventNotificationsItem(notification.getEventNotifications().get(i));
@@ -337,7 +345,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 		return ResponseEntity.status(HttpStatus.OK).headers(responseHeaders).body(body);
 	}
 	
-	public void wakeUpDataProducer(String choise) throws InterruptedException{
+	public void wakeUpDataProducer(String choise, String requestedEvent) throws InterruptedException{
 		switch(choise){
 			case "prom":
 				// check if it needs to wake up data collector
@@ -358,6 +366,38 @@ public class SubscriptionsController implements SubscriptionsApi{
 					//wait for data publishing to start
 					Thread.sleep(50);
 					while((!DummyDataProducerListener.getStarted_saving_data()) && DummyDataProducerListener.getNo_dummyDataProducerEventListeners()>0){
+						Thread.sleep(50);
+					}
+					Thread.sleep(50);
+				}
+				break;
+			case "kafka_local":
+				// check if it needs to wake up kafka dummy data sender
+				if(KafkaDummyDataListener.getNo_kafkaDummyDataListeners()==0){
+					kafkaDummyDataPublisher.publishDataCollection("kafka dummy data production");
+					//wait for data sending & saving to start
+					Thread.sleep(50);
+					while(  !KafkaDummyDataListener.getStarted_sending_data() &&
+							KafkaDummyDataListener.getNo_kafkaDummyDataListeners()>0 && 
+							KafkaConsumer.getIsListening() &&
+							!KafkaConsumer.getStartedSavingData()	
+						){
+						Thread.sleep(50);
+					}
+					Thread.sleep(50);
+				}
+				break;
+			case "kafka":
+				// start the kafka consumer listener
+				if(!KafkaConsumer.getIsListening()){
+					KafkaConsumer.startListening();
+					Thread.sleep(50);
+				}
+				// check if it needs to wake up kafka dummy data sender through endpoint
+				if(!KafkaConsumer.getStartedReceivingData()){
+					// producer.sendMessage(requestedEvent,produce) -> hit up data producers through kafka topic "produce"
+					// wait for data sending & saving to start
+					while(KafkaConsumer.getIsListening() && !KafkaConsumer.getStartedSavingData()){
 						Thread.sleep(50);
 					}
 					Thread.sleep(50);

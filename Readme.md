@@ -25,3 +25,14 @@ while read -r -d $'\0' i ; do    sudo certutil -d 'sql:'"$i" -A -t "C,," -n loca
 <p>
 while read -r -d $'\0' i ; do    sudo certutil -d 'sql:'"$i" -A -t "C,," -n local_client_cert -i local-client-cert.crt; done < <(sudo find "$HOME" -type f -iregex '.*[/]cert[89][.]db' -printf '%h\0')
 </p>
+
+KAFKA:
+
+- make a topic:
+docker exec -ti kafka1 /usr/bin/kafka-topics --create  --bootstrap-server kafka1:19092 --replication-factor 1 --partitions 4 --topic test_topic
+
+- send data:
+docker exec -ti kafka1 /usr/bin/kafka-console-producer --bootstrap-server kafka1:19092 --topic test_topic
+
+- consume data:
+docker exec -ti kafka1 /usr/bin/kafka-console-consumer --bootstrap-server kafka1:19092 --topic test_topic --from-beginning
