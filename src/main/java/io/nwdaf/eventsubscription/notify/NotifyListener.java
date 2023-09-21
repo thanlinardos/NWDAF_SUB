@@ -87,7 +87,7 @@ public class NotifyListener {
     		subs = subscriptionService.findAll();
     	}catch(Exception e) {
     		logger.error("Error with find subs in subscriptionService", e);
-    		this.stop();
+    		stop();
     	}
     	//map with key each served event (pair of sub id,event index)
     	//and value being the last time a notification was sent for this event to the corresponding client
@@ -163,7 +163,7 @@ public class NotifyListener {
     			}
     			catch(Exception e) {
     				logger.error("Failed to collect data for event(timescaledb error)",e);
-    				this.stop();
+    				stop();
 					continue;
     			}
     			if(notification==null) {
@@ -211,7 +211,7 @@ public class NotifyListener {
     			subs = subscriptionService.findAll();
     		}catch(Exception e) {
         		logger.error("Error with find subs in subscriptionService", e);
-        		this.stop();
+        		stop();
 				continue;
         	}
 			System.out.print(" || sub query time: "+(System.nanoTime()-st_sub)/1000000l+"ms");
@@ -261,7 +261,7 @@ public class NotifyListener {
 					Thread.sleep(wait_time-diff);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-					this.stop();
+					stop();
 					continue;
 				}
         	}

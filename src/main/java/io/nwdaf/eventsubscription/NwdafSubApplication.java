@@ -18,7 +18,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -27,7 +26,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.api.config.NwdafSubProperties;
-import io.nwdaf.eventsubscription.datacollection.DummyDataProducerPublisher;
 import io.nwdaf.eventsubscription.kafka.KafkaDummyDataPublisher;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
@@ -53,8 +51,8 @@ public class NwdafSubApplication {
 	@Autowired
     private ApplicationContext applicationContext;
 
-	@Autowired
-	private DummyDataProducerPublisher dummyDataProducerPublisher;
+	// @Autowired
+	// private DummyDataProducerPublisher dummyDataProducerPublisher;
 
 	@Autowired
 	private KafkaDummyDataPublisher kafkaDummyDataPublisher;

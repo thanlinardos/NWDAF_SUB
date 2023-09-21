@@ -37,3 +37,4 @@ src/main/resources/influxdbv2
 src/main/resources/timescaledb-data
 pgadmin-data
 bin
+src/main/resources/compose_files/clusterID
