@@ -117,6 +117,14 @@ added kafkaproducer & consumer
 incorporated producer inside kafkadummydatalistener
 implemented consumer with toggles and nested try catch blocks
 added wakeUpDataProducer clauses in controller for kafka and kafka_local (test version for producing data in this project)
+---25/9/23----
+seperated colector in nwdaf_sub_collector project (compiles down to )
+refactored listeners
+added topics for kafka
+added control messages for discover and wakeup
+refactored producer & consumer
+added synchronized message queue to consumer for discover topic
+left todo: finish handling wakeUpDataProducer response & refactor producer, implement discover/wakeup in collector project 
 
 TODO:
 
@@ -128,13 +136,18 @@ TODO:
 -show metrics from each event notif object to client in a list	DONE
 -implement thresholds & immediate reporting DONE
 -make fake metrics for UE_Mobility and implement the use case DONE
--add second prometheus instance (implement data collection for list of prometheus instances)
--add kafka broker inbetween to talk to timescaledbs through subscriptions DONE (only left to seperate the project & add collect topic)
+-add second prometheus instance (implement data collection for list of prometheus instances) DONE (only left to scale the prom containers)
+-add kafka broker inbetween to talk to timescaledbs through subscriptions DONE
+-implement controller responses properly
+-implement the rest of the event types
 -add master client to view all subs	& admin to control for eventlisteners (notifiers & data collectors/generators)
 -add event listener that groups data with turncating in 60min timewindows with 1min averages and stores them permanently
 -graph grouped data with graphana
 -look at using redis to replace timescaledb until allocated memory cache fills up
 -look at paging & buffers for large amounts of subs & metrics
+-scale with kubernetes
+-setup open5GS & expose metrics from various NFs (like AMF)
+-simulate a mobility scenario using a simulation tool on top of open5GS & gather months of data
 
 ML stuff:
 -do simple data analysis on grouped data (for example predict cpu usage)

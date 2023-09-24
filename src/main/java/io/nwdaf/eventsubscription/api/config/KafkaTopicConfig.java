@@ -16,18 +16,26 @@ public class KafkaTopicConfig {
     @Value(value = "${spring.kafka.bootstrap-servers}")
     private String bootstrapAddress;
 
-    @Value(value = "${nnwdaf-eventsubscription.kafka.topic}")
-    private String topicName;
-
     @Bean
     public KafkaAdmin kafkaAdmin() {
         Map<String, Object> configs = new HashMap<>();
         configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         return new KafkaAdmin(configs);
     }
-    
     @Bean
-    public NewTopic topic1() {
-         return new NewTopic(topicName, 1, (short) 1);
+    public NewTopic DISCOVER() {
+         return new NewTopic("DISCOVER", 1, (short) 1);
+    }
+    @Bean
+    public NewTopic WAKE_UP() {
+         return new NewTopic("WAKE_UP", 1, (short) 1);
+    }
+    @Bean
+    public NewTopic NF_LOAD() {
+         return new NewTopic("NF_LOAD", 1, (short) 1);
+    }
+    @Bean
+    public NewTopic UE_MOBILITY() {
+         return new NewTopic("UE_MOBILITY", 1, (short) 1);
     }
 }

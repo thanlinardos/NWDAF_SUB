@@ -110,13 +110,15 @@ public class MetricsService {
 		for(int i=0;i<tables.size();i++) {
 			if(tables.get(i)!=null){
 				NfLoadLevelInformation info = objectMapper.readValue((new JSONObject(tables.get(i).getData())).toString(),NfLoadLevelInformation.class);
-				info.setTime(tables.get(i).getTime().toInstant());
-				info.setNfCpuUsage(tables.get(i).getNfCpuUsage());
-				info.setNfMemoryUsage(tables.get(i).getNfMemoryUsage());
-				info.setNfStorageUsage(tables.get(i).getNfStorageUsage());
-				info.setNfLoadLevelAverage(tables.get(i).getNfLoadLevelAverage());
-				info.setNfLoadLevelpeak(tables.get(i).getNfLoadLevelpeak());
-				info.setNfLoadAvgInAoi(tables.get(i).getNfLoadAvgInAoi());
+				if(tables.get(i).getTime()!=null){
+					info.time(tables.get(i).getTime().toInstant());
+				}
+				info.nfCpuUsage(tables.get(i).getNfCpuUsage())
+					.nfMemoryUsage(tables.get(i).getNfMemoryUsage())
+					.nfStorageUsage(tables.get(i).getNfStorageUsage())
+					.nfLoadLevelAverage(tables.get(i).getNfLoadLevelAverage())
+					.nfLoadLevelpeak(tables.get(i).getNfLoadLevelpeak())
+					.nfLoadAvgInAoi(tables.get(i).getNfLoadAvgInAoi());
 				res.add(info);
 			}
 		}
@@ -147,7 +149,9 @@ public class MetricsService {
 		for(int i=0;i<tables.size();i++) {
 			if(tables.get(i)!=null){
 				UeMobility info = objectMapper.readValue((new JSONObject(tables.get(i).getData())).toString(),UeMobility.class);
-				info.setTime(tables.get(i).getTime().toInstant());
+				if(tables.get(i).getTime()!=null){
+					info.time(tables.get(i).getTime().toInstant());
+				}
 				res.add(info);
 			}
 		}

@@ -26,8 +26,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.api.config.NwdafSubProperties;
-import io.nwdaf.eventsubscription.kafka.KafkaDummyDataPublisher;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
+import io.nwdaf.eventsubscription.kafka.datacollection.dummy.KafkaDummyDataPublisher;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.notify.NotifyListener;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
@@ -117,7 +117,7 @@ public class NwdafSubApplication {
 		NnwdafEventsSubscription subscription = objectMapper.reader().readValue(test,NnwdafEventsSubscription.class);
 		final String payload = objectMapper.writeValueAsString(subscription);
 		return args -> {
-			producer.sendMessage(payload,Optional.of(topicName));
+			producer.sendMessage(payload,topicName);
 		};
 	}
 

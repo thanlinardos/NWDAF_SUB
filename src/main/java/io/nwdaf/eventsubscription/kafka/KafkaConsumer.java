@@ -1,7 +1,9 @@
 package io.nwdaf.eventsubscription.kafka;
 
 import java.io.IOException;
+import java.util.concurrent.SynchronousQueue;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -22,52 +24,53 @@ public class KafkaConsumer {
 	@Autowired
 	ObjectMapper objectMapper;
 
-	private static Boolean startedReceivingData = false;
-	private static final Object startedReceivingDataLock = new Object();
+	public static Boolean startedReceivingData = false;
+	public static final Object startedReceivingDataLock = new Object();
 
-	private static Boolean startedSavingData = false;
-	private static final Object startedSavingDataLock = new Object();
+	public static Boolean startedSavingData = false;
+	public static final Object startedSavingDataLock = new Object();
 
-	private static Boolean isListening = true;
-	private static final Object isListeningLock = new Object();
+	public static Boolean isListening = true;
+	public static final Object isListeningLock = new Object();
 
-    @KafkaListener(topics = "topic1")
-	public String listens(final String in){
-		if(isListening){
-			startedReceivingData = true;
-			// System.out.println(in);
-			NfLoadLevelInformation nfLoadLevelInformation = null;
-			UeMobility ueMobility = null;
-			try{
-				nfLoadLevelInformation = objectMapper.reader().readValue(in, NfLoadLevelInformation.class);
-			} catch(IOException e){
-				try{
-					ueMobility = objectMapper.reader().readValue(in, UeMobility.class);
-				} catch(IOException e1){
-					NwdafSubApplication.getLogger().info("data not matching any models");
-					return "";
-				}
-			}
-			if(nfLoadLevelInformation!=null){
-				try{
-					metricsService.create(nfLoadLevelInformation);
-				} catch(Exception e){
-					NwdafSubApplication.getLogger().info("failed to save nfload info to timescaleDB");
-					stopListening();
-					return "";
-				}
-			}
-			else if(ueMobility!=null){
-				try{
-					metricsService.create(ueMobility);
-				} catch(Exception e){
-					NwdafSubApplication.getLogger().info("failed to save ueMobility info to timescaleDB");
-					stopListening();
-					return "";
-				}
-			}
-			startedSaving();
+	public static SynchronousQueue<String> discoverMessageQueue = new SynchronousQueue<>();
+
+    @KafkaListener(topics = {"NF_LOAD","UE_MOBILITY","DISCOVER"})
+	public String dataListener(ConsumerRecord<String,String> record){
+		String topic = record.topic();
+		String in = record.value();
+		if(!isListening){
+			return "";
 		}
+		startedReceivingData = true;
+		// System.out.println(in);
+		NfLoadLevelInformation nfLoadLevelInformation = null;
+		UeMobility ueMobility = null;
+		try{
+		switch(topic){
+			case "NF_LOAD":
+				nfLoadLevelInformation = objectMapper.reader().readValue(in, NfLoadLevelInformation.class);
+				metricsService.create(nfLoadLevelInformation);
+				break;
+			case "UE_MOBILITY":
+				ueMobility = objectMapper.reader().readValue(in, UeMobility.class);
+				metricsService.create(ueMobility);
+				break;
+			case "DISCOVER":
+				discoverMessageQueue.put(in);
+				break;
+			default:
+				break;
+		}
+		} catch(IOException e){
+			NwdafSubApplication.getLogger().info("data not matching "+topic+" model: "+in);
+			return "";
+		} catch(Exception e){
+			NwdafSubApplication.getLogger().info("failed to save "+topic+" info to timescaleDB");
+			stopListening();
+			return "";
+		}
+		startedSaving();
 		return in;
 	}
 

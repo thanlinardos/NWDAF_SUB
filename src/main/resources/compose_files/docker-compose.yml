@@ -9,8 +9,8 @@ services:
     image: postgres:alpine
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
     ports:
       - "5432:5432"
     networks:
@@ -18,33 +18,131 @@ services:
     volumes:
       - /home/project-db-files/postgres-data:/var/lib/postgresql/data
       - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
   gadmin:
     container_name: pgadmin4_container
     image: dpage/pgadmin4
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_DEFAULT_PASSWORD: "${POSTGRES_PASSWORD}"
     ports:
       - "5050:80"
     networks:
       - monitor-net
     volumes: 
       - /home/project-db-files/pgadmin-data:/var/lib/pgadmin
+
   timescaledb:
     image: timescale/timescaledb:latest-pg12
     restart: always
     ports:
       - 5433:5433
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
     networks:
       - monitor-net
     command: postgres -c port=5433
     volumes:
       - /home/project-db-files/timescaledb-data:/var/lib/postgresql/data
       - ./timescaleSchema.sql:/docker-entrypoint-initdb.d/timescaleSchema.sql
+
+  kafka-gen:
+    image: confluentinc/cp-kafka:7.3.3
+    hostname: kafka-gen
+    container_name: kafka-gen
+    networks:
+      - monitor-net
+    volumes:
+      - ./scripts/create_cluster_id.sh:/tmp/create_cluster_id.sh
+      - ./clusterID:/tmp/clusterID
+    command: "bash -c '/tmp/create_cluster_id.sh'"
+
+  kafka1:
+    image: confluentinc/cp-kafka:7.3.3
+    hostname: kafka1
+    container_name: kafka1
+    ports:
+      - "39092:39092"
+    networks:
+      - monitor-net
+    environment:
+      KAFKA_LISTENERS: BROKER://kafka1:19092,EXTERNAL://kafka1:39092,CONTROLLER://kafka1:9093
+      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka1:19092,EXTERNAL://kafka1:39092
+      KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_PROCESS_ROLES: 'controller,broker'
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093,3@kafka3:9093'
+      KAFKA_METADATA_LOG_SEGMENT_MS: 15000
+      KAFKA_METADATA_MAX_RETENTION_MS: 1200000
+      KAFKA_METADATA_LOG_MAX_RECORD_BYTES_BETWEEN_SNAPSHOTS: 2800
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+    volumes:
+      - kafka1-data:/var/lib/kafka/data
+      - ./scripts/update_run.sh:/tmp/update_run.sh
+      - ./clusterID:/tmp/clusterID
+    command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
+
+  kafka2:
+    image: confluentinc/cp-kafka:7.3.3
+    hostname: kafka2
+    container_name: kafka2
+    ports:
+      - "39093:39093"
+    networks:
+      - monitor-net
+    environment:
+      KAFKA_LISTENERS: BROKER://kafka2:19093,EXTERNAL://kafka2:39093,CONTROLLER://kafka2:9093
+      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka2:19093,EXTERNAL://kafka2:39093
+      KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_PROCESS_ROLES: 'controller,broker'
+      KAFKA_NODE_ID: 2
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093,3@kafka3:9093'
+      KAFKA_METADATA_LOG_SEGMENT_MS: 15000
+      KAFKA_METADATA_MAX_RETENTION_MS: 1200000
+      KAFKA_METADATA_LOG_MAX_RECORD_BYTES_BETWEEN_SNAPSHOTS: 2800
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+    volumes:
+      - kafka2-data:/var/lib/kafka/data
+      - ./scripts/update_run.sh:/tmp/update_run.sh
+      - ./clusterID:/tmp/clusterID
+    command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
+
+  kafka3:
+    image: confluentinc/cp-kafka:7.3.3
+    hostname: kafka3
+    container_name: kafka3
+    ports:
+      - "39094:39094"
+    networks:
+      - monitor-net
+    environment:
+      KAFKA_LISTENERS: BROKER://kafka3:19094,EXTERNAL://kafka3:39094,CONTROLLER://kafka3:9093
+      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka3:19094,EXTERNAL://kafka3:39094
+      KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_PROCESS_ROLES: 'controller,broker'
+      KAFKA_NODE_ID: 3
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093,3@kafka3:9093'
+      KAFKA_METADATA_LOG_SEGMENT_MS: 15000
+      KAFKA_METADATA_MAX_RETENTION_MS: 1200000
+      KAFKA_METADATA_LOG_MAX_RECORD_BYTES_BETWEEN_SNAPSHOTS: 2800
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+    volumes:
+      - kafka3-data:/var/lib/kafka/data
+      - ./scripts/update_run.sh:/tmp/update_run.sh
+      - ./clusterID:/tmp/clusterID
+    command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
+  
   nwdafSub:
     container_name: nwdafSub
     image: thanlinardos/nwdaf_sub:0.0.2-SNAPSHOT
@@ -67,18 +165,18 @@ services:
       nnwdaf-eventsubscription.containerNames: pg_container,pgadmin4_container,nwdafSub
       SPRING.DATASOURCE.NAME: eventsubscription
       SPRING.DATASOURCE.URL: jdbc:postgresql://db:5432/postgres?currentSchema=public 
-      SPRING.DATASOURCE.USERNAME: postgres
-      SPRING.DATASOURCE.PASSWORD: password
+      SPRING.DATASOURCE.USERNAME: "${POSTGRES_USER}"
+      SPRING.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
       SPRING.DATASOURCE.DRIVERCLASSNAME: org.postgresql.Driver
       EVENTNOTIFICATION.DATASOURCE.NAME: eventnotification
       EVENTNOTIFICATION.DATASOURCE.URL: jdbc:postgresql://db:5432/test?currentSchema=public 
-      EVENTNOTIFICATION.DATASOURCE.USERNAME: postgres
-      EVENTNOTIFICATION.DATASOURCE.PASSWORD: password
+      EVENTNOTIFICATION.DATASOURCE.USERNAME: "${POSTGRES_USER}"
+      EVENTNOTIFICATION.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
       EVENTNOTIFICATION.DATASOURCE.DRIVERCLASSNAME: org.postgresql.Driver
       EVENTMETRICS.DATASOURCE.NAME: eventmetrics
       EVENTMETRICS.DATASOURCE.URL: jdbc:postgresql://timescaledb:5433/metrics?currentSchema=public
-      EVENTMETRICS.DATASOURCE.USERNAME: postgres
-      EVENTMETRICS.DATASOURCE.PASSWORD: password
+      EVENTMETRICS.DATASOURCE.USERNAME: "${POSTGRES_USER}"
+      EVENTMETRICS.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
       EVENTMETRICS.DATASOURCE.DRIVERCLASSNAME: org.postgresql.Driver
       SERVER.PORT: "${server_port}"
       management.endpoint.health.show-details: always
@@ -209,5 +307,9 @@ services:
 
       #endpoints:
       management.endpoint.health.show-details: always
-
+volumes:
+  kafka1-data:
+  kafka2-data:
+  kafka3-data:  
+# https://github.com/katyagorshkova/kafka-kraft
       

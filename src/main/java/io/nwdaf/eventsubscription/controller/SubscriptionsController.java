@@ -1,7 +1,10 @@
 package io.nwdaf.eventsubscription.controller;
 
+import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -9,6 +12,7 @@ import java.util.UUID;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -17,21 +21,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.utilities.CheckUtil;
 import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.utilities.ConvertUtil;
 import io.nwdaf.eventsubscription.utilities.OtherUtil;
-import io.nwdaf.eventsubscription.NotificationUtil;
-import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;
-import io.nwdaf.eventsubscription.datacollection.DataCollectionListener;
-import io.nwdaf.eventsubscription.datacollection.DataCollectionPublisher;
-import io.nwdaf.eventsubscription.datacollection.DummyDataProducerListener;
-import io.nwdaf.eventsubscription.datacollection.DummyDataProducerPublisher;
+import io.nwdaf.eventsubscription.customModel.DiscoverMessage;
+import io.nwdaf.eventsubscription.customModel.WakeUpMessage;
+import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerListener;
+import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerPublisher;
+import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionListener;
+import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.kafka.KafkaConsumer;
-import io.nwdaf.eventsubscription.kafka.KafkaDummyDataListener;
-import io.nwdaf.eventsubscription.kafka.KafkaDummyDataPublisher;
+import io.nwdaf.eventsubscription.kafka.KafkaProducer;
+import io.nwdaf.eventsubscription.kafka.datacollection.dummy.KafkaDummyDataListener;
+import io.nwdaf.eventsubscription.kafka.datacollection.dummy.KafkaDummyDataPublisher;
+import io.nwdaf.eventsubscription.kafka.datacollection.prometheus.KafkaDataCollectionListener;
+import io.nwdaf.eventsubscription.kafka.datacollection.prometheus.KafkaDataCollectionPublisher;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
 import io.nwdaf.eventsubscription.model.NetworkAreaInfo;
@@ -44,6 +52,7 @@ import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
 import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
+import io.nwdaf.eventsubscription.notify.NotificationUtil;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
@@ -70,15 +79,25 @@ public class SubscriptionsController implements SubscriptionsApi{
 	private KafkaDummyDataPublisher kafkaDummyDataPublisher;
 
 	@Autowired
+	private KafkaDataCollectionPublisher kafkaDataCollectionPublisher;
+
+	@Autowired
 	SubscriptionsService subscriptionService;
 
 	@Autowired
 	MetricsService metricsService;
+
+	@Autowired
+	KafkaProducer kafkaProducer;
+
+	@Autowired
+	ObjectMapper objectMapper;
+
+	private Logger logger = LoggerFactory.getLogger(SubscriptionsController.class);
 	
 	
 	@Override
 	public ResponseEntity<NnwdafEventsSubscription> createNWDAFEventsSubscription(@Valid NnwdafEventsSubscription body) {
-		Logger logger = NwdafSubApplication.getLogger();
 		String subsUri = env.getProperty("nnwdaf-eventsubscription.openapi.dev-url")+"/nwdaf-eventsubscription/v1/subscriptions";
 		System.out.println("Controller logic...");
 		HttpHeaders responseHeaders = new HttpHeaders();
@@ -175,8 +194,8 @@ public class SubscriptionsController implements SubscriptionsApi{
 			canServeSubscription.add(false);
 		}
 		for(int i=0;i<no_valid_events;i++) {
-			EventSubscription event = body.getEventSubscriptions().get(i);
-			NwdafEventEnum eType = event.getEvent().getEvent();
+			EventSubscription eventSubscription = body.getEventSubscriptions().get(i);
+			NwdafEventEnum eType = eventSubscription.getEvent().getEvent();
 			Boolean periodic = false;
 			if(eventIndexToRepPeriodMap.get(i)!=null) {
 				periodic = eventIndexToNotifMethodMap.get(i).equals(NotificationMethodEnum.PERIODIC);
@@ -198,13 +217,13 @@ public class SubscriptionsController implements SubscriptionsApi{
 			// the checks are for when the serializer initializes the lists inside aoi object with null
 			NetworkAreaInfo matchingArea = null;
 			Boolean insideServiceArea = false;
-			if(event.getNetworkArea().getId() != null){
-				matchingArea = Constants.ExampleAOIsMap.get(event.getNetworkArea().getId());
+			if(eventSubscription.getNetworkArea().getId() != null){
+				matchingArea = Constants.ExampleAOIsMap.get(eventSubscription.getNetworkArea().getId());
 				insideServiceArea = Constants.ServingAreaOfInterest.containsArea(matchingArea);
 			}
-			Constants.ExampleAOIsMap.get(event.getNetworkArea().getId());
-			if(event.getNetworkArea()!=null && (CheckUtil.safeCheckNetworkAreaNotEmpty(event.getNetworkArea()) || event.getNetworkArea().getId() != null)){
-				if(!(CheckUtil.safeCheckNetworkAreaNotEmpty(event.getNetworkArea()) && Constants.ServingAreaOfInterest.containsArea(event.getNetworkArea()))
+			Constants.ExampleAOIsMap.get(eventSubscription.getNetworkArea().getId());
+			if(eventSubscription.getNetworkArea()!=null && (CheckUtil.safeCheckNetworkAreaNotEmpty(eventSubscription.getNetworkArea()) || eventSubscription.getNetworkArea().getId() != null)){
+				if(!(CheckUtil.safeCheckNetworkAreaNotEmpty(eventSubscription.getNetworkArea()) && Constants.ServingAreaOfInterest.containsArea(eventSubscription.getNetworkArea()))
 					&& (matchingArea == null || !insideServiceArea)){
 					failed_notif = true;
 					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
@@ -212,41 +231,57 @@ public class SubscriptionsController implements SubscriptionsApi{
 				}
 				else{
 					// check if its lists equal one of the known AOIs -> set the id
-					if(Constants.ExampleAOIsToUUIDsMap.containsKey(event.getNetworkArea())){
-						event.getNetworkArea().id(Constants.ExampleAOIsToUUIDsMap.get(event.getNetworkArea()));
-						System.out.println("same as aoi with id: "+event.getNetworkArea().getId());
+					if(Constants.ExampleAOIsToUUIDsMap.containsKey(eventSubscription.getNetworkArea())){
+						eventSubscription.getNetworkArea().id(Constants.ExampleAOIsToUUIDsMap.get(eventSubscription.getNetworkArea()));
+						System.out.println("same as aoi with id: "+eventSubscription.getNetworkArea().getId());
 					}
 					// check if id equals to a known AOI -> set the area lists
-					else if(event.getNetworkArea().getId() != null && Constants.ExampleAOIsMap.containsKey(event.getNetworkArea().getId())){
-						NetworkAreaInfo matchingAOI = Constants.ExampleAOIsMap.get(event.getNetworkArea().getId());
-						event.getNetworkArea().ecgis(matchingAOI.getEcgis()).ncgis(matchingAOI.getNcgis())
+					else if(eventSubscription.getNetworkArea().getId() != null && Constants.ExampleAOIsMap.containsKey(eventSubscription.getNetworkArea().getId())){
+						NetworkAreaInfo matchingAOI = Constants.ExampleAOIsMap.get(eventSubscription.getNetworkArea().getId());
+						eventSubscription.getNetworkArea().ecgis(matchingAOI.getEcgis()).ncgis(matchingAOI.getNcgis())
 								.gRanNodeIds(matchingAOI.getGRanNodeIds()).tais(matchingAOI.getTais());
 					}
 					// if new AOI create id if it doesnt have one and add it to the known AOIs
 					else{
-						if(event.getNetworkArea().getId() == null){
-							event.getNetworkArea().id(UUID.randomUUID());
+						if(eventSubscription.getNetworkArea().getId() == null){
+							eventSubscription.getNetworkArea().id(UUID.randomUUID());
 						}
-						Constants.ExampleAOIsMap.put(event.getNetworkArea().getId(), event.getNetworkArea());
-						Constants.ExampleAOIsToUUIDsMap.put(event.getNetworkArea(), event.getNetworkArea().getId());
+						Constants.ExampleAOIsMap.put(eventSubscription.getNetworkArea().getId(), eventSubscription.getNetworkArea());
+						Constants.ExampleAOIsToUUIDsMap.put(eventSubscription.getNetworkArea(), eventSubscription.getNetworkArea().getId());
 					}
 					// aggregate known areas that are inside of this area of interest
 					for (Map.Entry<UUID,NetworkAreaInfo> entry : Constants.ExampleAOIsMap.entrySet()){
 						UUID key = entry.getKey(); NetworkAreaInfo aoi = entry.getValue();
-						if(event.getNetworkArea().containsArea(aoi) || key.equals(event.getNetworkArea().getId())){
-							event.getNetworkArea().addContainedAreaIdsItem(key);
+						if(eventSubscription.getNetworkArea().containsArea(aoi) || key.equals(eventSubscription.getNetworkArea().getId())){
+							eventSubscription.getNetworkArea().addContainedAreaIdsItem(key);
 						}
 					}
-					event.getNetworkArea().setContainedAreaIds(ParserUtil.removeDuplicates(event.getNetworkArea().getContainedAreaIds()));
+					eventSubscription.getNetworkArea().setContainedAreaIds(ParserUtil.removeDuplicates(eventSubscription.getNetworkArea().getContainedAreaIds()));
 				}
+			}
+			// find past/future offset requested by client:
+			Integer[] findOffset = NotificationUtil.findRequestedDataOffset(eventSubscription);
+			Integer no_secs = findOffset[0];
+			// both future and past predictions not allowed
+			if(findOffset[1]==2){
+				body.addFailEventReportsItem(new FailureEventInfo().event(eventSubscription.getEvent()).failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.BOTH_STAT_PRED_NOT_ALLOWED)));
+				continue;
+			}
+			// future data not implemented
+			if(findOffset[1]==1){
+				body.addFailEventReportsItem(new FailureEventInfo().event(eventSubscription.getEvent()).failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.OTHER)));
+				continue;
 			}
 			//check whether data is available to be gathered
 			NotificationBuilder notifBuilder = new NotificationBuilder();
 			NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
 			try {
-				// wakeUpDataProducer("dummy",eType.toString());
-				// wakeUpDataProducer("prom",eType.toString());
-				wakeUpDataProducer("kafka_local", eType.toString());
+				// wakeUpDataProducer("kafka_local_dummy", eType);
+				// wakeUpDataProducer("kafka_local_prom", eType);
+				Integer[] wakeUpResult = wakeUpDataProducer("kafka", eType, no_secs);
+				boolean isDataAvailable = wakeUpResult[0]==1;
+				int expectedWaitTime = wakeUpResult[1];
+				
 				notification=NotificationUtil.getNotification(body, i, notification, metricsService);
 				if(body.getEvtReq()!=null && body.getEvtReq().isImmRep() && notification!=null){
 					body.addEventNotificationsItem(notification.getEventNotifications().get(i));
@@ -256,7 +291,13 @@ public class SubscriptionsController implements SubscriptionsApi{
 				logger.error("Failed to collect data for event: "+eType,e);
 				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
 			} catch(InterruptedException e){
+				failed_notif=true;
 				logger.error("Thread failed to wait for datacollection to start for event: "+eType,e);
+				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+			} catch(IOException e){
+				failed_notif=true;
+				logger.error("Couldn't connect to kafka topic WAKE_UP.", e);
+				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
 			} catch(Exception e) {
 				failed_notif=true;
 				logger.error("Failed to collect data for event(timescaledb error): "+eType,e);
@@ -268,7 +309,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 			}
 			// add failureEventInfo
 			if(notification==null || failed_notif) {
-    			body.addFailEventReportsItem(new FailureEventInfo().event(event.getEvent()).failureCode(new NwdafFailureCode().failureCode(failCode)));
+    			body.addFailEventReportsItem(new FailureEventInfo().event(eventSubscription.getEvent()).failureCode(new NwdafFailureCode().failureCode(failCode)));
 			}
 			else {
 				canServeSubscription.set(i, true);
@@ -344,15 +385,14 @@ public class SubscriptionsController implements SubscriptionsApi{
 		return ResponseEntity.status(HttpStatus.OK).headers(responseHeaders).body(body);
 	}
 	
-	public void wakeUpDataProducer(String choise, String requestedEvent) throws InterruptedException{
+	public Integer[] wakeUpDataProducer(String choise, NwdafEventEnum requestedEvent, Integer requestedOffset) throws InterruptedException, IOException{
 		switch(choise){
 			case "prom":
 				// check if it needs to wake up data collector
 				if(DataCollectionListener.getNo_dataCollectionEventListeners()==0){
 					dataCollectionPublisher.publishDataCollection("");
 					//wait for data collection to start
-					Thread.sleep(50);
-					while((!DataCollectionListener.getStarted_saving_data()) && DataCollectionListener.getNo_dataCollectionEventListeners()>0){
+					while((!DataCollectionListener.getStartedSavingData()) && DataCollectionListener.getNo_dataCollectionEventListeners()>0){
 						Thread.sleep(50);
 					}
 					Thread.sleep(50);
@@ -363,21 +403,34 @@ public class SubscriptionsController implements SubscriptionsApi{
 				if(DummyDataProducerListener.getNo_dummyDataProducerEventListeners()==0){
 					dummyDataProducerPublisher.publishDataCollection("dummy data production");
 					//wait for data publishing to start
-					Thread.sleep(50);
-					while((!DummyDataProducerListener.getStarted_saving_data()) && DummyDataProducerListener.getNo_dummyDataProducerEventListeners()>0){
+					while((!DummyDataProducerListener.getStartedSavingData()) && DummyDataProducerListener.getNo_dummyDataProducerEventListeners()>0){
 						Thread.sleep(50);
 					}
 					Thread.sleep(50);
 				}
 				break;
-			case "kafka_local":
+			case "kafka_local_dummy":
 				// check if it needs to wake up kafka dummy data sender
 				if(KafkaDummyDataListener.getNo_kafkaDummyDataListeners()==0){
 					kafkaDummyDataPublisher.publishDataCollection("kafka dummy data production");
 					//wait for data sending & saving to start
-					Thread.sleep(50);
-					while(  !KafkaDummyDataListener.getStarted_sending_data() &&
+					while(  !KafkaDummyDataListener.getStartedSendingData() &&
 							KafkaDummyDataListener.getNo_kafkaDummyDataListeners()>0 && 
+							KafkaConsumer.getIsListening() &&
+							!KafkaConsumer.getStartedSavingData()	
+						){
+						Thread.sleep(50);
+					}
+					Thread.sleep(50);
+				}
+				break;
+			case "kafka_local_prom":
+				// check if it needs to wake up kafka prom data collector
+				if(KafkaDataCollectionListener.getNo_dataCollectionEventListeners()==0){
+					kafkaDataCollectionPublisher.publishDataCollection("kafka prom data production");
+					//wait for data sending & saving to start
+					while(  !KafkaDataCollectionListener.getStartedSendingData() &&
+							KafkaDataCollectionListener.getNo_dataCollectionEventListeners()>0 && 
 							KafkaConsumer.getIsListening() &&
 							!KafkaConsumer.getStartedSavingData()	
 						){
@@ -394,16 +447,55 @@ public class SubscriptionsController implements SubscriptionsApi{
 				}
 				// check if it needs to wake up kafka dummy data sender through endpoint
 				if(!KafkaConsumer.getStartedReceivingData()){
-					// producer.sendMessage(requestedEvent,produce) -> hit up data producers through kafka topic "produce"
+					// hit up data producers through kafka topic "WAKE_UP"
+					kafkaProducer.sendMessage(WakeUpMessage.builder().requestedEvent(requestedEvent).requestedOffset(requestedOffset).build().toString(), "WAKE_UP");
 					// wait for data sending & saving to start
-					while(KafkaConsumer.getIsListening() && !KafkaConsumer.getStartedSavingData()){
+					long maxWait = 200;
+					long wait_time = 0;
+					boolean responded = false;
+					List<DiscoverMessage> discoverMessages = new ArrayList<>();
+					while(wait_time<maxWait){
+						while(KafkaConsumer.discoverMessageQueue.size()>0){
+							discoverMessages.add(objectMapper.reader().readValue(KafkaConsumer.discoverMessageQueue.take(),DiscoverMessage.class));
+							responded = true;
+						}
+						if(responded){
+							// remove duplicate messages
+							discoverMessages = new ArrayList<>(new LinkedHashSet<>(discoverMessages));
+							break;
+						}
 						Thread.sleep(50);
+						wait_time += 50;
 					}
-					Thread.sleep(50);
+					int isDataAvailable = 0;
+					int expectedWaitTime = 0;
+					for(DiscoverMessage msg : discoverMessages){
+						if(msg.getHasData() && msg.getAvailableOffset()!=null && msg.getRequestedOffset()!=null){
+							if(msg.getAvailableOffset()>=msg.getRequestedOffset()){
+								isDataAvailable = 1;
+								break;
+							}
+							else{
+								expectedWaitTime = msg.getRequestedOffset() - msg.getAvailableOffset();
+							}
+						}
+						if(!msg.getHasData() && msg.getAvailableOffset()!=null && msg.getRequestedOffset()!=null && msg.getExpectedWaitTime()!=null){
+							expectedWaitTime = msg.getExpectedWaitTime() + msg.getRequestedOffset();
+						}
+					}
+					wait_time = 0;
+					if(isDataAvailable==1){
+						while(KafkaConsumer.getIsListening() && !KafkaConsumer.getStartedSavingData() && wait_time<maxWait){
+							Thread.sleep(50);
+							wait_time += 50;
+						}
+					}
+					return new Integer[]{isDataAvailable, expectedWaitTime};
 				}
 				break;
 			default:
 				break;	
-		}		
+		}
+		return new Integer[]{null, null};		
 	}
 }
