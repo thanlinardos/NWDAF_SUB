@@ -5,12 +5,10 @@ package io.nwdaf.eventsubscription;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -74,9 +72,6 @@ public class NwdafSubApplication {
 
 	@Autowired
 	KafkaProducer producer;
-
-	@Value(value = "${nnwdaf-eventsubscription.kafka.topic}")
-	String topicName;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(NwdafSubApplication.class, args);
@@ -117,7 +112,7 @@ public class NwdafSubApplication {
 		NnwdafEventsSubscription subscription = objectMapper.reader().readValue(test,NnwdafEventsSubscription.class);
 		final String payload = objectMapper.writeValueAsString(subscription);
 		return args -> {
-			producer.sendMessage(payload,topicName);
+			producer.sendMessage(payload,"topic1");
 		};
 	}
 

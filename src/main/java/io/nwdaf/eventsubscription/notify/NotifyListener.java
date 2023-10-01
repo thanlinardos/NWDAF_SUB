@@ -144,7 +144,7 @@ public class NotifyListener {
     			EventSubscription event = sub.getEventSubscriptions().get(eventIndex);
     			Integer repPeriod = NotificationUtil.needsServing(sub, eventIndex);
 				// build the notification
-    			NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
+    			NnwdafEventsSubscriptionNotification notification = notifBuilder.build(id);
 				section_a += (System.nanoTime()-lst) / 1000l;
     			st  = System.nanoTime();
     			try {

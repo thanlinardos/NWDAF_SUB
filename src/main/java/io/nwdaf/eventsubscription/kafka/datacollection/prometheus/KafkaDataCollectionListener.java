@@ -2,7 +2,6 @@ package io.nwdaf.eventsubscription.kafka.datacollection.prometheus;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +27,6 @@ public class KafkaDataCollectionListener {
 	private static Boolean startedSendingData = false;
 	private static final Object startedSendingDataLock = new Object();
 	private static Logger logger = LoggerFactory.getLogger(KafkaDataCollectionListener.class);
-	
-	@Value(value = "${nnwdaf-eventsubscription.kafka.topic}")
-    String topicName;
 
 	@Value(value = "${nnwdaf-eventsubscription.prometheus_url}")
 	String prometheusUrl;
@@ -72,7 +68,7 @@ public class KafkaDataCollectionListener {
 								for(int j=0;j<nfloadinfos.size();j++) {
 									try {
 										// System.out.println("nfloadinfo"+j+": "+nfloadinfos.get(j));
-										producer.sendMessage(objectMapper.writeValueAsString(nfloadinfos.get(j)),topicName);
+										producer.sendMessage(objectMapper.writeValueAsString(nfloadinfos.get(j)),eType.toString());
 										synchronized(startedSendingDataLock){
 											startedSendingData = true;
 										}

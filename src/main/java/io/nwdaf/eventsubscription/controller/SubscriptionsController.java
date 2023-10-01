@@ -1,10 +1,8 @@
 package io.nwdaf.eventsubscription.controller;
 
 import java.io.IOException;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -28,17 +26,10 @@ import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.utilities.ConvertUtil;
 import io.nwdaf.eventsubscription.utilities.OtherUtil;
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;
-import io.nwdaf.eventsubscription.customModel.DiscoverMessage;
-import io.nwdaf.eventsubscription.customModel.WakeUpMessage;
-import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerListener;
 import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerPublisher;
-import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionListener;
 import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionPublisher;
-import io.nwdaf.eventsubscription.kafka.KafkaConsumer;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
-import io.nwdaf.eventsubscription.kafka.datacollection.dummy.KafkaDummyDataListener;
 import io.nwdaf.eventsubscription.kafka.datacollection.dummy.KafkaDummyDataPublisher;
-import io.nwdaf.eventsubscription.kafka.datacollection.prometheus.KafkaDataCollectionListener;
 import io.nwdaf.eventsubscription.kafka.datacollection.prometheus.KafkaDataCollectionPublisher;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
@@ -273,35 +264,45 @@ public class SubscriptionsController implements SubscriptionsApi{
 				continue;
 			}
 			//check whether data is available to be gathered
-			NotificationBuilder notifBuilder = new NotificationBuilder();
-			NnwdafEventsSubscriptionNotification notification = notifBuilder.initNotification(id);
+			NnwdafEventsSubscriptionNotification notification = new NotificationBuilder().build(id);
+			boolean isDataAvailable=false;
+			Integer expectedWaitTime=null;
 			try {
 				// wakeUpDataProducer("kafka_local_dummy", eType);
 				// wakeUpDataProducer("kafka_local_prom", eType);
-				Integer[] wakeUpResult = wakeUpDataProducer("kafka", eType, no_secs);
-				boolean isDataAvailable = wakeUpResult[0]==1;
-				int expectedWaitTime = wakeUpResult[1];
-				
-				notification=NotificationUtil.getNotification(body, i, notification, metricsService);
-				if(body.getEvtReq()!=null && body.getEvtReq().isImmRep() && notification!=null){
-					body.addEventNotificationsItem(notification.getEventNotifications().get(i));
-				}
-			} catch (JsonProcessingException e) {
+				Integer[] wakeUpResult = NotificationUtil.wakeUpDataProducer("kafka", eType, no_secs,dataCollectionPublisher,dummyDataProducerPublisher,
+					kafkaDummyDataPublisher,kafkaDataCollectionPublisher,kafkaProducer,objectMapper);
+				isDataAvailable = wakeUpResult[0]==1;
+				expectedWaitTime = wakeUpResult[1];
+			} catch(IOException e){
 				failed_notif=true;
-				logger.error("Failed to collect data for event: "+eType,e);
+				logger.error("Couldn't connect to kafka topic WAKE_UP.", e);
 				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
 			} catch(InterruptedException e){
 				failed_notif=true;
 				logger.error("Thread failed to wait for datacollection to start for event: "+eType,e);
 				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
-			} catch(IOException e){
+			}
+			if(!isDataAvailable){
 				failed_notif=true;
-				logger.error("Couldn't connect to kafka topic WAKE_UP.", e);
+				logger.info("Informed by collector(s) that data is not available");
 				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
-			} catch(Exception e) {
-				failed_notif=true;
-				logger.error("Failed to collect data for event(timescaledb error): "+eType,e);
-				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+			}
+			if(!failed_notif){
+				try {
+					notification=NotificationUtil.getNotification(body, i, notification, metricsService);
+					if(body.getEvtReq()!=null && body.getEvtReq().isImmRep() && notification!=null){
+						body.addEventNotificationsItem(notification.getEventNotifications().get(i));
+					}
+				} catch (JsonProcessingException e) {
+					failed_notif=true;
+					logger.error("Failed to collect data for event: "+eType,e);
+					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+				} catch(Exception e) {
+					failed_notif=true;
+					logger.error("Failed to collect data for event(timescaledb error): "+eType,e);
+					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+				}
 			}
 			if(notification==null) {
 				logger.error("Failed to collect data for event: "+eType);
@@ -314,7 +315,8 @@ public class SubscriptionsController implements SubscriptionsApi{
 			else {
 				canServeSubscription.set(i, true);
 				if(immRep) {
-					body.addEventNotificationsItem(notification.getEventNotifications().get(0));
+					body.addEventNotificationsItem(notification.getEventNotifications().get(0)
+							.rvWaitTime(expectedWaitTime));
 				}
 			}
 			logger.info("notifMethod="+eventIndexToNotifMethodMap.get(i)+", repPeriod="+eventIndexToRepPeriodMap.get(i));
@@ -365,16 +367,6 @@ public class SubscriptionsController implements SubscriptionsApi{
 	}
 
 	@Override
-	public ResponseEntity<Void> deleteNWDAFEventsSubscription(String subscriptionId) {
-		try{
-			subscriptionService.delete(ParserUtil.safeParseLong(subscriptionId));
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-		}catch(Exception e){
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		}
-	}
-
-	@Override
 	public ResponseEntity<NnwdafEventsSubscription> updateNWDAFEventsSubscription(String subscriptionId,
 			@Valid NnwdafEventsSubscription body) {
 		HttpHeaders responseHeaders = new HttpHeaders();
@@ -384,118 +376,14 @@ public class SubscriptionsController implements SubscriptionsApi{
 		responseHeaders.set("Location",subsUri);
 		return ResponseEntity.status(HttpStatus.OK).headers(responseHeaders).body(body);
 	}
-	
-	public Integer[] wakeUpDataProducer(String choise, NwdafEventEnum requestedEvent, Integer requestedOffset) throws InterruptedException, IOException{
-		switch(choise){
-			case "prom":
-				// check if it needs to wake up data collector
-				if(DataCollectionListener.getNo_dataCollectionEventListeners()==0){
-					dataCollectionPublisher.publishDataCollection("");
-					//wait for data collection to start
-					while((!DataCollectionListener.getStartedSavingData()) && DataCollectionListener.getNo_dataCollectionEventListeners()>0){
-						Thread.sleep(50);
-					}
-					Thread.sleep(50);
-				}
-				break;
-			case "dummy":
-				// check if it needs to wake up dummy data producer
-				if(DummyDataProducerListener.getNo_dummyDataProducerEventListeners()==0){
-					dummyDataProducerPublisher.publishDataCollection("dummy data production");
-					//wait for data publishing to start
-					while((!DummyDataProducerListener.getStartedSavingData()) && DummyDataProducerListener.getNo_dummyDataProducerEventListeners()>0){
-						Thread.sleep(50);
-					}
-					Thread.sleep(50);
-				}
-				break;
-			case "kafka_local_dummy":
-				// check if it needs to wake up kafka dummy data sender
-				if(KafkaDummyDataListener.getNo_kafkaDummyDataListeners()==0){
-					kafkaDummyDataPublisher.publishDataCollection("kafka dummy data production");
-					//wait for data sending & saving to start
-					while(  !KafkaDummyDataListener.getStartedSendingData() &&
-							KafkaDummyDataListener.getNo_kafkaDummyDataListeners()>0 && 
-							KafkaConsumer.getIsListening() &&
-							!KafkaConsumer.getStartedSavingData()	
-						){
-						Thread.sleep(50);
-					}
-					Thread.sleep(50);
-				}
-				break;
-			case "kafka_local_prom":
-				// check if it needs to wake up kafka prom data collector
-				if(KafkaDataCollectionListener.getNo_dataCollectionEventListeners()==0){
-					kafkaDataCollectionPublisher.publishDataCollection("kafka prom data production");
-					//wait for data sending & saving to start
-					while(  !KafkaDataCollectionListener.getStartedSendingData() &&
-							KafkaDataCollectionListener.getNo_dataCollectionEventListeners()>0 && 
-							KafkaConsumer.getIsListening() &&
-							!KafkaConsumer.getStartedSavingData()	
-						){
-						Thread.sleep(50);
-					}
-					Thread.sleep(50);
-				}
-				break;
-			case "kafka":
-				// start the kafka consumer listener
-				if(!KafkaConsumer.getIsListening()){
-					KafkaConsumer.startListening();
-					Thread.sleep(50);
-				}
-				// check if it needs to wake up kafka dummy data sender through endpoint
-				if(!KafkaConsumer.getStartedReceivingData()){
-					// hit up data producers through kafka topic "WAKE_UP"
-					kafkaProducer.sendMessage(WakeUpMessage.builder().requestedEvent(requestedEvent).requestedOffset(requestedOffset).build().toString(), "WAKE_UP");
-					// wait for data sending & saving to start
-					long maxWait = 200;
-					long wait_time = 0;
-					boolean responded = false;
-					List<DiscoverMessage> discoverMessages = new ArrayList<>();
-					while(wait_time<maxWait){
-						while(KafkaConsumer.discoverMessageQueue.size()>0){
-							discoverMessages.add(objectMapper.reader().readValue(KafkaConsumer.discoverMessageQueue.take(),DiscoverMessage.class));
-							responded = true;
-						}
-						if(responded){
-							// remove duplicate messages
-							discoverMessages = new ArrayList<>(new LinkedHashSet<>(discoverMessages));
-							break;
-						}
-						Thread.sleep(50);
-						wait_time += 50;
-					}
-					int isDataAvailable = 0;
-					int expectedWaitTime = 0;
-					for(DiscoverMessage msg : discoverMessages){
-						if(msg.getHasData() && msg.getAvailableOffset()!=null && msg.getRequestedOffset()!=null){
-							if(msg.getAvailableOffset()>=msg.getRequestedOffset()){
-								isDataAvailable = 1;
-								break;
-							}
-							else{
-								expectedWaitTime = msg.getRequestedOffset() - msg.getAvailableOffset();
-							}
-						}
-						if(!msg.getHasData() && msg.getAvailableOffset()!=null && msg.getRequestedOffset()!=null && msg.getExpectedWaitTime()!=null){
-							expectedWaitTime = msg.getExpectedWaitTime() + msg.getRequestedOffset();
-						}
-					}
-					wait_time = 0;
-					if(isDataAvailable==1){
-						while(KafkaConsumer.getIsListening() && !KafkaConsumer.getStartedSavingData() && wait_time<maxWait){
-							Thread.sleep(50);
-							wait_time += 50;
-						}
-					}
-					return new Integer[]{isDataAvailable, expectedWaitTime};
-				}
-				break;
-			default:
-				break;	
+
+	@Override
+	public ResponseEntity<Void> deleteNWDAFEventsSubscription(String subscriptionId) {
+		try{
+			subscriptionService.delete(ParserUtil.safeParseLong(subscriptionId));
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		}catch(Exception e){
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
-		return new Integer[]{null, null};		
 	}
 }

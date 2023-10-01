@@ -63,6 +63,7 @@ services:
     image: confluentinc/cp-kafka:7.3.3
     hostname: kafka1
     container_name: kafka1
+    restart: always
     ports:
       - "39092:39092"
     networks:
@@ -143,6 +144,19 @@ services:
       - ./clusterID:/tmp/clusterID
     command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
   
+  nwdafSubCollector:
+    container_name: nwdafSubCollector
+    image: thanlinardos/nwdaf_sub_collector:0.0.2-SNAPSHOT
+    # restart: always
+    ports:
+      - "${collector_port}:${collector_port}"
+    networks:
+      - monitor-net
+    environment:
+      spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
+      spring.kafka.consumer.group-id: events
+      logging.level.org.apache.kafka: false
+      nnwdaf-eventsubscription.prometheus_url: http://${prom_host}:${prom_port}/api/v1/query
   nwdafSub:
     container_name: nwdafSub
     image: thanlinardos/nwdaf_sub:0.0.2-SNAPSHOT
@@ -161,7 +175,7 @@ services:
       nnwdaf-eventsubscription.client.dev_url: "${client_host}:${client_port}/client"
       nnwdaf-eventsubscription.client.prod_url: "${client_host}:${client_port}/client"
       nnwdaf-eventsubscription.init: false
-      nnwdaf-eventsubscription.prometheus_url: http://prometheus:9090/api/v1/query
+      nnwdaf-eventsubscription.prometheus_url: http://${prom_host}:${prom_port}/api/v1/query
       nnwdaf-eventsubscription.containerNames: pg_container,pgadmin4_container,nwdafSub
       SPRING.DATASOURCE.NAME: eventsubscription
       SPRING.DATASOURCE.URL: jdbc:postgresql://db:5432/postgres?currentSchema=public 
@@ -182,6 +196,9 @@ services:
       management.endpoint.health.show-details: always
       # logging.level.org.hibernate.SQL: DEBUG
       # logging.level.org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+      spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
+      spring.kafka.consumer.group-id: events
+      logging.level.org.apache.kafka: false
   nwdafSubClient:
     container_name: nwdafSubClient
     image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
