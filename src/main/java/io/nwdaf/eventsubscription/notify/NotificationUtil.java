@@ -1,9 +1,7 @@
 package io.nwdaf.eventsubscription.notify;
 
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -15,18 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import io.nwdaf.eventsubscription.NwdafSubApplication;
-import io.nwdaf.eventsubscription.customModel.DiscoverMessage;
-import io.nwdaf.eventsubscription.customModel.WakeUpMessage;
-import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerListener;
-import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerPublisher;
-import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionListener;
-import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionPublisher;
-import io.nwdaf.eventsubscription.kafka.KafkaConsumer;
-import io.nwdaf.eventsubscription.kafka.KafkaProducer;
-import io.nwdaf.eventsubscription.kafka.datacollection.dummy.KafkaDummyDataListener;
-import io.nwdaf.eventsubscription.kafka.datacollection.dummy.KafkaDummyDataPublisher;
-import io.nwdaf.eventsubscription.kafka.datacollection.prometheus.KafkaDataCollectionListener;
-import io.nwdaf.eventsubscription.kafka.datacollection.prometheus.KafkaDataCollectionPublisher;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
@@ -49,7 +35,7 @@ public class NotificationUtil {
 	public static Integer needsServing(NnwdafEventsSubscription body, Integer eventIndex) {
 		NotificationMethodEnum notificationMethod=null;
 		Integer repetitionPeriod=null;
-		
+		logger.hashCode();
 		if(body.getEventSubscriptions().get(eventIndex)!=null) {
 			if(body.getEventSubscriptions().get(eventIndex).getNotificationMethod()!=null &&body.getEventSubscriptions().get(eventIndex).getNotificationMethod().getNotifMethod()!=null) {
 				notificationMethod = body.getEventSubscriptions().get(eventIndex).getNotificationMethod().getNotifMethod();
@@ -60,21 +46,17 @@ public class NotificationUtil {
 		}
 		
 		if(body.getEvtReq()!=null) {
-			if(body.getEvtReq().getNotifFlag()!=null) {
-				if(body.getEvtReq().getNotifFlag().getNotifFlag()!=null) {
-					if(body.getEvtReq().getNotifFlag().getNotifFlag().equals(NotificationFlagEnum.DEACTIVATE)) {
-						return null;
-					}
-				}
+			if(body.getEvtReq().getNotifFlag()!=null&&CheckUtil.safeCheckObjectsEquals(body.getEvtReq().getNotifFlag().getNotifFlag(), NotificationFlagEnum.DEACTIVATE)) {
+				return null;
 			}
-			if(body.getEvtReq().getNotifMethod()!=null && body.getEvtReq().getNotifMethod().getNotifMethod()!=null) {
+			if(!CheckUtil.safeCheckObjectsEquals(body.getEvtReq().getNotifMethod().getNotifMethod(), null)) {
 				notificationMethod = body.getEvtReq().getNotifMethod().getNotifMethod();
 				if(body.getEvtReq().getNotifMethod().getNotifMethod().equals(NotificationMethodEnum.PERIODIC)) {
 					repetitionPeriod = body.getEvtReq().getRepPeriod();
 				}
 			}
 		}
-		if(notificationMethod==null || notificationMethod.equals(NotificationMethodEnum.THRESHOLD)) {
+		if(CheckUtil.safeCheckObjectsEquals(notificationMethod,NotificationMethodEnum.THRESHOLD)) {
 			return 0;
 		}
 		return repetitionPeriod;
@@ -208,119 +190,5 @@ public class NotificationUtil {
 		return notification;
 	}
 	
-	public static Integer[] wakeUpDataProducer(String choise, NwdafEventEnum requestedEvent, Integer requestedOffset,
-		DataCollectionPublisher dataCollectionPublisher,DummyDataProducerPublisher dummyDataProducerPublisher,
-		KafkaDummyDataPublisher kafkaDummyDataPublisher,KafkaDataCollectionPublisher kafkaDataCollectionPublisher,
-		KafkaProducer kafkaProducer, ObjectMapper objectMapper) throws InterruptedException, IOException{
-		switch(choise){
-			case "prom":
-				// check if it needs to wake up data collector
-				if(DataCollectionListener.getNo_dataCollectionEventListeners()==0){
-					dataCollectionPublisher.publishDataCollection("");
-					//wait for data collection to start
-					while((!DataCollectionListener.getStartedSavingData()) && DataCollectionListener.getNo_dataCollectionEventListeners()>0){
-						Thread.sleep(50);
-					}
-					Thread.sleep(50);
-				}
-				break;
-			case "dummy":
-				// check if it needs to wake up dummy data producer
-				if(DummyDataProducerListener.getNo_dummyDataProducerEventListeners()==0){
-					dummyDataProducerPublisher.publishDataCollection("dummy data production");
-					//wait for data publishing to start
-					while((!DummyDataProducerListener.getStartedSavingData()) && DummyDataProducerListener.getNo_dummyDataProducerEventListeners()>0){
-						Thread.sleep(50);
-					}
-					Thread.sleep(50);
-				}
-				break;
-			case "kafka_local_dummy":
-				// check if it needs to wake up kafka dummy data sender
-				if(KafkaDummyDataListener.getNo_kafkaDummyDataListeners()==0){
-					kafkaDummyDataPublisher.publishDataCollection("kafka dummy data production");
-					//wait for data sending & saving to start
-					while(  !KafkaDummyDataListener.getStartedSendingData() &&
-							KafkaDummyDataListener.getNo_kafkaDummyDataListeners()>0 && 
-							KafkaConsumer.getIsListening() &&
-							!KafkaConsumer.getStartedSavingData()	
-						){
-						Thread.sleep(50);
-					}
-					Thread.sleep(50);
-				}
-				break;
-			case "kafka_local_prom":
-				// check if it needs to wake up kafka prom data collector
-				if(KafkaDataCollectionListener.getNo_dataCollectionEventListeners()==0){
-					kafkaDataCollectionPublisher.publishDataCollection("kafka prom data production");
-					//wait for data sending & saving to start
-					while(  !KafkaDataCollectionListener.getStartedSendingData() &&
-							KafkaDataCollectionListener.getNo_dataCollectionEventListeners()>0 && 
-							KafkaConsumer.getIsListening() &&
-							!KafkaConsumer.getStartedSavingData()	
-						){
-						Thread.sleep(50);
-					}
-					Thread.sleep(50);
-				}
-				break;
-			case "kafka":
-				// start the kafka consumer listener
-				if(!KafkaConsumer.getIsListening()){
-					KafkaConsumer.startListening();
-					Thread.sleep(50);
-				}
-				// hit up data producers through kafka topic "WAKE_UP"
-				kafkaProducer.sendMessage(WakeUpMessage.builder().requestedEvent(requestedEvent).requestedOffset(requestedOffset).build().toString(), "WAKE_UP");
-				// wait for data sending & saving to start
-				long maxWait = 200;
-				long wait_time = 0;
-				boolean responded = false;
-				List<DiscoverMessage> discoverMessages = new ArrayList<>();
-				while(wait_time<maxWait){
-					while(KafkaConsumer.discoverMessageQueue.size()>0){
-						try{
-						discoverMessages.add(objectMapper.reader().readValue(KafkaConsumer.discoverMessageQueue.take(),DiscoverMessage.class));
-						} catch(IOException e){}
-						responded = true;
-					}
-					if(responded){
-						// remove duplicate messages
-						discoverMessages = new ArrayList<>(new LinkedHashSet<>(discoverMessages));
-						break;
-					}
-					Thread.sleep(50);
-					wait_time += 50;
-				}
-				int isDataAvailable = 0;
-				int expectedWaitTime = 0;
-				for(DiscoverMessage msg : discoverMessages){
-					System.out.println("discover msg: "+msg);
-					if(msg.getHasData() && msg.getAvailableOffset()!=null && msg.getRequestedOffset()!=null){
-						if(msg.getAvailableOffset()>=msg.getRequestedOffset()){
-							isDataAvailable = 1;
-							break;
-						}
-						else{
-							expectedWaitTime = msg.getRequestedOffset() - msg.getAvailableOffset();
-						}
-					}
-					if(!msg.getHasData() && msg.getAvailableOffset()!=null && msg.getRequestedOffset()!=null && msg.getExpectedWaitTime()!=null){
-						expectedWaitTime = msg.getExpectedWaitTime() + msg.getRequestedOffset();
-					}
-				}
-				wait_time = 0;
-				if(isDataAvailable==1){
-					while(KafkaConsumer.getIsListening() && !KafkaConsumer.getStartedSavingData() && wait_time<maxWait){
-						Thread.sleep(50);
-						wait_time += 50;
-					}
-				}
-				return new Integer[]{isDataAvailable, expectedWaitTime};
-			default:
-				break;	
-		}
-		return new Integer[]{null, null};		
-	}
+	
 }

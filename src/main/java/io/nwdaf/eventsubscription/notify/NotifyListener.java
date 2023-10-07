@@ -2,6 +2,7 @@ package io.nwdaf.eventsubscription.notify;
 
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,7 @@ public class NotifyListener {
 	ObjectMapper objectMapper;
 
 	// @Autowired
-	RestTemplate template;
+	RestTemplate restTemplate;
 
 	@Value("${trust.store}")
     private Resource trustStore;
@@ -81,7 +82,7 @@ public class NotifyListener {
 			}
 		}
     	Logger logger = NwdafSubApplication.getLogger();
-    	List<NnwdafEventsSubscription> subs = null;
+    	List<NnwdafEventsSubscription> subs = new ArrayList<>();
     	try {
     		subs = subscriptionService.findAll();
     	}catch(Exception e) {
@@ -121,7 +122,7 @@ public class NotifyListener {
 		ResponseEntity<NnwdafEventsSubscriptionNotification> client_response;
 		RestTemplateFactoryConfig.setTrustStore(trustStore);
 		RestTemplateFactoryConfig.setTrustStorePassword(trustStorePassword);
-		template = new RestTemplate(RestTemplateFactoryConfig.createRestTemplateFactory());
+		restTemplate = new RestTemplate(RestTemplateFactoryConfig.createRestTemplateFactory());
     	while(no_served_subs>0 && no_notifEventListeners>0) {
 			long st;
 			no_sent_notifs=0;
@@ -180,7 +181,7 @@ public class NotifyListener {
 	        		client_request = new HttpEntity<>(notification);
 	        		client_response=null;
 	        		try {
-	        			client_response = template.postForEntity(sub.getNotificationURI()+"/notify",client_request, NnwdafEventsSubscriptionNotification.class);
+	        			client_response = restTemplate.postForEntity(sub.getNotificationURI()+"/notify",client_request, NnwdafEventsSubscriptionNotification.class);
 					}catch(RestClientException e) {
 	        			logger.error("Error connecting to client "+sub.getNotificationURI());
 						logger.info(e.toString());

@@ -89,20 +89,22 @@ public class NwdafSubApplication {
 			Long subId = 0l;
 			File test = new File("test.json");
 			String uri = env.getProperty("nnwdaf-eventsubscription.client.prod-url");
-			Integer default_port = ParserUtil.safeParseInteger(env.getProperty("nnwdaf-eventsubscription.client.port"));
-			for(int i=0;i<40;i++){
-				for(int j=0;j<5;j++){
-					Integer current_port = default_port+j;
-					subscriptionsService.create(objectMapper.reader().readValue(test,NnwdafEventsSubscription.class)
-						.notificationURI(uri.replace(default_port.toString(), current_port.toString())));
+			if(uri != null){
+				Integer default_port = ParserUtil.safeParseInteger(env.getProperty("nnwdaf-eventsubscription.client.port"));
+				for(int i=0;i<40;i++){
+					for(int j=0;j<5;j++){
+						Integer current_port = default_port+j;
+						subscriptionsService.create(objectMapper.reader().readValue(test,NnwdafEventsSubscription.class)
+							.notificationURI(uri.replace(default_port.toString(), current_port.toString())));
+					}
 				}
+				// dataCollectionPublisher.publishDataCollection("");
+				// dummyDataProducerPublisher.publishDataCollection("dummy data production");
+				kafkaDummyDataPublisher.publishDataCollection("dummy data production through kafka");
+				notifyPublisher.publishNotification(subId);
+				Thread.sleep(100000);
+				NotifyListener.stop();
 			}
-			// dataCollectionPublisher.publishDataCollection("");
-			// dummyDataProducerPublisher.publishDataCollection("dummy data production");
-			kafkaDummyDataPublisher.publishDataCollection("dummy data production through kafka");
-			notifyPublisher.publishNotification(subId);
-			Thread.sleep(100000);
-			NotifyListener.stop();
 		};
 	}
 

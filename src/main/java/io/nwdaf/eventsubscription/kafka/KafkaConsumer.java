@@ -14,6 +14,8 @@ import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.service.MetricsService;
+import lombok.Getter;
+import lombok.Setter;
 
 @Component
 public class KafkaConsumer {
@@ -23,26 +25,42 @@ public class KafkaConsumer {
 
 	@Autowired
 	ObjectMapper objectMapper;
+	
+	@Getter
+	private static Boolean startedReceivingData = false;
+	@Getter
+	private static final Object startedReceivingDataLock = new Object();
 
-	public static Boolean startedReceivingData = false;
-	public static final Object startedReceivingDataLock = new Object();
+	@Getter
+	private static Boolean startedSavingData = false;
+	@Getter
+	private static final Object startedSavingDataLock = new Object();
 
-	public static Boolean startedSavingData = false;
-	public static final Object startedSavingDataLock = new Object();
+	@Getter @Setter
+	private static Boolean isListening = true;
+	@Getter
+	private static final Object isListeningLock = new Object();
 
-	public static Boolean isListening = true;
-	public static final Object isListeningLock = new Object();
+	@Getter
+	private static Boolean startedDiscoveringCollectors = false;
+	@Getter
+	private static final Object startedDiscoveringCollectorsLock = new Object();
+
+	@Getter @Setter
+	private static Boolean isDiscovering = true;
+	@Getter
+	private static final Object isDiscoveringLock = new Object();
 
 	public static SynchronousQueue<String> discoverMessageQueue = new SynchronousQueue<>();
 
-    @KafkaListener(topics = {"NF_LOAD","UE_MOBILITY","DISCOVER"})
+    @KafkaListener(topics = {"NF_LOAD","UE_MOBILITY"}, groupId = "event", containerFactory = "kafkaListenerContainerFactoryEvent")
 	public String dataListener(ConsumerRecord<String,String> record){
 		String topic = record.topic();
 		String in = record.value();
 		if(!isListening){
 			return "";
 		}
-		startedReceivingData = true;
+		startedReceiving();
 		// System.out.println(in);
 		NfLoadLevelInformation nfLoadLevelInformation = null;
 		UeMobility ueMobility = null;
@@ -55,9 +73,6 @@ public class KafkaConsumer {
 			case "UE_MOBILITY":
 				ueMobility = objectMapper.reader().readValue(in, UeMobility.class);
 				metricsService.create(ueMobility);
-				break;
-			case "DISCOVER":
-				discoverMessageQueue.put(in);
 				break;
 			default:
 				break;
@@ -74,28 +89,45 @@ public class KafkaConsumer {
 		return in;
 	}
 
-	public static Object getStartedsavingdatalock() {
-		return startedSavingDataLock;
+	@KafkaListener(topics = {"DISCOVER"}, groupId = "nwdaf_sub_discover", containerFactory = "kafkaListenerContainerFactoryDiscover")
+	public String discoverListener(ConsumerRecord<String,String> record){
+		String topic = record.topic();
+		String in = record.value();
+		if(!isDiscovering){
+			return "";
+		}
+		try{
+			switch(topic){
+				case "DISCOVER":
+					discoverMessageQueue.put(in);
+					startedDiscovering();
+					break;
+				default:
+					break;
+			}
+		}catch(InterruptedException e){
+			NwdafSubApplication.getLogger().error("failed to add discover msg to queue",e);
+			stopListening();
+			return "";
+		}
+		startedSaving();
+		return in;
 	}
-
-	public static Boolean getStartedSavingData() {
-		return startedSavingData;
-	}
-
-	public static Boolean getIsListening() {
-		return isListening;
-	}
-
-	public static Object getIslisteninglock() {
-		return isListeningLock;
-	}
-
 	public static void startedSaving(){
 		synchronized(startedSavingDataLock){
 			startedSavingData = true;
 		}
 	}
-	
+	public static void startedReceiving(){
+		synchronized(startedReceivingDataLock){
+			startedReceivingData = true;
+		}
+	}
+	public static void startedDiscovering(){
+		synchronized(startedDiscoveringCollectorsLock){
+			startedDiscoveringCollectors = true;
+		}
+	}
 	public static void stopListening(){
 		synchronized(isListeningLock){
 			isListening = false;
@@ -111,12 +143,5 @@ public class KafkaConsumer {
 		synchronized(isListeningLock){
 			isListening = true;
 		}
-	}
-
-	public static Object getStartedReceivingDataLock() {
-		return startedReceivingDataLock;
-	}
-	public static Boolean getStartedReceivingData() {
-		return startedReceivingData;
 	}
 }
