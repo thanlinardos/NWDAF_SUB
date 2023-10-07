@@ -144,19 +144,19 @@ services:
       - ./clusterID:/tmp/clusterID
     command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
   
-  nwdafSubCollector:
-    container_name: nwdafSubCollector
-    image: thanlinardos/nwdaf_sub_collector:0.0.2-SNAPSHOT
-    # restart: always
-    ports:
-      - "${collector_port}:${collector_port}"
-    networks:
-      - monitor-net
-    environment:
-      spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
-      spring.kafka.consumer.group-id: events
-      logging.level.org.apache.kafka: false
-      nnwdaf-eventsubscription.prometheus_url: http://${prom_host}:${prom_port}/api/v1/query
+  # nwdafSubCollector:
+  #   container_name: nwdafSubCollector
+  #   image: thanlinardos/nwdaf_sub_collector:0.0.2-SNAPSHOT
+  #   # restart: always
+  #   ports:
+  #     - "${collector_port}:${collector_port}"
+  #   networks:
+  #     - monitor-net
+  #   environment:
+  #     spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
+  #     spring.kafka.consumer.group-id: events
+  #     logging.level.org.apache.kafka: false
+  #     nnwdaf-eventsubscription.prometheus_url: http://${prom_host}:${prom_port}/api/v1/query
   nwdafSub:
     container_name: nwdafSub
     image: thanlinardos/nwdaf_sub:0.0.2-SNAPSHOT
