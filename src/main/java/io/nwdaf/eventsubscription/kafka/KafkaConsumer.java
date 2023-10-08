@@ -15,7 +15,10 @@ import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.service.MetricsService;
 import lombok.Getter;
+<<<<<<< HEAD
+=======
 import lombok.Setter;
+>>>>>>> 29357447a480a5b9499d719e9196a3687c615ae8
 
 @Component
 public class KafkaConsumer {
@@ -51,6 +54,12 @@ public class KafkaConsumer {
 	@Getter
 	private static final Object isDiscoveringLock = new Object();
 
+	public static Boolean startedDiscoveringCollectors = false;
+	public static final Object startedDiscoveringCollectorsLock = new Object();
+
+	public static Boolean isDiscovering = true;
+	public static final Object isDiscoveringLock = new Object();
+
 	public static SynchronousQueue<String> discoverMessageQueue = new SynchronousQueue<>();
 
     @KafkaListener(topics = {"NF_LOAD","UE_MOBILITY"}, groupId = "event", containerFactory = "kafkaListenerContainerFactoryEvent")
@@ -74,7 +83,11 @@ public class KafkaConsumer {
 				ueMobility = objectMapper.reader().readValue(in, UeMobility.class);
 				metricsService.create(ueMobility);
 				break;
+<<<<<<< HEAD
+						default:
+=======
 			default:
+>>>>>>> 29357447a480a5b9499d719e9196a3687c615ae8
 				break;
 		}
 		} catch(IOException e){
@@ -89,7 +102,11 @@ public class KafkaConsumer {
 		return in;
 	}
 
+<<<<<<< HEAD
+@KafkaListener(topics = {"DISCOVER"}, groupId = "nwdaf_sub_discover", containerFactory = "kafkaListenerContainerFactoryDiscover")
+=======
 	@KafkaListener(topics = {"DISCOVER"}, groupId = "nwdaf_sub_discover", containerFactory = "kafkaListenerContainerFactoryDiscover")
+>>>>>>> 29357447a480a5b9499d719e9196a3687c615ae8
 	public String discoverListener(ConsumerRecord<String,String> record){
 		String topic = record.topic();
 		String in = record.value();
@@ -118,6 +135,19 @@ public class KafkaConsumer {
 			startedSavingData = true;
 		}
 	}
+<<<<<<< HEAD
+    public static void stoppedSaving(){
+		synchronized(startedSavingDataLock){
+			startedSavingData = false;
+		}
+	}
+	public static void startListening(){
+		synchronized(isListeningLock){
+			isListening = true;
+		}
+	}
+    public static void stopListening(){
+=======
 	public static void startedReceiving(){
 		synchronized(startedReceivingDataLock){
 			startedReceivingData = true;
@@ -129,6 +159,7 @@ public class KafkaConsumer {
 		}
 	}
 	public static void stopListening(){
+>>>>>>> 29357447a480a5b9499d719e9196a3687c615ae8
 		synchronized(isListeningLock){
 			isListening = false;
 		}
@@ -139,9 +170,27 @@ public class KafkaConsumer {
 			startedReceivingData = false;
 		}
 	}
-	public static void startListening(){
-		synchronized(isListeningLock){
-			isListening = true;
+	public static void startedDiscovering(){
+		synchronized(startedDiscoveringCollectorsLock){
+			startedDiscoveringCollectors = true;
 		}
 	}
+<<<<<<< HEAD
+	public static void stopDiscovering(){
+		synchronized(startedDiscoveringCollectorsLock){
+			startedDiscoveringCollectors = false;
+		}
+	}
+	public static void startedReceiving(){
+		synchronized(startedReceivingDataLock){
+			startedReceivingData = true;
+		}
+	}
+	public static void stopReceiving(){
+		synchronized(startedReceivingDataLock){
+			startedReceivingData = false;
+		}
+	}
+=======
+>>>>>>> 29357447a480a5b9499d719e9196a3687c615ae8
 }
