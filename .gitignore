@@ -7,7 +7,8 @@ target/
 ### STS ###
 .apt_generated
 .classpath
-.factorypaths
+.factorypath
+.project
 .settings
 .springBeans
 .sts4-cache
@@ -30,11 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-
-src/main/resources/pgadmin-data
-src/main/resources/postgres-data
-src/main/resources/influxdbv2
-src/main/resources/timescaledb-data
-pgadmin-data
-bin
-src/main/resources/compose_files/clusterID
