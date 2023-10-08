@@ -14,11 +14,6 @@ import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.service.MetricsService;
-import lombok.Getter;
-<<<<<<< HEAD
-=======
-import lombok.Setter;
->>>>>>> 29357447a480a5b9499d719e9196a3687c615ae8
 
 @Component
 public class KafkaConsumer {
@@ -29,31 +24,12 @@ public class KafkaConsumer {
 	@Autowired
 	ObjectMapper objectMapper;
 	
-	@Getter
-	private static Boolean startedReceivingData = false;
-	@Getter
-	private static final Object startedReceivingDataLock = new Object();
-
-	@Getter
-	private static Boolean startedSavingData = false;
-	@Getter
-	private static final Object startedSavingDataLock = new Object();
-
-	@Getter @Setter
-	private static Boolean isListening = true;
-	@Getter
-	private static final Object isListeningLock = new Object();
-
-	@Getter
-	private static Boolean startedDiscoveringCollectors = false;
-	@Getter
-	private static final Object startedDiscoveringCollectorsLock = new Object();
-
-	@Getter @Setter
-	private static Boolean isDiscovering = true;
-	@Getter
-	private static final Object isDiscoveringLock = new Object();
-
+	public static Boolean startedReceivingData = false;
+	public static final Object startedReceivingDataLock = new Object();
+	public static Boolean startedSavingData = false;
+	public static final Object startedSavingDataLock = new Object();
+	public static Boolean isListening = true;
+	public static final Object isListeningLock = new Object();
 	public static Boolean startedDiscoveringCollectors = false;
 	public static final Object startedDiscoveringCollectorsLock = new Object();
 
@@ -83,11 +59,7 @@ public class KafkaConsumer {
 				ueMobility = objectMapper.reader().readValue(in, UeMobility.class);
 				metricsService.create(ueMobility);
 				break;
-<<<<<<< HEAD
-						default:
-=======
 			default:
->>>>>>> 29357447a480a5b9499d719e9196a3687c615ae8
 				break;
 		}
 		} catch(IOException e){
@@ -102,11 +74,7 @@ public class KafkaConsumer {
 		return in;
 	}
 
-<<<<<<< HEAD
 @KafkaListener(topics = {"DISCOVER"}, groupId = "nwdaf_sub_discover", containerFactory = "kafkaListenerContainerFactoryDiscover")
-=======
-	@KafkaListener(topics = {"DISCOVER"}, groupId = "nwdaf_sub_discover", containerFactory = "kafkaListenerContainerFactoryDiscover")
->>>>>>> 29357447a480a5b9499d719e9196a3687c615ae8
 	public String discoverListener(ConsumerRecord<String,String> record){
 		String topic = record.topic();
 		String in = record.value();
@@ -135,7 +103,6 @@ public class KafkaConsumer {
 			startedSavingData = true;
 		}
 	}
-<<<<<<< HEAD
     public static void stoppedSaving(){
 		synchronized(startedSavingDataLock){
 			startedSavingData = false;
@@ -147,19 +114,6 @@ public class KafkaConsumer {
 		}
 	}
     public static void stopListening(){
-=======
-	public static void startedReceiving(){
-		synchronized(startedReceivingDataLock){
-			startedReceivingData = true;
-		}
-	}
-	public static void startedDiscovering(){
-		synchronized(startedDiscoveringCollectorsLock){
-			startedDiscoveringCollectors = true;
-		}
-	}
-	public static void stopListening(){
->>>>>>> 29357447a480a5b9499d719e9196a3687c615ae8
 		synchronized(isListeningLock){
 			isListening = false;
 		}
@@ -175,7 +129,6 @@ public class KafkaConsumer {
 			startedDiscoveringCollectors = true;
 		}
 	}
-<<<<<<< HEAD
 	public static void stopDiscovering(){
 		synchronized(startedDiscoveringCollectorsLock){
 			startedDiscoveringCollectors = false;
@@ -191,6 +144,4 @@ public class KafkaConsumer {
 			startedReceivingData = false;
 		}
 	}
-=======
->>>>>>> 29357447a480a5b9499d719e9196a3687c615ae8
 }

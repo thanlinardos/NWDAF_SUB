@@ -190,7 +190,6 @@ public class NotificationUtil {
 		return notification;
 	}
 	
-<<<<<<< HEAD
 	public static Integer[] wakeUpDataProducer(String choise, NwdafEventEnum requestedEvent, Integer requestedOffset,
 		DataCollectionPublisher dataCollectionPublisher,DummyDataProducerPublisher dummyDataProducerPublisher,
 		KafkaDummyDataPublisher kafkaDummyDataPublisher,KafkaDataCollectionPublisher kafkaDataCollectionPublisher,
@@ -306,7 +305,4 @@ public class NotificationUtil {
 		}
 		return new Integer[]{null, null};		
 	}
-=======
-	
->>>>>>> 29357447a480a5b9499d719e9196a3687c615ae8
 }
