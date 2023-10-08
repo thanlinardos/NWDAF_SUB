@@ -17,6 +17,11 @@
 		<java.version>17</java.version>
 	</properties>
 	<packaging>jar</packaging>
+	<repository>
+      <id>my-repo</id>
+      <name>My Repository</name>
+      <url>file:C:/thanlinardos/repository</url>
+    </repository>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -113,11 +118,6 @@
 		<dependency>
 			<groupId>io.nwdaf</groupId>
 			<artifactId>nwdaf_library</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>io.nwdaf</groupId>
-			<artifactId>NWDAF_SUB_CLIENT</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
