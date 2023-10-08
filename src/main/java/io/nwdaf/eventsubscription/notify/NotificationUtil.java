@@ -80,6 +80,9 @@ public class NotificationUtil {
 	public static Integer[] findRequestedDataOffset(EventSubscription eventSub){
 		Integer no_secs = null;
 		Integer isFuture = 0;
+		if(eventSub.getExtraReportReq()==null){
+			return new Integer[]{null,0};
+		}
 		if(eventSub.getExtraReportReq().getEndTs()!=null && eventSub.getExtraReportReq().getStartTs()!=null){
 			if(eventSub.getExtraReportReq().getEndTs().getSecond() < eventSub.getExtraReportReq().getStartTs().getSecond()){
 				return new Integer[]{null, 0};
@@ -278,7 +281,12 @@ public class NotificationUtil {
 					while(KafkaConsumer.discoverMessageQueue.size()>0){
 						try{
 						discoverMessages.add(objectMapper.reader().readValue(KafkaConsumer.discoverMessageQueue.take(),DiscoverMessage.class));
-						} catch(IOException e){}
+						} catch(IOException e){
+							logger.error("IOException: Couldn't read discover message");
+						} catch(InterruptedException e){
+							logger.error("InterruptedException: Couldn't take msg from discover queue");
+							break;
+						}
 						responded = true;
 					}
 					if(responded){

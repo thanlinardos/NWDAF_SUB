@@ -1,10 +1,13 @@
 package io.nwdaf.eventsubscription.kafka;
 
+import java.beans.BeanProperty;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,17 +30,11 @@ public class KafkaConsumerConfig {
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
-        // auto.offset.reset = "latest" --> reads only the latest message
-        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-
         return new DefaultKafkaConsumerFactory<>(properties);
     }
-
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactoryDiscover() {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactoryDiscover());
-        return factory;
+    public Consumer<String, String> consumerDiscover(@Qualifier("consumerFactoryDiscover") ConsumerFactory<String, String> consumerFactory){
+        return consumerFactory.createConsumer();
     }
     // configuration for event data consumer
     @Bean
@@ -50,7 +47,10 @@ public class KafkaConsumerConfig {
 
         return new DefaultKafkaConsumerFactory<>(properties);
     }
-
+    @Bean
+    public Consumer<String, String> consumerEvent(@Qualifier("consumerFactoryEvent") ConsumerFactory<String, String> consumerFactory){
+        return consumerFactory.createConsumer();
+    }
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactoryEvent() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();

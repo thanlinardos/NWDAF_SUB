@@ -1,11 +1,24 @@
 package io.nwdaf.eventsubscription.kafka;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.OffsetAndTimestamp;
+import org.apache.kafka.common.PartitionInfo;
+import org.apache.kafka.common.TopicPartition;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +36,14 @@ public class KafkaConsumer {
 
 	@Autowired
 	ObjectMapper objectMapper;
+
+	@Autowired
+	@Qualifier("consumerDiscover")
+    private Consumer<String, String> kafkaConsumerDiscover;
+
+	@Autowired
+	@Qualifier("consumerEvent")
+    private Consumer<String, String> kafkaConsumerEvent;
 	
 	public static Boolean startedReceivingData = false;
 	public static final Object startedReceivingDataLock = new Object();
@@ -74,29 +95,66 @@ public class KafkaConsumer {
 		return in;
 	}
 
-@KafkaListener(topics = {"DISCOVER"}, groupId = "nwdaf_sub_discover", containerFactory = "kafkaListenerContainerFactoryDiscover")
-	public String discoverListener(ConsumerRecord<String,String> record){
-		String topic = record.topic();
-		String in = record.value();
+	@Scheduled(fixedDelay = 1000)
+	public void discoverListener(){
 		if(!isDiscovering){
-			return "";
+			return;
 		}
-		try{
-			switch(topic){
-				case "DISCOVER":
-					discoverMessageQueue.put(in);
-					startedDiscovering();
-					break;
-				default:
-					break;
+		List<PartitionInfo> partitions = kafkaConsumerDiscover.partitionsFor("DISCOVER");
+
+        // Get the beginning offset for each partition and convert it to a timestamp
+        long earliestTimestamp = Long.MAX_VALUE;
+        List<TopicPartition> topicPartitions = new ArrayList<>();
+        for (PartitionInfo partition : partitions) {
+            TopicPartition topicPartition = new TopicPartition("DISCOVER", partition.partition());
+            topicPartitions.add(topicPartition);
+            kafkaConsumerDiscover.assign(Collections.singletonList(topicPartition));
+            kafkaConsumerDiscover.seekToBeginning(Collections.singletonList(topicPartition));
+
+            long beginningOffset = kafkaConsumerDiscover.position(topicPartition);
+			OffsetAndTimestamp offsetAndTimestamp = kafkaConsumerDiscover.offsetsForTimes(Collections.singletonMap(topicPartition, beginningOffset)).get(topicPartition);
+            if(offsetAndTimestamp!=null){
+				long partitionTimestamp = offsetAndTimestamp.timestamp();
+				if (partitionTimestamp < earliestTimestamp) {
+					earliestTimestamp = partitionTimestamp;
+				}
 			}
-		}catch(InterruptedException e){
-			NwdafSubApplication.getLogger().error("failed to add discover msg to queue",e);
-			stopListening();
-			return "";
+        }
+		if(earliestTimestamp == Long.MAX_VALUE){
+			return;
 		}
-		startedSaving();
-		return in;
+        // Convert the earliest timestamp to a human-readable format
+        String formattedTimestamp = Instant.ofEpochMilli(earliestTimestamp).toString();
+        System.out.println("Earliest Timestamp in the DISCOVER topic: " + formattedTimestamp);
+
+        // Set the desired timestamps for the beginning and end of the range
+        long endTimestamp = Instant.parse(OffsetDateTime.now().toString()).toEpochMilli();
+        long startTimestamp = Instant.parse(OffsetDateTime.now().minusSeconds(60).toString()).toEpochMilli();
+
+        // Seek to the beginning timestamp
+        for (TopicPartition partition : topicPartitions) {
+            kafkaConsumerDiscover.seek(partition, kafkaConsumerDiscover.offsetsForTimes(Collections.singletonMap(partition, startTimestamp)).get(partition).offset());
+        }
+
+        // consume messages inside the desired range
+         while (true) {
+            ConsumerRecords<String, String> records = kafkaConsumerDiscover.poll(Duration.ofMillis(100));
+
+            // Process the received messages here
+            records.forEach(record -> {
+                // Check if the message timestamp is within the desired range
+                if (record.timestamp() <= endTimestamp) {
+                    System.out.println("Received message: " + record.value());
+                    try {
+                        discoverMessageQueue.put(record.value());
+						startedDiscovering();
+                    } catch (InterruptedException e) {
+                        System.out.println("InterruptedException while writing to DISCOVER message queue.");
+						stopDiscovering();
+                    }
+                }
+            });
+        }
 	}
 	public static void startedSaving(){
 		synchronized(startedSavingDataLock){

@@ -19,6 +19,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,6 +36,7 @@ import io.nwdaf.eventsubscription.utilities.ParserUtil;
 @EnableConfigurationProperties(NwdafSubProperties.class)
 @SpringBootApplication
 @EnableAsync
+@EnableScheduling
 @EntityScan({"io.nwdaf.eventsubscription.repository"})
 public class NwdafSubApplication {
 	

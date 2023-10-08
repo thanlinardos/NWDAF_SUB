@@ -208,11 +208,10 @@ public class SubscriptionsController implements SubscriptionsApi{
 			// the checks are for when the serializer initializes the lists inside aoi object with null
 			NetworkAreaInfo matchingArea = null;
 			Boolean insideServiceArea = false;
-			if(eventSubscription.getNetworkArea().getId() != null){
+			if(eventSubscription.getNetworkArea()!=null && eventSubscription.getNetworkArea().getId() != null){
 				matchingArea = Constants.ExampleAOIsMap.get(eventSubscription.getNetworkArea().getId());
 				insideServiceArea = Constants.ServingAreaOfInterest.containsArea(matchingArea);
 			}
-			Constants.ExampleAOIsMap.get(eventSubscription.getNetworkArea().getId());
 			if(eventSubscription.getNetworkArea()!=null && (CheckUtil.safeCheckNetworkAreaNotEmpty(eventSubscription.getNetworkArea()) || eventSubscription.getNetworkArea().getId() != null)){
 				if(!(CheckUtil.safeCheckNetworkAreaNotEmpty(eventSubscription.getNetworkArea()) && Constants.ServingAreaOfInterest.containsArea(eventSubscription.getNetworkArea()))
 					&& (matchingArea == null || !insideServiceArea)){
