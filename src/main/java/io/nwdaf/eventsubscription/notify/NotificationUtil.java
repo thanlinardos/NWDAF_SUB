@@ -3,8 +3,11 @@ package io.nwdaf.eventsubscription.notify;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,15 +31,24 @@ import io.nwdaf.eventsubscription.kafka.datacollection.dummy.KafkaDummyDataPubli
 import io.nwdaf.eventsubscription.kafka.datacollection.prometheus.KafkaDataCollectionListener;
 import io.nwdaf.eventsubscription.kafka.datacollection.prometheus.KafkaDataCollectionPublisher;
 import io.nwdaf.eventsubscription.model.EventSubscription;
+import io.nwdaf.eventsubscription.model.FailureEventInfo;
+import io.nwdaf.eventsubscription.model.NetworkAreaInfo;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
+import io.nwdaf.eventsubscription.model.ReportingInformation;
 import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
 import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
+import io.nwdaf.eventsubscription.model.NwdafFailureCode;
+import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
+import io.nwdaf.eventsubscription.notify.responsetypes.AggregateChecksForAOIResponse;
+import io.nwdaf.eventsubscription.notify.responsetypes.GetGlobalNotifMethodAndRepPeriodResponse;
+import io.nwdaf.eventsubscription.notify.responsetypes.GetNotifMethodAndRepPeriodsResponse;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
 import io.nwdaf.eventsubscription.utilities.CheckUtil;
+import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.utilities.ConvertUtil;
 import io.nwdaf.eventsubscription.utilities.OtherUtil;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
@@ -326,5 +338,262 @@ public class NotificationUtil {
 				break;	
 		}
 		return new Integer[]{null, null};		
+	}
+	// check if for this event subscription the requested area of interest 
+	// is inside (or equals to) the service area of this NWDAF instance
+	// the checks are for when the serializer initializes the lists inside aoi object with null
+	public static AggregateChecksForAOIResponse aggregateChecksForAOI(NetworkAreaInfo requestNetworkArea){
+		NetworkAreaInfo matchingArea = null;
+		Boolean insideServiceArea = false;
+		Boolean failed_notif = false;
+		NwdafFailureCodeEnum failCode = null;
+		if(requestNetworkArea!=null && requestNetworkArea.getId() != null){
+				matchingArea = Constants.ExampleAOIsMap.get(requestNetworkArea.getId());
+				insideServiceArea = Constants.ServingAreaOfInterest.containsArea(matchingArea);
+		}
+		if(requestNetworkArea!=null && (CheckUtil.safeCheckNetworkAreaNotEmpty(requestNetworkArea) || requestNetworkArea.getId() != null)){
+			if(!(CheckUtil.safeCheckNetworkAreaNotEmpty(requestNetworkArea) && Constants.ServingAreaOfInterest.containsArea(requestNetworkArea))
+				&& (matchingArea == null || !insideServiceArea)){
+				failed_notif = true;
+				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+				System.out.println("not inside serving aoi");
+			}
+			else{
+				// check if its lists equal one of the known AOIs -> set the id
+				if(Constants.ExampleAOIsToUUIDsMap.containsKey(requestNetworkArea)){
+					requestNetworkArea.id(Constants.ExampleAOIsToUUIDsMap.get(requestNetworkArea));
+					System.out.println("same as aoi with id: "+requestNetworkArea.getId());
+				}
+				// check if id equals to a known AOI -> set the area lists
+				else if(requestNetworkArea.getId() != null && Constants.ExampleAOIsMap.containsKey(requestNetworkArea.getId())){
+					NetworkAreaInfo matchingAOI = Constants.ExampleAOIsMap.get(requestNetworkArea.getId());
+					requestNetworkArea.ecgis(matchingAOI.getEcgis()).ncgis(matchingAOI.getNcgis())
+							.gRanNodeIds(matchingAOI.getGRanNodeIds()).tais(matchingAOI.getTais());
+				}
+				// if new AOI create id if it doesnt have one and add it to the known AOIs
+				else{
+					if(requestNetworkArea.getId() == null){
+						requestNetworkArea.id(UUID.randomUUID());
+					}
+					Constants.ExampleAOIsMap.put(requestNetworkArea.getId(), requestNetworkArea);
+					Constants.ExampleAOIsToUUIDsMap.put(requestNetworkArea, requestNetworkArea.getId());
+				}
+				// aggregate known areas that are inside of this area of interest
+				for (Map.Entry<UUID,NetworkAreaInfo> entry : Constants.ExampleAOIsMap.entrySet()){
+					UUID key = entry.getKey(); NetworkAreaInfo aoi = entry.getValue();
+					if(requestNetworkArea.containsArea(aoi) || key.equals(requestNetworkArea.getId())){
+						requestNetworkArea.addContainedAreaIdsItem(key);
+					}
+				}
+				requestNetworkArea.setContainedAreaIds(ParserUtil.removeDuplicates(requestNetworkArea.getContainedAreaIds()));
+			}
+		}
+		return AggregateChecksForAOIResponse.builder()
+			.failCode(failCode)
+			.failed_notif(failed_notif)
+			.insideServiceArea(insideServiceArea)
+			.matchingArea(matchingArea)
+			.build();
+	}
+
+	// negotiate the supported features with the client
+	public static List<Integer> negotiateSupportedFeatures(NnwdafEventsSubscription body){
+		List<Integer> negotiatedFeaturesList = new ArrayList<>();
+		if(body.getSupportedFeatures()!=null && !body.getSupportedFeatures().equals("")) {
+			if(!Constants.supportedFeatures.equals(body.getSupportedFeatures()) && 
+				CheckUtil.listInside(Constants.supportedFeaturesList, ConvertUtil.convertFeaturesToList(body.getSupportedFeatures()))) {
+				negotiatedFeaturesList = ConvertUtil.convertFeaturesToList(body.getSupportedFeatures());
+			}
+			else{
+				body.setSupportedFeatures(Constants.supportedFeatures);
+				negotiatedFeaturesList = Constants.supportedFeaturesList;
+			}
+		}
+		else {
+			body.setSupportedFeatures(Constants.supportedFeatures);
+			negotiatedFeaturesList = Constants.supportedFeaturesList;
+		}
+		return negotiatedFeaturesList;
+	}
+	// get global notification method and period if they exist
+	public static GetGlobalNotifMethodAndRepPeriodResponse getGlobalNotifMethodAndRepPeriod(ReportingInformation evtReq){
+		Integer repetionPeriod = null;
+		NotificationMethodEnum notificationMethod = null;
+		Boolean muted=false;
+		Boolean immRep=false;
+		if(evtReq!=null) {
+			if(evtReq.getNotifMethod()!=null && evtReq.getNotifMethod().getNotifMethod()!=null) {
+				notificationMethod = evtReq.getNotifMethod().getNotifMethod();
+				if(evtReq.getNotifMethod().getNotifMethod().equals(NotificationMethodEnum.PERIODIC)) {
+					repetionPeriod = evtReq.getRepPeriod();
+				}
+				if(evtReq.getNotifFlag()!=null) {
+					muted=evtReq.getNotifFlag().getNotifFlag().equals(NotificationFlagEnum.DEACTIVATE);
+				}
+			}
+			if(evtReq.isImmRep()!=null) {
+				immRep=evtReq.isImmRep();
+			}
+		}
+		return GetGlobalNotifMethodAndRepPeriodResponse.builder()
+			.immRep(immRep)
+			.muted(muted)
+			.notificationMethod(notificationMethod)
+			.repetionPeriod(repetionPeriod)
+			.build();
+	}
+
+	// get period and notification method for each event
+	public static GetNotifMethodAndRepPeriodsResponse getNotifMethodAndRepPeriods(List<EventSubscription> eventSubscriptions, NotificationMethodEnum notificationMethod, Integer repetionPeriod){
+		Integer no_valid_events = 0;
+		List<Integer> invalid_events = new ArrayList<>();
+		Map<Integer,NotificationMethodEnum> eventIndexToNotifMethodMap = new HashMap<>();
+		Map<Integer,Integer> eventIndexToRepPeriodMap = new HashMap<>();
+		no_valid_events = eventSubscriptions.size();
+		for(int i=0;i<eventSubscriptions.size();i++) {
+			EventSubscription e = eventSubscriptions.get(i);
+			if(e==null || e.getEvent()==null || e.getEvent().getEvent()==null) {
+				no_valid_events--;
+				invalid_events.add(i);
+				continue;
+			}
+			if(notificationMethod==null) {
+				if(e.getNotificationMethod()!=null) {
+					eventIndexToNotifMethodMap.put(i, e.getNotificationMethod().getNotifMethod());
+				}
+				else {
+					eventIndexToNotifMethodMap.put(i,NotificationMethodEnum.THRESHOLD);
+				}
+					
+			}
+			else {
+				eventIndexToNotifMethodMap.put(i, notificationMethod);
+			}
+			if(eventIndexToNotifMethodMap.get(i)!=null) {
+				if(eventIndexToNotifMethodMap.get(i).equals(NotificationMethodEnum.PERIODIC)) {
+					if(repetionPeriod==null) {
+						eventIndexToRepPeriodMap.put(i,e.getRepetitionPeriod());
+					}
+					else{
+						eventIndexToRepPeriodMap.put(i,repetionPeriod);
+					}
+							
+				}
+			}
+			e = OtherUtil.setShapes(e);
+			eventSubscriptions.set(i, e);			
+		}
+		return GetNotifMethodAndRepPeriodsResponse.builder()
+			.eventIndexToNotifMethodMap(eventIndexToNotifMethodMap)
+			.eventIndexToRepPeriodMap(eventIndexToRepPeriodMap)
+			.invalid_events(invalid_events)
+			.no_valid_events(no_valid_events)
+			.build();
+	}
+
+	// check which subscriptions can be served
+	public static List<Boolean> checkCanServeSubscriptions(Integer no_valid_events, NnwdafEventsSubscription body,
+		Map<Integer,NotificationMethodEnum> eventIndexToNotifMethodMap, Map<Integer,Integer> eventIndexToRepPeriodMap,
+		DataCollectionPublisher dataCollectionPublisher, DummyDataProducerPublisher dummyDataProducerPublisher,
+		KafkaDummyDataPublisher kafkaDummyDataPublisher, KafkaDataCollectionPublisher kafkaDataCollectionPublisher,
+		KafkaProducer kafkaProducer, ObjectMapper objectMapper, MetricsService metricsService, Boolean immRep, Long id){
+		List<Boolean> canServeSubscription = new ArrayList<>();
+		for(int i=0;i<no_valid_events;i++) {
+			canServeSubscription.add(false);
+		}
+		for(int i=0;i<no_valid_events;i++) {
+			EventSubscription eventSubscription = body.getEventSubscriptions().get(i);
+			NwdafEventEnum eType = eventSubscription.getEvent().getEvent();
+			Boolean periodic = false;
+			if(eventIndexToRepPeriodMap.get(i)!=null) {
+				periodic = eventIndexToNotifMethodMap.get(i).equals(NotificationMethodEnum.PERIODIC);
+			}
+			Boolean failed_notif = false;
+			NwdafFailureCodeEnum failCode = null;
+			//check if eventType is supported
+			if(!Constants.supportedEvents.contains(eType)) {
+				failed_notif=true;
+				failCode=NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+			}
+			//check if period is valid (between 1sec and 10mins) and if not add failureReport
+			if(periodic && (eventIndexToRepPeriodMap.get(i)<Constants.MIN_PERIOD_SECONDS || eventIndexToRepPeriodMap.get(i)>Constants.MAX_PERIOD_SECONDS)) {
+				failed_notif = true;
+				failCode = NwdafFailureCodeEnum.OTHER;
+			}
+			AggregateChecksForAOIResponse aggregateChecksForAOIResponse = NotificationUtil.aggregateChecksForAOI(eventSubscription.getNetworkArea());
+			failed_notif = aggregateChecksForAOIResponse.getFailed_notif();
+			failCode = aggregateChecksForAOIResponse.getFailCode();
+			// find past/future offset requested by client:
+			Integer[] findOffset = NotificationUtil.findRequestedDataOffset(eventSubscription);
+			Integer no_secs = findOffset[0];
+			// both future and past predictions not allowed
+			if(findOffset[1]==2){
+				body.addFailEventReportsItem(new FailureEventInfo().event(eventSubscription.getEvent()).failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.BOTH_STAT_PRED_NOT_ALLOWED)));
+				continue;
+			}
+			// future data not implemented
+			if(findOffset[1]==1){
+				body.addFailEventReportsItem(new FailureEventInfo().event(eventSubscription.getEvent()).failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.OTHER)));
+				continue;
+			}
+			//check whether data is available to be gathered
+			NnwdafEventsSubscriptionNotification notification = new NotificationBuilder().build(id);
+			boolean isDataAvailable=false;
+			Integer expectedWaitTime=null;
+			try {
+				// wakeUpDataProducer("kafka_local_dummy", eType);
+				// wakeUpDataProducer("kafka_local_prom", eType);
+				Integer[] wakeUpResult = NotificationUtil.wakeUpDataProducer("kafka", eType, no_secs,dataCollectionPublisher,dummyDataProducerPublisher,
+					kafkaDummyDataPublisher,kafkaDataCollectionPublisher,kafkaProducer,objectMapper);
+				isDataAvailable = wakeUpResult[0]==1;
+				expectedWaitTime = wakeUpResult[1];
+			} catch(IOException e){
+				failed_notif=true;
+				logger.error("Couldn't connect to kafka topic WAKE_UP.", e);
+				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+			} catch(InterruptedException e){
+				failed_notif=true;
+				logger.error("Thread failed to wait for datacollection to start for event: "+eType,e);
+				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+			}
+			if(!isDataAvailable){
+				failed_notif=true;
+				logger.info("Informed by collector(s) that data is not available");
+				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+			}
+			if(!failed_notif){
+				try {
+					notification=NotificationUtil.getNotification(body, i, notification, metricsService);
+					if(body.getEvtReq()!=null && immRep && notification!=null){
+						body.addEventNotificationsItem(notification.getEventNotifications().get(i));
+					}
+				} catch (JsonProcessingException e) {
+					failed_notif=true;
+					logger.error("Failed to collect data for event: "+eType,e);
+					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+				} catch(Exception e) {
+					failed_notif=true;
+					logger.error("Failed to collect data for event(timescaledb error): "+eType,e);
+					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+				}
+			}
+			if(notification==null) {
+				logger.error("Failed to collect data for event: "+eType);
+				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+			}
+			// add failureEventInfo
+			if(notification==null || failed_notif) {
+    			body.addFailEventReportsItem(new FailureEventInfo().event(eventSubscription.getEvent()).failureCode(new NwdafFailureCode().failureCode(failCode)));
+			}
+			else {
+				canServeSubscription.set(i, true);
+				if(immRep) {
+					body.addEventNotificationsItem(notification.getEventNotifications().get(0)
+							.rvWaitTime(expectedWaitTime));
+				}
+			}
+			logger.info("notifMethod="+eventIndexToNotifMethodMap.get(i)+", repPeriod="+eventIndexToRepPeriodMap.get(i));
+		}
+		return canServeSubscription;
 	}
 }

@@ -1,6 +1,5 @@
 package io.nwdaf.eventsubscription.kafka;
 
-import java.beans.BeanProperty;
 import java.util.HashMap;
 import java.util.Map;
 
