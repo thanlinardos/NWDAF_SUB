@@ -18,9 +18,9 @@
 	</properties>
 	<packaging>jar</packaging>
 	<repository>
-      <id>my-repo</id>
-      <name>My Repository</name>
-      <url>file:C:/thanlinardos/repository</url>
+    	<id>my-repo</id>
+    	<name>My Repository</name>
+    	<url>file:C:/thanlinardos/repository</url>
     </repository>
 	<dependencies>
 		<dependency>
