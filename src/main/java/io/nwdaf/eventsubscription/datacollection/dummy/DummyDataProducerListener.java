@@ -15,6 +15,7 @@ import io.nwdaf.eventsubscription.utilities.DummyDataGenerator;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
+import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
 
 @Component
@@ -29,6 +30,9 @@ public class DummyDataProducerListener{
 
 	@Autowired
 	MetricsService metricsService;
+
+    @Autowired
+	MetricsCacheService metricsCacheService;
 	
 	@Autowired
 	Environment env;
@@ -50,7 +54,7 @@ public class DummyDataProducerListener{
                         nfloadinfos = DummyDataGenerator.changeNfLoadTimeDependentProperties(nfloadinfos);
                         for(int k=0;k<nfloadinfos.size();k++) {
                             try {
-                                metricsService.create(nfloadinfos.get(k));
+                                metricsCacheService.create(nfloadinfos.get(k));
                                 synchronized(startedSavingDataLock){
                                     startedSavingData = true;
                                 }

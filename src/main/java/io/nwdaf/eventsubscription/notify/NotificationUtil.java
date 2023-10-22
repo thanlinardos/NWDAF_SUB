@@ -52,6 +52,7 @@ import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.utilities.ConvertUtil;
 import io.nwdaf.eventsubscription.utilities.OtherUtil;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
+import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
 
 public class NotificationUtil {
@@ -131,7 +132,7 @@ public class NotificationUtil {
 		return new Integer[]{no_secs, isFuture};
 	}
     // get the notification for the event subscription by querrying the given service
-    public static NnwdafEventsSubscriptionNotification getNotification(NnwdafEventsSubscription sub,Integer index,NnwdafEventsSubscriptionNotification notification, MetricsService metricsService) throws JsonMappingException, JsonProcessingException, Exception {
+    public static NnwdafEventsSubscriptionNotification getNotification(NnwdafEventsSubscription sub,Integer index,NnwdafEventsSubscriptionNotification notification, MetricsService metricsService, MetricsCacheService metricsCacheService) throws JsonMappingException, JsonProcessingException, Exception {
 		OffsetDateTime now = OffsetDateTime.now();
 		EventSubscription eventSub = sub.getEventSubscriptions().get(index);
 		NwdafEventEnum eType = eventSub.getEvent().getEvent();
@@ -150,16 +151,20 @@ public class NotificationUtil {
 		switch(eType) {
 		case NF_LOAD:
 			List<NfLoadLevelInformation> nfloadlevels = new ArrayList<>();
+			List<String> filterTypes = new ArrayList<>();
 			// choose the querry filter: nfinstanceids take priority over nfsetids and supis over all
 			// Supis filter (checks if the supis list on each nfinstance contains any of the supis in the sub request)
 			if(!eventSub.getTgtUe().isAnyUe() && CheckUtil.safeCheckListNotEmpty(eventSub.getTgtUe().getSupis())){
 				params = ParserUtil.parseQuerryFilterContains(eventSub.getTgtUe().getSupis(),"supis");
+				filterTypes.add("supis");
 			}
 			else if(CheckUtil.safeCheckListNotEmpty(eventSub.getNfInstanceIds())){
 				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfInstanceId"));
+				filterTypes.add("nfInstanceId");
 			}
 			else if(CheckUtil.safeCheckListNotEmpty(eventSub.getNfSetIds())){
 				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfSetIds(), "nfSetId"));
+				filterTypes.add("nfSetId");
 			}
 			// AOI filter
 			else if(eventSub.getNetworkArea()!=null && CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getContainedAreaIds()) && (CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getEcgis()) ||
@@ -169,14 +174,17 @@ public class NotificationUtil {
 			)){
 				// aggregate container areas for the aoi inside the sub object as valid filters
 				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNetworkArea().getContainedAreaIds(), "areaOfInterestId"));
+				filterTypes.add("areaOfInterestId");
 			}
 			// Network Slice Instances filter
 			else if(CheckUtil.safeCheckListNotEmpty(eventSub.getSnssaia())){
 				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(ParserUtil.parseObjectListToFilterList(ConvertUtil.convertObjectWriterList(eventSub.getSnssaia(),ow)),"snssai"));
+				filterTypes.add("snssai");
 			}
 			// NfTypes filter
 			else if(CheckUtil.safeCheckListNotEmpty(eventSub.getNfTypes())){
 				params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(ParserUtil.parseObjectListToFilterList(ConvertUtil.convertObjectWriterList(eventSub.getNfTypes(), ow)),"nfType"));
+				filterTypes.add("nfType");
 			}
 			// if given analyticsubsets list in the sub request, select only the appropriate columns in the request
 			columns = "";
@@ -184,7 +192,7 @@ public class NotificationUtil {
 			
 			try{
 				// repetition period is used also as the granularity (offset) for the querry
-				nfloadlevels = metricsService.findAllInLastIntervalByFilterAndOffset(params, no_secs, repPeriod, columns);
+				nfloadlevels = metricsCacheService.findAllInLastIntervalByFilterAndOffset(eventSub, filterTypes, params, no_secs, repPeriod, columns);
 			} catch(Exception e){
 				NwdafSubApplication.getLogger().error("Can't find nf load metrics from database", e);
 				return null;
@@ -292,12 +300,14 @@ public class NotificationUtil {
 				while(wait_time<maxWait){
 					while(KafkaConsumer.discoverMessageQueue.size()>0){
 						try{
-						discoverMessages.add(objectMapper.reader().readValue(KafkaConsumer.discoverMessageQueue.take(),DiscoverMessage.class));
+							String msg = KafkaConsumer.discoverMessageQueue.poll();
+							if(msg==null){
+								logger.error("InterruptedException: Couldn't take msg from discover queue");
+								break;
+							}
+							discoverMessages.add(objectMapper.reader().readValue(msg,DiscoverMessage.class));
 						} catch(IOException e){
 							logger.error("IOException: Couldn't read discover message");
-						} catch(InterruptedException e){
-							logger.error("InterruptedException: Couldn't take msg from discover queue");
-							break;
 						}
 						responded = true;
 					}
@@ -313,8 +323,12 @@ public class NotificationUtil {
 				int expectedWaitTime = 0;
 				for(DiscoverMessage msg : discoverMessages){
 					System.out.println("discover msg: "+msg);
-					if(msg.getHasData() && msg.getAvailableOffset()!=null && msg.getRequestedOffset()!=null){
-						if(msg.getAvailableOffset()>=msg.getRequestedOffset()){
+					if(msg.getHasData()!=null && msg.getHasData()){
+						if(msg.getRequestedOffset()==null || msg.getRequestedOffset()<=Constants.MIN_PERIOD_SECONDS){
+							isDataAvailable = 1;
+							break;
+						}
+						if(msg.getAvailableOffset()!=null && msg.getRequestedOffset()!=null && msg.getAvailableOffset()>=msg.getRequestedOffset()){
 							isDataAvailable = 1;
 							break;
 						}
@@ -322,7 +336,7 @@ public class NotificationUtil {
 							expectedWaitTime = msg.getRequestedOffset() - msg.getAvailableOffset();
 						}
 					}
-					if(!msg.getHasData() && msg.getAvailableOffset()!=null && msg.getRequestedOffset()!=null && msg.getExpectedWaitTime()!=null){
+					if((msg.getHasData()==null || !msg.getHasData()) && msg.getAvailableOffset()!=null && msg.getRequestedOffset()!=null && msg.getExpectedWaitTime()!=null){
 						expectedWaitTime = msg.getExpectedWaitTime() + msg.getRequestedOffset();
 					}
 				}
@@ -496,7 +510,7 @@ public class NotificationUtil {
 		Map<Integer,NotificationMethodEnum> eventIndexToNotifMethodMap, Map<Integer,Integer> eventIndexToRepPeriodMap,
 		DataCollectionPublisher dataCollectionPublisher, DummyDataProducerPublisher dummyDataProducerPublisher,
 		KafkaDummyDataPublisher kafkaDummyDataPublisher, KafkaDataCollectionPublisher kafkaDataCollectionPublisher,
-		KafkaProducer kafkaProducer, ObjectMapper objectMapper, MetricsService metricsService, Boolean immRep, Long id){
+		KafkaProducer kafkaProducer, ObjectMapper objectMapper, MetricsService metricsService, MetricsCacheService metricsCacheService, Boolean immRep, Long id){
 		List<Boolean> canServeSubscription = new ArrayList<>();
 		for(int i=0;i<no_valid_events;i++) {
 			canServeSubscription.add(false);
@@ -563,7 +577,7 @@ public class NotificationUtil {
 			}
 			if(!failed_notif){
 				try {
-					notification=NotificationUtil.getNotification(body, i, notification, metricsService);
+					notification=NotificationUtil.getNotification(body, i, notification, metricsService, metricsCacheService);
 					if(body.getEvtReq()!=null && immRep && notification!=null){
 						body.addEventNotificationsItem(notification.getEventNotifications().get(i));
 					}

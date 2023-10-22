@@ -7,7 +7,8 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -26,11 +27,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.UeMobility;
+import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
 
 @Component
 public class KafkaConsumer {
     
+	@Autowired
+	MetricsCacheService metricsCacheService;
+
 	@Autowired
 	MetricsService metricsService;
 
@@ -57,7 +62,7 @@ public class KafkaConsumer {
 	public static Boolean isDiscovering = true;
 	public static final Object isDiscoveringLock = new Object();
 
-	public static SynchronousQueue<String> discoverMessageQueue = new SynchronousQueue<>();
+	public static BlockingQueue<String> discoverMessageQueue = new LinkedBlockingQueue<>();
 
     @KafkaListener(topics = {"NF_LOAD","UE_MOBILITY"}, groupId = "event", containerFactory = "kafkaListenerContainerFactoryEvent")
 	public String dataListener(ConsumerRecord<String,String> record){
@@ -74,7 +79,7 @@ public class KafkaConsumer {
 		switch(topic){
 			case "NF_LOAD":
 				nfLoadLevelInformation = objectMapper.reader().readValue(in, NfLoadLevelInformation.class);
-				metricsService.create(nfLoadLevelInformation);
+				metricsCacheService.create(nfLoadLevelInformation);
 				break;
 			case "UE_MOBILITY":
 				ueMobility = objectMapper.reader().readValue(in, UeMobility.class);
@@ -88,6 +93,7 @@ public class KafkaConsumer {
 			return "";
 		} catch(Exception e){
 			NwdafSubApplication.getLogger().info("failed to save "+topic+" info to timescaleDB");
+			NwdafSubApplication.getLogger().error("",e);
 			stopListening();
 			return "";
 		}
@@ -129,32 +135,33 @@ public class KafkaConsumer {
 
         // Set the desired timestamps for the beginning and end of the range
         long endTimestamp = Instant.parse(OffsetDateTime.now().toString()).toEpochMilli();
-        long startTimestamp = Instant.parse(OffsetDateTime.now().minusSeconds(60).toString()).toEpochMilli();
+        long startTimestamp = Instant.parse(OffsetDateTime.now().minusSeconds(1).toString()).toEpochMilli();
 
         // Seek to the beginning timestamp
         for (TopicPartition partition : topicPartitions) {
-            kafkaConsumerDiscover.seek(partition, kafkaConsumerDiscover.offsetsForTimes(Collections.singletonMap(partition, startTimestamp)).get(partition).offset());
+			OffsetAndTimestamp offsetAndTimestamp = kafkaConsumerDiscover.offsetsForTimes(Collections.singletonMap(partition, startTimestamp)).get(partition);
+            if(offsetAndTimestamp!=null){
+				kafkaConsumerDiscover.seek(partition, offsetAndTimestamp.offset());
+			}
         }
 
-        // consume messages inside the desired range
-         while (true) {
-            ConsumerRecords<String, String> records = kafkaConsumerDiscover.poll(Duration.ofMillis(100));
+	    // consume messages inside the desired range
+        ConsumerRecords<String, String> records = kafkaConsumerDiscover.poll(Duration.ofMillis(100));
 
-            // Process the received messages here
-            records.forEach(record -> {
-                // Check if the message timestamp is within the desired range
-                if (record.timestamp() <= endTimestamp) {
-                    System.out.println("Received message: " + record.value());
-                    try {
-                        discoverMessageQueue.put(record.value());
-						startedDiscovering();
-                    } catch (InterruptedException e) {
-                        System.out.println("InterruptedException while writing to DISCOVER message queue.");
-						stopDiscovering();
-                    }
+        // Process the received messages here
+        records.forEach(record -> {
+            // Check if the message timestamp is within the desired range
+            if(record.timestamp() <= endTimestamp && record.timestamp() >= startTimestamp) {
+                System.out.println("Received message: " + record.value());
+                if(!discoverMessageQueue.offer(record.value())) {
+                    System.out.println("InterruptedException while writing to DISCOVER message queue.");
+					stopDiscovering();
                 }
-            });
-        }
+				else{
+					startedDiscovering();
+				}
+            }
+        });
 	}
 	public static void startedSaving(){
 		synchronized(startedSavingDataLock){

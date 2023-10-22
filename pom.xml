@@ -17,11 +17,6 @@
 		<java.version>17</java.version>
 	</properties>
 	<packaging>jar</packaging>
-	<repository>
-    	<id>my-repo</id>
-    	<name>My Repository</name>
-    	<url>file:C:/thanlinardos/repository</url>
-    </repository>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -124,6 +119,14 @@
       		<groupId>org.springframework.kafka</groupId>
       		<artifactId>spring-kafka</artifactId>
     	</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+		  </dependency>
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -133,11 +136,14 @@
 				<groupId>org.apache.maven.plugins</groupId>
             	<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
-				<excludes>
-					<exclude>**/pgadmin-data/**</exclude>
-					<exclude>**/postgres-data/**</exclude>
-					<exclude>**/timescaledb-data/**</exclude>
-				</excludes>
+					<jvmArguments>
+						-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+					</jvmArguments>
+					<excludes>
+						<exclude>**/pgadmin-data/**</exclude>
+						<exclude>**/postgres-data/**</exclude>
+						<exclude>**/timescaledb-data/**</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 			<plugin>

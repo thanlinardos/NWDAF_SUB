@@ -33,6 +33,7 @@ import io.nwdaf.eventsubscription.notify.responsetypes.GetGlobalNotifMethodAndRe
 import io.nwdaf.eventsubscription.notify.responsetypes.GetNotifMethodAndRepPeriodsResponse;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
+import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
 
@@ -69,6 +70,9 @@ public class SubscriptionsController implements SubscriptionsApi{
 	@Autowired
 	ObjectMapper objectMapper;
 
+	@Autowired
+	MetricsCacheService metricsCacheService;
+
 	private Logger logger = LoggerFactory.getLogger(SubscriptionsController.class);
 	
 	
@@ -97,7 +101,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 		List<Boolean> canServeSubscription = NotificationUtil.checkCanServeSubscriptions(getResponse.getNo_valid_events(), body,
 			getResponse.getEventIndexToNotifMethodMap(), getResponse.getEventIndexToRepPeriodMap(),
 			dataCollectionPublisher, dummyDataProducerPublisher, kafkaDummyDataPublisher,
-			kafkaDataCollectionPublisher, kafkaProducer, objectMapper, metricsService,
+			kafkaDataCollectionPublisher, kafkaProducer, objectMapper, metricsService, metricsCacheService,
 			globalResponse.getImmRep(), 0l);
 		// check the amount of subscriptions that need to be notifed
 		for(int i=0;i<canServeSubscription.size();i++) {
@@ -165,7 +169,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 		List<Boolean> canServeSubscription = NotificationUtil.checkCanServeSubscriptions(getResponse.getNo_valid_events(), body,
 			getResponse.getEventIndexToNotifMethodMap(), getResponse.getEventIndexToRepPeriodMap(),
 			dataCollectionPublisher, dummyDataProducerPublisher, kafkaDummyDataPublisher,
-			kafkaDataCollectionPublisher, kafkaProducer, objectMapper, metricsService,
+			kafkaDataCollectionPublisher, kafkaProducer, objectMapper, metricsService, metricsCacheService,
 			globalResponse.getImmRep(), 0l);
 		// check the amount of subscriptions that need to be notifed
 		for(int i=0;i<canServeSubscription.size();i++) {

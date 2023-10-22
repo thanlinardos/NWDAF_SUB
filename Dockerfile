@@ -28,10 +28,10 @@ ARG SSL_FILE=src/main/resources/certificates/local-ssl.p12
 ARG CLIENT_SSL_FILE=src/main/resources/certificates/local-client-ssl.p12
 ARG CLIENT_CERT_FILE=src/main/resources/certificates/local-client-cert.crt
 ADD ${JAR_FILE} app.jar
+ADD test.json test.json
 ADD ${CERT_FILE} /usr/local/share/ca-certificates/local-cert.crt
 ADD ${SSL_FILE} src/main/resources/certificates/local-ssl.p12
 ADD ${CLIENT_CERT_FILE} /usr/local/share/ca-certificates/local-client-cert.crt
 ADD ${CLIENT_SSL_FILE} src/main/resources/certificates/local-client-ssl.p12
-ADD test.json test.json
 RUN chmod 644 /usr/local/share/ca-certificates/local-cert.crt && chmod 644 /usr/local/share/ca-certificates/local-client-cert.crt && update-ca-certificates
 ENTRYPOINT ["java","-jar","/app.jar"]

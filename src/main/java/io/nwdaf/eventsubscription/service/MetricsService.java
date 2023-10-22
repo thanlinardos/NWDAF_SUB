@@ -8,6 +8,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,7 +28,6 @@ public class MetricsService {
 	
 	private final MetricsRepository repository;
 	
-	// @Autowired
 	public MetricsService(MetricsRepository repository) {
 		this.repository = repository;
 	}
@@ -35,6 +35,16 @@ public class MetricsService {
 	@Autowired
 	private ObjectMapper objectMapper;
 	
+	@Async
+	public void asyncCreate(NfLoadLevelInformation body) {
+		NfLoadLevelInformationTable body_table = new NfLoadLevelInformationTable();
+		body_table.setData(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));
+		body_table.setTime(body.getTimeStamp());
+		body_table.setNfInstanceId(body.getNfInstanceId());
+		body_table.setNfSetId(body.getNfSetId());
+		body_table.setAreaOfInterestId(body.getAreaOfInterestId());
+		repository.save(body_table);
+	}
 	public NfLoadLevelInformationTable create(NfLoadLevelInformation body) {
 		NfLoadLevelInformationTable body_table = new NfLoadLevelInformationTable();
 		body_table.setData(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));
@@ -42,7 +52,6 @@ public class MetricsService {
 		body_table.setNfInstanceId(body.getNfInstanceId());
 		body_table.setNfSetId(body.getNfSetId());
 		body_table.setAreaOfInterestId(body.getAreaOfInterestId());
-		// NwdafSubApplication.getLogger().info("nfloadlevelinfo saved: "+body_table.getData().toString());
 		return repository.save(body_table);
 	}
 	

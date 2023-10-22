@@ -1,0 +1,39 @@
+{
+    "notifCorrId": "",
+    "notificationURI": "https://localhost:10000/client",
+    "supportedFeatures": "210442",
+    "eventSubscriptions": [
+      {
+        "event": {
+          "type": "NF_LOAD"
+        },
+        "tgtUe": {
+          "anyUe": false
+        },
+        "qosRequ": {
+          "resType": {}
+        },
+        "anySlice": false,
+        "exptAnaType": {},
+        "exptUeBehav": {
+          "trafficProfile": {},
+          "batteryIndication": {},
+          "stationaryIndication": {},
+          "scheduledCommunicationTime": {},
+          "scheduledCommunicationType": {}
+        },
+        "matchingDir": {},
+        "networkArea": {},
+        "extraReportReq": {
+          "accuracy": {},
+          "anaMetaInd": {
+            "strategy": {}
+          }
+        },
+        "repetitionPeriod": 1,
+        "notificationMethod": {
+          "notifMethod": "PERIODIC"
+        }
+      }
+    ]
+  }

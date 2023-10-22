@@ -17,6 +17,7 @@ import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.requestbuilders.PrometheusRequestBuilder;
+import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
 
 @Component
@@ -30,6 +31,9 @@ public class DataCollectionListener {
 	@Autowired
 	MetricsService metricsService;
 	
+	@Autowired
+	MetricsCacheService metricsCacheService;
+
 	@Autowired
 	Environment env;
 	
@@ -64,7 +68,7 @@ public class DataCollectionListener {
 								for(int j=0;j<nfloadinfos.size();j++) {
 									try {
 										// System.out.println("nfloadinfo"+j+": "+nfloadinfos.get(j));
-										metricsService.create(nfloadinfos.get(j));
+										metricsCacheService.create(nfloadinfos.get(j));
 										synchronized(startedSavingDataLock){
 											startedSavingData = true;
 										}

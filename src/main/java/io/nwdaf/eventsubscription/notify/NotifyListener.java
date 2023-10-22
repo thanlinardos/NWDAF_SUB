@@ -37,6 +37,7 @@ import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
+import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
 import io.nwdaf.eventsubscription.service.NotificationService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
@@ -63,6 +64,9 @@ public class NotifyListener {
 
 	// @Autowired
 	RestTemplate restTemplate;
+
+	@Autowired
+	MetricsCacheService metricsCacheService;
 
 	@Value("${trust.store}")
     private Resource trustStore;
@@ -149,7 +153,7 @@ public class NotifyListener {
 				section_a += (System.nanoTime()-lst) / 1000l;
     			st  = System.nanoTime();
     			try {
-    				notification = NotificationUtil.getNotification(sub, eventIndex, notification, metricsService);
+    				notification = NotificationUtil.getNotification(sub, eventIndex, notification, metricsService, metricsCacheService);
     			}catch(JsonMappingException e) {
     				logger.error("Error building the notification for sub: "+id+". Data is no longer available for this event",e);
     				// add failureEventInfo

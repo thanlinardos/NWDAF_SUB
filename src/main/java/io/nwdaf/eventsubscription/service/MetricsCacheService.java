@@ -1,0 +1,127 @@
+package io.nwdaf.eventsubscription.service;
+
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
+import io.nwdaf.eventsubscription.model.EventSubscription;
+import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
+import io.nwdaf.eventsubscription.repository.redis.RedisRepository;
+import io.nwdaf.eventsubscription.repository.redis.entities.NfLoadLevelInformationCached;
+import io.nwdaf.eventsubscription.utilities.Constants;
+
+
+@Service
+public class MetricsCacheService {
+    @Autowired
+    private RedisRepository repository;
+	@Autowired
+    private MetricsService metricsService;
+
+	public NfLoadLevelInformationCached create(NfLoadLevelInformation body) {
+		NfLoadLevelInformationCached body_cached = new NfLoadLevelInformationCached();
+		body_cached.setData(body);
+		body_cached.setTime(body.getTimeStamp());
+		body_cached.setNfInstanceId(body.getNfInstanceId());
+		body_cached.setNfSetId(body.getNfSetId());
+		body_cached.setAreaOfInterestId(body.getAreaOfInterestId());
+        metricsService.asyncCreate(body);
+        return repository.save(body_cached);
+	}
+
+    public List<NfLoadLevelInformation> findAllByTimeAndFilter(OffsetDateTime time,String params){
+		List<NfLoadLevelInformationCached> entities;
+		if(params!=null){
+			entities = repository.findByTime(time).stream()
+                .filter(e -> true)
+                .collect(Collectors.toList());
+		}
+		else{
+			entities = repository.findByTime(time);
+		}
+		List<NfLoadLevelInformation> res = new ArrayList<>();
+		for(int i=0;i<entities.size();i++) {
+			if(entities.get(i)!=null){
+				NfLoadLevelInformation info = entities.get(i).getData();
+				info.setTime(entities.get(i).getTime().toInstant());
+				res.add(info);
+			}
+		}
+        if(res.size()==0){
+            try {
+                res = metricsService.findAllByTimeAndFilter(time, params);
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+		return res;
+	}
+
+    public List<NfLoadLevelInformation> findAllInLastIntervalByFilterAndOffset(EventSubscription eventSub,List<String> filterTypes, String params,Integer no_secs,Integer offset,String columns) throws JsonMappingException, JsonProcessingException{
+		List<NfLoadLevelInformationCached> entities;
+		if(no_secs == null){
+			no_secs = Constants.MIN_PERIOD_SECONDS;
+		}
+		if(offset==0){
+			offset = Constants.MIN_PERIOD_SECONDS;
+		}
+        final long noSecsFinal = no_secs;
+        final int offsetFinal = offset;
+        int oldestIndex = 0;
+        OffsetDateTime oldestDate = OffsetDateTime.now();
+		entities = repository.findAll();
+		entities = repository.findAll()
+			.stream()
+			.filter(e -> e.getTime().isAfter(OffsetDateTime.now().minusSeconds(noSecsFinal)))
+			.collect(Collectors.toList());
+		entities = entities.stream()
+            .filter(e -> e.getTime().isAfter(OffsetDateTime.now().minusSeconds(noSecsFinal)) &&
+                    e.getTime().toLocalTime().toSecondOfDay() % offsetFinal == 0 &&
+                    (!filterTypes.contains("nfInstanceId") || (e.getNfInstanceId()!=null && eventSub.getNfInstanceIds().contains(e.getNfInstanceId()))) &&
+                    (!filterTypes.contains("nfSetId") || (e.getData().getNfSetId()!=null && eventSub.getNfSetIds().contains(e.getData().getNfSetId()))) &&
+                    (!filterTypes.contains("aoi") || (e.getData().getAreaOfInterestId()!=null && eventSub.getNetworkArea().getContainedAreaIds().contains(e.getData().getAreaOfInterestId()))) &&
+                    (!filterTypes.contains("snssai") || (e.getData().getSnssai()!=null && eventSub.getSnssaia().contains(e.getData().getSnssai()))) &&
+                    (!filterTypes.contains("nfType") || (e.getData().getNfType()!=null && eventSub.getNfTypes().contains(e.getData().getNfType()))))
+                    .collect(Collectors.toList());
+		List<NfLoadLevelInformation> res = new ArrayList<>();
+		for(int i=0;i<entities.size();i++) {
+			if(entities.get(i)!=null){
+				NfLoadLevelInformation info = entities.get(i).getData();
+				if(entities.get(i).getTime()!=null){
+					info.time(entities.get(i).getTime().toInstant());
+                    if(entities.get(i).getTime().isBefore(oldestDate)){
+                        oldestIndex = i;
+                        oldestDate = entities.get(i).getTime();
+                    }
+				}
+				info.nfCpuUsage(entities.get(i).getNfCpuUsage())
+					.nfMemoryUsage(entities.get(i).getNfMemoryUsage())
+					.nfStorageUsage(entities.get(i).getNfStorageUsage())
+					.nfLoadLevelAverage(entities.get(i).getNfLoadLevelAverage())
+					.nfLoadLevelpeak(entities.get(i).getNfLoadLevelpeak())
+					.nfLoadAvgInAoi(entities.get(i).getNfLoadAvgInAoi());
+				res.add(info);
+			}
+		}
+        long availableNoSecs = (Instant.now().toEpochMilli() - oldestDate.toInstant().toEpochMilli()) / 1000;
+        if(availableNoSecs<noSecsFinal){
+            List<NfLoadLevelInformation> postgresRes = metricsService.findAllInLastIntervalByFilterAndOffset(params, no_secs, offset, columns);
+            if(oldestIndex == 0){
+                postgresRes.addAll(res);
+                return postgresRes;
+            }
+            res.addAll(postgresRes);
+        }
+		return res;
+	}
+}

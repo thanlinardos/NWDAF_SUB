@@ -56,14 +56,6 @@ public class NfLoadLevelInformationTable implements Serializable{
 	@JdbcTypeCode(SqlTypes.UUID)
 	@Column(name="areaOfInterestId",columnDefinition="UUID")
 	private UUID areaOfInterestId;
-
-	public UUID getAreaOfInterestId(){
-		return this.areaOfInterestId;
-	}
-
-	public void setAreaOfInterestId(UUID aoiId){
-		this.areaOfInterestId = aoiId;
-	}
 	
 	public OffsetDateTime getTime() {
 		return Id.time;
@@ -78,23 +70,11 @@ public class NfLoadLevelInformationTable implements Serializable{
 		}
 	}
 	
-	public Map<String, Object> getData() {
-		return data;
-	}
-	public void setData(Map<String, Object> data) {
-		this.data = data;
-	}
 	public UUID getNfInstanceId() {
 		return Id.nfInstanceId;
 	}
 	public void setNfInstanceId(UUID nfInstanceId) {
 		this.Id.nfInstanceId = nfInstanceId;
-	}
-	public String getNfSetId() {
-		return nfSetId;
-	}
-	public void setNfSetId(String nfSetId) {
-		this.nfSetId = nfSetId;
 	}
 
 	@Embeddable
@@ -132,8 +112,5 @@ public class NfLoadLevelInformationTable implements Serializable{
 		public void setNfInstanceId(UUID nfInstanceId) {
 			this.nfInstanceId = nfInstanceId;
 		}
-
-		
-	    
 	}
 }
