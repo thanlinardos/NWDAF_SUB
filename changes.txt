@@ -125,6 +125,12 @@ added control messages for discover and wakeup
 refactored producer & consumer
 added synchronized message queue to consumer for discover topic
 left todo: finish handling wakeUpDataProducer response & refactor producer, implement discover/wakeup in collector project 
+---22/10/23----
+finished wakeUpDataProducer & discover/wakeup comms
+fixed kafka for nwdaf_sub & collector
+setup scripts for build,run,run_all for the entire project
+added redis cache
+left todo: fix redis service filters
 
 TODO:
 
@@ -143,7 +149,7 @@ TODO:
 -add master client to view all subs	& admin to control for eventlisteners (notifiers & data collectors/generators)
 -add event listener that groups data with turncating in 60min timewindows with 1min averages and stores them permanently
 -graph grouped data with graphana
--look at using redis to replace timescaledb until allocated memory cache fills up
+-look at using redis to replace timescaledb until allocated memory cache fills up DONE
 -look at paging & buffers for large amounts of subs & metrics
 -scale with kubernetes
 -setup open5GS & expose metrics from various NFs (like AMF)
