@@ -21,8 +21,6 @@ import io.nwdaf.eventsubscription.api.SubscriptionsApi;
 import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerPublisher;
 import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
-import io.nwdaf.eventsubscription.kafka.datacollection.dummy.KafkaDummyDataPublisher;
-import io.nwdaf.eventsubscription.kafka.datacollection.prometheus.KafkaDataCollectionPublisher;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.model.NotificationFlag;
 import io.nwdaf.eventsubscription.model.ReportingInformation;
@@ -51,12 +49,6 @@ public class SubscriptionsController implements SubscriptionsApi{
 	
 	@Autowired
 	private DummyDataProducerPublisher dummyDataProducerPublisher;
-
-	@Autowired
-	private KafkaDummyDataPublisher kafkaDummyDataPublisher;
-
-	@Autowired
-	private KafkaDataCollectionPublisher kafkaDataCollectionPublisher;
 
 	@Autowired
 	SubscriptionsService subscriptionService;
@@ -100,8 +92,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 		}
 		List<Boolean> canServeSubscription = NotificationUtil.checkCanServeSubscriptions(getResponse.getNo_valid_events(), body,
 			getResponse.getEventIndexToNotifMethodMap(), getResponse.getEventIndexToRepPeriodMap(),
-			dataCollectionPublisher, dummyDataProducerPublisher, kafkaDummyDataPublisher,
-			kafkaDataCollectionPublisher, kafkaProducer, objectMapper, metricsService, metricsCacheService,
+			dataCollectionPublisher, dummyDataProducerPublisher, kafkaProducer, objectMapper, metricsService, metricsCacheService,
 			globalResponse.getImmRep(), 0l);
 		// check the amount of subscriptions that need to be notifed
 		for(int i=0;i<canServeSubscription.size();i++) {
@@ -169,8 +160,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 		}
 		List<Boolean> canServeSubscription = NotificationUtil.checkCanServeSubscriptions(getResponse.getNo_valid_events(), body,
 			getResponse.getEventIndexToNotifMethodMap(), getResponse.getEventIndexToRepPeriodMap(),
-			dataCollectionPublisher, dummyDataProducerPublisher, kafkaDummyDataPublisher,
-			kafkaDataCollectionPublisher, kafkaProducer, objectMapper, metricsService, metricsCacheService,
+			dataCollectionPublisher, dummyDataProducerPublisher, kafkaProducer, objectMapper, metricsService, metricsCacheService,
 			globalResponse.getImmRep(), 0l);
 		// check the amount of subscriptions that need to be notifed
 		for(int i=0;i<canServeSubscription.size();i++) {

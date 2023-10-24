@@ -26,10 +26,6 @@ import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionListen
 import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.kafka.KafkaConsumer;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
-import io.nwdaf.eventsubscription.kafka.datacollection.dummy.KafkaDummyDataListener;
-import io.nwdaf.eventsubscription.kafka.datacollection.dummy.KafkaDummyDataPublisher;
-import io.nwdaf.eventsubscription.kafka.datacollection.prometheus.KafkaDataCollectionListener;
-import io.nwdaf.eventsubscription.kafka.datacollection.prometheus.KafkaDataCollectionPublisher;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
 import io.nwdaf.eventsubscription.model.NetworkAreaInfo;
@@ -230,7 +226,6 @@ public class NotificationUtil {
 	
 	public static Integer[] wakeUpDataProducer(String choise, NwdafEventEnum requestedEvent, Integer requestedOffset,
 		DataCollectionPublisher dataCollectionPublisher,DummyDataProducerPublisher dummyDataProducerPublisher,
-		KafkaDummyDataPublisher kafkaDummyDataPublisher,KafkaDataCollectionPublisher kafkaDataCollectionPublisher,
 		KafkaProducer kafkaProducer, ObjectMapper objectMapper) throws InterruptedException, IOException{
 		switch(choise){
 			case "prom":
@@ -250,36 +245,6 @@ public class NotificationUtil {
 					dummyDataProducerPublisher.publishDataCollection("dummy data production");
 					//wait for data publishing to start
 					while((!DummyDataProducerListener.getStartedSavingData()) && DummyDataProducerListener.getNo_dummyDataProducerEventListeners()>0){
-						Thread.sleep(50);
-					}
-					Thread.sleep(50);
-				}
-				break;
-			case "kafka_local_dummy":
-				// check if it needs to wake up kafka dummy data sender
-				if(KafkaDummyDataListener.getNo_kafkaDummyDataListeners()==0){
-					kafkaDummyDataPublisher.publishDataCollection("kafka dummy data production");
-					//wait for data sending & saving to start
-					while(  !KafkaDummyDataListener.getStartedSendingData() &&
-							KafkaDummyDataListener.getNo_kafkaDummyDataListeners()>0 && 
-							KafkaConsumer.isListening &&
-							!KafkaConsumer.startedSavingData	
-						){
-						Thread.sleep(50);
-					}
-					Thread.sleep(50);
-				}
-				break;
-			case "kafka_local_prom":
-				// check if it needs to wake up kafka prom data collector
-				if(KafkaDataCollectionListener.getNo_dataCollectionEventListeners()==0){
-					kafkaDataCollectionPublisher.publishDataCollection("kafka prom data production");
-					//wait for data sending & saving to start
-					while(  !KafkaDataCollectionListener.getStartedSendingData() &&
-							KafkaDataCollectionListener.getNo_dataCollectionEventListeners()>0 && 
-							KafkaConsumer.isListening &&
-							!KafkaConsumer.startedSavingData	
-						){
 						Thread.sleep(50);
 					}
 					Thread.sleep(50);
@@ -510,7 +475,6 @@ public class NotificationUtil {
 	public static List<Boolean> checkCanServeSubscriptions(Integer no_valid_events, NnwdafEventsSubscription body,
 		Map<Integer,NotificationMethodEnum> eventIndexToNotifMethodMap, Map<Integer,Integer> eventIndexToRepPeriodMap,
 		DataCollectionPublisher dataCollectionPublisher, DummyDataProducerPublisher dummyDataProducerPublisher,
-		KafkaDummyDataPublisher kafkaDummyDataPublisher, KafkaDataCollectionPublisher kafkaDataCollectionPublisher,
 		KafkaProducer kafkaProducer, ObjectMapper objectMapper, MetricsService metricsService, MetricsCacheService metricsCacheService, Boolean immRep, Long id){
 		List<Boolean> canServeSubscription = new ArrayList<>();
 		for(int i=0;i<no_valid_events;i++) {
@@ -559,7 +523,7 @@ public class NotificationUtil {
 				// wakeUpDataProducer("kafka_local_dummy", eType);
 				// wakeUpDataProducer("kafka_local_prom", eType);
 				Integer[] wakeUpResult = NotificationUtil.wakeUpDataProducer("kafka", eType, no_secs,dataCollectionPublisher,dummyDataProducerPublisher,
-					kafkaDummyDataPublisher,kafkaDataCollectionPublisher,kafkaProducer,objectMapper);
+					kafkaProducer,objectMapper);
 				isDataAvailable = wakeUpResult[0]==1;
 				expectedWaitTime = wakeUpResult[1];
 			} catch(IOException e){

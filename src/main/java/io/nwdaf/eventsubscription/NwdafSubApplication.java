@@ -30,8 +30,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.api.config.NwdafSubProperties;
+import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerPublisher;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
-import io.nwdaf.eventsubscription.kafka.datacollection.dummy.KafkaDummyDataPublisher;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.notify.NotifyListener;
@@ -59,11 +59,8 @@ public class NwdafSubApplication {
 	@Autowired
     private ApplicationContext applicationContext;
 
-	// @Autowired
-	// private DummyDataProducerPublisher dummyDataProducerPublisher;
-
 	@Autowired
-	private KafkaDummyDataPublisher kafkaDummyDataPublisher;
+	private DummyDataProducerPublisher dummyDataProducerPublisher;
 
 	@Autowired
     KafkaTemplate<String,String> kafkaTemplate;
@@ -124,8 +121,7 @@ public class NwdafSubApplication {
 					}
 				}
 				// dataCollectionPublisher.publishDataCollection("");
-				// dummyDataProducerPublisher.publishDataCollection("dummy data production");
-				kafkaDummyDataPublisher.publishDataCollection("dummy data production through kafka");
+				dummyDataProducerPublisher.publishDataCollection("dummy data production");
 				notifyPublisher.publishNotification(subId);
 				Thread.sleep(100000);
 				NotifyListener.stop();
