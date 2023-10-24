@@ -146,6 +146,7 @@ public class SubscriptionsController implements SubscriptionsApi{
 	@Override
 	public ResponseEntity<NnwdafEventsSubscription> updateNWDAFEventsSubscription(String subscriptionId,
 			@Valid NnwdafEventsSubscription body) {
+		body.setId(ParserUtil.safeParseLong(subscriptionId));
 		HttpHeaders responseHeaders = new HttpHeaders();
 		String subsUri = env.getProperty("nnwdaf-eventsubscription.openapi.dev-url")+"/nwdaf-eventsubscription/v1/subscriptions"+"/"+subscriptionId;
 		

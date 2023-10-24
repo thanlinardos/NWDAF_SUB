@@ -79,7 +79,8 @@ public class KafkaConsumer {
 		switch(topic){
 			case "NF_LOAD":
 				nfLoadLevelInformation = objectMapper.reader().readValue(in, NfLoadLevelInformation.class);
-				metricsCacheService.create(nfLoadLevelInformation);
+				// metricsCacheService.create(nfLoadLevelInformation);
+				metricsService.create(nfLoadLevelInformation);
 				break;
 			case "UE_MOBILITY":
 				ueMobility = objectMapper.reader().readValue(in, UeMobility.class);

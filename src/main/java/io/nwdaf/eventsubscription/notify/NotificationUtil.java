@@ -192,7 +192,8 @@ public class NotificationUtil {
 			
 			try{
 				// repetition period is used also as the granularity (offset) for the querry
-				nfloadlevels = metricsCacheService.findAllInLastIntervalByFilterAndOffset(eventSub, filterTypes, params, no_secs, repPeriod, columns);
+				nfloadlevels = metricsService.findAllInLastIntervalByFilterAndOffset(params, no_secs, repPeriod, columns);
+				// nfloadlevels = metricsCacheService.findAllInLastIntervalByFilterAndOffset(eventSub, filterTypes, params, no_secs, repPeriod, columns);
 			} catch(Exception e){
 				NwdafSubApplication.getLogger().error("Can't find nf load metrics from database", e);
 				return null;

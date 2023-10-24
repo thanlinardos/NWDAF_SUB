@@ -90,8 +90,16 @@ public class NwdafSubApplication {
 		SpringApplication.run(NwdafSubApplication.class, args);
 
 	}
-	
 	@Bean
+	public CommandLineRunner resetDb(){
+		return args -> {
+			if(!subscriptionsService.truncate()){
+					log.error("Truncate subscription table failed!");
+					return;
+			}
+		};
+	}
+	// @Bean
 	public CommandLineRunner run() throws JsonProcessingException{
 		
 		return args -> {
@@ -134,7 +142,7 @@ public class NwdafSubApplication {
 			producer.sendMessage(payload,"topic1");
 		};
 	}
-
+	
 	// @Bean
 	public CommandLineRunner redisTest(){
 		return args -> {

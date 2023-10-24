@@ -1,6 +1,5 @@
 package io.nwdaf.eventsubscription.service;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,13 +78,11 @@ public class MetricsCacheService {
         final int offsetFinal = offset;
         int oldestIndex = 0;
         OffsetDateTime oldestDate = OffsetDateTime.now();
-		entities = repository.findAll();
-		entities = repository.findAll()
-			.stream()
-			.filter(e -> e.getTime().isAfter(OffsetDateTime.now().minusSeconds(noSecsFinal)))
-			.collect(Collectors.toList());
-		entities = entities.stream()
-            .filter(e -> e.getTime().isAfter(OffsetDateTime.now().minusSeconds(noSecsFinal)) &&
+		// OffsetDateTime r0 = repository.findAll().get(repository.findAll().size()-1).getTime();
+		// System.out.println(r0 + " , "+OffsetDateTime.now());
+		// System.out.println(r0.toInstant().toEpochMilli() >= OffsetDateTime.now().minusSeconds(noSecsFinal).toInstant().toEpochMilli());
+		entities = repository.findAll().stream()
+            .filter(e -> e.getTime().toInstant().toEpochMilli() >= OffsetDateTime.now().minusSeconds(noSecsFinal).toInstant().toEpochMilli() &&
                     e.getTime().toLocalTime().toSecondOfDay() % offsetFinal == 0 &&
                     (!filterTypes.contains("nfInstanceId") || (e.getNfInstanceId()!=null && eventSub.getNfInstanceIds().contains(e.getNfInstanceId()))) &&
                     (!filterTypes.contains("nfSetId") || (e.getData().getNfSetId()!=null && eventSub.getNfSetIds().contains(e.getData().getNfSetId()))) &&
@@ -113,15 +110,15 @@ public class MetricsCacheService {
 				res.add(info);
 			}
 		}
-        long availableNoSecs = (Instant.now().toEpochMilli() - oldestDate.toInstant().toEpochMilli()) / 1000;
-        if(availableNoSecs<noSecsFinal){
-            List<NfLoadLevelInformation> postgresRes = metricsService.findAllInLastIntervalByFilterAndOffset(params, no_secs, offset, columns);
-            if(oldestIndex == 0){
-                postgresRes.addAll(res);
-                return postgresRes;
-            }
-            res.addAll(postgresRes);
-        }
+        // long availableNoSecs = (Instant.now().toEpochMilli() - oldestDate.toInstant().toEpochMilli()) / 1000;
+        // if(availableNoSecs<noSecsFinal){
+        //     List<NfLoadLevelInformation> postgresRes = metricsService.findAllInLastIntervalByFilterAndOffset(params, no_secs, offset, columns);
+        //     if(oldestIndex == 0){
+        //         postgresRes.addAll(res);
+        //         return postgresRes;
+        //     }
+        //     res.addAll(postgresRes);
+        // }
 		return res;
 	}
 }
