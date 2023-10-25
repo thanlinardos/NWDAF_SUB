@@ -185,10 +185,10 @@ services:
       - db
     environment:
       SPRING.PROFILES.ACTIVE: production
-      nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
-      nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
-      nnwdaf-eventsubscription.client.dev_url: "${client_host}:${client_port}/client"
-      nnwdaf-eventsubscription.client.prod_url: "${client_host}:${client_port}/client"
+      nnwdaf-eventsubscription.openapi.dev_url: "https://${server_host}:${server_port}"
+      nnwdaf-eventsubscription.openapi.prod_url: "https://${server_host}:${server_port}"
+      nnwdaf-eventsubscription.client.dev_url: "https://${client_host}:${client_port}/client"
+      nnwdaf-eventsubscription.client.prod_url: "https://${client_host}:${client_port}/client"
       nnwdaf-eventsubscription.init: false
       nnwdaf-eventsubscription.prometheus_url: http://${prom_host}:${prom_port}/api/v1/query
       nnwdaf-eventsubscription.containerNames: pg_container,pgadmin4_container,nwdafSub
@@ -231,10 +231,10 @@ services:
       springdoc.enable-native-support: true
       springdoc.swagger-ui.path: /swagger-ui
       server.port: "${client_port}"
-      nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
-      nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
-      nnwdaf-eventsubscription.client.dev_url: "${client_host}:${client_port}/client"
-      nnwdaf-eventsubscription.client.prod_url: "${client_host}:${client_port}/client"
+      nnwdaf-eventsubscription.openapi.dev_url: "https://${server_host}:${server_port}"
+      nnwdaf-eventsubscription.openapi.prod_url: "https://${server_host}:${server_port}"
+      nnwdaf-eventsubscription.client.dev_url: "https://${client_host}:${client_port}/client"
+      nnwdaf-eventsubscription.client.prod_url: "https://${client_host}:${client_port}/client"
       nnwdaf-eventsubscription.init: false
       #spring configuration:
       spring.datasource.generate-unique-name: false
@@ -257,10 +257,10 @@ services:
   #     springdoc.enable-native-support: true
   #     springdoc.swagger-ui.path: /swagger-ui
   #     server.port: "${client_port2}"
-  #     nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
-  #     nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
-  #     nnwdaf-eventsubscription.client.dev_url: "${client_host2}:${client_port2}/client"
-  #     nnwdaf-eventsubscription.client.prod_url: "${client_host2}:${client_port2}/client"
+  #     nnwdaf-eventsubscription.openapi.dev_url: "https://${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.openapi.prod_url: "https://${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.client.dev_url: "https://${client_host2}:${client_port2}/client"
+  #     nnwdaf-eventsubscription.client.prod_url: "https://${client_host2}:${client_port2}/client"
   #     nnwdaf-eventsubscription.init: false
   #     #spring configuration:
   #     spring.datasource.generate-unique-name: false
@@ -283,10 +283,10 @@ services:
   #     springdoc.enable-native-support: true
   #     springdoc.swagger-ui.path: /swagger-ui
   #     server.port: "${client_port3}"
-  #     nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
-  #     nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
-  #     nnwdaf-eventsubscription.client.dev_url: "${client_host3}:${client_port3}/client"
-  #     nnwdaf-eventsubscription.client.prod_url: "${client_host3}:${client_port3}/client"
+  #     nnwdaf-eventsubscription.openapi.dev_url: "https://${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.openapi.prod_url: "https://${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.client.dev_url: "https://${client_host3}:${client_port3}/client"
+  #     nnwdaf-eventsubscription.client.prod_url: "https://${client_host3}:${client_port3}/client"
   #     nnwdaf-eventsubscription.init: false
   #     #spring configuration:
   #     spring.datasource.generate-unique-name: false
@@ -309,10 +309,10 @@ services:
   #     springdoc.enable-native-support: true
   #     springdoc.swagger-ui.path: /swagger-ui
   #     server.port: "${client_port4}"
-  #     nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
-  #     nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
-  #     nnwdaf-eventsubscription.client.dev_url: "${client_host4}:${client_port4}/client"
-  #     nnwdaf-eventsubscription.client.prod_url: "${client_host4}:${client_port4}/client"
+  #     nnwdaf-eventsubscription.openapi.dev_url: "https://${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.openapi.prod_url: "https://${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.client.dev_url: "https://${client_host4}:${client_port4}/client"
+  #     nnwdaf-eventsubscription.client.prod_url: "https://${client_host4}:${client_port4}/client"
   #     nnwdaf-eventsubscription.init: false
   #     #spring configuration:
   #     spring.datasource.generate-unique-name: false
@@ -335,10 +335,10 @@ services:
   #     springdoc.enable-native-support: true
   #     springdoc.swagger-ui.path: /swagger-ui
   #     server.port: "${client_port5}"
-  #     nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
-  #     nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
-  #     nnwdaf-eventsubscription.client.dev_url: "${client_host5}:${client_port5}/client"
-  #     nnwdaf-eventsubscription.client.prod_url: "${client_host5}:${client_port5}/client"
+  #     nnwdaf-eventsubscription.openapi.dev_url: "https://${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.openapi.prod_url: "https://${server_host}:${server_port}"
+  #     nnwdaf-eventsubscription.client.dev_url: "https://${client_host5}:${client_port5}/client"
+  #     nnwdaf-eventsubscription.client.prod_url: "https://${client_host5}:${client_port5}/client"
   #     nnwdaf-eventsubscription.init: false
   #     #spring configuration:
   #     spring.datasource.generate-unique-name: false
