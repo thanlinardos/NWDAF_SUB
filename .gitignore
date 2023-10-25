@@ -32,6 +32,3 @@ build/
 ### VS Code ###
 .vscode/
 dockprom/
-dockprom/.git
-dockprom/docker-compose.exporters.yml
-dockprom/docker-compose.yml
