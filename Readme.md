@@ -119,4 +119,3 @@ which will run in port 10000 and above.
 - [Pandoc](http://pandoc.org/)
 - [Pandoc Manual](http://pandoc.org/MANUAL.html)
 - [Wikipedia: Markdown](http://wikipedia.org/wiki/Markdown)
-- [Kafka ]

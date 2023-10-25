@@ -1,0 +1,76 @@
+From 2b7878079fda15522fe1577f3bdfe429da10f431 Mon Sep 17 00:00:00 2001
+From: thanlinardos <thanlinardos@yahoo.gr>
+Date: Wed, 25 Oct 2023 22:59:50 +0300
+Subject: [PATCH] fix filesystem , add amf label & cadvisor port
+
+---
+ docker-compose.yml                                     | 4 ++--
+ grafana/provisioning/dashboards/docker_containers.json | 2 +-
+ grafana/provisioning/dashboards/docker_host.json       | 2 +-
+ prometheus/prometheus.yml                              | 2 ++
+ 4 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/docker-compose.yml b/docker-compose.yml
+index 4ba6f6b..276ed87 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -81,7 +81,7 @@ services:
+       #- /cgroup:/cgroup:ro #doesn't work on MacOS only for Linux
+     restart: unless-stopped
+     expose:
+-      - 8080
++      - 3030
+     networks:
+       - monitor-net
+     labels:
+@@ -122,7 +122,7 @@ services:
+     container_name: caddy
+     ports:
+       - "3000:3000"
+-      - "8080:8080"
++      - "3030:3030"
+       - "9090:9090"
+       - "9093:9093"
+       - "9091:9091"
+diff --git a/grafana/provisioning/dashboards/docker_containers.json b/grafana/provisioning/dashboards/docker_containers.json
+index 5ac83a6..f74ee73 100644
+--- a/grafana/provisioning/dashboards/docker_containers.json
++++ b/grafana/provisioning/dashboards/docker_containers.json
+@@ -403,7 +403,7 @@
+           },
+           "targets": [
+             {
+-              "expr": "(node_filesystem_size_bytes{fstype=\"aufs\"} - node_filesystem_free_bytes{fstype=\"aufs\"}) / node_filesystem_size_bytes{fstype=\"aufs\"}  * 100",
++              "expr": "(node_filesystem_size_bytes{fstype=\"tmpfs\"} - node_filesystem_free_bytes{fstype=\"tmpfs\"}) / node_filesystem_size_bytes{fstype=\"tmpfs\"}  * 100",
+               "interval": "30s",
+               "intervalFactor": 1,
+               "legendFormat": "",
+diff --git a/grafana/provisioning/dashboards/docker_host.json b/grafana/provisioning/dashboards/docker_host.json
+index 91eb4ac..1f0fe48 100644
+--- a/grafana/provisioning/dashboards/docker_host.json
++++ b/grafana/provisioning/dashboards/docker_host.json
+@@ -477,7 +477,7 @@
+           },
+           "targets": [
+             {
+-              "expr": "sum(node_filesystem_free_bytes{fstype=\"aufs\"})",
++              "expr": "sum(node_filesystem_free_bytes{fstype=\"tmpfs\"})",
+               "interval": "30s",
+               "intervalFactor": 1,
+               "legendFormat": "",
+diff --git a/prometheus/prometheus.yml b/prometheus/prometheus.yml
+index 7906963..141cc9f 100644
+--- a/prometheus/prometheus.yml
++++ b/prometheus/prometheus.yml
+@@ -22,6 +22,8 @@ scrape_configs:
+     scrape_interval: 5s
+     static_configs:
+       - targets: ['cadvisor:8080']
++        labels: 
++          nfType: AMF
+ 
+   - job_name: 'prometheus'
+     scrape_interval: 10s
+-- 
+2.34.1
+
