@@ -80,6 +80,10 @@ Building the project is as simple as going to the project root directory and run
 ./build.sh
 ```
 That will install all project artifacts as jar files to the local user maven repository (~/user/.m2/repository is the default location)
+Also, before running for the first time you also need to install dockprom for the prometheus nf_load metrics collection & graphana:
+```sh
+./installDockprom.sh
+```
 ### Run
 
 To run only the database and kafka containers: (in linux make sure to use sudo as necessary or create user group for docker)

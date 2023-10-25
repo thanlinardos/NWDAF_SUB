@@ -1,5 +1,6 @@
 package io.nwdaf.eventsubscription.service;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -110,15 +111,16 @@ public class MetricsCacheService {
 				res.add(info);
 			}
 		}
-        // long availableNoSecs = (Instant.now().toEpochMilli() - oldestDate.toInstant().toEpochMilli()) / 1000;
-        // if(availableNoSecs<noSecsFinal){
-        //     List<NfLoadLevelInformation> postgresRes = metricsService.findAllInLastIntervalByFilterAndOffset(params, no_secs, offset, columns);
-        //     if(oldestIndex == 0){
-        //         postgresRes.addAll(res);
-        //         return postgresRes;
-        //     }
-        //     res.addAll(postgresRes);
-        // }
+		// if redis doesn't have enough data then look inside timescaleDB
+        long availableNoSecs = (Instant.now().toEpochMilli() - oldestDate.toInstant().toEpochMilli()) / 1000;
+        if(availableNoSecs<noSecsFinal){
+            // List<NfLoadLevelInformation> postgresRes = metricsService.findAllInLastIntervalByFilterAndOffset(params, no_secs, offset, columns);
+            if(oldestIndex == 0){
+                // postgresRes.addAll(res);
+                // return postgresRes;
+            }
+            // res.addAll(postgresRes);
+        }
 		return res;
 	}
 }
