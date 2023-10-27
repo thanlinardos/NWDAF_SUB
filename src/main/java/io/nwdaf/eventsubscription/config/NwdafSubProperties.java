@@ -1,4 +1,4 @@
-package io.nwdaf.eventsubscription.api.config;
+package io.nwdaf.eventsubscription.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

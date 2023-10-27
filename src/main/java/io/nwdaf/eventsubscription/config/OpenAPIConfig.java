@@ -1,11 +1,11 @@
-package io.nwdaf.eventsubscription.api.config;
+package io.nwdaf.eventsubscription.config;
 
 import java.util.List;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import io.nwdaf.eventsubscription.repository.eventnotification.entities.NnwdafNotificationTable;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
@@ -15,7 +15,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.servers.Server;
 
-@Configuration
+@Component
 @RegisterReflectionForBinding({NnwdafNotificationTable.class,NnwdafEventsSubscriptionTable.class})
 @EntityScan({"io.nwdaf.eventsubscription.repository.eventnotification.entities","io.nwdaf.eventsubscription.repository.eventsubscription.entities"})
 public class OpenAPIConfig {

@@ -54,7 +54,7 @@ public class DummyDataProducerListener{
                         nfloadinfos = DummyDataGenerator.changeNfLoadTimeDependentProperties(nfloadinfos);
                         for(int k=0;k<nfloadinfos.size();k++) {
                             try {
-                                metricsCacheService.create(nfloadinfos.get(k));
+                                metricsService.create(nfloadinfos.get(k));
                                 synchronized(startedSavingDataLock){
                                     startedSavingData = true;
                                 }

@@ -16,8 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.autoconfigure.metrics.JvmMetricsAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.metrics.LogbackMetricsAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -29,7 +34,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nwdaf.eventsubscription.api.config.NwdafSubProperties;
+import io.nwdaf.eventsubscription.config.NwdafSubProperties;
 import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerPublisher;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
@@ -46,6 +51,8 @@ import io.nwdaf.eventsubscription.utilities.ParserUtil;
 @EnableAsync
 @EnableScheduling
 @EntityScan({"io.nwdaf.eventsubscription.repository"})
+@EnableAutoConfiguration(exclude = {JacksonAutoConfiguration.class, JvmMetricsAutoConfiguration.class, 
+  LogbackMetricsAutoConfiguration.class, MetricsAutoConfiguration.class})
 public class NwdafSubApplication {
 	
 	private static final Logger log = LoggerFactory.getLogger(NwdafSubApplication.class);
@@ -96,7 +103,7 @@ public class NwdafSubApplication {
 			}
 		};
 	}
-	// @Bean
+	@Bean
 	public CommandLineRunner run() throws JsonProcessingException{
 		
 		return args -> {

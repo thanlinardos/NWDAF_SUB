@@ -1,13 +1,13 @@
-package io.nwdaf.eventsubscription.api.config;
+package io.nwdaf.eventsubscription.config;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-@Configuration
+@Component
 public class JacksonConfiguration {
 
     @Bean

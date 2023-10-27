@@ -1,15 +1,15 @@
-package io.nwdaf.eventsubscription.api.config;
+package io.nwdaf.eventsubscription.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.stereotype.Component;
 
-@Configuration
+@Component
 @EnableRedisRepositories(basePackages = "io.nwdaf.eventsubscription.repository.redis")
 @EnableCaching
 public class JedisClientConfig {

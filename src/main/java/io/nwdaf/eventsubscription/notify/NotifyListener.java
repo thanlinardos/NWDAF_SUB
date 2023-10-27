@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
-import io.nwdaf.eventsubscription.api.config.RestTemplateFactoryConfig;
+import io.nwdaf.eventsubscription.config.RestTemplateFactoryConfig;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.FailureEventInfo;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
