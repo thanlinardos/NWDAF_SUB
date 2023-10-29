@@ -131,8 +131,8 @@ public class KafkaConsumer {
 			return;
 		}
         // Convert the earliest timestamp to a human-readable format
-        String formattedTimestamp = Instant.ofEpochMilli(earliestTimestamp).toString();
-        System.out.println("Earliest Timestamp in the DISCOVER topic: " + formattedTimestamp);
+        // String formattedTimestamp = Instant.ofEpochMilli(earliestTimestamp).toString();
+        // System.out.println("Earliest Timestamp in the DISCOVER topic: " + formattedTimestamp);
 
         // Set the desired timestamps for the beginning and end of the range
         long endTimestamp = Instant.parse(OffsetDateTime.now().toString()).toEpochMilli();
@@ -147,7 +147,7 @@ public class KafkaConsumer {
         }
 
 	    // consume messages inside the desired range
-        ConsumerRecords<String, String> records = kafkaConsumerDiscover.poll(Duration.ofMillis(100));
+        ConsumerRecords<String, String> records = kafkaConsumerDiscover.poll(Duration.ofMillis(1000));
 
         // Process the received messages here
         records.forEach(record -> {

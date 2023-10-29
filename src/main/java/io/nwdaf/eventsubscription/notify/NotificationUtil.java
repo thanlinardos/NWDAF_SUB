@@ -203,8 +203,6 @@ public class NotificationUtil {
 			break;
 		case UE_MOBILITY:
 			List<UeMobility> ueMobilities = new ArrayList<>();
-			params = null;
-			columns = "";
 			try{
 				ueMobilities = metricsService.findAllUeMobilityInLastIntervalByFilterAndOffset(params, no_secs, repPeriod, columns);
 			} catch(Exception e){
@@ -247,7 +245,6 @@ public class NotificationUtil {
 					while((!DummyDataProducerListener.getStartedSavingData()) && DummyDataProducerListener.getNo_dummyDataProducerEventListeners()>0){
 						Thread.sleep(50);
 					}
-					Thread.sleep(50);
 				}
 				break;
 			case "kafka":
@@ -259,25 +256,28 @@ public class NotificationUtil {
 				// hit up data producers through kafka topic "WAKE_UP"
 				kafkaProducer.sendMessage(WakeUpMessage.builder().requestedEvent(requestedEvent).requestedOffset(requestedOffset).build().toString(), "WAKE_UP");
 				// wait for data sending & saving to start
-				long maxWait = 200;
+				long maxWait = 4000;
 				long wait_time = 0;
 				boolean responded = false;
 				List<DiscoverMessage> discoverMessages = new ArrayList<>();
-				while(wait_time<maxWait){
+				boolean hasData = false;
+				while(wait_time<maxWait) {
 					while(KafkaConsumer.discoverMessageQueue.size()>0){
 						try{
 							String msg = KafkaConsumer.discoverMessageQueue.poll();
-							if(msg==null){
+							if(msg==null) {
 								logger.error("InterruptedException: Couldn't take msg from discover queue");
 								break;
 							}
-							discoverMessages.add(objectMapper.reader().readValue(msg,DiscoverMessage.class));
+							DiscoverMessage discoverMessage = objectMapper.reader().readValue(msg,DiscoverMessage.class);
+							discoverMessages.add(discoverMessage);
+							hasData = discoverMessage.getHasData();
 						} catch(IOException e){
 							logger.error("IOException: Couldn't read discover message");
 						}
 						responded = true;
 					}
-					if(responded){
+					if(responded && hasData) {
 						// remove duplicate messages
 						discoverMessages = new ArrayList<>(new LinkedHashSet<>(discoverMessages));
 						break;
@@ -285,9 +285,10 @@ public class NotificationUtil {
 					Thread.sleep(50);
 					wait_time += 50;
 				}
+				System.out.println("kafka_wait_time= "+wait_time);
 				int isDataAvailable = 0;
 				int expectedWaitTime = 0;
-				for(DiscoverMessage msg : discoverMessages){
+				for(DiscoverMessage msg : discoverMessages) {
 					System.out.println("discover msg: "+msg);
 					if(msg.getHasData()!=null && msg.getHasData()){
 						if(msg.getRequestedOffset()==null || msg.getRequestedOffset()<=Constants.MIN_PERIOD_SECONDS){

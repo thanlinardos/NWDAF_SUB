@@ -28,9 +28,11 @@ echo "127.0.0.1 $kafka3" >> hosts
 echo "127.0.0.1 $server" >> hosts
 echo "127.0.0.1 $client" >> hosts
 echo "127.0.0.1 $redis" >> hosts
+echo "127.0.0.1" >> sanHosts.txt
 echo "$server" >> sanHosts.txt
 echo "localhost" >> sanHosts.txt
 echo "localhost" >> sanClientHosts.txt
+echo "127.0.0.1" >> sanClientHosts.txt
 echo "$client" >> sanClientHosts.txt
 for ((i=2; i<=$num_clients; i++)); do
     echo "$client$i" >> sanClientHosts.txt

@@ -113,7 +113,6 @@ public class NotifyListener {
 			    	subIndexes.put(subs.get(i).getId(), i);
 		    	}
     		}
-    		
     	}
     	System.out.println("no_subs="+subs.size());
     	System.out.println("no_Ssubs="+no_served_subs);
@@ -205,11 +204,7 @@ public class NotifyListener {
     		}
 			// System.out.print(",subs="+subs.size());
 			loop_section = (System.nanoTime()-st2);
-			System.out.print("loop_section="+loop_section / 1000000l+"ms");
-			System.out.print(" || section_a="+section_a / 1000l+"ms");
-			System.out.print(" || section_b="+section_b / 1000l+"ms");
-			System.out.print(" || section_c="+section_c / 1000l+"ms");
-        	System.out.print(" || served_subs="+no_served_subs);
+			printPerfA(loop_section,section_a,section_b,section_c,no_served_subs);
 			long st_sub = System.nanoTime();
     		try {
     			subs = subscriptionService.findAll();
@@ -246,14 +241,8 @@ public class NotifyListener {
     		    	}
         		}
         	}
-			// System.out.print(" || maps="+(System.nanoTime()-st) / 1000l+"μs");
-        	System.out.print(" || tsdb_req_delay: "+(long)tsdb_req_delay / 1000l+"ms");
-    		System.out.print(" || client_delay:"+(long)client_delay / 1000l+"ms");
-    		System.out.print(" || notif_save_delay:"+(long)notif_save_delay / 1000l+"ms");
-    		System.out.print(" || no_sent_notifs:"+no_sent_notifs);
-    		System.out.print(" || no_sent_kilobytes:"+no_sent_kilobytes+"KB");
-        	long diff = (System.nanoTime()-start) / 1000000l;
-        	System.out.print(" || total delay: "+diff+"ms\n");
+			long diff = (System.nanoTime()-start) / 1000000l;
+			printPerfB(tsdb_req_delay, client_delay, notif_save_delay, no_sent_notifs, no_sent_kilobytes, diff);
 			if(no_sent_notifs!=0){
 				avg_client_delay_per_notif += client_delay / no_sent_notifs;
 				counter++;
@@ -280,7 +269,7 @@ public class NotifyListener {
 			}
     	}
 		logger.info("avg_client_delay_per_notif="+avg_client_delay_per_notif / counter+"ms");
-		logger.info(total_sent_notifs+"/5000 notifications sent");
+		logger.info(total_sent_notifs+"/20000 notifications sent");
     }
 
 	private boolean thresholdReached(EventSubscription event, NnwdafEventsSubscriptionNotification notification) {
@@ -341,8 +330,25 @@ public class NotifyListener {
 
 	public static void stop(){
 		synchronized (notifLock) {
-        		no_notifEventListeners--;
-        	}
+    		no_notifEventListeners--;
+    	}
 	} 
 	
+	private void printPerfA(long loop_section, double section_a, double section_b, double section_c, int no_served_subs) {
+		System.out.print("loop_section="+loop_section / 1000000l+"ms");
+		System.out.print(" || section_a="+section_a / 1000l+"ms");
+		System.out.print(" || section_b="+section_b / 1000l+"ms");
+		System.out.print(" || section_c="+section_c / 1000l+"ms");
+        System.out.print(" || served_subs="+no_served_subs);
+	}
+
+	private void printPerfB(double tsdb_req_delay, double client_delay, double notif_save_delay, int no_sent_notifs, int no_sent_kilobytes, long diff) {
+		// System.out.print(" || maps="+(System.nanoTime()-st) / 1000l+"μs");
+        System.out.print(" || tsdb_req_delay: "+(long)tsdb_req_delay / 1000l+"ms");
+    	System.out.print(" || client_delay:"+(long)client_delay / 1000l+"ms");
+		System.out.print(" || notif_save_delay:"+(long)notif_save_delay / 1000l+"ms");
+    	System.out.print(" || no_sent_notifs:"+no_sent_notifs);
+    	System.out.print(" || no_sent_kilobytes:"+no_sent_kilobytes+"KB");
+    	System.out.print(" || total delay: "+diff+"ms\n");
+	}
 }

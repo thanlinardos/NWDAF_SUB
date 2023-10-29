@@ -136,9 +136,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
             	<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
-					<jvmArguments>
-						-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-					</jvmArguments>
 					<excludes>
 						<exclude>**/pgadmin-data/**</exclude>
 						<exclude>**/postgres-data/**</exclude>

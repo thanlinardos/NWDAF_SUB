@@ -13,4 +13,5 @@ echo "Done" &&
 echo "Cleaning up..." &&
 rm sanHosts.txt &&
 rm sanClientHosts.txt &&
+cp local-ssl.p12 local-client-ssl.p12 local-ssl.crt local-client-ssl.crt ../../../../../NWDAF_SUB_CLIENT/src/main/resources/certificates
 echo "Finished"
