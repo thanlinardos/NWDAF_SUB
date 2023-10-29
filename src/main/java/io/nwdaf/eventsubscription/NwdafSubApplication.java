@@ -96,41 +96,47 @@ public class NwdafSubApplication {
 
 	}
 	@Bean
-	public CommandLineRunner resetDb(){
+	public CommandLineRunner resetDb() {
 		return args -> {
-			if(!subscriptionsService.truncate()){
+			if(!subscriptionsService.truncate()) {
 					log.error("Truncate subscription table failed!");
 					return;
 			}
 		};
 	}
-	@Bean
+	// @Bean
 	public CommandLineRunner run() throws JsonProcessingException{
 		
 		return args -> {
-			for(int n=0;n<5;n++){
+			for(int n=0;n<5;n++) {
 				System.out.println("test iteration: "+n);
-				if(!subscriptionsService.truncate()){
+				if(!subscriptionsService.truncate()) {
 					log.error("Truncate subscription table failed!");
 					return;
 				}
 				Long subId = 0l;
 				File test = new File("test.json");
 				String uri = env.getProperty("nnwdaf-eventsubscription.client.prod-url");
-				if(uri != null){
+				if(uri != null) {
 					Integer default_port = ParserUtil.safeParseInteger(env.getProperty("nnwdaf-eventsubscription.client.port"));
-					for(int i=0;i<40;i++){
-						for(int j=0;j<5;j++){
+					for(int i=0;i<40;i++) {
+						for(int j=0;j<5;j++) {
 							Integer current_port = default_port+j;
 							String parsedUri = uri.replace(default_port.toString(), current_port.toString());
-							if(j>0 && !uri.contains("localhost")){
+							if(j>0 && !uri.contains("localhost")) {
 								parsedUri = parsedUri.replace(":"+current_port.toString(),ParserUtil.safeParseString(j+1)+":"+current_port.toString());
 							}
 							subscriptionsService.create(objectMapper.reader().readValue(test,NnwdafEventsSubscription.class)
 								.notificationURI(parsedUri));
 						}
 					}
-					NotificationUtil.wakeUpDataProducer("dummy", NwdafEventEnum.NF_LOAD, null, dataCollectionPublisher, dummyDataProducerPublisher, producer, objectMapper);
+					NotificationUtil.wakeUpDataProducer("dummy",
+														NwdafEventEnum.NF_LOAD,
+														null,
+														dataCollectionPublisher,
+														dummyDataProducerPublisher,
+														producer,
+														objectMapper);
 					notifyPublisher.publishNotification(subId);
 					Thread.sleep(100000);
 					NotifyListener.stop();
@@ -140,8 +146,8 @@ public class NwdafSubApplication {
 		};
 	}
 	
-	// @Bean
-	public CommandLineRunner redisTest(){
+	@Bean
+	public CommandLineRunner redisTest() {
 		return args -> {
 			NfLoadLevelInformationCached nfLoadLevelInformationCached = new NfLoadLevelInformationCached();
 			nfLoadLevelInformationCached.setData(new NfLoadLevelInformation().nfInstanceId(UUID.randomUUID()).nfCpuUsage(100).time(Instant.now()));
@@ -158,6 +164,19 @@ public class NwdafSubApplication {
 		};
 	}
 
+	// @Bean
+	public CommandLineRunner redisQuerryTest() {
+		return args -> {
+			NfLoadLevelInformationCached nfLoadLevelInformationCached = new NfLoadLevelInformationCached();
+			nfLoadLevelInformationCached.setData(new NfLoadLevelInformation().nfInstanceId(UUID.randomUUID()).nfCpuUsage(100).time(Instant.now()));
+			System.out.println("before:"+nfLoadLevelInformationCached.toString());
+			redisRepository.save(nfLoadLevelInformationCached);
+			
+			List<NfLoadLevelInformationCached> res = redisRepository.findBy(null, null);
+			System.out.println("after:"+res.toString());
+		};
+	}
+
 	public static Logger getLogger() {
 		return NwdafSubApplication.log;
 	}
@@ -165,5 +184,4 @@ public class NwdafSubApplication {
     public ApplicationContext getApplicationContext() {
         return applicationContext;
     }
-	
 }

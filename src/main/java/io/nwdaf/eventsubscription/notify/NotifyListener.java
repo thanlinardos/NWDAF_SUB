@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
@@ -47,7 +47,8 @@ import org.springframework.core.io.Resource;
 
 @Component
 public class NotifyListener {
-	
+
+	public static Integer max_no_notifEventListeners = 1;
 	private static Integer no_notifEventListeners = 0;
 	private static final Object notifLock = new Object();
 	@Autowired
@@ -62,7 +63,6 @@ public class NotifyListener {
 	@Autowired
 	ObjectMapper objectMapper;
 
-	// @Autowired
 	RestTemplate restTemplate;
 
 	@Autowired
@@ -121,8 +121,6 @@ public class NotifyListener {
 		int no_sent_notifs,no_sent_kilobytes;
 		double avg_client_delay_per_notif=0;
 		int counter=0,total_sent_notifs=0;
-		HttpEntity<NnwdafEventsSubscriptionNotification> client_request;
-		ResponseEntity<NnwdafEventsSubscriptionNotification> client_response;
 		RestTemplateFactoryConfig.setTrustStore(trustStore);
 		RestTemplateFactoryConfig.setTrustStorePassword(trustStorePassword);
 		restTemplate = new RestTemplate(RestTemplateFactoryConfig.createRestTemplateFactory());
@@ -179,25 +177,30 @@ public class NotifyListener {
     			notif_save_delay += (System.nanoTime()-st) / 1000l;
     			//check if period has passed -> notify client (or if threshold has been reached)
 				long st_if  = System.nanoTime();
-    			if((repPeriod!=0 && OffsetDateTime.now().compareTo(entry.getValue().plusSeconds((long) repPeriod))>0) || (repPeriod==0 && thresholdReached(event,notification))) {
+    			if((repPeriod!=0 && OffsetDateTime.now().compareTo(entry.getValue().plusSeconds((long) repPeriod))>0) ||
+																								(repPeriod==0 && thresholdReached(event,notification))) {
 	            	st = System.nanoTime();
-	        		client_request = new HttpEntity<>(notification);
-	        		client_response=null;
+	        		HttpEntity<NnwdafEventsSubscriptionNotification> client_request = new HttpEntity<>(notification);
 	        		try {
-	        			client_response = restTemplate.postForEntity(sub.getNotificationURI()+"/notify",client_request, NnwdafEventsSubscriptionNotification.class);
-					}catch(RestClientException e) {
+						CompletableFuture.supplyAsync(() -> restTemplate.postForEntity(sub.getNotificationURI()+"/notify",
+																					   client_request,
+							   										      NnwdafEventsSubscriptionNotification.class))
+                        .thenAccept(client_response -> {
+                            if(client_response==null || !client_response.getStatusCode().is2xxSuccessful()) {
+								logger.error("Client missed a notification for subscription with id: "+client_request.getBody().getSubscriptionId());
+							}
+                        });
+					} catch(RestClientException e) {
 	        			logger.error("Error connecting to client "+sub.getNotificationURI());
 						logger.info(e.toString());
 	        		}
 	        		client_delay += (System.nanoTime()-st)/1000l;
 					// if notifying the client was successful update the map with the current time
 					st = System.nanoTime();
-	    			if(client_response!=null && client_response.getStatusCode().is2xxSuccessful()) {
-		    			lastNotifTimes.put(Pair.of(entry.getKey().getFirst(), eventIndex), OffsetDateTime.now());
-						no_sent_notifs++;
-						no_sent_kilobytes += notification.toString().getBytes().length / 1000;
-						total_sent_notifs++;
-	    			}
+		    		lastNotifTimes.put(Pair.of(entry.getKey().getFirst(), eventIndex), OffsetDateTime.now());
+					no_sent_notifs++;
+					no_sent_kilobytes += notification.toString().getBytes().length / 1000;
+					total_sent_notifs++;
 					section_c += (System.nanoTime()-st)/1000l;
     			}
 				section_b += (System.nanoTime()-st_if)/1000l;
