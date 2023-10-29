@@ -262,7 +262,7 @@ public class NotificationUtil {
 				List<DiscoverMessage> discoverMessages = new ArrayList<>();
 				boolean hasData = false;
 				while(wait_time<maxWait) {
-					while(KafkaConsumer.discoverMessageQueue.size()>0){
+					while(KafkaConsumer.discoverMessageQueue.size()>0) {
 						try{
 							String msg = KafkaConsumer.discoverMessageQueue.poll();
 							if(msg==null) {
@@ -272,7 +272,7 @@ public class NotificationUtil {
 							DiscoverMessage discoverMessage = objectMapper.reader().readValue(msg,DiscoverMessage.class);
 							discoverMessages.add(discoverMessage);
 							hasData = discoverMessage.getHasData();
-						} catch(IOException e){
+						} catch(IOException e) {
 							logger.error("IOException: Couldn't read discover message");
 						}
 						responded = true;
@@ -290,26 +290,28 @@ public class NotificationUtil {
 				int expectedWaitTime = 0;
 				for(DiscoverMessage msg : discoverMessages) {
 					System.out.println("discover msg: "+msg);
-					if(msg.getHasData()!=null && msg.getHasData()){
-						if(msg.getRequestedOffset()==null || msg.getRequestedOffset()<=Constants.MIN_PERIOD_SECONDS){
+					if(msg.getHasData()!=null && msg.getHasData()) {
+						if(msg.getRequestedOffset()==null || msg.getRequestedOffset()<=Constants.MIN_PERIOD_SECONDS) {
 							isDataAvailable = 1;
 							break;
 						}
-						if(msg.getAvailableOffset()!=null && msg.getRequestedOffset()!=null && msg.getAvailableOffset()>=msg.getRequestedOffset()){
+						if(msg.getAvailableOffset()!=null && msg.getRequestedOffset()!=null && msg.getAvailableOffset()>=msg.getRequestedOffset()) {
 							isDataAvailable = 1;
 							break;
-						}
-						else{
+						} else {
 							expectedWaitTime = msg.getRequestedOffset() - msg.getAvailableOffset();
 						}
 					}
-					if((msg.getHasData()==null || !msg.getHasData()) && msg.getAvailableOffset()!=null && msg.getRequestedOffset()!=null && msg.getExpectedWaitTime()!=null){
+					if((msg.getHasData()==null || !msg.getHasData()) &&
+						msg.getAvailableOffset()!=null &&
+						msg.getRequestedOffset()!=null &&
+						msg.getExpectedWaitTime()!=null) {
 						expectedWaitTime = msg.getExpectedWaitTime() + msg.getRequestedOffset();
 					}
 				}
 				wait_time = 0;
-				if(isDataAvailable==1){
-					while(KafkaConsumer.isListening && !KafkaConsumer.startedSavingData && wait_time<maxWait){
+				if(isDataAvailable==1) {
+					while(KafkaConsumer.isListening && !KafkaConsumer.startedSavingData && wait_time<maxWait) {
 						Thread.sleep(50);
 						wait_time += 50;
 					}
@@ -323,46 +325,43 @@ public class NotificationUtil {
 	// check if for this event subscription the requested area of interest 
 	// is inside (or equals to) the service area of this NWDAF instance
 	// the checks are for when the serializer initializes the lists inside aoi object with null
-	public static AggregateChecksForAOIResponse aggregateChecksForAOI(NetworkAreaInfo requestNetworkArea){
+	public static AggregateChecksForAOIResponse aggregateChecksForAOI(NetworkAreaInfo requestNetworkArea) {
 		NetworkAreaInfo matchingArea = null;
 		Boolean insideServiceArea = false;
 		Boolean failed_notif = false;
 		NwdafFailureCodeEnum failCode = null;
-		if(requestNetworkArea!=null && requestNetworkArea.getId() != null){
+		if(requestNetworkArea!=null && requestNetworkArea.getId() != null) {
 				matchingArea = Constants.ExampleAOIsMap.get(requestNetworkArea.getId());
 				insideServiceArea = Constants.ServingAreaOfInterest.containsArea(matchingArea);
 		}
-		if(requestNetworkArea!=null && (CheckUtil.safeCheckNetworkAreaNotEmpty(requestNetworkArea) || requestNetworkArea.getId() != null)){
+		if(requestNetworkArea!=null && (CheckUtil.safeCheckNetworkAreaNotEmpty(requestNetworkArea) || requestNetworkArea.getId() != null)) {
 			if(!(CheckUtil.safeCheckNetworkAreaNotEmpty(requestNetworkArea) && Constants.ServingAreaOfInterest.containsArea(requestNetworkArea))
-				&& (matchingArea == null || !insideServiceArea)){
+				&& (matchingArea == null || !insideServiceArea)) {
 				failed_notif = true;
 				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
 				System.out.println("not inside serving aoi");
-			}
-			else{
-				// check if its lists equal one of the known AOIs -> set the id
-				if(Constants.ExampleAOIsToUUIDsMap.containsKey(requestNetworkArea)){
+			} else {
+				if(Constants.ExampleAOIsToUUIDsMap.containsKey(requestNetworkArea)) {
+					// check if its lists equal one of the known AOIs -> set the id
 					requestNetworkArea.id(Constants.ExampleAOIsToUUIDsMap.get(requestNetworkArea));
 					System.out.println("same as aoi with id: "+requestNetworkArea.getId());
-				}
-				// check if id equals to a known AOI -> set the area lists
-				else if(requestNetworkArea.getId() != null && Constants.ExampleAOIsMap.containsKey(requestNetworkArea.getId())){
+				} else if(requestNetworkArea.getId() != null && Constants.ExampleAOIsMap.containsKey(requestNetworkArea.getId())) {
+					// check if id equals to a known AOI -> set the area lists
 					NetworkAreaInfo matchingAOI = Constants.ExampleAOIsMap.get(requestNetworkArea.getId());
 					requestNetworkArea.ecgis(matchingAOI.getEcgis()).ncgis(matchingAOI.getNcgis())
 							.gRanNodeIds(matchingAOI.getGRanNodeIds()).tais(matchingAOI.getTais());
-				}
-				// if new AOI create id if it doesnt have one and add it to the known AOIs
-				else{
-					if(requestNetworkArea.getId() == null){
+				} else {
+					// if new AOI create id if it doesnt have one and add it to the known AOIs
+					if(requestNetworkArea.getId() == null) {
 						requestNetworkArea.id(UUID.randomUUID());
 					}
 					Constants.ExampleAOIsMap.put(requestNetworkArea.getId(), requestNetworkArea);
 					Constants.ExampleAOIsToUUIDsMap.put(requestNetworkArea, requestNetworkArea.getId());
 				}
 				// aggregate known areas that are inside of this area of interest
-				for (Map.Entry<UUID,NetworkAreaInfo> entry : Constants.ExampleAOIsMap.entrySet()){
+				for (Map.Entry<UUID,NetworkAreaInfo> entry : Constants.ExampleAOIsMap.entrySet()) {
 					UUID key = entry.getKey(); NetworkAreaInfo aoi = entry.getValue();
-					if(requestNetworkArea.containsArea(aoi) || key.equals(requestNetworkArea.getId())){
+					if(requestNetworkArea.containsArea(aoi) || key.equals(requestNetworkArea.getId())) {
 						requestNetworkArea.addContainedAreaIdsItem(key);
 					}
 				}
@@ -378,26 +377,25 @@ public class NotificationUtil {
 	}
 
 	// negotiate the supported features with the client
-	public static List<Integer> negotiateSupportedFeatures(NnwdafEventsSubscription body){
+	public static List<Integer> negotiateSupportedFeatures(NnwdafEventsSubscription body) {
 		List<Integer> negotiatedFeaturesList = new ArrayList<>();
 		if(body.getSupportedFeatures()!=null && !body.getSupportedFeatures().equals("")) {
-			if(!Constants.supportedFeatures.equals(body.getSupportedFeatures()) && 
-				CheckUtil.listInside(Constants.supportedFeaturesList, ConvertUtil.convertFeaturesToList(body.getSupportedFeatures()))) {
+			if(!Constants.supportedFeatures.equals(body.getSupportedFeatures()) &&
+				CheckUtil.listInside(Constants.supportedFeaturesList,
+									 ConvertUtil.convertFeaturesToList(body.getSupportedFeatures()))) {
 				negotiatedFeaturesList = ConvertUtil.convertFeaturesToList(body.getSupportedFeatures());
-			}
-			else{
+			} else {
 				body.setSupportedFeatures(Constants.supportedFeatures);
 				negotiatedFeaturesList = Constants.supportedFeaturesList;
 			}
-		}
-		else {
+		} else {
 			body.setSupportedFeatures(Constants.supportedFeatures);
 			negotiatedFeaturesList = Constants.supportedFeaturesList;
 		}
 		return negotiatedFeaturesList;
 	}
 	// get global notification method and period if they exist
-	public static GetGlobalNotifMethodAndRepPeriodResponse getGlobalNotifMethodAndRepPeriod(ReportingInformation evtReq){
+	public static GetGlobalNotifMethodAndRepPeriodResponse getGlobalNotifMethodAndRepPeriod(ReportingInformation evtReq) {
 		Integer repetionPeriod = null;
 		NotificationMethodEnum notificationMethod = null;
 		Boolean muted=false;
@@ -425,7 +423,7 @@ public class NotificationUtil {
 	}
 
 	// get period and notification method for each event
-	public static GetNotifMethodAndRepPeriodsResponse getNotifMethodAndRepPeriods(List<EventSubscription> eventSubscriptions, NotificationMethodEnum notificationMethod, Integer repetionPeriod){
+	public static GetNotifMethodAndRepPeriodsResponse getNotifMethodAndRepPeriods(List<EventSubscription> eventSubscriptions, NotificationMethodEnum notificationMethod, Integer repetionPeriod) {
 		Integer no_valid_events = 0;
 		List<Integer> invalid_events = new ArrayList<>();
 		Map<Integer,NotificationMethodEnum> eventIndexToNotifMethodMap = new HashMap<>();
@@ -476,7 +474,7 @@ public class NotificationUtil {
 	public static List<Boolean> checkCanServeSubscriptions(Integer no_valid_events, NnwdafEventsSubscription body,
 		Map<Integer,NotificationMethodEnum> eventIndexToNotifMethodMap, Map<Integer,Integer> eventIndexToRepPeriodMap,
 		DataCollectionPublisher dataCollectionPublisher, DummyDataProducerPublisher dummyDataProducerPublisher,
-		KafkaProducer kafkaProducer, ObjectMapper objectMapper, MetricsService metricsService, MetricsCacheService metricsCacheService, Boolean immRep, Long id){
+		KafkaProducer kafkaProducer, ObjectMapper objectMapper, MetricsService metricsService, MetricsCacheService metricsCacheService, Boolean immRep, Long id) {
 		List<Boolean> canServeSubscription = new ArrayList<>();
 		for(int i=0;i<no_valid_events;i++) {
 			canServeSubscription.add(false);
@@ -507,13 +505,18 @@ public class NotificationUtil {
 			Integer[] findOffset = NotificationUtil.findRequestedDataOffset(eventSubscription);
 			Integer no_secs = findOffset[0];
 			// both future and past predictions not allowed
-			if(findOffset[1]==2){
-				body.addFailEventReportsItem(new FailureEventInfo().event(eventSubscription.getEvent()).failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.BOTH_STAT_PRED_NOT_ALLOWED)));
+			if(findOffset[1]==2) {
+				body.addFailEventReportsItem(new FailureEventInfo()
+												 .event(eventSubscription.getEvent())
+												 .failureCode(new NwdafFailureCode()
+												 				  .failureCode(NwdafFailureCodeEnum.BOTH_STAT_PRED_NOT_ALLOWED)));
 				continue;
 			}
 			// future data not implemented
-			if(findOffset[1]==1){
-				body.addFailEventReportsItem(new FailureEventInfo().event(eventSubscription.getEvent()).failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.OTHER)));
+			if(findOffset[1]==1) {
+				body.addFailEventReportsItem(new FailureEventInfo().event(eventSubscription.getEvent())
+																   .failureCode(new NwdafFailureCode()
+																   					.failureCode(NwdafFailureCodeEnum.OTHER)));
 				continue;
 			}
 			//check whether data is available to be gathered
@@ -523,25 +526,30 @@ public class NotificationUtil {
 			try {
 				// wakeUpDataProducer("kafka_local_dummy", eType);
 				// wakeUpDataProducer("kafka_local_prom", eType);
-				Integer[] wakeUpResult = NotificationUtil.wakeUpDataProducer("kafka", eType, no_secs,dataCollectionPublisher,dummyDataProducerPublisher,
-					kafkaProducer,objectMapper);
+				Integer[] wakeUpResult = NotificationUtil.wakeUpDataProducer("kafka",
+						eType,
+						no_secs,
+						dataCollectionPublisher,
+						dummyDataProducerPublisher,
+						kafkaProducer,
+						objectMapper);
 				isDataAvailable = wakeUpResult[0]==1;
 				expectedWaitTime = wakeUpResult[1];
-			} catch(IOException e){
+			} catch(IOException e) {
 				failed_notif=true;
 				logger.error("Couldn't connect to kafka topic WAKE_UP.", e);
 				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
-			} catch(InterruptedException e){
+			} catch(InterruptedException e) {
 				failed_notif=true;
 				logger.error("Thread failed to wait for datacollection to start for event: "+eType,e);
 				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
 			}
-			if(!isDataAvailable){
+			if(!isDataAvailable) {
 				failed_notif=true;
 				logger.info("Informed by collector(s) that data is not available");
 				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
 			}
-			if(!failed_notif){
+			if(!failed_notif) {
 				try {
 					notification=NotificationUtil.getNotification(body, i, notification, metricsService, metricsCacheService);
 					if(body.getEvtReq()!=null && immRep && notification!=null){
@@ -563,9 +571,11 @@ public class NotificationUtil {
 			}
 			// add failureEventInfo
 			if(notification==null || failed_notif) {
-    			body.addFailEventReportsItem(new FailureEventInfo().event(eventSubscription.getEvent()).failureCode(new NwdafFailureCode().failureCode(failCode)));
-			}
-			else {
+    			body.addFailEventReportsItem(new FailureEventInfo()
+					.event(eventSubscription.getEvent())
+					.failureCode(new NwdafFailureCode()
+								 	 .failureCode(failCode)));
+			} else {
 				canServeSubscription.set(i, true);
 				if(immRep) {
 					body.addEventNotificationsItem(notification.getEventNotifications().get(0)

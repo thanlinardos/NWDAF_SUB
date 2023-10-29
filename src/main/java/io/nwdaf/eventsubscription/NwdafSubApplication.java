@@ -104,7 +104,7 @@ public class NwdafSubApplication {
 			}
 		};
 	}
-	// @Bean
+	@Bean
 	public CommandLineRunner run() throws JsonProcessingException{
 		
 		return args -> {
@@ -146,7 +146,7 @@ public class NwdafSubApplication {
 		};
 	}
 	
-	@Bean
+	// @Bean
 	public CommandLineRunner redisTest() {
 		return args -> {
 			NfLoadLevelInformationCached nfLoadLevelInformationCached = new NfLoadLevelInformationCached();
