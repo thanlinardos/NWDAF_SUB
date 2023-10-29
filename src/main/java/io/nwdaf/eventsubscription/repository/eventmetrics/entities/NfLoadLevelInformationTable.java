@@ -3,6 +3,7 @@ package io.nwdaf.eventsubscription.repository.eventmetrics.entities;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
@@ -111,6 +112,24 @@ public class NfLoadLevelInformationTable implements Serializable{
 
 		public void setNfInstanceId(UUID nfInstanceId) {
 			this.nfInstanceId = nfInstanceId;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(time,nfInstanceId);
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
+			NfLoadLevelId nfLoadLevelId = (NfLoadLevelId) o;
+			return Objects.equals(this.time,nfLoadLevelId.time) &&
+				Objects.equals(this.nfInstanceId, nfLoadLevelId.nfInstanceId);
 		}
 	}
 }
