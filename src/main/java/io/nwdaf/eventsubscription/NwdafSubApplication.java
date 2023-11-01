@@ -38,12 +38,17 @@ import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionPublis
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
+import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.notify.NotificationUtil;
 import io.nwdaf.eventsubscription.notify.NotifyListener;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
-import io.nwdaf.eventsubscription.repository.redis.RedisRepository;
+import io.nwdaf.eventsubscription.repository.redis.RedisMetricsRepository;
+import io.nwdaf.eventsubscription.repository.redis.RedisNotificationRepository;
+import io.nwdaf.eventsubscription.repository.redis.RedisSubscriptionRepository;
 import io.nwdaf.eventsubscription.repository.redis.entities.NfLoadLevelInformationCached;
+import io.nwdaf.eventsubscription.repository.redis.entities.NnwdafEventsSubscriptionCached;
+import io.nwdaf.eventsubscription.repository.redis.entities.NnwdafEventsSubscriptionNotificationCached;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
 
@@ -89,8 +94,14 @@ public class NwdafSubApplication {
 	KafkaProducer producer;
 
 	@Autowired
-	RedisRepository redisRepository;
+	RedisMetricsRepository redisRepository;
 	
+	@Autowired
+	RedisSubscriptionRepository redisSubscriptionRepository;
+
+	@Autowired
+	RedisNotificationRepository redisNotificationRepository;
+
 	public static void main(String[] args) {
 		SpringApplication.run(NwdafSubApplication.class, args);
 
@@ -104,7 +115,7 @@ public class NwdafSubApplication {
 			}
 		};
 	}
-	@Bean
+	// @Bean
 	public CommandLineRunner run() throws JsonProcessingException{
 		
 		return args -> {
@@ -146,7 +157,7 @@ public class NwdafSubApplication {
 		};
 	}
 	
-	// @Bean
+	@Bean
 	public CommandLineRunner redisTest() {
 		return args -> {
 			NfLoadLevelInformationCached nfLoadLevelInformationCached = new NfLoadLevelInformationCached();
@@ -161,6 +172,37 @@ public class NwdafSubApplication {
 						.equals(nfLoadLevelInformationCached.getData().getNfInstanceId()))
 						.collect(Collectors.toList());
 			System.out.println("after:"+res.toString());
+
+			NnwdafEventsSubscriptionCached nnwdafEventsSubscriptionCached = new NnwdafEventsSubscriptionCached();
+			File test = new File("test.json");
+			NnwdafEventsSubscription sub = objectMapper.reader().readValue(test,NnwdafEventsSubscription.class);
+			sub.setId(1l);
+			nnwdafEventsSubscriptionCached.setSub(sub);
+			System.out.println("before:"+nnwdafEventsSubscriptionCached.toString());
+			redisSubscriptionRepository.save(nnwdafEventsSubscriptionCached);
+			
+			List<NnwdafEventsSubscriptionCached> subRes = 
+				redisSubscriptionRepository.findAll()
+					.stream()
+					.filter(e -> e.getId()!=null && e.getId()
+						.equals(nnwdafEventsSubscriptionCached.getId()))
+						.collect(Collectors.toList());
+			System.out.println("after:"+subRes.toString());
+
+			NnwdafEventsSubscriptionNotificationCached notificationCached = new NnwdafEventsSubscriptionNotificationCached();
+			File notifTest = new File("notifTest.json");
+			NnwdafEventsSubscriptionNotification notification = objectMapper.reader().readValue(notifTest,NnwdafEventsSubscriptionNotification.class);
+			notificationCached.setNotification(notification);
+			System.out.println("before:"+notificationCached.toString());
+			redisNotificationRepository.save(notificationCached);
+			
+			List<NnwdafEventsSubscriptionNotificationCached> notifRes = 
+				redisNotificationRepository.findAll()
+					.stream()
+					.filter(e -> e.getId()!=null && e.getId()
+						.equals(notificationCached.getId()))
+						.collect(Collectors.toList());
+			System.out.println("after:"+notifRes.toString());
 		};
 	}
 

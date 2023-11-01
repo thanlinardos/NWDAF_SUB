@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
-import io.nwdaf.eventsubscription.repository.redis.RedisRepository;
+import io.nwdaf.eventsubscription.repository.redis.RedisMetricsRepository;
 import io.nwdaf.eventsubscription.repository.redis.entities.NfLoadLevelInformationCached;
 import io.nwdaf.eventsubscription.utilities.Constants;
 
@@ -22,7 +22,7 @@ import io.nwdaf.eventsubscription.utilities.Constants;
 @Service
 public class MetricsCacheService {
     @Autowired
-    private RedisRepository repository;
+    private RedisMetricsRepository repository;
 	@Autowired
     private MetricsService metricsService;
 

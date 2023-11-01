@@ -1,0 +1,36 @@
+{
+    "notifCorrId": "0",
+    "subscriptionId": "4179",
+    "eventNotifications": [
+      {
+        "event": {
+          "type": "NF_LOAD"
+        },
+        "timeStampGen": 1698570173.193304292,
+        "nfLoadLevelInfos": [
+          {
+            "time": 1698570173,
+            "supis": [],
+            "nfType": {
+              "nfType": "MBSTF"
+            },
+            "nfSetId": "setbhd.MBSTFset.5gc.mnc410.mcc958",
+            "nfStatus": {
+              "statusRegistered": 5,
+              "statusUnregistered": 82,
+              "statusUndiscoverable": 13
+            },
+            "timeStamp": 1698570173,
+            "confidence": 87,
+            "nfCpuUsage": 48,
+            "nfInstanceId": "adb401c5-b47a-4c6d-af5f-e9be61bb4654",
+            "nfMemoryUsage": 2,
+            "nfLoadAvgInAoi": 84,
+            "nfStorageUsage": 10,
+            "nfLoadLevelpeak": 57,
+            "nfLoadLevelAverage": 20
+          }
+        ]
+      }
+    ]
+  }
