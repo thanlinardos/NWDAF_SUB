@@ -2,6 +2,7 @@ package io.nwdaf.eventsubscription.repository.eventmetrics.entities;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -10,19 +11,24 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name="nf_load_metrics")
 @Getter
 @Setter
+@NoArgsConstructor
 public class NfLoadLevelInformationTable implements Serializable{
 	
 	@EmbeddedId
@@ -31,7 +37,7 @@ public class NfLoadLevelInformationTable implements Serializable{
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(name="data",columnDefinition = "jsonb")
 	@JsonProperty("data")
-	private Map<String, Object> data;
+	private Map<String, Object> data = new HashMap<>();
 	
 	@Column(name="nfSetId")
 	private String nfSetId;
@@ -58,6 +64,14 @@ public class NfLoadLevelInformationTable implements Serializable{
 	@Column(name="areaOfInterestId",columnDefinition="UUID")
 	private UUID areaOfInterestId;
 	
+	public NfLoadLevelInformationTable(NfLoadLevelInformation body) {
+		this.setData(body.toMap());
+		this.setTime(body.getTimeStamp());
+		this.setNfInstanceId(body.getNfInstanceId());
+		this.setNfSetId(body.getNfSetId());
+		this.setAreaOfInterestId(body.getAreaOfInterestId());
+	}
+
 	public OffsetDateTime getTime() {
 		return Id.time;
 	}
@@ -74,6 +88,7 @@ public class NfLoadLevelInformationTable implements Serializable{
 	public UUID getNfInstanceId() {
 		return Id.nfInstanceId;
 	}
+
 	public void setNfInstanceId(UUID nfInstanceId) {
 		this.Id.nfInstanceId = nfInstanceId;
 	}

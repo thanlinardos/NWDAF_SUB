@@ -5,7 +5,9 @@ package io.nwdaf.eventsubscription;
 
 import java.io.File;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -43,10 +45,11 @@ import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.notify.NotificationUtil;
 import io.nwdaf.eventsubscription.notify.NotifyListener;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
+import io.nwdaf.eventsubscription.repository.eventmetrics.entities.NfLoadLevelInformationTable;
 import io.nwdaf.eventsubscription.repository.redis.RedisMetricsRepository;
 import io.nwdaf.eventsubscription.repository.redis.RedisNotificationRepository;
 import io.nwdaf.eventsubscription.repository.redis.RedisSubscriptionRepository;
-import io.nwdaf.eventsubscription.repository.redis.entities.NfLoadLevelInformationCached;
+import io.nwdaf.eventsubscription.repository.redis.entities.NfLoadLevelInformationHash;
 import io.nwdaf.eventsubscription.repository.redis.entities.NnwdafEventsSubscriptionCached;
 import io.nwdaf.eventsubscription.repository.redis.entities.NnwdafEventsSubscriptionNotificationCached;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
@@ -160,17 +163,15 @@ public class NwdafSubApplication {
 	@Bean
 	public CommandLineRunner redisTest() {
 		return args -> {
-			NfLoadLevelInformationCached nfLoadLevelInformationCached = new NfLoadLevelInformationCached();
-			nfLoadLevelInformationCached.setData(new NfLoadLevelInformation().nfInstanceId(UUID.randomUUID()).nfCpuUsage(100).time(Instant.now()));
+			NfLoadLevelInformation nfLoadLevelInformation = new NfLoadLevelInformation().nfInstanceId(UUID.randomUUID()).nfCpuUsage(100).time(Instant.now());
+			NfLoadLevelInformationTable bodyTable = new NfLoadLevelInformationTable(nfLoadLevelInformation);
+			System.out.println(bodyTable.getData());
+			NfLoadLevelInformationHash nfLoadLevelInformationCached = new NfLoadLevelInformationHash();
+			nfLoadLevelInformationCached.setData(nfLoadLevelInformation);
 			System.out.println("before:"+nfLoadLevelInformationCached.toString());
 			redisRepository.save(nfLoadLevelInformationCached);
 			
-			List<NfLoadLevelInformationCached> res = 
-				redisRepository.findAll()
-					.stream()
-					.filter(e -> e.getIdObject()!=null && e.getIdObject().getNfInstanceId()
-						.equals(nfLoadLevelInformationCached.getData().getNfInstanceId()))
-						.collect(Collectors.toList());
+			NfLoadLevelInformationHash res = redisRepository.findById(nfLoadLevelInformationCached.getNfInstanceId().toString()).orElse(null);
 			System.out.println("after:"+res.toString());
 
 			NnwdafEventsSubscriptionCached nnwdafEventsSubscriptionCached = new NnwdafEventsSubscriptionCached();
@@ -181,12 +182,7 @@ public class NwdafSubApplication {
 			System.out.println("before:"+nnwdafEventsSubscriptionCached.toString());
 			redisSubscriptionRepository.save(nnwdafEventsSubscriptionCached);
 			
-			List<NnwdafEventsSubscriptionCached> subRes = 
-				redisSubscriptionRepository.findAll()
-					.stream()
-					.filter(e -> e.getId()!=null && e.getId()
-						.equals(nnwdafEventsSubscriptionCached.getId()))
-						.collect(Collectors.toList());
+			NnwdafEventsSubscriptionCached subRes = redisSubscriptionRepository.findById(nnwdafEventsSubscriptionCached.getId()).orElse(null);
 			System.out.println("after:"+subRes.toString());
 
 			NnwdafEventsSubscriptionNotificationCached notificationCached = new NnwdafEventsSubscriptionNotificationCached();
@@ -196,12 +192,7 @@ public class NwdafSubApplication {
 			System.out.println("before:"+notificationCached.toString());
 			redisNotificationRepository.save(notificationCached);
 			
-			List<NnwdafEventsSubscriptionNotificationCached> notifRes = 
-				redisNotificationRepository.findAll()
-					.stream()
-					.filter(e -> e.getId()!=null && e.getId()
-						.equals(notificationCached.getId()))
-						.collect(Collectors.toList());
+			NnwdafEventsSubscriptionNotificationCached notifRes = redisNotificationRepository.findById(notificationCached.getId()).orElse(null);
 			System.out.println("after:"+notifRes.toString());
 		};
 	}
@@ -209,12 +200,12 @@ public class NwdafSubApplication {
 	// @Bean
 	public CommandLineRunner redisQuerryTest() {
 		return args -> {
-			NfLoadLevelInformationCached nfLoadLevelInformationCached = new NfLoadLevelInformationCached();
+			NfLoadLevelInformationHash nfLoadLevelInformationCached = new NfLoadLevelInformationHash();
 			nfLoadLevelInformationCached.setData(new NfLoadLevelInformation().nfInstanceId(UUID.randomUUID()).nfCpuUsage(100).time(Instant.now()));
 			System.out.println("before:"+nfLoadLevelInformationCached.toString());
 			redisRepository.save(nfLoadLevelInformationCached);
 			
-			List<NfLoadLevelInformationCached> res = redisRepository.findBy(null, null);
+			List<NfLoadLevelInformationHash> res = redisRepository.findBy(null, null);
 			System.out.println("after:"+res.toString());
 		};
 	}

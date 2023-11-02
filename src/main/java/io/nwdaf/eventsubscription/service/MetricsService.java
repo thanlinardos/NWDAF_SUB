@@ -3,7 +3,6 @@ package io.nwdaf.eventsubscription.service;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,7 +11,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -37,22 +35,12 @@ public class MetricsService {
 	
 	@Async
 	public void asyncCreate(NfLoadLevelInformation body) {
-		NfLoadLevelInformationTable body_table = new NfLoadLevelInformationTable();
-		body_table.setData(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));
-		body_table.setTime(body.getTimeStamp());
-		body_table.setNfInstanceId(body.getNfInstanceId());
-		body_table.setNfSetId(body.getNfSetId());
-		body_table.setAreaOfInterestId(body.getAreaOfInterestId());
-		repository.save(body_table);
+		NfLoadLevelInformationTable bodyTable = new NfLoadLevelInformationTable(body);
+		repository.save(bodyTable);
 	}
 	public NfLoadLevelInformationTable create(NfLoadLevelInformation body) {
-		NfLoadLevelInformationTable body_table = new NfLoadLevelInformationTable();
-		body_table.setData(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));
-		body_table.setTime(body.getTimeStamp());
-		body_table.setNfInstanceId(body.getNfInstanceId());
-		body_table.setNfSetId(body.getNfSetId());
-		body_table.setAreaOfInterestId(body.getAreaOfInterestId());
-		return repository.save(body_table);
+		NfLoadLevelInformationTable bodyTable = new NfLoadLevelInformationTable(body);
+		return repository.save(bodyTable);
 	}
 	
 	// NF_LOAD
@@ -67,7 +55,7 @@ public class MetricsService {
 		List<NfLoadLevelInformation> res = new ArrayList<>();
 		for(int i=0;i<tables.size();i++) {
 			if(tables.get(i)!=null){
-				NfLoadLevelInformation info = objectMapper.readValue((new JSONObject(tables.get(i).getData())).toString(),NfLoadLevelInformation.class);
+				NfLoadLevelInformation info = NfLoadLevelInformation.fromMap(tables.get(i).getData());
 				info.setTime(tables.get(i).getTime().toInstant());
 				res.add(info);
 			}
@@ -97,7 +85,7 @@ public class MetricsService {
 		List<NfLoadLevelInformation> res = new ArrayList<>();
 		for(int i=0;i<tables.size();i++) {
 			if(tables.get(i)!=null){
-				NfLoadLevelInformation info = objectMapper.readValue((new JSONObject(tables.get(i).getData())).toString(),NfLoadLevelInformation.class);
+				NfLoadLevelInformation info = NfLoadLevelInformation.fromMap(tables.get(i).getData());
 				info.setTime(tables.get(i).getTime().toInstant());
 				res.add(info);
 			}
@@ -118,7 +106,7 @@ public class MetricsService {
 		List<NfLoadLevelInformation> res = new ArrayList<>();
 		for(int i=0;i<tables.size();i++) {
 			if(tables.get(i)!=null){
-				NfLoadLevelInformation info = objectMapper.readValue((new JSONObject(tables.get(i).getData())).toString(),NfLoadLevelInformation.class);
+				NfLoadLevelInformation info = NfLoadLevelInformation.fromMap(tables.get(i).getData());
 				if(tables.get(i).getTime()!=null){
 					info.time(tables.get(i).getTime().toInstant());
 				}
@@ -136,12 +124,9 @@ public class MetricsService {
 
 	// UE_MOBILITY
 	public UeMobilityTable create(UeMobility body) throws JsonProcessingException, JSONException {
-		UeMobilityTable body_table = new UeMobilityTable();
-		body_table.setData(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));
-		body_table.setTime(body.getTs());
+		UeMobilityTable body_table = new UeMobilityTable(body);
 		String data=null;
 		data = new JSONObject(objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(body)).toString();
-		// NwdafSubApplication.getLogger().info(data);
 		repository.saveMobilityTable(body.getTs(),data);
 		return body_table;
 	}
@@ -157,7 +142,7 @@ public class MetricsService {
 		List<UeMobility> res = new ArrayList<>();
 		for(int i=0;i<tables.size();i++) {
 			if(tables.get(i)!=null){
-				UeMobility info = objectMapper.readValue((new JSONObject(tables.get(i).getData())).toString(),UeMobility.class);
+				UeMobility info = UeMobility.fromMap(tables.get(i).getData());
 				if(tables.get(i).getTime()!=null){
 					info.time(tables.get(i).getTime().toInstant());
 				}

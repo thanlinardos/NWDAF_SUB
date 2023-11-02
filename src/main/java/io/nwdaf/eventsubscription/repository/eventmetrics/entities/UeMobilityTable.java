@@ -8,13 +8,20 @@ import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.nwdaf.eventsubscription.model.UeMobility;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name="ue_mobility_metrics")
+@Getter
+@Setter
+@NoArgsConstructor
 public class UeMobilityTable{
 	
 	@Id
@@ -27,18 +34,8 @@ public class UeMobilityTable{
 	@JsonProperty("data")
 	private Map<String, Object> data;
 	
-	public OffsetDateTime getTime() {
-		return time;
-	}
-	
-	public void setTime(OffsetDateTime time) {
-		this.time = time;
-	}
-	
-	public Map<String, Object> getData() {
-		return data;
-	}
-	public void setData(Map<String, Object> data) {
-		this.data = data;
+	public UeMobilityTable(UeMobility data) {
+		this.data = data.toMap();
+		this.time = data.getTs();
 	}
 }

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import io.nwdaf.eventsubscription.model.EventSubscription;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.repository.redis.RedisMetricsRepository;
-import io.nwdaf.eventsubscription.repository.redis.entities.NfLoadLevelInformationCached;
+import io.nwdaf.eventsubscription.repository.redis.entities.NfLoadLevelInformationHash;
 import io.nwdaf.eventsubscription.utilities.Constants;
 
 
@@ -26,19 +27,14 @@ public class MetricsCacheService {
 	@Autowired
     private MetricsService metricsService;
 
-	public NfLoadLevelInformationCached create(NfLoadLevelInformation body) {
-		NfLoadLevelInformationCached body_cached = new NfLoadLevelInformationCached();
-		body_cached.setData(body);
-		body_cached.setTime(body.getTimeStamp());
-		body_cached.setNfInstanceId(body.getNfInstanceId());
-		body_cached.setNfSetId(body.getNfSetId());
-		body_cached.setAreaOfInterestId(body.getAreaOfInterestId());
+	public NfLoadLevelInformationHash create(NfLoadLevelInformation body) {
+		NfLoadLevelInformationHash bodyHash = new NfLoadLevelInformationHash(body);
         metricsService.asyncCreate(body);
-        return repository.save(body_cached);
+        return repository.save(bodyHash);
 	}
 
     public List<NfLoadLevelInformation> findAllByTimeAndFilter(OffsetDateTime time,String params){
-		List<NfLoadLevelInformationCached> entities;
+		List<NfLoadLevelInformationHash> entities;
 		if(params!=null){
 			entities = repository.findByTime(time).stream()
                 .filter(e -> true)
@@ -68,7 +64,7 @@ public class MetricsCacheService {
 	}
 
     public List<NfLoadLevelInformation> findAllInLastIntervalByFilterAndOffset(EventSubscription eventSub,List<String> filterTypes, String params,Integer no_secs,Integer offset,String columns) throws JsonMappingException, JsonProcessingException{
-		List<NfLoadLevelInformationCached> entities;
+		List<NfLoadLevelInformationHash> entities;
 		if(no_secs == null){
 			no_secs = Constants.MIN_PERIOD_SECONDS;
 		}
@@ -85,7 +81,7 @@ public class MetricsCacheService {
 		entities = repository.findAll().stream()
             .filter(e -> e.getTime().toInstant().toEpochMilli() >= OffsetDateTime.now().minusSeconds(noSecsFinal).toInstant().toEpochMilli() &&
                     e.getTime().toLocalTime().toSecondOfDay() % offsetFinal == 0 &&
-                    (!filterTypes.contains("nfInstanceId") || (e.getNfInstanceId()!=null && eventSub.getNfInstanceIds().contains(e.getNfInstanceId()))) &&
+                    (!filterTypes.contains("nfInstanceId") || (e.getNfInstanceId()!=null && eventSub.getNfInstanceIds().contains(UUID.fromString(e.getNfInstanceId())))) &&
                     (!filterTypes.contains("nfSetId") || (e.getData().getNfSetId()!=null && eventSub.getNfSetIds().contains(e.getData().getNfSetId()))) &&
                     (!filterTypes.contains("aoi") || (e.getData().getAreaOfInterestId()!=null && eventSub.getNetworkArea().getContainedAreaIds().contains(e.getData().getAreaOfInterestId()))) &&
                     (!filterTypes.contains("snssai") || (e.getData().getSnssai()!=null && eventSub.getSnssaia().contains(e.getData().getSnssai()))) &&
