@@ -23,38 +23,39 @@ import io.nwdaf.eventsubscription.repository.eventmetrics.entities.UeMobilityTab
 
 @Service
 public class MetricsService {
-	
+
 	private final MetricsRepository repository;
-	
+
+	@Autowired
+	private ObjectMapper objectMapper;
+
 	public MetricsService(MetricsRepository repository) {
 		this.repository = repository;
 	}
-	
-	@Autowired
-	private ObjectMapper objectMapper;
 	
 	@Async
 	public void asyncCreate(NfLoadLevelInformation body) {
 		NfLoadLevelInformationTable bodyTable = new NfLoadLevelInformationTable(body);
 		repository.save(bodyTable);
 	}
+
 	public NfLoadLevelInformationTable create(NfLoadLevelInformation body) {
 		NfLoadLevelInformationTable bodyTable = new NfLoadLevelInformationTable(body);
 		return repository.save(bodyTable);
 	}
-	
+
 	// NF_LOAD
-	public List<NfLoadLevelInformation> findAllByTimeAndFilter(OffsetDateTime time,String params) throws JsonMappingException, JsonProcessingException{
+	public List<NfLoadLevelInformation> findAllByTimeAndFilter(OffsetDateTime time, String params)
+			throws JsonMappingException, JsonProcessingException {
 		List<NfLoadLevelInformationTable> tables;
-		if(params!=null){
-			tables = repository.findAllByTimeAndFilter(time,params);
-		}
-		else{
+		if (params != null) {
+			tables = repository.findAllByTimeAndFilter(time, params);
+		} else {
 			tables = repository.findAllByTime(time);
 		}
 		List<NfLoadLevelInformation> res = new ArrayList<>();
-		for(int i=0;i<tables.size();i++) {
-			if(tables.get(i)!=null){
+		for (int i = 0; i < tables.size(); i++) {
+			if (tables.get(i) != null) {
 				NfLoadLevelInformation info = NfLoadLevelInformation.fromMap(tables.get(i).getData());
 				info.setTime(tables.get(i).getTime().toInstant());
 				res.add(info);
@@ -64,27 +65,25 @@ public class MetricsService {
 	}
 
 	// NF_LOAD
-	public List<NfLoadLevelInformation> findAllInLastIntervalByFilter(String params,Integer no_secs) throws JsonMappingException, JsonProcessingException{
+	public List<NfLoadLevelInformation> findAllInLastIntervalByFilter(String params, Integer no_secs)
+			throws JsonMappingException, JsonProcessingException {
 		List<NfLoadLevelInformationTable> tables;
-		if(no_secs!=null){
-			if(params!=null){
-				tables = repository.findAllInLastIntervalByFilter(params,no_secs);
-			}
-			else{
+		if (no_secs != null) {
+			if (params != null) {
+				tables = repository.findAllInLastIntervalByFilter(params, no_secs);
+			} else {
 				tables = repository.findAllInLastInterval(no_secs);
 			}
-		}
-		else{
-			if(params!=null){
+		} else {
+			if (params != null) {
 				tables = repository.findAllInLastSecondByFilter(params);
-			}
-			else{
+			} else {
 				tables = repository.findAllInLastSecond();
 			}
 		}
 		List<NfLoadLevelInformation> res = new ArrayList<>();
-		for(int i=0;i<tables.size();i++) {
-			if(tables.get(i)!=null){
+		for (int i = 0; i < tables.size(); i++) {
+			if (tables.get(i) != null) {
 				NfLoadLevelInformation info = NfLoadLevelInformation.fromMap(tables.get(i).getData());
 				info.setTime(tables.get(i).getTime().toInstant());
 				res.add(info);
@@ -92,30 +91,32 @@ public class MetricsService {
 		}
 		return res;
 	}
-	
+
 	// NF_LOAD
-	public List<NfLoadLevelInformation> findAllInLastIntervalByFilterAndOffset(String params,Integer no_secs,Integer offset,String columns) throws JsonMappingException, JsonProcessingException{
+	public List<NfLoadLevelInformation> findAllInLastIntervalByFilterAndOffset(String params, Integer no_secs,
+			Integer offset, String columns) throws JsonMappingException, JsonProcessingException {
 		List<NfLoadLevelInformationTable> tables;
-		if(no_secs == null){
+		if (no_secs == null) {
 			no_secs = Constants.MIN_PERIOD_SECONDS;
 		}
-		if(offset==0){
+		if (offset == 0) {
 			offset = Constants.MIN_PERIOD_SECONDS;
 		}
-		tables = repository.findAllInLastIntervalByFilterAndOffset(params,no_secs+" second",offset+" second",columns);
+		tables = repository.findAllInLastIntervalByFilterAndOffset(params, no_secs + " second", offset + " second",
+				columns);
 		List<NfLoadLevelInformation> res = new ArrayList<>();
-		for(int i=0;i<tables.size();i++) {
-			if(tables.get(i)!=null){
+		for (int i = 0; i < tables.size(); i++) {
+			if (tables.get(i) != null) {
 				NfLoadLevelInformation info = NfLoadLevelInformation.fromMap(tables.get(i).getData());
-				if(tables.get(i).getTime()!=null){
+				if (tables.get(i).getTime() != null) {
 					info.time(tables.get(i).getTime().toInstant());
 				}
 				info.nfCpuUsage(tables.get(i).getNfCpuUsage())
-					.nfMemoryUsage(tables.get(i).getNfMemoryUsage())
-					.nfStorageUsage(tables.get(i).getNfStorageUsage())
-					.nfLoadLevelAverage(tables.get(i).getNfLoadLevelAverage())
-					.nfLoadLevelpeak(tables.get(i).getNfLoadLevelpeak())
-					.nfLoadAvgInAoi(tables.get(i).getNfLoadAvgInAoi());
+						.nfMemoryUsage(tables.get(i).getNfMemoryUsage())
+						.nfStorageUsage(tables.get(i).getNfStorageUsage())
+						.nfLoadLevelAverage(tables.get(i).getNfLoadLevelAverage())
+						.nfLoadLevelpeak(tables.get(i).getNfLoadLevelpeak())
+						.nfLoadAvgInAoi(tables.get(i).getNfLoadAvgInAoi());
 				res.add(info);
 			}
 		}
@@ -130,20 +131,23 @@ public class MetricsService {
 		repository.saveMobilityTable(body.getTs(),data);
 		return body_table;
 	}
-	public List<UeMobility> findAllUeMobilityInLastIntervalByFilterAndOffset(String params,Integer no_secs,Integer offset,String columns) throws JsonMappingException, JsonProcessingException{
+
+	public List<UeMobility> findAllUeMobilityInLastIntervalByFilterAndOffset(String params, Integer no_secs,
+			Integer offset, String columns) throws JsonMappingException, JsonProcessingException {
 		List<UeMobilityTable> tables;
-		if(no_secs == null){
+		if (no_secs == null) {
 			no_secs = Constants.MIN_PERIOD_SECONDS;
 		}
-		if(offset==0){
+		if (offset == 0) {
 			offset = Constants.MIN_PERIOD_SECONDS;
 		}
-		tables = repository.findAllUeMobilityInLastIntervalByFilterAndOffset(params,no_secs+" second",offset+" second",columns);
+		tables = repository.findAllUeMobilityInLastIntervalByFilterAndOffset(params, no_secs + " second",
+				offset + " second", columns);
 		List<UeMobility> res = new ArrayList<>();
-		for(int i=0;i<tables.size();i++) {
-			if(tables.get(i)!=null){
+		for (int i = 0; i < tables.size(); i++) {
+			if (tables.get(i) != null) {
 				UeMobility info = UeMobility.fromMap(tables.get(i).getData());
-				if(tables.get(i).getTime()!=null){
+				if (tables.get(i).getTime() != null) {
 					info.time(tables.get(i).getTime().toInstant());
 				}
 				res.add(info);

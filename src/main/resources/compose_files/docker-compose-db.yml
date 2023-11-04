@@ -48,7 +48,7 @@ services:
       - ./timescaleSchema.sql:/docker-entrypoint-initdb.d/timescaleSchema.sql
   redis:
     container_name: redis
-    image: redis:latest
+    image: redis/redis-stack:latest
     restart: always
     ports:
       - "6379:6379"

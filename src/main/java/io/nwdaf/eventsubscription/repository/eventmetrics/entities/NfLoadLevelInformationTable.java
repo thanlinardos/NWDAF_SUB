@@ -2,17 +2,18 @@ package io.nwdaf.eventsubscription.repository.eventmetrics.entities;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import jakarta.persistence.Column;
@@ -25,66 +26,65 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="nf_load_metrics")
+@Table(name = "nf_load_metrics")
 @Getter
 @Setter
 @NoArgsConstructor
-public class NfLoadLevelInformationTable implements Serializable{
-	
+public class NfLoadLevelInformationTable implements Serializable {
+
 	@EmbeddedId
 	private NfLoadLevelId Id;
-	
+
 	@JdbcTypeCode(SqlTypes.JSON)
-	@Column(name="data",columnDefinition = "jsonb")
+	@Column(name = "data", columnDefinition = "jsonb")
 	@JsonProperty("data")
-	private Map<String, Object> data = new HashMap<>();
-	
-	@Column(name="nfSetId")
+	private Map<String, Object> data;
+
+	@Column(name = "nfSetId")
 	private String nfSetId;
-	
-	@Column(name="nfCpuUsage")
+
+	@Column(name = "nfCpuUsage")
 	private Integer nfCpuUsage;
-	
-	@Column(name="nfMemoryUsage")
+
+	@Column(name = "nfMemoryUsage")
 	private Integer nfMemoryUsage;
-	
-	@Column(name="nfStorageUsage")
+
+	@Column(name = "nfStorageUsage")
 	private Integer nfStorageUsage;
-	
-	@Column(name="nfLoadLevelAverage")
+
+	@Column(name = "nfLoadLevelAverage")
 	private Integer nfLoadLevelAverage;
-	
-	@Column(name="nfLoadLevelpeak")
+
+	@Column(name = "nfLoadLevelpeak")
 	private Integer nfLoadLevelpeak;
-	
-	@Column(name="nfLoadAvgInAoi")
+
+	@Column(name = "nfLoadAvgInAoi")
 	private Integer nfLoadAvgInAoi;
 
 	@JdbcTypeCode(SqlTypes.UUID)
-	@Column(name="areaOfInterestId",columnDefinition="UUID")
+	@Column(name = "areaOfInterestId", columnDefinition = "UUID")
 	private UUID areaOfInterestId;
-	
+
 	public NfLoadLevelInformationTable(NfLoadLevelInformation body) {
-		this.setData(body.toMap());
+		this.data = body.toMap();
 		this.setTime(body.getTimeStamp());
 		this.setNfInstanceId(body.getNfInstanceId());
-		this.setNfSetId(body.getNfSetId());
-		this.setAreaOfInterestId(body.getAreaOfInterestId());
+		this.nfSetId = body.getNfSetId();
+		this.areaOfInterestId = body.getAreaOfInterestId();
 	}
 
 	public OffsetDateTime getTime() {
 		return Id.time;
 	}
-	
+
 	public void setTime(OffsetDateTime time) {
-		if(this.Id==null) {
-			this.Id = new NfLoadLevelId(time,null);
-		}
-		else {
+		if (this.Id == null) {
+			this.Id = new NfLoadLevelId(time, null);
+		} else {
 			this.Id.time = time;
 		}
 	}
-	
+
 	public UUID getNfInstanceId() {
 		return Id.nfInstanceId;
 	}
@@ -93,45 +93,29 @@ public class NfLoadLevelInformationTable implements Serializable{
 		this.Id.nfInstanceId = nfInstanceId;
 	}
 
-	@Embeddable
+	@Embeddable @Getter @Setter
 	static class NfLoadLevelId implements Serializable {
-		
+
 		@JdbcTypeCode(SqlTypes.TIMESTAMP_WITH_TIMEZONE)
-		@Column(name="time",columnDefinition= "TIMESTAMP WITH TIME ZONE")
+		@Column(name = "time", columnDefinition = "TIMESTAMP WITH TIME ZONE")
 		private OffsetDateTime time;
-		
+
 		@JdbcTypeCode(SqlTypes.UUID)
-		@Column(name="nfInstanceId",columnDefinition="UUID")
+		@Column(name = "nfInstanceId", columnDefinition = "UUID")
 		private UUID nfInstanceId;
 
 		public NfLoadLevelId() {
-			
-		}
-		
-	    public NfLoadLevelId(OffsetDateTime time, UUID nfInstanceId) {
-	        this.setTime(time);
-	        this.setNfInstanceId(nfInstanceId);
-	    }
 
-		public OffsetDateTime getTime() {
-			return time;
 		}
 
-		public void setTime(OffsetDateTime time) {
-			this.time = time;
-		}
-
-		public UUID getNfInstanceId() {
-			return nfInstanceId;
-		}
-
-		public void setNfInstanceId(UUID nfInstanceId) {
-			this.nfInstanceId = nfInstanceId;
+		public NfLoadLevelId(OffsetDateTime time, UUID nfInstanceId) {
+			this.setTime(time);
+			this.setNfInstanceId(nfInstanceId);
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(time,nfInstanceId);
+			return Objects.hash(time, nfInstanceId);
 		}
 
 		@Override
@@ -143,8 +127,8 @@ public class NfLoadLevelInformationTable implements Serializable{
 				return false;
 			}
 			NfLoadLevelId nfLoadLevelId = (NfLoadLevelId) o;
-			return Objects.equals(this.time,nfLoadLevelId.time) &&
-				Objects.equals(this.nfInstanceId, nfLoadLevelId.nfInstanceId);
+			return Objects.equals(this.time, nfLoadLevelId.time) &&
+					Objects.equals(this.nfInstanceId, nfLoadLevelId.nfInstanceId);
 		}
 	}
 }

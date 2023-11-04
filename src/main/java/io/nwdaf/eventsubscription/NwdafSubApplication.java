@@ -1,8 +1,5 @@
 package io.nwdaf.eventsubscription;
 
-
-
-
 import java.io.File;
 import java.time.Instant;
 import java.util.HashMap;
@@ -59,30 +56,30 @@ import io.nwdaf.eventsubscription.utilities.ParserUtil;
 @SpringBootApplication
 @EnableAsync
 @EnableScheduling
-@EntityScan({"io.nwdaf.eventsubscription.repository"})
-@EnableAutoConfiguration(exclude = {JacksonAutoConfiguration.class, JvmMetricsAutoConfiguration.class, 
-  LogbackMetricsAutoConfiguration.class, MetricsAutoConfiguration.class})
+@EntityScan({ "io.nwdaf.eventsubscription.repository" })
+@EnableAutoConfiguration(exclude = { JacksonAutoConfiguration.class, JvmMetricsAutoConfiguration.class,
+		LogbackMetricsAutoConfiguration.class, MetricsAutoConfiguration.class })
 public class NwdafSubApplication {
-	
+
 	private static final Logger log = LoggerFactory.getLogger(NwdafSubApplication.class);
-	
+
 	@Autowired
 	private NotifyPublisher notifyPublisher;
-	
+
 	@Autowired
 	private DataCollectionPublisher dataCollectionPublisher;
 
 	@Autowired
-    private ApplicationContext applicationContext;
+	private ApplicationContext applicationContext;
 
 	@Autowired
 	private DummyDataProducerPublisher dummyDataProducerPublisher;
 
 	@Autowired
-    KafkaTemplate<String,String> kafkaTemplate;
-	
-//	@Autowired
-//	MetricsService metricsService;
+	KafkaTemplate<String, String> kafkaTemplate;
+
+	// @Autowired
+	// MetricsService metricsService;
 
 	@Autowired
 	SubscriptionsService subscriptionsService;
@@ -98,7 +95,7 @@ public class NwdafSubApplication {
 
 	@Autowired
 	RedisMetricsRepository redisRepository;
-	
+
 	@Autowired
 	RedisSubscriptionRepository redisSubscriptionRepository;
 
@@ -109,48 +106,53 @@ public class NwdafSubApplication {
 		SpringApplication.run(NwdafSubApplication.class, args);
 
 	}
+
 	@Bean
 	public CommandLineRunner resetDb() {
 		return args -> {
-			if(!subscriptionsService.truncate()) {
-					log.error("Truncate subscription table failed!");
-					return;
+			if (!subscriptionsService.truncate()) {
+				log.error("Truncate subscription table failed!");
+				return;
 			}
 		};
 	}
+
 	// @Bean
-	public CommandLineRunner run() throws JsonProcessingException{
-		
+	public CommandLineRunner run() throws JsonProcessingException {
+
 		return args -> {
-			for(int n=0;n<5;n++) {
-				System.out.println("test iteration: "+n);
-				if(!subscriptionsService.truncate()) {
+			for (int n = 0; n < 5; n++) {
+				System.out.println("test iteration: " + n);
+				if (!subscriptionsService.truncate()) {
 					log.error("Truncate subscription table failed!");
 					return;
 				}
 				Long subId = 0l;
 				File test = new File("test.json");
 				String uri = env.getProperty("nnwdaf-eventsubscription.client.prod-url");
-				if(uri != null) {
-					Integer default_port = ParserUtil.safeParseInteger(env.getProperty("nnwdaf-eventsubscription.client.port"));
-					for(int i=0;i<40;i++) {
-						for(int j=0;j<5;j++) {
-							Integer current_port = default_port+j;
+				if (uri != null) {
+					Integer default_port = ParserUtil
+							.safeParseInteger(env.getProperty("nnwdaf-eventsubscription.client.port"));
+					for (int i = 0; i < 40; i++) {
+						for (int j = 0; j < 5; j++) {
+							Integer current_port = default_port + j;
 							String parsedUri = uri.replace(default_port.toString(), current_port.toString());
-							if(j>0 && !uri.contains("localhost")) {
-								parsedUri = parsedUri.replace(":"+current_port.toString(),ParserUtil.safeParseString(j+1)+":"+current_port.toString());
+							if (j > 0 && !uri.contains("localhost")) {
+								parsedUri = parsedUri.replace(":" + current_port.toString(),
+										ParserUtil.safeParseString(j + 1) + ":" + current_port.toString());
 							}
-							subscriptionsService.create(objectMapper.reader().readValue(test,NnwdafEventsSubscription.class)
-								.notificationURI(parsedUri));
+							subscriptionsService
+									.create(objectMapper.reader().readValue(test, NnwdafEventsSubscription.class)
+											.notificationURI(parsedUri));
 						}
 					}
 					NotificationUtil.wakeUpDataProducer("dummy",
-														NwdafEventEnum.NF_LOAD,
-														null,
-														dataCollectionPublisher,
-														dummyDataProducerPublisher,
-														producer,
-														objectMapper);
+							NwdafEventEnum.NF_LOAD,
+							null,
+							dataCollectionPublisher,
+							dummyDataProducerPublisher,
+							producer,
+							objectMapper);
 					notifyPublisher.publishNotification(subId);
 					Thread.sleep(100000);
 					NotifyListener.stop();
@@ -159,41 +161,46 @@ public class NwdafSubApplication {
 			}
 		};
 	}
-	
-	@Bean
+
+	// @Bean
 	public CommandLineRunner redisTest() {
 		return args -> {
-			NfLoadLevelInformation nfLoadLevelInformation = new NfLoadLevelInformation().nfInstanceId(UUID.randomUUID()).nfCpuUsage(100).time(Instant.now());
+			NfLoadLevelInformation nfLoadLevelInformation = new NfLoadLevelInformation().nfInstanceId(UUID.randomUUID())
+					.nfCpuUsage(100).time(Instant.now());
 			NfLoadLevelInformationTable bodyTable = new NfLoadLevelInformationTable(nfLoadLevelInformation);
 			System.out.println(bodyTable.getData());
 			NfLoadLevelInformationHash nfLoadLevelInformationCached = new NfLoadLevelInformationHash();
 			nfLoadLevelInformationCached.setData(nfLoadLevelInformation);
-			System.out.println("before:"+nfLoadLevelInformationCached.toString());
+			System.out.println("before:" + nfLoadLevelInformationCached.toString());
 			redisRepository.save(nfLoadLevelInformationCached);
-			
-			NfLoadLevelInformationHash res = redisRepository.findById(nfLoadLevelInformationCached.getNfInstanceId().toString()).orElse(null);
-			System.out.println("after:"+res.toString());
+
+			NfLoadLevelInformationHash res = redisRepository
+					.findById(nfLoadLevelInformationCached.getNfInstanceId().toString()).orElse(null);
+			System.out.println("after:" + res.toString());
 
 			NnwdafEventsSubscriptionCached nnwdafEventsSubscriptionCached = new NnwdafEventsSubscriptionCached();
 			File test = new File("test.json");
-			NnwdafEventsSubscription sub = objectMapper.reader().readValue(test,NnwdafEventsSubscription.class);
+			NnwdafEventsSubscription sub = objectMapper.reader().readValue(test, NnwdafEventsSubscription.class);
 			sub.setId(1l);
 			nnwdafEventsSubscriptionCached.setSub(sub);
-			System.out.println("before:"+nnwdafEventsSubscriptionCached.toString());
+			System.out.println("before:" + nnwdafEventsSubscriptionCached.toString());
 			redisSubscriptionRepository.save(nnwdafEventsSubscriptionCached);
-			
-			NnwdafEventsSubscriptionCached subRes = redisSubscriptionRepository.findById(nnwdafEventsSubscriptionCached.getId()).orElse(null);
-			System.out.println("after:"+subRes.toString());
+
+			NnwdafEventsSubscriptionCached subRes = redisSubscriptionRepository
+					.findById(nnwdafEventsSubscriptionCached.getId()).orElse(null);
+			System.out.println("after:" + subRes.toString());
 
 			NnwdafEventsSubscriptionNotificationCached notificationCached = new NnwdafEventsSubscriptionNotificationCached();
 			File notifTest = new File("notifTest.json");
-			NnwdafEventsSubscriptionNotification notification = objectMapper.reader().readValue(notifTest,NnwdafEventsSubscriptionNotification.class);
+			NnwdafEventsSubscriptionNotification notification = objectMapper.reader().readValue(notifTest,
+					NnwdafEventsSubscriptionNotification.class);
 			notificationCached.setNotification(notification);
-			System.out.println("before:"+notificationCached.toString());
+			System.out.println("before:" + notificationCached.toString());
 			redisNotificationRepository.save(notificationCached);
-			
-			NnwdafEventsSubscriptionNotificationCached notifRes = redisNotificationRepository.findById(notificationCached.getId()).orElse(null);
-			System.out.println("after:"+notifRes.toString());
+
+			NnwdafEventsSubscriptionNotificationCached notifRes = redisNotificationRepository
+					.findById(notificationCached.getId()).orElse(null);
+			System.out.println("after:" + notifRes.toString());
 		};
 	}
 
@@ -201,12 +208,13 @@ public class NwdafSubApplication {
 	public CommandLineRunner redisQuerryTest() {
 		return args -> {
 			NfLoadLevelInformationHash nfLoadLevelInformationCached = new NfLoadLevelInformationHash();
-			nfLoadLevelInformationCached.setData(new NfLoadLevelInformation().nfInstanceId(UUID.randomUUID()).nfCpuUsage(100).time(Instant.now()));
-			System.out.println("before:"+nfLoadLevelInformationCached.toString());
+			nfLoadLevelInformationCached.setData(
+					new NfLoadLevelInformation().nfInstanceId(UUID.randomUUID()).nfCpuUsage(100).time(Instant.now()));
+			System.out.println("before:" + nfLoadLevelInformationCached.toString());
 			redisRepository.save(nfLoadLevelInformationCached);
-			
+
 			List<NfLoadLevelInformationHash> res = redisRepository.findBy(null, null);
-			System.out.println("after:"+res.toString());
+			System.out.println("after:" + res.toString());
 		};
 	}
 
@@ -214,7 +222,7 @@ public class NwdafSubApplication {
 		return NwdafSubApplication.log;
 	}
 
-    public ApplicationContext getApplicationContext() {
-        return applicationContext;
-    }
+	public ApplicationContext getApplicationContext() {
+		return applicationContext;
+	}
 }
