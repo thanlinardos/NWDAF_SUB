@@ -131,6 +131,14 @@ fixed kafka for nwdaf_sub & collector
 setup scripts for build,run,run_all for the entire project
 added redis cache
 left todo: fix redis service filters
+---05/11/23----
+added useful scripts
+removed @configuration
+fix timing bugs
+changed to redis stack
+fixed hasData with discover topic
+made custom mappers for nfload & uemobs
+tried to optimize notifylistener with map of eventsub,notifs
 
 TODO:
 
@@ -153,7 +161,7 @@ TODO:
 -look at paging & buffers for large amounts of subs & metrics
 -scale with kubernetes
 -setup open5GS & expose metrics from various NFs (like AMF)
--simulate a mobility scenario using a simulation tool on top of open5GS & gather months of data
+-simulate a mobility scenario using a simulation tool on top of open5GS & gather months of data INPROGRESS (with NEF_Emulator)
 
 ML stuff:
 -do simple data analysis on grouped data (for example predict cpu usage)
