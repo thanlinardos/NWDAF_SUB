@@ -40,7 +40,9 @@ public class DataCollectionListener {
     @Async
     @EventListener
     void excecuteDataCollection(String param) {
-    	start();
+    	if(!start()) {
+			return;
+		}
     	while(no_dataCollectionEventListeners>0) {
 			long start,prom_delay,diff,wait_time;
     		start = System.nanoTime();
@@ -123,12 +125,14 @@ public class DataCollectionListener {
 			startedSavingData = false;
 		}
 	}
-	public static void start(){
+	public static boolean start(){
 		synchronized (dataCollectionLock) {
-		if(no_dataCollectionEventListeners<1) {
-			no_dataCollectionEventListeners++;
-			logger.info("collecting data...");
+			if(no_dataCollectionEventListeners<1) {
+				no_dataCollectionEventListeners++;
+				logger.info("collecting data...");
+				return true;
+			}
 		}
-		}
+		return false;
 	}
 }

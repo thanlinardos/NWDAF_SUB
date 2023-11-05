@@ -36,6 +36,7 @@ public class MetricsService {
 	@Async
 	public void asyncCreate(NfLoadLevelInformation body) {
 		NfLoadLevelInformationTable bodyTable = new NfLoadLevelInformationTable(body);
+		System.out.println("nwdaf saved nf_load to timescale: "+bodyTable.getTime());
 		repository.save(bodyTable);
 	}
 
@@ -110,6 +111,7 @@ public class MetricsService {
 				NfLoadLevelInformation info = NfLoadLevelInformation.fromMap(tables.get(i).getData());
 				if (tables.get(i).getTime() != null) {
 					info.time(tables.get(i).getTime().toInstant());
+					// System.out.println("nwdaf read nf_load from timescale: "+info.getTimeStamp()+" (table: "+tables.get(i).getTime()+")");
 				}
 				info.nfCpuUsage(tables.get(i).getNfCpuUsage())
 						.nfMemoryUsage(tables.get(i).getNfMemoryUsage())
@@ -154,5 +156,16 @@ public class MetricsService {
 			}
 		}
 		return res;
+	}
+
+	public boolean truncate(){
+		try{
+			repository.truncateNfLoad();
+			repository.truncateUeMobility();
+			return true;
+		} catch(Exception e){
+			System.out.println(e);
+			return false;
+		}
 	}
 }

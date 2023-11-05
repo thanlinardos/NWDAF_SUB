@@ -79,6 +79,7 @@ public class KafkaConsumer {
 		switch(topic){
 			case "NF_LOAD":
 				nfLoadLevelInformation = objectMapper.reader().readValue(in, NfLoadLevelInformation.class);
+				// System.out.println("nwdaf received nf_load from kafka at: "+nfLoadLevelInformation.getTimeStamp());
 				// metricsCacheService.create(nfLoadLevelInformation);
 				metricsService.create(nfLoadLevelInformation);
 				break;

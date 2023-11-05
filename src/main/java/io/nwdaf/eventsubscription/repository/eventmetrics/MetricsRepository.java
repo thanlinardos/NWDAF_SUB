@@ -59,5 +59,13 @@ public interface MetricsRepository extends JpaRepository<NfLoadLevelInformationT
 //			nativeQuery=true)
 //	List<NfLoadLevelInformationTable> findAllByNotifURI(String filterForClientURI);
 	
-	
+	@Modifying
+	@Transactional
+	@Query(value = "truncate table nf_load_metrics", nativeQuery = true)
+	void truncateNfLoad();
+
+	@Modifying
+	@Transactional
+	@Query(value = "truncate table ue_mobility_metrics", nativeQuery = true)
+	void truncateUeMobility();
 }

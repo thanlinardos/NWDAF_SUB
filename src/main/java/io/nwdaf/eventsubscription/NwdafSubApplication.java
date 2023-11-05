@@ -2,11 +2,8 @@ package io.nwdaf.eventsubscription;
 
 import java.io.File;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +46,7 @@ import io.nwdaf.eventsubscription.repository.redis.RedisSubscriptionRepository;
 import io.nwdaf.eventsubscription.repository.redis.entities.NfLoadLevelInformationHash;
 import io.nwdaf.eventsubscription.repository.redis.entities.NnwdafEventsSubscriptionCached;
 import io.nwdaf.eventsubscription.repository.redis.entities.NnwdafEventsSubscriptionNotificationCached;
+import io.nwdaf.eventsubscription.service.MetricsService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
 
@@ -78,8 +76,8 @@ public class NwdafSubApplication {
 	@Autowired
 	KafkaTemplate<String, String> kafkaTemplate;
 
-	// @Autowired
-	// MetricsService metricsService;
+	@Autowired
+	MetricsService metricsService;
 
 	@Autowired
 	SubscriptionsService subscriptionsService;
@@ -117,6 +115,16 @@ public class NwdafSubApplication {
 		};
 	}
 
+	@Bean
+	public CommandLineRunner resetMetricsDb() {
+		return args -> {
+			if (!metricsService.truncate()) {
+				log.error("Truncate nf_load & ue_mobility tables failed!");
+				return;
+			}
+		};
+	}
+
 	// @Bean
 	public CommandLineRunner run() throws JsonProcessingException {
 
@@ -133,7 +141,7 @@ public class NwdafSubApplication {
 				if (uri != null) {
 					Integer default_port = ParserUtil
 							.safeParseInteger(env.getProperty("nnwdaf-eventsubscription.client.port"));
-					for (int i = 0; i < 40; i++) {
+					for (int i = 0; i < 80; i++) {
 						for (int j = 0; j < 5; j++) {
 							Integer current_port = default_port + j;
 							String parsedUri = uri.replace(default_port.toString(), current_port.toString());
@@ -146,7 +154,7 @@ public class NwdafSubApplication {
 											.notificationURI(parsedUri));
 						}
 					}
-					NotificationUtil.wakeUpDataProducer("dummy",
+					NotificationUtil.wakeUpDataProducer("kafka",
 							NwdafEventEnum.NF_LOAD,
 							null,
 							dataCollectionPublisher,

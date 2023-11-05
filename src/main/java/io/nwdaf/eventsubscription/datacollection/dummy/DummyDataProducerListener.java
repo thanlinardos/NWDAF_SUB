@@ -40,7 +40,9 @@ public class DummyDataProducerListener{
     @Async
     @EventListener
     public void onApplicationEvent(final DummyDataProducerEvent event){
-        start();
+        if(!start()) {
+			return;
+		}
         if(no_dummyDataProducerEventListeners>0){
             nfloadinfos=DummyDataGenerator.generateDummyNfloadLevelInfo(10);
             ueMobilities = DummyDataGenerator.generateDummyUeMobilities(10);
@@ -123,12 +125,15 @@ public class DummyDataProducerListener{
 			startedSavingData = false;
 		}
     }
-    public static void start(){
+    
+    public static boolean start() {
         synchronized (dummyDataProducerLock) {
 			if(no_dummyDataProducerEventListeners<1) {
 				no_dummyDataProducerEventListeners++;
                 logger.info("producing dummy data...");
+                return true;
 			}
 		}
+        return false;
     }
 }

@@ -1,6 +1,7 @@
 package io.nwdaf.eventsubscription.notify;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -229,6 +230,7 @@ public class NotificationUtil {
 				nfloadlevels = OtherUtil.setNfloadNonIncludedInfoNull(nfloadlevels, eventSub.getListOfAnaSubsets());
 				notification = notifBuilder.addEvent(notification, NwdafEventEnum.NF_LOAD, null, null, now, null, null,
 						null, nfloadlevels);
+				// logger.info("notified with: "+notification.getEventNotifications().get(0).getTimeStampGen());
 				break;
 			case UE_MOBILITY:
 				List<UeMobility> ueMobilities = new ArrayList<>();
@@ -307,7 +309,9 @@ public class NotificationUtil {
 							DiscoverMessage discoverMessage = objectMapper.reader().readValue(msg,
 									DiscoverMessage.class);
 							discoverMessages.add(discoverMessage);
-							hasData = discoverMessage.getHasData();
+							long diff = Instant.now().getEpochSecond()-discoverMessage.getTimestamp().toEpochSecond();
+							boolean tooOldMsg = diff>1 && diff>discoverMessage.getAvailableOffset();
+							hasData = discoverMessage.getHasData() && (!tooOldMsg);
 						} catch (IOException e) {
 							logger.error("IOException: Couldn't read discover message");
 						}
