@@ -47,6 +47,7 @@ import io.nwdaf.eventsubscription.repository.redis.entities.NfLoadLevelInformati
 import io.nwdaf.eventsubscription.repository.redis.entities.NnwdafEventsSubscriptionCached;
 import io.nwdaf.eventsubscription.repository.redis.entities.NnwdafEventsSubscriptionNotificationCached;
 import io.nwdaf.eventsubscription.service.MetricsService;
+import io.nwdaf.eventsubscription.service.NotificationService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
 
@@ -100,6 +101,9 @@ public class NwdafSubApplication {
 	@Autowired
 	RedisNotificationRepository redisNotificationRepository;
 
+	@Autowired
+	NotificationService notificationService;
+
 	public static void main(String[] args) {
 		SpringApplication.run(NwdafSubApplication.class, args);
 
@@ -122,50 +126,63 @@ public class NwdafSubApplication {
 				log.error("Truncate nf_load & ue_mobility tables failed!");
 				return;
 			}
+			if (!notificationService.truncate()) {
+				log.error("Truncate notification table failed!");
+				return;
+			}
 		};
 	}
 
-	// @Bean
+	@Bean
 	public CommandLineRunner run() throws JsonProcessingException {
 
 		return args -> {
+			Long subId = 0l;
+			File test = new File("test.json");
+			String uri = env.getProperty("nnwdaf-eventsubscription.client.prod-url");
+			Integer default_port = ParserUtil
+						.safeParseInteger(env.getProperty("nnwdaf-eventsubscription.client.port"));
+			int no_clients=5;
+			int no_subs=400;
+			if(uri==null) {return;}
 			for (int n = 0; n < 5; n++) {
 				System.out.println("test iteration: " + n);
 				if (!subscriptionsService.truncate()) {
 					log.error("Truncate subscription table failed!");
 					return;
 				}
-				Long subId = 0l;
-				File test = new File("test.json");
-				String uri = env.getProperty("nnwdaf-eventsubscription.client.prod-url");
-				if (uri != null) {
-					Integer default_port = ParserUtil
-							.safeParseInteger(env.getProperty("nnwdaf-eventsubscription.client.port"));
-					for (int i = 0; i < 80; i++) {
-						for (int j = 0; j < 5; j++) {
-							Integer current_port = default_port + j;
-							String parsedUri = uri.replace(default_port.toString(), current_port.toString());
-							if (j > 0 && !uri.contains("localhost")) {
-								parsedUri = parsedUri.replace(":" + current_port.toString(),
-										ParserUtil.safeParseString(j + 1) + ":" + current_port.toString());
-							}
-							subscriptionsService
-									.create(objectMapper.reader().readValue(test, NnwdafEventsSubscription.class)
-											.notificationURI(parsedUri));
+				for (int i = 0; i < no_subs/no_clients; i++) {
+					for (int j = 0; j < no_clients; j++) {
+						Integer current_port = default_port + j;
+						String parsedUri = uri.replace(default_port.toString(), current_port.toString());
+						if (j > 0 && !uri.contains("localhost")) {
+							parsedUri = parsedUri.replace(":" + current_port.toString(),
+									ParserUtil.safeParseString(j + 1) + ":" + current_port.toString());
 						}
+						subscriptionsService
+								.create(objectMapper.reader().readValue(test, NnwdafEventsSubscription.class)
+										.notificationURI(parsedUri));
 					}
-					NotificationUtil.wakeUpDataProducer("kafka",
-							NwdafEventEnum.NF_LOAD,
-							null,
-							dataCollectionPublisher,
-							dummyDataProducerPublisher,
-							producer,
-							objectMapper);
-					notifyPublisher.publishNotification(subId);
-					Thread.sleep(100000);
-					NotifyListener.stop();
-					Thread.sleep(1000);
 				}
+				System.out.println("Created "+no_subs+" subs for scenario with "+no_clients+" clients.");
+				// NotificationUtil.wakeUpDataProducer("kafka",
+				// 		NwdafEventEnum.NF_LOAD,
+				// 		null,
+				// 		dataCollectionPublisher,
+				// 		dummyDataProducerPublisher,
+				// 		producer,
+				// 		objectMapper);
+				NotificationUtil.wakeUpDataProducer("kafka",
+						NwdafEventEnum.UE_MOBILITY,
+						null,
+						dataCollectionPublisher,
+						dummyDataProducerPublisher,
+						producer,
+						objectMapper);
+				notifyPublisher.publishNotification(subId);
+				Thread.sleep(100000);
+				NotifyListener.stop();
+				Thread.sleep(1000);
 			}
 		};
 	}

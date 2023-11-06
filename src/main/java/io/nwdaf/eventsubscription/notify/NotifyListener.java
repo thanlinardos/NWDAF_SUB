@@ -301,12 +301,12 @@ public class NotifyListener {
 			}
 		}
 		System.out.println("no of found notifications = " + no_found_notifs);
-		System.out.println("==NotifListener(" + no_notifEventListeners + ") finished===");
+		System.out.println("==NotifyListener(" + no_notifEventListeners + ") finished===");
 		synchronized (notifLock) {
 			if (no_notifEventListeners > 0) {
 				no_notifEventListeners--;
 			} else {
-				System.out.println("==(NotifListener manually stopped)");
+				System.out.println("==(NotifyListener manually stopped)");
 			}
 		}
 		// logger.info("avg_client_delay_per_notif="+avg_client_delay_per_notif /

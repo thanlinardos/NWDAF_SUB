@@ -30,7 +30,16 @@ public class NotificationService {
 	public void create(NnwdafEventsSubscriptionNotification body) {
 		NnwdafNotificationTable body_table = new NnwdafNotificationTable();
 		body_table.setNotif(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));
-//		NwdafSubApplication.getLogger().info(body_table.getNotif().toString());
 		repository.save(body_table);
+	}
+
+	public boolean truncate(){
+		try{
+			repository.truncate();
+			return true;
+		} catch(Exception e){
+			System.out.println(e);
+			return false;
+		}
 	}
 }

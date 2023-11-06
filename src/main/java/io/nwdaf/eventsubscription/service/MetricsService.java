@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -36,7 +35,6 @@ public class MetricsService {
 	@Async
 	public void asyncCreate(NfLoadLevelInformation body) {
 		NfLoadLevelInformationTable bodyTable = new NfLoadLevelInformationTable(body);
-		System.out.println("nwdaf saved nf_load to timescale: "+bodyTable.getTime());
 		repository.save(bodyTable);
 	}
 
@@ -128,9 +126,7 @@ public class MetricsService {
 	// UE_MOBILITY
 	public UeMobilityTable create(UeMobility body) throws JsonProcessingException, JSONException {
 		UeMobilityTable body_table = new UeMobilityTable(body);
-		String data=null;
-		data = new JSONObject(objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(body)).toString();
-		repository.saveMobilityTable(body.getTs(),data);
+		repository.saveMobilityTable(body_table.getTime(),objectMapper.writeValueAsString(body_table.getData()));
 		return body_table;
 	}
 
