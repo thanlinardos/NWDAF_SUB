@@ -76,7 +76,9 @@ public class NotifyListener {
 	@Async
 	@EventListener
 	void sendNotifications(Long subId) {
+		System.out.println("on send...");
 		synchronized (notifLock) {
+			System.out.println("no_notifEventListeners: "+no_notifEventListeners);
 			if (no_notifEventListeners < 1) {
 				no_notifEventListeners++;
 			} else {

@@ -182,7 +182,7 @@ public class NwdafSubApplication {
 				notifyPublisher.publishNotification(subId);
 				Thread.sleep(100000);
 				NotifyListener.stop();
-				Thread.sleep(1000);
+				Thread.sleep(2000);
 			}
 		};
 	}
