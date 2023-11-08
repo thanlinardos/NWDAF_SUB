@@ -37,3 +37,4 @@ src/main/resources/certificates/local-cert.crt
 src/main/resources/certificates/local-client-cert.crt
 src/main/resources/certificates/local-ssl.p12
 src/main/resources/certificates/local-client-ssl.p12
+src/main/resources/certificates/hosts
