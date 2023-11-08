@@ -11,8 +11,17 @@ This project is an implementation of the NWDAF event_subscription service operat
 In order to build and install this project you are going to need:
 
 - Java JDK 17
-  - Apache Maven
-  - Docker
+- Apache Maven
+- Docker
+- The other **project repositories** in the **same** parent folder as specified in [Build](#build)
+
+For quick first time installation:
+
+```sh
+./firstTimeInstall.sh
+```
+
+The above script for quick installation contains all the steps specified in sections [Create certificates for https](#create-certificates-for-https), [Install certificates](#install-certificates) and [Build](#build).
 
 ### Folder structure
 
@@ -20,20 +29,37 @@ Here's a folder structure for the project:
 
 ```
 NWDAF_SUB/     # Root directory.
+
 |- dockprom/        # Dockprom dockerized project for collecting prometheus metrics from containers + graphana (more info [here](https://github.com/stefanprodan/dockprom)).
+
 |- src/          # Source directory with java code & resources folder.
+
     |- main/
+
         |- java/io/nwdaf/eventsubscription/
+
         |- resources/
+
             |- certificates/    # The self-signed certificates required for using HTTPS with TLS handshakes between nwdaf_sub , nwdaf_sub_client & browser used to access the app endpoints
+
             |- compose_files/    # The compose files for the dockerized project split into database, kafka and global related containers
+
             |- application.properties    # The properties file of the project (they can be overriden directly by environment variables through compose files or by command line arguements)
+
             |- application-production.properties    # The properties file of the project when production profile is in use
+
 |- scripts/       # Miscellaneous (python) scripts.
-|- superproject/  # Build scripts for all project components -> jars.
-|- pom.xml      # Maven project dependencies,info & build targets.
+
+|- superproject/  # Build scripts for all project components 
+-> jars.
+
+|- pom.xml      # Maven project dependencies,info & build 
+targets.
+
 |- run.sh      # Run the database,kafka & dockprom containers.
+
 |- run_all.sh      # Run all the containers (includes dockerized nwdaf_sub,nwdaf_sub_client & nwdaf_sub_collector applications).
+
 |- build.sh      # Initiates building project components to jars with scripts under superproject/.
 ```
 
