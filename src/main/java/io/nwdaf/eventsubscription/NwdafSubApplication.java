@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.metrics.JvmMetricsAutoConfiguration;
@@ -15,6 +16,7 @@ import org.springframework.boot.actuate.autoconfigure.metrics.LogbackMetricsAuto
 import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -104,13 +106,23 @@ public class NwdafSubApplication {
 	@Autowired
 	NotificationService notificationService;
 
+	@Value("${nnwdaf-eventsubscription.integration.nosubs}")
+	private Integer noSubs;
+	@Value("${nnwdaf-eventsubscription.integration.noclients}")
+	private Integer noClients;
+
 	public static void main(String[] args) {
 		SpringApplication.run(NwdafSubApplication.class, args);
 
 	}
 
 	@Bean
-	public CommandLineRunner resetDb() {
+	@ConditionalOnProperty(
+            name = "nnwdaf-eventsubscription.integration.resetsubdb",
+            havingValue = "true",
+            matchIfMissing = false
+    )
+	public CommandLineRunner resetSubDb() {
 		return args -> {
 			if (!subscriptionsService.truncate()) {
 				log.error("Truncate subscription table failed!");
@@ -120,20 +132,41 @@ public class NwdafSubApplication {
 	}
 
 	@Bean
+	@ConditionalOnProperty(
+            name = "nnwdaf-eventsubscription.integration.resetmetricsdb",
+            havingValue = "true",
+            matchIfMissing = false
+    )
 	public CommandLineRunner resetMetricsDb() {
 		return args -> {
 			if (!metricsService.truncate()) {
 				log.error("Truncate nf_load & ue_mobility tables failed!");
 				return;
 			}
+		};
+	}
+
+	@Bean
+	@ConditionalOnProperty(
+            name = "nnwdaf-eventsubscription.integration.resetnotifdb",
+            havingValue = "true",
+            matchIfMissing = false
+    )
+	public CommandLineRunner resetNotifDb() {
+		return args -> {
 			if (!notificationService.truncate()) {
 				log.error("Truncate notification table failed!");
 				return;
 			}
 		};
 	}
-
+	
 	@Bean
+	@ConditionalOnProperty(
+            name = "nnwdaf-eventsubscription.integration.startup",
+            havingValue = "true",
+            matchIfMissing = false
+    )
 	public CommandLineRunner run() throws JsonProcessingException {
 
 		return args -> {
@@ -142,8 +175,6 @@ public class NwdafSubApplication {
 			String uri = env.getProperty("nnwdaf-eventsubscription.client.prod-url");
 			Integer default_port = ParserUtil
 						.safeParseInteger(env.getProperty("nnwdaf-eventsubscription.client.port"));
-			int no_clients=5;
-			int no_subs=400;
 			if(uri==null) {return;}
 			for (int n = 0; n < 5; n++) {
 				System.out.println("test iteration: " + n);
@@ -151,8 +182,8 @@ public class NwdafSubApplication {
 					log.error("Truncate subscription table failed!");
 					return;
 				}
-				for (int i = 0; i < no_subs/no_clients; i++) {
-					for (int j = 0; j < no_clients; j++) {
+				for (int i = 0; i < noSubs/noClients; i++) {
+					for (int j = 0; j < noClients; j++) {
 						Integer current_port = default_port + j;
 						String parsedUri = uri.replace(default_port.toString(), current_port.toString());
 						if (j > 0 && !uri.contains("localhost")) {
@@ -164,7 +195,7 @@ public class NwdafSubApplication {
 										.notificationURI(parsedUri));
 					}
 				}
-				System.out.println("Created "+no_subs+" subs for scenario with "+no_clients+" clients.");
+				System.out.println("Created "+noSubs+" subs for scenario with "+noClients+" clients.");
 				// NotificationUtil.wakeUpDataProducer("kafka",
 				// 		NwdafEventEnum.NF_LOAD,
 				// 		null,

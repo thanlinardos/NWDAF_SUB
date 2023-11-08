@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import org.apache.kafka.common.protocol.types.Field.Bool;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -73,12 +74,17 @@ public class NotifyListener {
 	@Value("${trust.store.password}")
 	private String trustStorePassword;
 
+	@Value("${nnwdaf-eventsubscription.log.kb}")
+	private Boolean logKilobyteCount;
+	@Value("${nnwdaf-eventsubscription.log.simple}")
+	private Boolean logSimple;
+	@Value("${nnwdaf-eventsubscription.log.sections}")
+	private Boolean logSections;
+
 	@Async
 	@EventListener
 	void sendNotifications(Long subId) {
-		System.out.println("on send...");
 		synchronized (notifLock) {
-			System.out.println("no_notifEventListeners: "+no_notifEventListeners);
 			if (no_notifEventListeners < 1) {
 				no_notifEventListeners++;
 			} else {
@@ -120,9 +126,9 @@ public class NotifyListener {
 		System.out.println("no_Ssubs=" + no_served_subs);
 		long start;
 		double tsdb_req_delay, client_delay, notif_save_delay;
-		int no_sent_notifs, no_sent_kilobytes;
-		double avg_client_delay_per_notif = 0;
-		int counter = 0, total_sent_notifs = 0;
+		long no_sent_notifs;
+		double no_sent_kilobytes, total_sent_kilobytes = 0;
+		long counter = 0, total_sent_notifs = 0;
 		RestTemplateFactoryConfig.setTrustStore(trustStore);
 		RestTemplateFactoryConfig.setTrustStorePassword(trustStorePassword);
 		restTemplate = new RestTemplate(RestTemplateFactoryConfig.createRestTemplateFactory());
@@ -141,6 +147,7 @@ public class NotifyListener {
 			// loop through the event subscriptions and the dates of last producing a
 			// notification for each of them
 			double section_a = 0, section_b = 0, section_c = 0;
+			long kb_time = 0;
 			for (Map.Entry<Pair<Long, Integer>, OffsetDateTime> entry : lastNotifTimes.entrySet()) {
 				// match the id to the subscription
 				long lst = System.nanoTime();
@@ -231,18 +238,24 @@ public class NotifyListener {
 						logger.error("Error connecting to client " + sub.getNotificationURI());
 						logger.info(e.toString());
 					}
-					client_delay += (System.nanoTime() - st) / 1000l;
+					client_delay += (System.nanoTime() - st) / 1_000l;
 					// if notifying the client was successful update the map with the current time
 					st = System.nanoTime();
 					lastNotifTimes.put(Pair.of(entry.getKey().getFirst(), eventIndex), OffsetDateTime.now());
 					no_sent_notifs++;
-					no_sent_kilobytes += notification.toString().getBytes().length / 1000;
+					if (logKilobyteCount) {
+						long kb_start = System.nanoTime();
+						no_sent_kilobytes += notification.toString().getBytes().length / 1_024l;
+						kb_time += (System.nanoTime() - kb_start) / 1_000l;
+					}
 					total_sent_notifs++;
-					section_c += (System.nanoTime() - st) / 1000l;
+					section_c += (System.nanoTime() - st) / 1_000l;
 				}
-				section_b += (System.nanoTime() - st_if) / 1000l;
+				section_b += (System.nanoTime() - st_if) / 1_000l;
 			}
-			// System.out.print(",subs="+subs.size());
+			if (logKilobyteCount) {
+				System.out.println("kb_time= " + kb_time / 1_000l + "ms");
+			}
 			loop_section = (System.nanoTime() - st2);
 			printPerfA(loop_section, section_a, section_b, section_c, no_served_subs);
 			long st_sub = System.nanoTime();
@@ -253,8 +266,10 @@ public class NotifyListener {
 				stop();
 				continue;
 			}
-			// System.out.print(" || sub query time: "+(System.nanoTime()-st_sub) /
-			// 1000000l+"ms");
+			if (logSections) {
+				System.out.print(" || sub query time: " + (System.nanoTime() - st_sub) /
+						1000000l + "ms");
+			}
 			st = System.nanoTime();
 			// make a copy of the map
 			oldNotifTimes.clear();
@@ -282,19 +297,17 @@ public class NotifyListener {
 				}
 			}
 			double total = (System.nanoTime() - start) / 1_000_000l;
-			long totalLong = (long) total;
-			avg_io_delay += (long) (tsdb_req_delay + client_delay + notif_save_delay) / 1_000l;
-			avg_program_delay += (long) (total - avg_io_delay);
+			long io_delay = (long) (tsdb_req_delay + client_delay + notif_save_delay) / 1_000l;
+			avg_io_delay += io_delay;
+			avg_program_delay += (long) (total - io_delay);
+			total_sent_kilobytes += no_sent_kilobytes;
+			counter++;
 			printPerfB(tsdb_req_delay, client_delay, notif_save_delay, no_sent_notifs, no_sent_kilobytes, total);
-			if (no_sent_notifs != 0) {
-				avg_client_delay_per_notif += client_delay / no_sent_notifs;
-				counter++;
-			}
 			// wait till one quarter of a second (min period) passes (10^9/4 nanoseconds)
 			long wait_time = (long) Constants.MIN_PERIOD_SECONDS * 250l;
-			if (totalLong < wait_time) {
+			if ((long) total < wait_time) {
 				try {
-					Thread.sleep(wait_time - totalLong);
+					Thread.sleep(wait_time - (long) total);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					stop();
@@ -311,10 +324,13 @@ public class NotifyListener {
 				System.out.println("==(NotifyListener manually stopped)");
 			}
 		}
-		// logger.info("avg_client_delay_per_notif="+avg_client_delay_per_notif /
-		// counter+"ms");
-		logger.info("avg io delay= " + avg_io_delay / 1000l + "ms || avg program delay= " + avg_program_delay / 1000l
-				+ "ms || avg total delay= " + (avg_io_delay + avg_program_delay) / 1000l + "ms");
+		logger.info("avg io delay= " + avg_io_delay / counter + "ms || avg program delay= " + avg_program_delay / counter
+						+ "ms || avg total delay= " + (avg_io_delay + avg_program_delay) / counter + "ms");
+		if (logKilobyteCount) {
+			logger.info("total_sent_megabytes= " + total_sent_kilobytes / 1024 + "MB");
+			double avg_throughput = total_sent_kilobytes / (128 * 100_000);
+			logger.info("avg throughput= " + avg_throughput + "mbps");
+		}
 		logger.info(total_sent_notifs + "/40000 notifications sent");
 	}
 
@@ -400,22 +416,30 @@ public class NotifyListener {
 
 	private void printPerfA(long loop_section, double section_a, double section_b, double section_c,
 			int no_served_subs) {
-		// System.out.print("loop_section="+loop_section / 1000000l+"ms");
-		// System.out.print(" || section_a="+section_a / 1000l+"ms");
-		// System.out.print(" || section_b="+section_b / 1000l+"ms");
-		// System.out.print(" || section_c="+section_c / 1000l+"ms");
-		System.out.print(" || served_subs=" + no_served_subs);
+		if (logSections) {
+			System.out.print("loop_section=" + loop_section / 1000000l + "ms");
+			System.out.print(" || section_a=" + section_a / 1000l + "ms");
+			System.out.print(" || section_b=" + section_b / 1000l + "ms");
+			System.out.print(" || section_c=" + section_c / 1000l + "ms");
+		}
+		if (logSimple) {
+			System.out.print(" || served_subs=" + no_served_subs);
+		}
 	}
 
-	private void printPerfB(double tsdb_req_delay, double client_delay, double notif_save_delay, int no_sent_notifs,
-			int no_sent_kilobytes, double total) {
-		// System.out.print(" || maps="+(System.nanoTime()-st) / 1000l+"μs");
-		System.out.print(" || tsdb_req_delay: " + (long) tsdb_req_delay / 1000l + "ms");
-		// System.out.print(" || client_delay:"+(long)client_delay / 1000l+"ms");
-		// System.out.print(" || notif_save_delay:"+(long)notif_save_delay /
-		// 1000l+"ms");
-		System.out.print(" || no_sent_notifs:" + no_sent_notifs);
-		System.out.print(" || no_sent_kilobytes:" + no_sent_kilobytes + "KB");
-		System.out.print(" || total delay: " + total + "ms\n");
+	private void printPerfB(double tsdb_req_delay, double client_delay, double notif_save_delay, long no_sent_notifs,
+			double no_sent_kilobytes, double total) {
+		if (logSections) {
+			System.out.print(" || client_delay:" + (long) client_delay / 1000l + "ms");
+			System.out.print(" || notif_save_delay:" + (long) notif_save_delay / 1000l + "ms");
+		}
+		if (logSimple) {
+			System.out.print(" || tsdb_req_delay: " + (long) tsdb_req_delay / 1000l + "ms");
+			System.out.print(" || no_sent_notifs:" + no_sent_notifs);
+			if (logKilobyteCount) {
+				System.out.print(" || no_sent_kilobytes:" + no_sent_kilobytes + "KB");
+			}
+			System.out.print(" || total delay: " + total + "ms\n");
+		}
 	}
 }

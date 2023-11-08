@@ -4,13 +4,11 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.utilities.Constants;
@@ -44,8 +42,7 @@ public class MetricsService {
 	}
 
 	// NF_LOAD
-	public List<NfLoadLevelInformation> findAllByTimeAndFilter(OffsetDateTime time, String params)
-			throws JsonMappingException, JsonProcessingException {
+	public List<NfLoadLevelInformation> findAllByTimeAndFilter(OffsetDateTime time, String params) {
 		List<NfLoadLevelInformationTable> tables;
 		if (params != null) {
 			tables = repository.findAllByTimeAndFilter(time, params);
@@ -64,8 +61,7 @@ public class MetricsService {
 	}
 
 	// NF_LOAD
-	public List<NfLoadLevelInformation> findAllInLastIntervalByFilter(String params, Integer no_secs)
-			throws JsonMappingException, JsonProcessingException {
+	public List<NfLoadLevelInformation> findAllInLastIntervalByFilter(String params, Integer no_secs) {
 		List<NfLoadLevelInformationTable> tables;
 		if (no_secs != null) {
 			if (params != null) {
@@ -93,7 +89,7 @@ public class MetricsService {
 
 	// NF_LOAD
 	public List<NfLoadLevelInformation> findAllInLastIntervalByFilterAndOffset(String params, Integer no_secs,
-			Integer offset, String columns) throws JsonMappingException, JsonProcessingException {
+			Integer offset, String columns) {
 		List<NfLoadLevelInformationTable> tables;
 		if (no_secs == null) {
 			no_secs = Constants.MIN_PERIOD_SECONDS;
@@ -124,14 +120,14 @@ public class MetricsService {
 	}
 
 	// UE_MOBILITY
-	public UeMobilityTable create(UeMobility body) throws JsonProcessingException, JSONException {
+	public UeMobilityTable create(UeMobility body) throws JsonProcessingException {
 		UeMobilityTable body_table = new UeMobilityTable(body);
 		repository.saveMobilityTable(body_table.getTime(),objectMapper.writeValueAsString(body_table.getData()));
 		return body_table;
 	}
 
 	public List<UeMobility> findAllUeMobilityInLastIntervalByFilterAndOffset(String params, Integer no_secs,
-			Integer offset, String columns) throws JsonMappingException, JsonProcessingException {
+			Integer offset, String columns) {
 		List<UeMobilityTable> tables;
 		if (no_secs == null) {
 			no_secs = Constants.MIN_PERIOD_SECONDS;

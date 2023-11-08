@@ -216,6 +216,15 @@ services:
       logging.level.org.apache.kafka: false
       spring.data.redis.host: redis
       spring.data.redis.port: 6379
+      nnwdaf-eventsubscription.log.kb: false
+      nnwdaf-eventsubscription.log.simple: true
+      nnwdaf-eventsubscription.log.sections: false
+      nnwdaf-eventsubscription.integration.startup: true
+      nnwdaf-eventsubscription.integration.nosubs: 400
+      nnwdaf-eventsubscription.integration.noclients: 5
+      nnwdaf-eventsubscription.integration.resetsubdb: true
+      nnwdaf-eventsubscription.integration.resetmetricsdb: true
+      nnwdaf-eventsubscription.integration.resetnotifdb: true
   nwdafSubClient:
     container_name: nwdafSubClient
     image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT

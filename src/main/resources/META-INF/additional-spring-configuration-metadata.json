@@ -128,5 +128,50 @@
     "name": "nnwdaf-eventsubscription.client.port",
     "type": "java.lang.String",
     "description": "A description for 'nnwdaf-eventsubscription.client.port'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.log.kb",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.log.kb'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.log.simple",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.log.simple'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.log.sections",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.log.sections'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.integration.startup",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.integration.startup'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.integration.nosubs",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.integration.nosubs'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.integration.noclients",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.integration.noclients'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.integration.resetsubdb",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.integration.resetsubdb'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.integration.resetnotifdb",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.integration.resetnotifdb'"
+  },
+  {
+    "name": "nnwdaf-eventsubscription.integration.resetmetricsdb",
+    "type": "java.lang.String",
+    "description": "A description for 'nnwdaf-eventsubscription.integration.resetmetricsdb'"
   }
 ]}
