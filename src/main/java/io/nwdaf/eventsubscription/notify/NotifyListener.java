@@ -18,8 +18,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.utilities.CheckUtil;
@@ -27,20 +25,14 @@ import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.config.RestTemplateFactoryConfig;
 import io.nwdaf.eventsubscription.model.EventSubscription;
-import io.nwdaf.eventsubscription.model.FailureEventInfo;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
-import io.nwdaf.eventsubscription.model.NwdafFailureCode;
 import io.nwdaf.eventsubscription.model.ThresholdLevel;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
-import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
-import io.nwdaf.eventsubscription.service.MetricsCacheService;
-import io.nwdaf.eventsubscription.service.MetricsService;
-import io.nwdaf.eventsubscription.service.NotificationService;
-import io.nwdaf.eventsubscription.service.SubscriptionsService;
+import io.nwdaf.eventsubscription.service.*;
 
 import org.springframework.core.io.Resource;
 
@@ -150,12 +142,12 @@ public class NotifyListener {
 			for (Map.Entry<Pair<Long, Integer>, OffsetDateTime> entry : lastNotifTimes.entrySet()) {
 				// match the id to the subscription
 				long lst = System.nanoTime();
-				Long id = entry.getKey().getFirst();
+				long id = entry.getKey().getFirst();
 				int eventIndex = entry.getKey().getSecond();
 				NnwdafEventsSubscription sub = subs.get(subIndexes.get(id));
 				// match the event index to the event subscription
 				EventSubscription event = sub.getEventSubscriptions().get(eventIndex);
-				Integer repPeriod = NotificationUtil.needsServing(sub, eventIndex);
+				int repPeriod = NotificationUtil.needsServing(sub, eventIndex);
 				// build the notification
 				NnwdafEventsSubscriptionNotification notification = notifBuilder.build(id);
 				section_a += (System.nanoTime() - lst) / 1000l;
@@ -180,22 +172,14 @@ public class NotifyListener {
 						notification = NotificationUtil.getNotification(sub, eventIndex, notification, metricsService,
 								metricsCacheService);
 					}
-				} catch (JsonMappingException e) {
-					logger.error("Error building the notification for sub: " + id
-							+ ". Data is no longer available for this event", e);
-					// add failureEventInfo
-					sub.addFailEventReportsItem(new FailureEventInfo().event(event.getEvent())
-							.failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.UNAVAILABLE_DATA)));
-					continue;
-				} catch (JsonProcessingException e) {
-					logger.error("Error building the notification for sub: " + id
-							+ ". Data is no longer available for this event", e);
-					// add failureEventInfo
-					sub.addFailEventReportsItem(new FailureEventInfo().event(event.getEvent())
-							.failureCode(new NwdafFailureCode().failureCode(NwdafFailureCodeEnum.UNAVAILABLE_DATA)));
-					continue;
+					if(notification != null && sub.getFailEventReports()!=null && sub.getFailEventReports().size()>0) {
+						sub.setFailEventReports(sub.getFailEventReports()
+							.stream()
+							.filter(t -> !CheckUtil.safeCheckEqualsEvent(t.getEvent(), event.getEvent()))
+							.toList());
+					}
 				} catch (Exception e) {
-					logger.error("Failed to collect data for event(timescaledb error)", e);
+					logger.error("[Service Error]Failed to collect data for event: "+event.getEvent().getEvent(), e);
 					stop();
 					continue;
 				}
@@ -218,13 +202,13 @@ public class NotifyListener {
 				// check if period has passed -> notify client (or if threshold has been
 				// reached)
 				long st_if = System.nanoTime();
-				if ((repPeriod != 0
+				if ((repPeriod > 0
 						&& OffsetDateTime.now().compareTo(entry.getValue().plusSeconds((long) repPeriod)) > 0) ||
 						(repPeriod == 0 && thresholdReached(event, notification))) {
 					st = System.nanoTime();
 					HttpEntity<NnwdafEventsSubscriptionNotification> client_request = new HttpEntity<>(notification);
 					try {
-						CompletableFuture
+						CompletableFuture		//TODO: Extract to function and add retry functionality
 								.supplyAsync(() -> restTemplate.postForEntity(sub.getNotificationURI() + "/notify",
 										client_request, NnwdafEventsSubscriptionNotification.class))
 								.thenAccept(client_response -> {
@@ -323,7 +307,8 @@ public class NotifyListener {
 				System.out.println("==(NotifyListener manually stopped)");
 			}
 		}
-		logger.info("avg io delay= " + avg_io_delay / counter + "ms || avg program delay= " + avg_program_delay / counter
+		logger.info(
+				"avg io delay= " + avg_io_delay / counter + "ms || avg program delay= " + avg_program_delay / counter
 						+ "ms || avg total delay= " + (avg_io_delay + avg_program_delay) / counter + "ms");
 		if (logKilobyteCount) {
 			logger.info("total_sent_megabytes= " + total_sent_kilobytes / 1024 + "MB");
@@ -348,13 +333,12 @@ public class NotifyListener {
 						.parsePresentNfLoadLevelInformations(
 								notification.getEventNotifications().get(0).getNfLoadLevelInfos());
 				int index;
-				String[] propertyNames = { "nfCpuUsage", "nfMemoryUsage", "nfStorageUsage", "nfLoadLevelAverage" };
 				for (int i = 0; i < size; i++) {
 					NfLoadLevelInformation nfLoadLevelInformation = presentNfLevelInformations.get(i);
 					if (thresholdLevels.get(i) == null) {
 						continue;
 					}
-					boolean[] isThresholdBooleans = { (thresholdLevels.get(i).getNfCpuUsage() != null
+					boolean[] isThresholdBooleans = { (thresholdLevels.get(i).getNfCpuUsage() != null	//TODO: extract to map function
 							&& nfLoadLevelInformation.getNfCpuUsage() >= thresholdLevels.get(i).getNfCpuUsage()),
 							(thresholdLevels.get(i).getNfMemoryUsage() != null && nfLoadLevelInformation
 									.getNfMemoryUsage() >= thresholdLevels.get(i).getNfMemoryUsage()),
@@ -373,7 +357,7 @@ public class NotifyListener {
 						index = notification.getEventNotifications().get(0).getNfLoadLevelInfos()
 								.indexOf(nfLoadLevelInformation);
 						int[] propertyValues = {
-								notification.getEventNotifications().get(0).getNfLoadLevelInfos().get(index)
+								notification.getEventNotifications().get(0).getNfLoadLevelInfos().get(index)  //TODO: extract to map function 
 										.getNfCpuUsage(),
 								notification.getEventNotifications().get(0).getNfLoadLevelInfos().get(index)
 										.getNfMemoryUsage(),
@@ -382,7 +366,7 @@ public class NotifyListener {
 								notification.getEventNotifications().get(0).getNfLoadLevelInfos().get(index)
 										.getNfLoadLevelAverage() };
 						notification.getEventNotifications().get(0).getNfLoadLevelInfos().get(index)
-								.setThresholdProperty(propertyNames[booleanIndex]);
+								.setThresholdProperty(Constants.nfLoadThresholdProps[booleanIndex]);
 						notification.getEventNotifications().get(0).getNfLoadLevelInfos().get(index)
 								.setThresholdValue(propertyValues[booleanIndex]);
 						return true;

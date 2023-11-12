@@ -13,8 +13,6 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
@@ -59,7 +57,7 @@ public class NotificationUtil {
 	// for threshold)
 	public static Integer needsServing(NnwdafEventsSubscription body, Integer eventIndex) {
 		NotificationMethodEnum notificationMethod = null;
-		Integer repetitionPeriod = null;
+		int repetitionPeriod = -1;
 		logger.hashCode();
 		if (body.getEventSubscriptions().get(eventIndex) != null) {
 			if (body.getEventSubscriptions().get(eventIndex).getNotificationMethod() != null
@@ -91,22 +89,22 @@ public class NotificationUtil {
 	}
 
 	// check if client wants past/future data by setting no_secs parameter
-	public static Integer[] findRequestedDataOffset(EventSubscription eventSub) {
-		Integer no_secs = null;
-		Integer isFuture = 0;
+	public static int[] findRequestedDataOffset(EventSubscription eventSub) {
+		int no_secs = Integer.MIN_VALUE;
+		int isFuture = 0;
 		if (eventSub.getExtraReportReq() == null) {
-			return new Integer[] { null, 0 };
+			return new int[] { Integer.MIN_VALUE, 0 };
 		}
 		if (eventSub.getExtraReportReq().getEndTs() != null && eventSub.getExtraReportReq().getStartTs() != null) {
 			if (eventSub.getExtraReportReq().getEndTs().getSecond() < eventSub.getExtraReportReq().getStartTs()
 					.getSecond()) {
-				return new Integer[] { null, 0 };
+				return new int[] { Integer.MIN_VALUE, 0 };
 			}
 			// future data
 			if (eventSub.getExtraReportReq().getEndTs().getSecond() > OffsetDateTime.now().getSecond()) {
 				// both stat predictions not allowed
 				if (eventSub.getExtraReportReq().getStartTs().getSecond() < OffsetDateTime.now().getSecond()) {
-					return new Integer[] { null, 2 };
+					return new int[] { Integer.MIN_VALUE, 2 };
 				}
 				isFuture = 1;
 			}
@@ -131,14 +129,14 @@ public class NotificationUtil {
 				}
 			}
 		}
-		return new Integer[] { no_secs, isFuture };
+		return new int[] { no_secs, isFuture };
 	}
 
 	// get the notification for the event subscription by querrying the given
 	// service
 	public static NnwdafEventsSubscriptionNotification getNotification(NnwdafEventsSubscription sub, Integer index,
 			NnwdafEventsSubscriptionNotification notification, MetricsService metricsService,
-			MetricsCacheService metricsCacheService) throws JsonMappingException, JsonProcessingException, Exception {
+			MetricsCacheService metricsCacheService) {
 		OffsetDateTime now = OffsetDateTime.now();
 		EventSubscription eventSub = sub.getEventSubscriptions().get(index);
 		NwdafEventEnum eType = eventSub.getEvent().getEvent();
@@ -146,8 +144,8 @@ public class NotificationUtil {
 		ObjectWriter ow = new ObjectMapper().writer();
 		String params = null;
 		String columns = "";
-		Integer[] findOffset = findRequestedDataOffset(eventSub);
-		Integer no_secs = findOffset[0];
+		int[] findOffset = findRequestedDataOffset(eventSub);
+		Integer no_secs = findOffset[0]!=Integer.MIN_VALUE?findOffset[0]:null;
 		Integer isFuture = findOffset[1];
 		Integer repPeriod = needsServing(sub, index);
 		// future data not implemented | subscription doesn't need serving:
@@ -219,7 +217,8 @@ public class NotificationUtil {
 					// metricsCacheService.findAllInLastIntervalByFilterAndOffset(eventSub,
 					// filterTypes, params, no_secs, repPeriod, columns);
 				} catch (Exception e) {
-					NwdafSubApplication.getLogger().error("Can't find nf load metrics from database", e);
+					NwdafSubApplication.getLogger()
+							.error("Service error for eventType: " + eType + " and subId: " + sub.getId(), e);
 					return null;
 				}
 				if (nfloadlevels == null || nfloadlevels.size() == 0) {
@@ -239,7 +238,8 @@ public class NotificationUtil {
 					ueMobilities = metricsService.findAllUeMobilityInLastIntervalByFilterAndOffset(params, no_secs,
 							repPeriod, columns);
 				} catch (Exception e) {
-					NwdafSubApplication.getLogger().error("Can't ue mobility find metrics from database", e);
+					NwdafSubApplication.getLogger()
+							.error("Service error for eventType: " + eType + " and subId: " + sub.getId(), e);
 					return null;
 				}
 				if (ueMobilities == null || ueMobilities.size() == 0) {
@@ -535,11 +535,11 @@ public class NotificationUtil {
 		for (int i = 0; i < no_valid_events; i++) {
 			EventSubscription eventSubscription = body.getEventSubscriptions().get(i);
 			NwdafEventEnum eType = eventSubscription.getEvent().getEvent();
-			Boolean periodic = false;
+			boolean periodic = false;
 			if (eventIndexToRepPeriodMap.get(i) != null) {
 				periodic = eventIndexToNotifMethodMap.get(i).equals(NotificationMethodEnum.PERIODIC);
 			}
-			Boolean failed_notif = false;
+			boolean failed_notif = false;
 			NwdafFailureCodeEnum failCode = null;
 			// check if eventType is supported
 			if (!Constants.supportedEvents.contains(eType)) {
@@ -558,8 +558,8 @@ public class NotificationUtil {
 			failed_notif = aggregateChecksForAOIResponse.getFailed_notif();
 			failCode = aggregateChecksForAOIResponse.getFailCode();
 			// find past/future offset requested by client:
-			Integer[] findOffset = NotificationUtil.findRequestedDataOffset(eventSubscription);
-			Integer no_secs = findOffset[0];
+			int[] findOffset = NotificationUtil.findRequestedDataOffset(eventSubscription);
+			Integer no_secs = findOffset[0] != Integer.MIN_VALUE ? findOffset[0] : null;
 			// both future and past predictions not allowed
 			if (findOffset[1] == 2) {
 				body.addFailEventReportsItem(new FailureEventInfo()
@@ -612,18 +612,14 @@ public class NotificationUtil {
 					if (body.getEvtReq() != null && immRep && notification != null) {
 						body.addEventNotificationsItem(notification.getEventNotifications().get(i));
 					}
-				} catch (JsonProcessingException e) {
-					failed_notif = true;
-					logger.error("Failed to collect data for event: " + eType, e);
-					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
 				} catch (Exception e) {
 					failed_notif = true;
-					logger.error("Failed to collect data for event(timescaledb error): " + eType, e);
+					logger.error("getNotification error for event: " + eType + " and subId: " + id, e);
 					failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
 				}
 			}
 			if (notification == null) {
-				logger.error("Failed to collect data for event: " + eType);
+				logger.error("Notification is NULL for event: " + eType + " and subId: " + id);
 				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
 			}
 			// add failureEventInfo

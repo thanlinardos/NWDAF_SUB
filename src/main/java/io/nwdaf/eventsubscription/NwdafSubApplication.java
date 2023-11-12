@@ -34,9 +34,11 @@ import io.nwdaf.eventsubscription.config.NwdafSubProperties;
 import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerPublisher;
 import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
+import io.nwdaf.eventsubscription.model.LocationInfo;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
+import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.notify.NotificationUtil;
 import io.nwdaf.eventsubscription.notify.NotifyListener;
@@ -117,11 +119,7 @@ public class NwdafSubApplication {
 	}
 
 	@Bean
-	@ConditionalOnProperty(
-            name = "nnwdaf-eventsubscription.integration.resetsubdb",
-            havingValue = "true",
-            matchIfMissing = false
-    )
+	@ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.resetsubdb", havingValue = "true", matchIfMissing = false)
 	public CommandLineRunner resetSubDb() {
 		return args -> {
 			if (!subscriptionsService.truncate()) {
@@ -132,11 +130,7 @@ public class NwdafSubApplication {
 	}
 
 	@Bean
-	@ConditionalOnProperty(
-            name = "nnwdaf-eventsubscription.integration.resetmetricsdb",
-            havingValue = "true",
-            matchIfMissing = false
-    )
+	@ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.resetmetricsdb", havingValue = "true", matchIfMissing = false)
 	public CommandLineRunner resetMetricsDb() {
 		return args -> {
 			if (!metricsService.truncate()) {
@@ -147,11 +141,7 @@ public class NwdafSubApplication {
 	}
 
 	@Bean
-	@ConditionalOnProperty(
-            name = "nnwdaf-eventsubscription.integration.resetnotifdb",
-            havingValue = "true",
-            matchIfMissing = false
-    )
+	@ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.resetnotifdb", havingValue = "true", matchIfMissing = false)
 	public CommandLineRunner resetNotifDb() {
 		return args -> {
 			if (!notificationService.truncate()) {
@@ -160,13 +150,21 @@ public class NwdafSubApplication {
 			}
 		};
 	}
-	
+
+	// @Bean
+	public CommandLineRunner testMetricsDB() {
+		return args -> {
+			metricsService.create(new NfLoadLevelInformation().nfInstanceId(UUID.randomUUID()).nfCpuUsage(100)
+					.time(Instant.now()).addSupi("supi"));
+			System.out.println(metricsService.findAllInLastIntervalByFilterAndOffset(null, 1, 1, "").get(0));
+			metricsService.create(new UeMobility().time(Instant.now()).addAreaOfInterestIdsItem(UUID.randomUUID())
+					.addLocInfosItem(new LocationInfo().confidence(12)));
+			System.out.println(metricsService.findAllUeMobilityInLastIntervalByFilterAndOffset(null, 1, 1, "").get(0));
+		};
+	}
+
 	@Bean
-	@ConditionalOnProperty(
-            name = "nnwdaf-eventsubscription.integration.startup",
-            havingValue = "true",
-            matchIfMissing = false
-    )
+	@ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.startup", havingValue = "true", matchIfMissing = false)
 	public CommandLineRunner run() throws JsonProcessingException {
 
 		return args -> {
@@ -174,15 +172,17 @@ public class NwdafSubApplication {
 			File test = new File("test.json");
 			String uri = env.getProperty("nnwdaf-eventsubscription.client.prod-url");
 			Integer default_port = ParserUtil
-						.safeParseInteger(env.getProperty("nnwdaf-eventsubscription.client.port"));
-			if(uri==null) {return;}
+					.safeParseInteger(env.getProperty("nnwdaf-eventsubscription.client.port"));
+			if (uri == null) {
+				return;
+			}
 			for (int n = 0; n < 5; n++) {
 				System.out.println("test iteration: " + n);
 				if (!subscriptionsService.truncate()) {
 					log.error("Truncate subscription table failed!");
 					return;
 				}
-				for (int i = 0; i < noSubs/noClients; i++) {
+				for (int i = 0; i < noSubs / noClients; i++) {
 					for (int j = 0; j < noClients; j++) {
 						Integer current_port = default_port + j;
 						String parsedUri = uri.replace(default_port.toString(), current_port.toString());
@@ -195,14 +195,7 @@ public class NwdafSubApplication {
 										.notificationURI(parsedUri));
 					}
 				}
-				System.out.println("Created "+noSubs+" subs for scenario with "+noClients+" clients.");
-				// NotificationUtil.wakeUpDataProducer("kafka",
-				// 		NwdafEventEnum.NF_LOAD,
-				// 		null,
-				// 		dataCollectionPublisher,
-				// 		dummyDataProducerPublisher,
-				// 		producer,
-				// 		objectMapper);
+				System.out.println("Created " + noSubs + " subs for scenario with " + noClients + " clients.");
 				NotificationUtil.wakeUpDataProducer("kafka",
 						NwdafEventEnum.UE_MOBILITY,
 						null,

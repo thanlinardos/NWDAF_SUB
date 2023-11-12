@@ -26,8 +26,10 @@ CREATE INDEX IF NOT EXISTS ix_data_time ON metrics.public.nf_load_metrics (data,
 
 CREATE TABLE IF NOT EXISTS metrics.public.ue_mobility_metrics (
   time TIMESTAMPTZ,
-  data JSONB
+  data JSONB,
+  supi varchar(100),
+  intGroupId varchar(100)
 );
 SELECT create_hypertable('ue_mobility_metrics','time');
 
-CREATE INDEX IF NOT EXISTS ix_data_time_ue_mobility_metrics ON metrics.public.ue_mobility_metrics (data, time DESC);
+CREATE INDEX IF NOT EXISTS ix_data_time_ue_mobility_metrics ON metrics.public.ue_mobility_metrics (data, time DESC, supi);

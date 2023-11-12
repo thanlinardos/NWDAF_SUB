@@ -11,12 +11,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.nwdaf.eventsubscription.repository.eventmetrics.entities.NfLoadLevelInformationTable;
-import io.nwdaf.eventsubscription.repository.eventmetrics.entities.UeMobilityTable;
 
-@Repository("eventmetrics")
+@Repository("eventNfLoadMetrics")
 @EntityScan("io.nwdaf.eventsubscription.repository.eventmetrics")
-public interface MetricsRepository
-		extends JpaRepository<NfLoadLevelInformationTable, OffsetDateTime>, CustomMetricsRepository {
+public interface NfLoadMetricsRepository
+		extends JpaRepository<NfLoadLevelInformationTable, OffsetDateTime>, CustomNfLoadRepository {
 
 	List<NfLoadLevelInformationTable> findAll();
 
@@ -38,14 +37,6 @@ public interface MetricsRepository
 	@Query(value = "select * from nf_load_metrics where time > NOW() - INTERVAL '? second'", nativeQuery = true)
 	List<NfLoadLevelInformationTable> findAllInLastInterval(Integer no_secs);
 
-	@Query(value = "select * from ue_mobility_metrics", nativeQuery = true)
-	List<UeMobilityTable> findAllMobilityTables();
-
-	@Transactional
-	@Modifying(clearAutomatically = true)
-	@Query(value = "insert into ue_mobility_metrics(time,data) VALUES (?1,cast(?2 as jsonb))", nativeQuery = true)
-	void saveMobilityTable(OffsetDateTime time, String data);
-
 	// @Query(value="select id, sub from nf_load_metrics where data @>
 	// '{\"notificationURI\":\"http://localhost:8082/client\"}'",
 	// nativeQuery=true)
@@ -55,10 +46,5 @@ public interface MetricsRepository
 	@Modifying
 	@Transactional
 	@Query(value = "truncate table nf_load_metrics", nativeQuery = true)
-	void truncateNfLoad();
-
-	@Modifying
-	@Transactional
-	@Query(value = "truncate table ue_mobility_metrics", nativeQuery = true)
-	void truncateUeMobility();
+	void truncate();
 }

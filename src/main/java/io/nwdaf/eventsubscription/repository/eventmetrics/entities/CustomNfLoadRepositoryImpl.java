@@ -2,11 +2,11 @@ package io.nwdaf.eventsubscription.repository.eventmetrics.entities;
 
 import java.util.List;
 
-import io.nwdaf.eventsubscription.repository.eventmetrics.CustomMetricsRepository;
+import io.nwdaf.eventsubscription.repository.eventmetrics.CustomNfLoadRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
-public class CustomMetricsRepositoryImpl implements CustomMetricsRepository {
+public class CustomNfLoadRepositoryImpl implements CustomNfLoadRepository {
 
     @PersistenceContext(unitName = "eventmetricsEntityManagerFactory")
     private EntityManager entityManager;
@@ -35,28 +35,6 @@ public class CustomMetricsRepositoryImpl implements CustomMetricsRepository {
         // +" ORDER BY time_bucket(cast(:offset as interval), time) DESC, time,
         // nfInstanceId, nfSetId;"
         return entityManager.createNativeQuery(querry, NfLoadLevelInformationTable.class).setParameter("offset", offset)
-                .setParameter("no_secs", no_secs).getResultList();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<UeMobilityTable> findAllUeMobilityInLastIntervalByFilterAndOffset(String params, String no_secs,
-            String offset, String columns) {
-        String querry = "select time_bucket(cast(:offset as interval), time) AS time , data";
-        if (columns == "") {
-
-        } else {
-            querry += columns;
-        }
-        querry += " from ue_mobility_metrics where time > NOW() - cast(:no_secs as interval)";
-        if (params != null) {
-            querry += " and " + params;
-        }
-        querry += " GROUP BY time_bucket(cast(:offset as interval), time), time, data;";
-        // System.out.println(querry);
-        // +" ORDER BY time_bucket(cast(:offset as interval), time) DESC, time,
-        // nfInstanceId, nfSetId;"
-        return entityManager.createNativeQuery(querry, UeMobilityTable.class).setParameter("offset", offset)
                 .setParameter("no_secs", no_secs).getResultList();
     }
 }
