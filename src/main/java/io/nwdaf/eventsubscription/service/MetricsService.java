@@ -47,15 +47,7 @@ public class MetricsService {
 		} else {
 			tables = nfLoadRepository.findAllByTime(time);
 		}
-		List<NfLoadLevelInformation> res = new ArrayList<>();
-		for (int i = 0; i < tables.size(); i++) {
-			if (tables.get(i) != null) {
-				NfLoadLevelInformation info = NfLoadLevelInformation.fromMap(tables.get(i).getData());
-				info.setTime(tables.get(i).getTime().toInstant());
-				res.add(info);
-			}
-		}
-		return res;
+		return getNfLoadLevelInformationFromTable(tables);
 	}
 
 	// NF_LOAD
@@ -74,15 +66,7 @@ public class MetricsService {
 				tables = nfLoadRepository.findAllInLastSecond();
 			}
 		}
-		List<NfLoadLevelInformation> res = new ArrayList<>();
-		for (int i = 0; i < tables.size(); i++) {
-			if (tables.get(i) != null) {
-				NfLoadLevelInformation info = NfLoadLevelInformation.fromMap(tables.get(i).getData());
-				info.setTime(tables.get(i).getTime().toInstant());
-				res.add(info);
-			}
-		}
-		return res;
+		return getNfLoadLevelInformationFromTable(tables);
 	}
 
 	// NF_LOAD
@@ -98,22 +82,21 @@ public class MetricsService {
 		tables = nfLoadRepository.findAllInLastIntervalByFilterAndOffset(params, no_secs + " second", offset + " second",
 				columns);
 		List<NfLoadLevelInformation> res = new ArrayList<>();
-		for (int i = 0; i < tables.size(); i++) {
-			if (tables.get(i) != null) {
-				NfLoadLevelInformation info = NfLoadLevelInformation.fromMap(tables.get(i).getData());
-				if (tables.get(i).getTime() != null) {
-					info.time(tables.get(i).getTime().toInstant());
-					// System.out.println("nwdaf read nf_load from timescale: "+info.getTimeStamp()+" (table: "+tables.get(i).getTime()+")");
-				}
-				info.nfCpuUsage(tables.get(i).getNfCpuUsage())
-						.nfMemoryUsage(tables.get(i).getNfMemoryUsage())
-						.nfStorageUsage(tables.get(i).getNfStorageUsage())
-						.nfLoadLevelAverage(tables.get(i).getNfLoadLevelAverage())
-						.nfLoadLevelpeak(tables.get(i).getNfLoadLevelpeak())
-						.nfLoadAvgInAoi(tables.get(i).getNfLoadAvgInAoi());
-				res.add(info);
-			}
-		}
+        for (NfLoadLevelInformationTable table : tables) {
+            if (table != null) {
+                NfLoadLevelInformation info = NfLoadLevelInformation.fromMap(table.getData());
+                if (table.getTime() != null) {
+                    info.time(table.getTime().toInstant());
+                }
+                info.nfCpuUsage(table.getNfCpuUsage())
+                        .nfMemoryUsage(table.getNfMemoryUsage())
+                        .nfStorageUsage(table.getNfStorageUsage())
+                        .nfLoadLevelAverage(table.getNfLoadLevelAverage())
+                        .nfLoadLevelpeak(table.getNfLoadLevelpeak())
+                        .nfLoadAvgInAoi(table.getNfLoadAvgInAoi());
+                res.add(info);
+            }
+        }
 		return res;
 	}
 
@@ -135,15 +118,15 @@ public class MetricsService {
 		tables = ueMobilityRepository.findAllInLastIntervalByFilterAndOffset(params, no_secs + " second",
 				offset + " second", columns);
 		List<UeMobility> res = new ArrayList<>();
-		for (int i = 0; i < tables.size(); i++) {
-			if (tables.get(i) != null) {
-				UeMobility info = UeMobility.fromMap(tables.get(i).getData());
-				if (tables.get(i).getTime() != null) {
-					info.time(tables.get(i).getTime().toInstant());
-				}
-				res.add(info);
-			}
-		}
+        for (UeMobilityTable table : tables) {
+            if (table != null) {
+                UeMobility info = UeMobility.fromMap(table.getData());
+                if (table.getTime() != null) {
+                    info.time(table.getTime().toInstant());
+                }
+                res.add(info);
+            }
+        }
 		return res;
 	}
 
@@ -156,5 +139,17 @@ public class MetricsService {
 			System.out.println(e);
 			return false;
 		}
+	}
+
+	private List<NfLoadLevelInformation> getNfLoadLevelInformationFromTable(List<NfLoadLevelInformationTable> tables) {
+		List<NfLoadLevelInformation> res = new ArrayList<>();
+		for (NfLoadLevelInformationTable table : tables) {
+			if (table != null) {
+				NfLoadLevelInformation info = NfLoadLevelInformation.fromMap(table.getData());
+				info.setTime(table.getTime().toInstant());
+				res.add(info);
+			}
+		}
+		return res;
 	}
 }

@@ -1,44 +1,12 @@
 package io.nwdaf.eventsubscription;
 
-import java.io.File;
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.actuate.autoconfigure.metrics.JvmMetricsAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.metrics.LogbackMetricsAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.env.Environment;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.nwdaf.eventsubscription.config.NwdafSubProperties;
 import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerPublisher;
 import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
-import io.nwdaf.eventsubscription.model.LocationInfo;
-import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
-import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
-import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
-import io.nwdaf.eventsubscription.model.UeMobility;
+import io.nwdaf.eventsubscription.model.*;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.notify.NotificationUtil;
 import io.nwdaf.eventsubscription.notify.NotifyListener;
@@ -54,64 +22,79 @@ import io.nwdaf.eventsubscription.service.MetricsService;
 import io.nwdaf.eventsubscription.service.NotificationService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
+import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.autoconfigure.metrics.JvmMetricsAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.metrics.LogbackMetricsAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+import java.io.File;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 
 @EnableConfigurationProperties(NwdafSubProperties.class)
-@SpringBootApplication
+@SpringBootApplication(exclude = { JacksonAutoConfiguration.class, JvmMetricsAutoConfiguration.class,
+		LogbackMetricsAutoConfiguration.class, MetricsAutoConfiguration.class })
 @EnableAsync
 @EnableScheduling
 @EntityScan({ "io.nwdaf.eventsubscription.repository" })
-@EnableAutoConfiguration(exclude = { JacksonAutoConfiguration.class, JvmMetricsAutoConfiguration.class,
-		LogbackMetricsAutoConfiguration.class, MetricsAutoConfiguration.class })
 public class NwdafSubApplication {
 
 	private static final Logger log = LoggerFactory.getLogger(NwdafSubApplication.class);
-
-	@Autowired
-	private NotifyPublisher notifyPublisher;
-
-	@Autowired
-	private DataCollectionPublisher dataCollectionPublisher;
-
-	@Autowired
-	private ApplicationContext applicationContext;
-
-	@Autowired
-	private DummyDataProducerPublisher dummyDataProducerPublisher;
-
-	@Autowired
-	KafkaTemplate<String, String> kafkaTemplate;
-
-	@Autowired
-	MetricsService metricsService;
-
-	@Autowired
-	SubscriptionsService subscriptionsService;
-
-	@Autowired
-	ObjectMapper objectMapper;
-
-	@Autowired
-	Environment env;
-
-	@Autowired
-	KafkaProducer producer;
-
-	@Autowired
-	RedisMetricsRepository redisRepository;
-
-	@Autowired
-	RedisSubscriptionRepository redisSubscriptionRepository;
-
-	@Autowired
-	RedisNotificationRepository redisNotificationRepository;
-
-	@Autowired
-	NotificationService notificationService;
-
+	private final NotifyPublisher notifyPublisher;
+	private final DataCollectionPublisher dataCollectionPublisher;
+	@Getter
+	private final ApplicationContext applicationContext;
+	private final DummyDataProducerPublisher dummyDataProducerPublisher;
+	final KafkaTemplate<String, String> kafkaTemplate;
+	final MetricsService metricsService;
+	final SubscriptionsService subscriptionsService;
+	final ObjectMapper objectMapper;
+	final Environment env;
+	final KafkaProducer producer;
+	final RedisMetricsRepository redisRepository;
+	final RedisSubscriptionRepository redisSubscriptionRepository;
+	final RedisNotificationRepository redisNotificationRepository;
+	final NotificationService notificationService;
 	@Value("${nnwdaf-eventsubscription.integration.nosubs}")
 	private Integer noSubs;
 	@Value("${nnwdaf-eventsubscription.integration.noclients}")
 	private Integer noClients;
+	@Value("${nnwdaf-eventsubscription.integration.cycleSeconds}")
+	private Integer cycleSeconds;
+
+	public NwdafSubApplication(NotifyPublisher notifyPublisher, DataCollectionPublisher dataCollectionPublisher, ApplicationContext applicationContext, RedisSubscriptionRepository redisSubscriptionRepository, NotificationService notificationService, DummyDataProducerPublisher dummyDataProducerPublisher, KafkaTemplate<String, String> kafkaTemplate, MetricsService metricsService, SubscriptionsService subscriptionsService, RedisNotificationRepository redisNotificationRepository, ObjectMapper objectMapper, Environment env, KafkaProducer producer, RedisMetricsRepository redisRepository) {
+		this.notifyPublisher = notifyPublisher;
+		this.dataCollectionPublisher = dataCollectionPublisher;
+		this.applicationContext = applicationContext;
+		this.redisSubscriptionRepository = redisSubscriptionRepository;
+		this.notificationService = notificationService;
+		this.dummyDataProducerPublisher = dummyDataProducerPublisher;
+		this.kafkaTemplate = kafkaTemplate;
+		this.metricsService = metricsService;
+		this.subscriptionsService = subscriptionsService;
+		this.redisNotificationRepository = redisNotificationRepository;
+		this.objectMapper = objectMapper;
+		this.env = env;
+		this.producer = producer;
+		this.redisRepository = redisRepository;
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(NwdafSubApplication.class, args);
@@ -119,34 +102,31 @@ public class NwdafSubApplication {
 	}
 
 	@Bean
-	@ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.resetsubdb", havingValue = "true", matchIfMissing = false)
+	@ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.resetsubdb", havingValue = "true")
 	public CommandLineRunner resetSubDb() {
 		return args -> {
 			if (!subscriptionsService.truncate()) {
 				log.error("Truncate subscription table failed!");
-				return;
 			}
 		};
 	}
 
 	@Bean
-	@ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.resetmetricsdb", havingValue = "true", matchIfMissing = false)
+	@ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.resetmetricsdb", havingValue = "true")
 	public CommandLineRunner resetMetricsDb() {
 		return args -> {
 			if (!metricsService.truncate()) {
 				log.error("Truncate nf_load & ue_mobility tables failed!");
-				return;
 			}
 		};
 	}
 
 	@Bean
-	@ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.resetnotifdb", havingValue = "true", matchIfMissing = false)
+	@ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.resetnotifdb", havingValue = "true")
 	public CommandLineRunner resetNotifDb() {
 		return args -> {
 			if (!notificationService.truncate()) {
 				log.error("Truncate notification table failed!");
-				return;
 			}
 		};
 	}
@@ -164,11 +144,11 @@ public class NwdafSubApplication {
 	}
 
 	@Bean
-	@ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.startup", havingValue = "true", matchIfMissing = false)
+	@ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.startup", havingValue = "true")
 	public CommandLineRunner run() throws JsonProcessingException {
 
 		return args -> {
-			Long subId = 0l;
+			Long subId = 0L;
 			File test = new File("test.json");
 			String uri = env.getProperty("nnwdaf-eventsubscription.client.prod-url");
 			Integer default_port = ParserUtil
@@ -184,11 +164,11 @@ public class NwdafSubApplication {
 				}
 				for (int i = 0; i < noSubs / noClients; i++) {
 					for (int j = 0; j < noClients; j++) {
-						Integer current_port = default_port + j;
-						String parsedUri = uri.replace(default_port.toString(), current_port.toString());
+						int current_port = default_port + j;
+						String parsedUri = uri.replace(default_port.toString(), Integer.toString(current_port));
 						if (j > 0 && !uri.contains("localhost")) {
-							parsedUri = parsedUri.replace(":" + current_port.toString(),
-									ParserUtil.safeParseString(j + 1) + ":" + current_port.toString());
+							parsedUri = parsedUri.replace(":" + current_port,
+									ParserUtil.safeParseString(j + 1) + ":" + current_port);
 						}
 						subscriptionsService
 								.create(objectMapper.reader().readValue(test, NnwdafEventsSubscription.class)
@@ -204,7 +184,7 @@ public class NwdafSubApplication {
 						producer,
 						objectMapper);
 				notifyPublisher.publishNotification(subId);
-				Thread.sleep(100000);
+				Thread.sleep(cycleSeconds*1000);
 				NotifyListener.stop();
 				Thread.sleep(2000);
 			}
@@ -223,21 +203,21 @@ public class NwdafSubApplication {
 			System.out.println("before:" + nfLoadLevelInformationCached.toString());
 			redisRepository.save(nfLoadLevelInformationCached);
 
-			NfLoadLevelInformationHash res = redisRepository
-					.findById(nfLoadLevelInformationCached.getNfInstanceId().toString()).orElse(null);
-			System.out.println("after:" + res.toString());
+			NfLoadLevelInformationHash result = redisRepository
+					.findById(nfLoadLevelInformationCached.getNfInstanceId()).orElse(null);
+			System.out.println("after:" + result);
 
 			NnwdafEventsSubscriptionCached nnwdafEventsSubscriptionCached = new NnwdafEventsSubscriptionCached();
 			File test = new File("test.json");
 			NnwdafEventsSubscription sub = objectMapper.reader().readValue(test, NnwdafEventsSubscription.class);
-			sub.setId(1l);
+			sub.setId(1L);
 			nnwdafEventsSubscriptionCached.setSub(sub);
 			System.out.println("before:" + nnwdafEventsSubscriptionCached.toString());
 			redisSubscriptionRepository.save(nnwdafEventsSubscriptionCached);
 
 			NnwdafEventsSubscriptionCached subRes = redisSubscriptionRepository
 					.findById(nnwdafEventsSubscriptionCached.getId()).orElse(null);
-			System.out.println("after:" + subRes.toString());
+            System.out.println("after:" + subRes);
 
 			NnwdafEventsSubscriptionNotificationCached notificationCached = new NnwdafEventsSubscriptionNotificationCached();
 			File notifTest = new File("notifTest.json");
@@ -249,7 +229,7 @@ public class NwdafSubApplication {
 
 			NnwdafEventsSubscriptionNotificationCached notifRes = redisNotificationRepository
 					.findById(notificationCached.getId()).orElse(null);
-			System.out.println("after:" + notifRes.toString());
+			System.out.println("after:" + notifRes);
 		};
 	}
 
@@ -263,7 +243,7 @@ public class NwdafSubApplication {
 			redisRepository.save(nfLoadLevelInformationCached);
 
 			List<NfLoadLevelInformationHash> res = redisRepository.findBy(null, null);
-			System.out.println("after:" + res.toString());
+			System.out.println("after:" + res);
 		};
 	}
 
@@ -271,7 +251,4 @@ public class NwdafSubApplication {
 		return NwdafSubApplication.log;
 	}
 
-	public ApplicationContext getApplicationContext() {
-		return applicationContext;
-	}
 }

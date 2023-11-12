@@ -1,5 +1,6 @@
 package io.nwdaf.eventsubscription.notify;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,8 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.util.Pair;
@@ -17,8 +19,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.utilities.CheckUtil;
 import io.nwdaf.eventsubscription.utilities.Constants;
@@ -41,24 +41,15 @@ public class NotifyListener {
 
 	public static Integer max_subs_per_process = 200;
 	public static Integer max_no_notifEventListeners = 1;
+	@Getter @Setter
 	private static Integer no_notifEventListeners = 0;
+	@Getter
 	private static final Object notifLock = new Object();
-	@Autowired
-	SubscriptionsService subscriptionService;
-
-	@Autowired
-	NotificationService notificationService;
-
-	@Autowired
-	MetricsService metricsService;
-
-	@Autowired
-	ObjectMapper objectMapper;
-
+	private final SubscriptionsService subscriptionService;
+	private final NotificationService notificationService;
+	private final MetricsService metricsService;
 	RestTemplate restTemplate;
-
-	@Autowired
-	MetricsCacheService metricsCacheService;
+	private final MetricsCacheService metricsCacheService;
 
 	@Value("${trust.store}")
 	private Resource trustStore;
@@ -71,12 +62,23 @@ public class NotifyListener {
 	private Boolean logSimple;
 	@Value("${nnwdaf-eventsubscription.log.sections}")
 	private Boolean logSections;
+	@Value("${nnwdaf-eventsubscription.integration.cycleSeconds}")
+	private Integer cycleSeconds;
+	@Value("${nnwdaf-eventsubscription.integration.nosubs}")
+	private Integer noSubs;
+
+	public NotifyListener(SubscriptionsService subscriptionService, NotificationService notificationService, MetricsService metricsService, MetricsCacheService metricsCacheService) {
+		this.subscriptionService = subscriptionService;
+		this.notificationService = notificationService;
+		this.metricsService = metricsService;
+		this.metricsCacheService = metricsCacheService;
+	}
 
 	@Async
 	@EventListener
 	void sendNotifications(Long subId) {
 		synchronized (notifLock) {
-			if (no_notifEventListeners < 1) {
+			if (no_notifEventListeners < max_no_notifEventListeners) {
 				no_notifEventListeners++;
 			} else {
 				return;
@@ -147,10 +149,10 @@ public class NotifyListener {
 				NnwdafEventsSubscription sub = subs.get(subIndexes.get(id));
 				// match the event index to the event subscription
 				EventSubscription event = sub.getEventSubscriptions().get(eventIndex);
-				int repPeriod = NotificationUtil.needsServing(sub, eventIndex);
+				Integer repPeriod = NotificationUtil.needsServing(sub, eventIndex);
 				// build the notification
 				NnwdafEventsSubscriptionNotification notification = notifBuilder.build(id);
-				section_a += (System.nanoTime() - lst) / 1000l;
+				section_a += (double) (System.nanoTime() - lst) / 1_000L;
 				st = System.nanoTime();
 				int i = -1;
 				for (int n = 0; n < mapEventToNotification.size(); n++) {
@@ -165,14 +167,14 @@ public class NotifyListener {
 				}
 				try {
 					if (foundNotification != null
-							&& CheckUtil.safeCheckEventNotificationWithinMilli(foundNotification, repPeriod * 1250l)) {
+							&& CheckUtil.safeCheckEventNotificationWithinMilli(foundNotification, repPeriod * 1_250L, Instant.now().toEpochMilli())) {
 						notification = foundNotification;
 						no_found_notifs++;
 					} else {
 						notification = NotificationUtil.getNotification(sub, eventIndex, notification, metricsService,
 								metricsCacheService);
 					}
-					if(notification != null && sub.getFailEventReports()!=null && sub.getFailEventReports().size()>0) {
+					if(notification != null && sub.getFailEventReports()!=null && !sub.getFailEventReports().isEmpty()) {
 						sub.setFailEventReports(sub.getFailEventReports()
 							.stream()
 							.filter(t -> !CheckUtil.safeCheckEqualsEvent(t.getEvent(), event.getEvent()))
@@ -194,16 +196,16 @@ public class NotifyListener {
 				} else {
 					mapEventToNotification.add(Pair.of(event, notification));
 				}
-				tsdb_req_delay += (System.nanoTime() - st) / 1000l;
+				tsdb_req_delay += (double) (System.nanoTime() - st) / 1_000L;
 				// save the sent notification to a second database
 				st = System.nanoTime();
 				notificationService.create(notification);
-				notif_save_delay += (System.nanoTime() - st) / 1000l;
+				notif_save_delay += (double) (System.nanoTime() - st) / 1_000L;
 				// check if period has passed -> notify client (or if threshold has been
 				// reached)
 				long st_if = System.nanoTime();
 				if ((repPeriod > 0
-						&& OffsetDateTime.now().compareTo(entry.getValue().plusSeconds((long) repPeriod)) > 0) ||
+						&& OffsetDateTime.now().isAfter(entry.getValue().plusSeconds(repPeriod))) ||
 						(repPeriod == 0 && thresholdReached(event, notification))) {
 					st = System.nanoTime();
 					HttpEntity<NnwdafEventsSubscriptionNotification> client_request = new HttpEntity<>(notification);
@@ -221,23 +223,23 @@ public class NotifyListener {
 						logger.error("Error connecting to client " + sub.getNotificationURI());
 						logger.info(e.toString());
 					}
-					client_delay += (System.nanoTime() - st) / 1_000l;
+					client_delay += (double) (System.nanoTime() - st) / 1_000L;
 					// if notifying the client was successful update the map with the current time
 					st = System.nanoTime();
 					lastNotifTimes.put(Pair.of(entry.getKey().getFirst(), eventIndex), OffsetDateTime.now());
 					no_sent_notifs++;
 					if (logKilobyteCount) {
 						long kb_start = System.nanoTime();
-						no_sent_kilobytes += notification.toString().getBytes().length / 1_024l;
-						kb_time += (System.nanoTime() - kb_start) / 1_000l;
+						no_sent_kilobytes += (double) notification.toString().getBytes().length / 1_024L;
+						kb_time += (System.nanoTime() - kb_start) / 1_000L;
 					}
 					total_sent_notifs++;
-					section_c += (System.nanoTime() - st) / 1_000l;
+					section_c += (double) (System.nanoTime() - st) / 1_000L;
 				}
-				section_b += (System.nanoTime() - st_if) / 1_000l;
+				section_b += (double) (System.nanoTime() - st_if) / 1_000L;
 			}
 			if (logKilobyteCount) {
-				System.out.println("kb_time= " + kb_time / 1_000l + "ms");
+				System.out.println("kb_time= " + kb_time / 1_000L + "ms");
 			}
 			loop_section = (System.nanoTime() - st2);
 			printPerfA(loop_section, section_a, section_b, section_c, no_served_subs);
@@ -279,15 +281,15 @@ public class NotifyListener {
 					}
 				}
 			}
-			double total = (System.nanoTime() - start) / 1_000_000l;
-			long io_delay = (long) (tsdb_req_delay + client_delay + notif_save_delay) / 1_000l;
+			double total = (double) (System.nanoTime() - start) / 1_000_000L;
+			long io_delay = (long) (tsdb_req_delay + client_delay + notif_save_delay) / 1_000L;
 			avg_io_delay += io_delay;
 			avg_program_delay += (long) (total - io_delay);
 			total_sent_kilobytes += no_sent_kilobytes;
 			counter++;
 			printPerfB(tsdb_req_delay, client_delay, notif_save_delay, no_sent_notifs, no_sent_kilobytes, total);
 			// wait till one quarter of a second (min period) passes (10^9/4 nanoseconds)
-			long wait_time = (long) Constants.MIN_PERIOD_SECONDS * 250l;
+			long wait_time = (long) Constants.MIN_PERIOD_SECONDS * 250L;
 			if ((long) total < wait_time) {
 				try {
 					Thread.sleep(wait_time - (long) total);
@@ -315,7 +317,7 @@ public class NotifyListener {
 			double avg_throughput = total_sent_kilobytes / (128 * 100_000);
 			logger.info("avg throughput= " + avg_throughput + "mbps");
 		}
-		logger.info(total_sent_notifs + "/40000 notifications sent");
+		logger.info(total_sent_notifs + "/"+cycleSeconds*noSubs+" notifications sent");
 	}
 
 	private boolean thresholdReached(EventSubscription event, NnwdafEventsSubscriptionNotification notification) {
@@ -379,18 +381,6 @@ public class NotifyListener {
 		return false;
 	}
 
-	public static Integer getNo_notifEventListeners() {
-		return no_notifEventListeners;
-	}
-
-	public static void setNo_notifEventListeners(Integer no) {
-		no_notifEventListeners = no;
-	}
-
-	public static Object getNotifLock() {
-		return notifLock;
-	}
-
 	public static void stop() {
 		synchronized (notifLock) {
 			no_notifEventListeners--;
@@ -400,10 +390,10 @@ public class NotifyListener {
 	private void printPerfA(long loop_section, double section_a, double section_b, double section_c,
 			int no_served_subs) {
 		if (logSections) {
-			System.out.print("loop_section=" + loop_section / 1000000l + "ms");
-			System.out.print(" || section_a=" + section_a / 1000l + "ms");
-			System.out.print(" || section_b=" + section_b / 1000l + "ms");
-			System.out.print(" || section_c=" + section_c / 1000l + "ms");
+			System.out.print("loop_section=" + loop_section / 1_000_000L + "ms");
+			System.out.print(" || section_a=" + section_a / 1_000L + "ms");
+			System.out.print(" || section_b=" + section_b / 1_000L + "ms");
+			System.out.print(" || section_c=" + section_c / 1_000L + "ms");
 		}
 		if (logSimple) {
 			System.out.print(" || served_subs=" + no_served_subs);
@@ -413,11 +403,11 @@ public class NotifyListener {
 	private void printPerfB(double tsdb_req_delay, double client_delay, double notif_save_delay, long no_sent_notifs,
 			double no_sent_kilobytes, double total) {
 		if (logSections) {
-			System.out.print(" || client_delay:" + (long) client_delay / 1000l + "ms");
-			System.out.print(" || notif_save_delay:" + (long) notif_save_delay / 1000l + "ms");
+			System.out.print(" || client_delay:" + (long) client_delay / 1_000L + "ms");
+			System.out.print(" || notif_save_delay:" + (long) notif_save_delay / 1_000L + "ms");
 		}
 		if (logSimple) {
-			System.out.print(" || tsdb_req_delay: " + (long) tsdb_req_delay / 1000l + "ms");
+			System.out.print(" || tsdb_req_delay: " + (long) tsdb_req_delay / 1_000L + "ms");
 			System.out.print(" || no_sent_notifs:" + no_sent_notifs);
 			if (logKilobyteCount) {
 				System.out.print(" || no_sent_kilobytes:" + no_sent_kilobytes + "KB");

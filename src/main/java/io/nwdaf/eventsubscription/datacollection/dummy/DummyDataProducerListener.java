@@ -44,7 +44,7 @@ public class DummyDataProducerListener{
 			return;
 		}
         if(no_dummyDataProducerEventListeners>0){
-            nfloadinfos=DummyDataGenerator.generateDummyNfloadLevelInfo(10);
+            nfloadinfos=DummyDataGenerator.generateDummyNfLoadLevelInfo(10);
             ueMobilities = DummyDataGenerator.generateDummyUeMobilities(10);
         }
         long start;

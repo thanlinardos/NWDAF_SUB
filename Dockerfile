@@ -35,4 +35,4 @@ ADD ${SSL_FILE} src/main/resources/certificates/local-ssl.p12
 ADD ${CLIENT_CERT_FILE} /usr/local/share/ca-certificates/local-client-cert.crt
 ADD ${CLIENT_SSL_FILE} src/main/resources/certificates/local-client-ssl.p12
 RUN chmod 644 /usr/local/share/ca-certificates/local-cert.crt && chmod 644 /usr/local/share/ca-certificates/local-client-cert.crt && update-ca-certificates
-ENTRYPOINT ["java","-Xdebug","-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005","-jar","/app.jar"]
+ENTRYPOINT ["java","-Xdebug","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005","-jar","/app.jar"]

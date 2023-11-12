@@ -51,6 +51,7 @@ public class SubscriptionsService {
 		
 		return res;
 	}
+
 	public List<NnwdafEventsSubscription> findAllByNotifURI(String clientURI) throws JsonMappingException, JsonProcessingException {
 		final String filter = "'{\"notificationURI\":\""+clientURI+"\"}'";
 		List<NnwdafEventsSubscriptionTable> tables = repository.findAllByNotifURI(filter);
@@ -69,6 +70,7 @@ public class SubscriptionsService {
 		body_table.setId(id);
 		return repository.save(body_table);
     }
+
 	public NnwdafEventsSubscriptionTable delete(Long id) {
 		return repository.delete(id);
     }

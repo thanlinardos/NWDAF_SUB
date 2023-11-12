@@ -51,14 +51,13 @@ import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
 
 public class NotificationUtil {
-	private static Logger logger = LoggerFactory.getLogger(NotificationUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(NotificationUtil.class);
 
 	// check if subscription needs to be served and return the repetition period (0
 	// for threshold)
 	public static Integer needsServing(NnwdafEventsSubscription body, Integer eventIndex) {
 		NotificationMethodEnum notificationMethod = null;
 		int repetitionPeriod = -1;
-		logger.hashCode();
 		if (body.getEventSubscriptions().get(eventIndex) != null) {
 			if (body.getEventSubscriptions().get(eventIndex).getNotificationMethod() != null
 					&& body.getEventSubscriptions().get(eventIndex).getNotificationMethod().getNotifMethod() != null) {
