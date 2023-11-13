@@ -145,7 +145,7 @@ public class NotificationUtil {
 		String columns = "";
 		int[] findOffset = findRequestedDataOffset(eventSub);
 		Integer no_secs = findOffset[0]!=Integer.MIN_VALUE?findOffset[0]:null;
-		Integer isFuture = findOffset[1];
+		int isFuture = findOffset[1];
 		Integer repPeriod = needsServing(sub, index);
 		// future data not implemented | subscription doesn't need serving:
 		if (isFuture == 1 || repPeriod == null) {
@@ -220,7 +220,7 @@ public class NotificationUtil {
 							.error("Service error for eventType: " + eType + " and subId: " + sub.getId(), e);
 					return null;
 				}
-				if (nfloadlevels == null || nfloadlevels.size() == 0) {
+				if (nfloadlevels == null || nfloadlevels.isEmpty()) {
 					return null;
 				}
 				// if given analyticsubsets list in the sub request, set the non-included info
@@ -241,7 +241,7 @@ public class NotificationUtil {
 							.error("Service error for eventType: " + eType + " and subId: " + sub.getId(), e);
 					return null;
 				}
-				if (ueMobilities == null || ueMobilities.size() == 0) {
+				if (ueMobilities == null || ueMobilities.isEmpty()) {
 					return null;
 				}
 				notification = notifBuilder.addEvent(notification, NwdafEventEnum.UE_MOBILITY, null, null, now, null,
@@ -299,7 +299,7 @@ public class NotificationUtil {
 				List<DiscoverMessage> discoverMessages = new ArrayList<>();
 				boolean hasData = false;
 				while (wait_time < maxWait) {
-					while (KafkaConsumer.discoverMessageQueue.size() > 0) {
+					while (!KafkaConsumer.discoverMessageQueue.isEmpty()) {
 						try {
 							String msg = KafkaConsumer.discoverMessageQueue.poll();
 							if (msg == null) {
@@ -371,8 +371,8 @@ public class NotificationUtil {
 	// object with null
 	public static AggregateChecksForAOIResponse aggregateChecksForAOI(NetworkAreaInfo requestNetworkArea) {
 		NetworkAreaInfo matchingArea = null;
-		Boolean insideServiceArea = false;
-		Boolean failed_notif = false;
+		boolean insideServiceArea = false;
+		boolean failed_notif = false;
 		NwdafFailureCodeEnum failCode = null;
 		if (requestNetworkArea != null && requestNetworkArea.getId() != null) {
 			matchingArea = Constants.ExampleAOIsMap.get(requestNetworkArea.getId());
@@ -428,7 +428,7 @@ public class NotificationUtil {
 	// negotiate the supported features with the client
 	public static List<Integer> negotiateSupportedFeatures(NnwdafEventsSubscription body) {
 		List<Integer> negotiatedFeaturesList = new ArrayList<>();
-		if (body.getSupportedFeatures() != null && !body.getSupportedFeatures().equals("")) {
+		if (body.getSupportedFeatures() != null && !body.getSupportedFeatures().isEmpty()) {
 			if (!Constants.supportedFeatures.equals(body.getSupportedFeatures()) &&
 					CheckUtil.listInside(Constants.supportedFeaturesList,
 							ConvertUtil.convertFeaturesToList(body.getSupportedFeatures()))) {
@@ -449,7 +449,7 @@ public class NotificationUtil {
 			ReportingInformation evtReq) {
 		Integer repetionPeriod = null;
 		NotificationMethodEnum notificationMethod = null;
-		Boolean muted = false;
+		boolean muted = false;
 		Boolean immRep = false;
 		if (evtReq != null) {
 			if (evtReq.getNotifMethod() != null && evtReq.getNotifMethod().getNotifMethod() != null) {
@@ -477,7 +477,7 @@ public class NotificationUtil {
 	public static GetNotifMethodAndRepPeriodsResponse getNotifMethodAndRepPeriods(
 			List<EventSubscription> eventSubscriptions, NotificationMethodEnum notificationMethod,
 			Integer repetionPeriod) {
-		Integer no_valid_events = 0;
+		int no_valid_events = 0;
 		List<Integer> invalid_events = new ArrayList<>();
 		Map<Integer, NotificationMethodEnum> eventIndexToNotifMethodMap = new HashMap<>();
 		Map<Integer, Integer> eventIndexToRepPeriodMap = new HashMap<>();
@@ -542,23 +542,40 @@ public class NotificationUtil {
 			NwdafFailureCodeEnum failCode = null;
 			// check if eventType is supported
 			if (!Constants.supportedEvents.contains(eType)) {
-				failed_notif = true;
-				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
+				body.addFailEventReportsItem(new FailureEventInfo()
+						.event(eventSubscription.getEvent())
+						.failureCode(new NwdafFailureCode()
+								.failureCode(NwdafFailureCodeEnum.UNAVAILABLE_DATA)));
+				continue;
 			}
+
 			// check if period is valid (between 1sec and 10mins) and if not add
 			// failureReport
 			if (periodic && (eventIndexToRepPeriodMap.get(i) < Constants.MIN_PERIOD_SECONDS
 					|| eventIndexToRepPeriodMap.get(i) > Constants.MAX_PERIOD_SECONDS)) {
-				failed_notif = true;
-				failCode = NwdafFailureCodeEnum.OTHER;
+				body.addFailEventReportsItem(new FailureEventInfo()
+						.event(eventSubscription.getEvent())
+						.failureCode(new NwdafFailureCode()
+								.failureCode(NwdafFailureCodeEnum.OTHER)));
+				continue;
 			}
+			// area of interest checks against the AOI of the serving NWDAF_SUB instance (this)
 			AggregateChecksForAOIResponse aggregateChecksForAOIResponse = NotificationUtil
 					.aggregateChecksForAOI(eventSubscription.getNetworkArea());
 			failed_notif = aggregateChecksForAOIResponse.getFailed_notif();
 			failCode = aggregateChecksForAOIResponse.getFailCode();
+			if(failed_notif) {
+				body.addFailEventReportsItem(new FailureEventInfo()
+						.event(eventSubscription.getEvent())
+						.failureCode(new NwdafFailureCode()
+								.failureCode(failCode)));
+				continue;
+			}
+
 			// find past/future offset requested by client:
 			int[] findOffset = NotificationUtil.findRequestedDataOffset(eventSubscription);
 			Integer no_secs = findOffset[0] != Integer.MIN_VALUE ? findOffset[0] : null;
+
 			// both future and past predictions not allowed
 			if (findOffset[1] == 2) {
 				body.addFailEventReportsItem(new FailureEventInfo()
@@ -567,6 +584,7 @@ public class NotificationUtil {
 								.failureCode(NwdafFailureCodeEnum.BOTH_STAT_PRED_NOT_ALLOWED)));
 				continue;
 			}
+
 			// future data not implemented
 			if (findOffset[1] == 1) {
 				body.addFailEventReportsItem(new FailureEventInfo().event(eventSubscription.getEvent())
@@ -574,6 +592,7 @@ public class NotificationUtil {
 								.failureCode(NwdafFailureCodeEnum.OTHER)));
 				continue;
 			}
+
 			// check whether data is available to be gathered
 			NnwdafEventsSubscriptionNotification notification = new NotificationBuilder().build(id);
 			boolean isDataAvailable = false;
@@ -621,6 +640,7 @@ public class NotificationUtil {
 				logger.error("Notification is NULL for event: " + eType + " and subId: " + id);
 				failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
 			}
+
 			// add failureEventInfo
 			if (notification == null || failed_notif) {
 				body.addFailEventReportsItem(new FailureEventInfo()

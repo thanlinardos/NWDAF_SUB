@@ -15,7 +15,7 @@ public class CustomUeMobilityRepositoryImpl implements CustomUeMobilityRepositor
     @SuppressWarnings("unchecked")
     public List<UeMobilityTable> findAllInLastIntervalByFilterAndOffset(String params, String no_secs,
             String offset, String columns) {
-        String querry = "select distinct on (time_bucket(cast(:offset as interval), time), supi) time_bucket(cast(:offset as interval), time) AS time , data, supi, intGroupId";
+        String querry = "select distinct on (time_bucket(cast(:offset as interval), time), supi, intGroupId) time_bucket(cast(:offset as interval), time) AS time , data, supi, intGroupId";
         if (columns == "") {
 
         } else {

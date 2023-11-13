@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import io.nwdaf.eventsubscription.model.UeCommunication;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -72,9 +73,9 @@ public class KafkaConsumer {
 			return "";
 		}
 		startedReceiving();
-		// System.out.println(in);
-		NfLoadLevelInformation nfLoadLevelInformation = null;
+		NfLoadLevelInformation nfLoadLevelInformation;
 		UeMobility ueMobility = null;
+		UeCommunication ueCommunication = null;
 		try{
 		switch(topic){
 			case "NF_LOAD":
@@ -85,6 +86,10 @@ public class KafkaConsumer {
 			case "UE_MOBILITY":
 				ueMobility = objectMapper.reader().readValue(in, UeMobility.class);
 				metricsService.create(ueMobility);
+				break;
+			case "UE_COMM":
+				ueCommunication = objectMapper.reader().readValue(in, UeCommunication.class);
+				metricsService.create(ueCommunication);
 				break;
 			default:
 				break;

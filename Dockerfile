@@ -19,7 +19,7 @@
 # ENTRYPOINT ["java","-cp","app:app/lib/*","io.nwdaf.eventsubscription.NwdafSubApplication"]
 
 #for ubuntu:
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 VOLUME /tmp
 EXPOSE 8080 5005
 ARG JAR_FILE=target/NWDAF_SUB.jar

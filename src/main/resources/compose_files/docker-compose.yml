@@ -67,7 +67,7 @@ services:
       nnwdaf-eventsubscription.log.simple: true
       nnwdaf-eventsubscription.log.sections: false
       nnwdaf-eventsubscription.integration.startup: true
-      nnwdaf-eventsubscription.integration.nosubs: 50000
+      nnwdaf-eventsubscription.integration.nosubs: 400
       nnwdaf-eventsubscription.integration.noclients: 5
       nnwdaf-eventsubscription.integration.resetsubdb: true
       nnwdaf-eventsubscription.integration.resetmetricsdb: true

@@ -21,6 +21,7 @@ import io.nwdaf.eventsubscription.repository.redis.entities.NnwdafEventsSubscrip
 import io.nwdaf.eventsubscription.service.MetricsService;
 import io.nwdaf.eventsubscription.service.NotificationService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
+import io.nwdaf.eventsubscription.utilities.DummyDataGenerator;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -131,15 +132,17 @@ public class NwdafSubApplication {
 		};
 	}
 
-	// @Bean
+	 @Bean
 	public CommandLineRunner testMetricsDB() {
 		return args -> {
-			metricsService.create(new NfLoadLevelInformation().nfInstanceId(UUID.randomUUID()).nfCpuUsage(100)
-					.time(Instant.now()).addSupi("supi"));
+			metricsService.create(DummyDataGenerator.generateDummyNfLoadLevelInfo(1).get(0));
 			System.out.println(metricsService.findAllInLastIntervalByFilterAndOffset(null, 1, 1, "").get(0));
-			metricsService.create(new UeMobility().time(Instant.now()).addAreaOfInterestIdsItem(UUID.randomUUID())
-					.addLocInfosItem(new LocationInfo().confidence(12)));
+
+			metricsService.create(DummyDataGenerator.generateDummyUeMobilities(1).get(0));
 			System.out.println(metricsService.findAllUeMobilityInLastIntervalByFilterAndOffset(null, 1, 1, "").get(0));
+
+			metricsService.create(DummyDataGenerator.generateDummyUeCommunications(1).get(0));
+			System.out.println(metricsService.findAllUeCommunicationInLastIntervalByFilterAndOffset(null, 1, 1, "").get(0));
 		};
 	}
 
