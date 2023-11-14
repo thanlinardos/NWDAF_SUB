@@ -3,12 +3,7 @@ package io.nwdaf.eventsubscription.notify;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +148,7 @@ public class NotificationUtil {
 		}
 		switch (eType) {
 			case NF_LOAD:
-				List<NfLoadLevelInformation> nfloadlevels = new ArrayList<>();
+				List<NfLoadLevelInformation> nfloadlevels;
 				List<String> filterTypes = new ArrayList<>();
 				// choose the querry filter: nfinstanceids take priority over nfsetids and supis
 				// over all
@@ -167,12 +162,10 @@ public class NotificationUtil {
 							ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfInstanceId"));
 					filterTypes.add("nfInstanceId");
 				} else if (CheckUtil.safeCheckListNotEmpty(eventSub.getNfSetIds())) {
-					params = ParserUtil
-							.parseQuerryFilter(ParserUtil.parseListToFilterList(eventSub.getNfSetIds(), "nfSetId"));
+					params = ParserUtil.parseQuerryFilter(
+							ParserUtil.parseListToFilterList(eventSub.getNfSetIds(), "nfSetId"));
 					filterTypes.add("nfSetId");
-				}
-				// AOI filter
-				else if (eventSub.getNetworkArea() != null
+				} else if (eventSub.getNetworkArea() != null
 						&& CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getContainedAreaIds())
 						&& (CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getEcgis()) ||
 								CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getNcgis()) ||
@@ -232,7 +225,29 @@ public class NotificationUtil {
 				// "+notification.getEventNotifications().get(0).getTimeStampGen());
 				break;
 			case UE_MOBILITY:
-				List<UeMobility> ueMobilities = new ArrayList<>();
+				List<UeMobility> ueMobilities;
+				if (eventSub.getTgtUe()!=null && !eventSub.getTgtUe().isAnyUe() && CheckUtil.safeCheckListNotEmpty(eventSub.getTgtUe().getSupis())) {
+					params = ParserUtil.parseQuerryFilter(
+							ParserUtil.parseListToFilterList(eventSub.getTgtUe().getSupis(), "supi"));
+				} else if (eventSub.getTgtUe()!=null && !eventSub.getTgtUe().isAnyUe() && CheckUtil.safeCheckListNotEmpty(eventSub.getTgtUe().getIntGroupIds())) {
+					params = ParserUtil.parseQuerryFilter(
+							ParserUtil.parseListToFilterList(eventSub.getTgtUe().getIntGroupIds(), "intGroupId"));
+				} else if (eventSub.getVisitedAreas() != null
+						&& CheckUtil.safeCheckListNotEmpty(eventSub.getVisitedAreas())) {
+					List<String> validVisitedAreas = new ArrayList<>();
+					for (NetworkAreaInfo aoi:eventSub.getVisitedAreas()) {
+						if (aoi != null && CheckUtil.safeCheckListNotEmpty(aoi.getContainedAreaIds()) &&
+								(CheckUtil.safeCheckListNotEmpty(aoi.getEcgis()) ||
+								CheckUtil.safeCheckListNotEmpty(aoi.getNcgis()) ||
+								CheckUtil.safeCheckListNotEmpty(aoi.getGRanNodeIds()) ||
+								CheckUtil.safeCheckListNotEmpty(aoi.getTais()))) {
+							List<String> areaOfInterestIds = ParserUtil.safeParseListString(Collections.singletonList(aoi.getContainedAreaIds()));
+							validVisitedAreas.addAll(areaOfInterestIds);
+						}
+					}
+					validVisitedAreas = new ArrayList<>(new LinkedHashSet<>(validVisitedAreas));
+					params = ParserUtil.parseQuerryFilterContains(ParserUtil.parseListToFilterList(validVisitedAreas,"areaOfInterestId"), "areaOfInterestIds");
+				}
 				try {
 					ueMobilities = metricsService.findAllUeMobilityInLastIntervalByFilterAndOffset(params, no_secs,
 							repPeriod, columns);

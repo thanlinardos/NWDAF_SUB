@@ -180,7 +180,7 @@ public class NwdafSubApplication {
 				}
 				System.out.println("Created " + noSubs + " subs for scenario with " + noClients + " clients.");
 				NotificationUtil.wakeUpDataProducer("kafka",
-						NwdafEventEnum.UE_MOBILITY,
+						NwdafEventEnum.NF_LOAD,
 						null,
 						dataCollectionPublisher,
 						dummyDataProducerPublisher,

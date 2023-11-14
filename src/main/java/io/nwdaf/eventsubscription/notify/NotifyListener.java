@@ -166,7 +166,7 @@ public class NotifyListener {
 					foundNotification = mapEventToNotification.get(i).getSecond();
 				}
 				try {
-					if (foundNotification != null
+					if (foundNotification != null && repPeriod!=null
 							&& CheckUtil.safeCheckEventNotificationWithinMilli(foundNotification, repPeriod * 1_250L, Instant.now().toEpochMilli())) {
 						notification = foundNotification;
 						no_found_notifs++;
