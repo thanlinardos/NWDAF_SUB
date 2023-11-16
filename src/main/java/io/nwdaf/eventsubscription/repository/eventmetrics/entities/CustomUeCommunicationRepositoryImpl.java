@@ -16,21 +16,25 @@ public class CustomUeCommunicationRepositoryImpl implements CustomUeCommunicatio
     @SuppressWarnings("unchecked")
     public List<UeCommunicationTable> findAllInLastIntervalByFilterAndOffset(String params, String no_secs,
                                                                         String offset, String columns) {
-        String querry = "select distinct on (time_bucket(cast(:offset as interval), time), supi, intGroupId) time_bucket(cast(:offset as interval), time) AS time , data, supi, intGroupId, areaOfInterestId";
-        if (Objects.equals(columns, "")) {
-
-        } else {
-            querry += columns;
-        }
-        querry += " from ue_communication_metrics where time > NOW() - cast(:no_secs as interval)";
         if (params != null) {
-            querry += " and " + params;
+            params += " and " + params;
+        } else {
+            params = "";
         }
-        querry += " GROUP BY time_bucket(cast(:offset as interval), time), time, data, supi, intGroupId, areaOfInterestId;";
-        // System.out.println(querry);
-        // +" ORDER BY time_bucket(cast(:offset as interval), time) DESC, time,
-        // nfInstanceId, nfSetId;"
-        return entityManager.createNativeQuery(querry, UeCommunicationTable.class).setParameter("offset", offset)
-                .setParameter("no_secs", no_secs).getResultList();
+        if(Objects.equals(columns, "")) {
+
+        }
+        String query = """
+        select distinct on (time_bucket(cast(:offset as interval), time), supi, intGroupId) 
+        time_bucket(cast(:offset as interval), time) AS time , data, supi, intGroupId, 
+         """ + columns + """
+         areaOfInterestId from ue_mobility_metrics where time > NOW() - cast(:no_secs as interval) 
+        """ + params + """
+        GROUP BY time_bucket(cast(:offset as interval), time), time, data, supi, intGroupId, areaOfInterestId;
+        """;
+        return entityManager.createNativeQuery(query, UeMobilityTable.class)
+                .setParameter("offset", offset)
+                .setParameter("no_secs", no_secs)
+                .getResultList();
     }
 }

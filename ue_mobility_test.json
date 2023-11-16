@@ -5,7 +5,7 @@
     "eventSubscriptions": [
       {
         "event": {
-          "type": "NF_LOAD"
+          "type": "UE_MOBILITY"
         },
         "tgtUe": {
           "anyUe": false

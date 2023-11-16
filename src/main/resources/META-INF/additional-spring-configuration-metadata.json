@@ -179,5 +179,10 @@
       "name": "nnwdaf-eventsubscription.integration.cycleSeconds",
       "type": "java.lang.String",
       "description": "Description for nnwdaf-eventsubscription.integration.cycleSeconds."
-  }
+    },
+    {
+      "name": "nnwdaf-eventsubscription.integration.max_no_cycles",
+      "type": "java.lang.String",
+      "description": "Description for nnwdaf-eventsubscription.integration.max_no_cycles."
+    }
 ]}

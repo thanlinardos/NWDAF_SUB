@@ -19,6 +19,7 @@ services:
       logging.level.org.apache.kafka: false
       nnwdaf-eventsubscription.prometheus_url: http://${prom_host}:${prom_port}/api/v1/query
       nnwdaf-eventsubscription.allow_dummy_data: true
+      nnwdaf-eventsubscription.allow_prom_data: false
   nwdafSub:
     container_name: nwdafSub
     image: thanlinardos/nwdaf_sub:0.0.2-SNAPSHOT
@@ -69,8 +70,10 @@ services:
       nnwdaf-eventsubscription.integration.nosubs: 400
       nnwdaf-eventsubscription.integration.noclients: 5
       nnwdaf-eventsubscription.integration.resetsubdb: true
-      nnwdaf-eventsubscription.integration.resetmetricsdb: true
+      nnwdaf-eventsubscription.integration.resetmetricsdb: false
       nnwdaf-eventsubscription.integration.resetnotifdb: true
+      nnwdaf-eventsubscription.integration.cycleSeconds: 100
+      nnwdaf-eventsubscription.integration.max_no_cycles: -1
   nwdafSubClient:
     container_name: nwdafSubClient
     image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT

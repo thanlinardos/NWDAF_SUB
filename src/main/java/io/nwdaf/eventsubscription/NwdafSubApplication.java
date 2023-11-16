@@ -47,6 +47,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import java.io.File;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @EnableConfigurationProperties(NwdafSubProperties.class)
@@ -79,6 +80,9 @@ public class NwdafSubApplication {
 	private Integer noClients;
 	@Value("${nnwdaf-eventsubscription.integration.cycleSeconds}")
 	private Integer cycleSeconds;
+	@Value("${nnwdaf-eventsubscription.integration.max_no_cycles}")
+	private Integer max_no_cycles;
+
 
 	public NwdafSubApplication(NotifyPublisher notifyPublisher, DataCollectionPublisher dataCollectionPublisher, ApplicationContext applicationContext, RedisSubscriptionRepository redisSubscriptionRepository, NotificationService notificationService, DummyDataProducerPublisher dummyDataProducerPublisher, KafkaTemplate<String, String> kafkaTemplate, MetricsService metricsService, SubscriptionsService subscriptionsService, RedisNotificationRepository redisNotificationRepository, ObjectMapper objectMapper, Environment env, KafkaProducer producer, RedisMetricsRepository redisRepository) {
 		this.notifyPublisher = notifyPublisher;
@@ -132,17 +136,21 @@ public class NwdafSubApplication {
 		};
 	}
 
-	 @Bean
+	@Bean
 	public CommandLineRunner testMetricsDB() {
 		return args -> {
-			metricsService.create(DummyDataGenerator.generateDummyNfLoadLevelInfo(1).get(0));
-			System.out.println(metricsService.findAllInLastIntervalByFilterAndOffset(null, 1, 1, "").get(0));
+			NfLoadLevelInformation nfLoadLevelInformation = DummyDataGenerator.generateDummyNfLoadLevelInfo(1).get(0);
+			metricsService.create(nfLoadLevelInformation);
+			assert (metricsService.findAllInLastIntervalByFilterAndOffset(null, 1, 1, "").get(0).getNfInstanceId() == nfLoadLevelInformation.getNfInstanceId());
 
-			metricsService.create(DummyDataGenerator.generateDummyUeMobilities(1).get(0));
-			System.out.println(metricsService.findAllUeMobilityInLastIntervalByFilterAndOffset(null, 1, 1, "").get(0));
+			UeMobility ueMobility = DummyDataGenerator.generateDummyUeMobilities(1).get(0);
+			metricsService.create(ueMobility);
+			assert (Objects.equals(metricsService.findAllUeMobilityInLastIntervalByFilterAndOffset(null, 1, 1, "").get(0).getSupi(), ueMobility.getSupi()));
 
-			metricsService.create(DummyDataGenerator.generateDummyUeCommunications(1).get(0));
-			System.out.println(metricsService.findAllUeCommunicationInLastIntervalByFilterAndOffset(null, 1, 1, "").get(0));
+			UeCommunication ueCommunication = DummyDataGenerator.generateDummyUeCommunications(1).get(0);
+			metricsService.create(ueCommunication);
+			assert (Objects.equals(metricsService.findAllUeCommunicationInLastIntervalByFilterAndOffset(null, 1, 1, "").get(0).getSupi(), ueCommunication.getSupi()));
+			log.info("Metrics DB tests passed.");
 		};
 	}
 
@@ -152,14 +160,15 @@ public class NwdafSubApplication {
 
 		return args -> {
 			Long subId = 0L;
-			File test = new File("test.json");
+			File test = new File("nf_load_test.json");
 			String uri = env.getProperty("nnwdaf-eventsubscription.client.prod-url");
 			Integer default_port = ParserUtil
 					.safeParseInteger(env.getProperty("nnwdaf-eventsubscription.client.port"));
 			if (uri == null) {
 				return;
 			}
-			for (int n = 0; n < 5; n++) {
+			int n=0;
+			while(max_no_cycles==-1 || n<max_no_cycles) {
 				System.out.println("test iteration: " + n);
 				if (!subscriptionsService.truncate()) {
 					log.error("Truncate subscription table failed!");
@@ -190,6 +199,7 @@ public class NwdafSubApplication {
 				Thread.sleep(cycleSeconds*1000);
 				NotifyListener.stop();
 				Thread.sleep(2000);
+				n++;
 			}
 		};
 	}
@@ -211,7 +221,7 @@ public class NwdafSubApplication {
 			System.out.println("after:" + result);
 
 			NnwdafEventsSubscriptionCached nnwdafEventsSubscriptionCached = new NnwdafEventsSubscriptionCached();
-			File test = new File("test.json");
+			File test = new File("ue_mobility_test.json");
 			NnwdafEventsSubscription sub = objectMapper.reader().readValue(test, NnwdafEventsSubscription.class);
 			sub.setId(1L);
 			nnwdafEventsSubscriptionCached.setSub(sub);

@@ -199,7 +199,7 @@ public class NotifyListener {
 				tsdb_req_delay += (double) (System.nanoTime() - st) / 1_000L;
 				// save the sent notification to a second database
 				st = System.nanoTime();
-				notificationService.create(notification);
+//				notificationService.create(notification);
 				notif_save_delay += (double) (System.nanoTime() - st) / 1_000L;
 				// check if period has passed -> notify client (or if threshold has been
 				// reached)
