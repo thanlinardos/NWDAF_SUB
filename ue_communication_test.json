@@ -5,7 +5,7 @@
   "eventSubscriptions": [
     {
       "event": {
-        "type": "UE_MOBILITY"
+        "type": "UE_COMM"
       },
       "tgtUe": {
         "anyUe": false

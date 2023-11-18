@@ -5,11 +5,13 @@ networks:
 name: dockprom
 services:
   db:
-    container_name: pg_container
-    image: postgres:alpine
+    container_name: sub_notif
+    image: timescalewithcron:latest
+    build: .
     restart: always
     environment:
       POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_DB: "test"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
     ports:
       - "5432:5432"
@@ -37,11 +39,12 @@ services:
 #      - /media/thanlinardos/hdd2/project-db-files/pgadmin-data:/var/lib/pgadmin
 
   timescaledb:
+    container_name: metrics
     image: timescalewithcron:latest
     build: .
     restart: always
     ports:
-      - 5433:5433
+      - "5433:5433"
     environment:
       POSTGRES_USER: "${POSTGRES_USER}"
       POSTGRES_DB: "metrics"

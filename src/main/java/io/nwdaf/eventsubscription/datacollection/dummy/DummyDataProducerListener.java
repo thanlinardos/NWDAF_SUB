@@ -2,6 +2,7 @@ package io.nwdaf.eventsubscription.datacollection.dummy;
 
 import java.util.List;
 
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,23 +21,30 @@ import io.nwdaf.eventsubscription.service.MetricsService;
 
 @Component
 public class DummyDataProducerListener{
+    @Getter
     private static Integer no_dummyDataProducerEventListeners = 0;
-	private static final Object dummyDataProducerLock = new Object();
-	private static Boolean startedSavingData = false;
-	private static final Object startedSavingDataLock = new Object();
-    private static Logger logger = LoggerFactory.getLogger(DummyDataProducerListener.class);
+	@Getter
+    private static final Object dummyDataProducerLock = new Object();
+	@Getter
+    private static Boolean startedSavingData = false;
+	@Getter
+    private static final Object startedSavingDataLock = new Object();
+    private static final Logger logger = LoggerFactory.getLogger(DummyDataProducerListener.class);
     private List<NfLoadLevelInformation> nfloadinfos;
     private List<UeMobility> ueMobilities;
 
-	@Autowired
-	MetricsService metricsService;
+	final MetricsService metricsService;
 
-    @Autowired
-	MetricsCacheService metricsCacheService;
+    final MetricsCacheService metricsCacheService;
 	
-	@Autowired
-	Environment env;
-	
+	final Environment env;
+
+    public DummyDataProducerListener(MetricsService metricsService, MetricsCacheService metricsCacheService, Environment env) {
+        this.metricsService = metricsService;
+        this.metricsCacheService = metricsCacheService;
+        this.env = env;
+    }
+
     @Async
     @EventListener
     public void onApplicationEvent(final DummyDataProducerEvent event){
@@ -54,15 +62,14 @@ public class DummyDataProducerListener{
                 switch(eType){
                     case NF_LOAD:
                         nfloadinfos = DummyDataGenerator.changeNfLoadTimeDependentProperties(nfloadinfos);
-                        for(int k=0;k<nfloadinfos.size();k++) {
+                        for (NfLoadLevelInformation nfloadinfo : nfloadinfos) {
                             try {
-                                metricsService.create(nfloadinfos.get(k));
-                                synchronized(startedSavingDataLock){
+                                metricsService.create(nfloadinfo);
+                                synchronized (startedSavingDataLock) {
                                     startedSavingData = true;
                                 }
-                            }
-                            catch(Exception e) {
-                                logger.error("Failed to save dummy nfloadlevelinfo to timescaledb",e);
+                            } catch (Exception e) {
+                                logger.error("Failed to save dummy nfloadlevelinfo to timescaledb", e);
                                 stop();
                                 continue;
                             }
@@ -70,15 +77,14 @@ public class DummyDataProducerListener{
                         break;
                     case UE_MOBILITY:
                         ueMobilities = DummyDataGenerator.changeUeMobilitiesTimeDependentProperties(ueMobilities);
-                        for(int k=0;k<ueMobilities.size();k++) {
+                        for (UeMobility ueMobility : ueMobilities) {
                             try {
-                                metricsService.create(ueMobilities.get(k));
-                                synchronized(startedSavingDataLock){
+                                metricsService.create(ueMobility);
+                                synchronized (startedSavingDataLock) {
                                     startedSavingData = true;
                                 }
-                            }
-                            catch(Exception e) {
-                                logger.error("Failed to save dummy ueMobilities to timescaledb",e);
+                            } catch (Exception e) {
+                                logger.error("Failed to save dummy ueMobilities to timescaledb", e);
                                 stop();
                                 continue;
                             }
@@ -88,33 +94,19 @@ public class DummyDataProducerListener{
                         break;
                 }
             }
-            long diff = (System.nanoTime()-start) / 1000000l;
-    		long wait_time = (long)Constants.MIN_PERIOD_SECONDS*1000l;
+            long diff = (System.nanoTime()-start) / 1000000L;
+    		long wait_time = (long)Constants.MIN_PERIOD_SECONDS* 1000L;
             if(diff<wait_time) {
 	    		try {
 					Thread.sleep(wait_time-diff);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					logger.error("Failed to wait for thread...",e);
 					stop();
                     continue;
 				}
     		}
         }
         logger.info("Dummy Data Production stopped!");
-        return;
-    }
-
-    public static Object getDummyDataProducerLock() {
-        return dummyDataProducerLock;
-    }
-    public static Integer getNo_dummyDataProducerEventListeners() {
-        return no_dummyDataProducerEventListeners;
-    }
-    public static Object getStartedSavingDataLock() {
-        return startedSavingDataLock;
-    }
-    public static Boolean getStartedSavingData() {
-        return startedSavingData;
     }
 
     public static void stop(){

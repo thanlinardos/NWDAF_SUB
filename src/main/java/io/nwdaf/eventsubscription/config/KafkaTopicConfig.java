@@ -38,4 +38,8 @@ public class KafkaTopicConfig {
     public NewTopic UE_MOBILITY() {
          return new NewTopic("UE_MOBILITY", 1, (short) 1);
     }
+    @Bean
+    public NewTopic UE_COMM() {
+        return new NewTopic("UE_COMM", 1, (short) 1);
+    }
 }

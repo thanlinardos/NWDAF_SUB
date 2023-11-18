@@ -49,8 +49,7 @@ public class RestTemplateFactoryConfig {
 			connectionManager.setMaxTotal(2000);
 			connectionManager.setDefaultMaxPerRoute(2000);
 			CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
-			ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-			return requestFactory;
+            return new HttpComponentsClientHttpRequestFactory(httpClient);
 		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | CertificateException
 				| IOException e) {
 			e.printStackTrace();

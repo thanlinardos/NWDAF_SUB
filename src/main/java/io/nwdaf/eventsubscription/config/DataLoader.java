@@ -20,8 +20,7 @@ import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEv
 public class DataLoader implements CommandLineRunner{
 	
 	private final SubscriptionRepository repository;
-	@Autowired
-	private ObjectMapper objectMapper;
+	final ObjectMapper objectMapper;
 	
 	public DataLoader(SubscriptionRepository repository,ObjectMapper objectMapper) {
 		this.repository = repository;

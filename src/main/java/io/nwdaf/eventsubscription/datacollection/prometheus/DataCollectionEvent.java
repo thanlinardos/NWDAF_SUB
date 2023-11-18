@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 public class DataCollectionEvent extends ApplicationEvent{
-    private String message;
+    private final String message;
 
     public DataCollectionEvent(Object source, String msg){
         super(source);

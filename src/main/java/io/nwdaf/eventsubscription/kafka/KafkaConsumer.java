@@ -8,17 +8,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import io.nwdaf.eventsubscription.model.NwdafEvent;
 import io.nwdaf.eventsubscription.model.UeCommunication;
+import io.nwdaf.eventsubscription.utilities.Constants;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.OffsetAndTimestamp;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -31,25 +36,21 @@ import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
 
+import static io.nwdaf.eventsubscription.utilities.Constants.supportedEvents;
+
 @Component
 public class KafkaConsumer {
-    
-	@Autowired
-	MetricsCacheService metricsCacheService;
 
-	@Autowired
-	MetricsService metricsService;
+	private static final Logger logger = LoggerFactory.getLogger(KafkaConsumer.class);
+	final MetricsCacheService metricsCacheService;
 
-	@Autowired
-	ObjectMapper objectMapper;
+	final MetricsService metricsService;
 
-	@Autowired
-	@Qualifier("consumerDiscover")
-    private Consumer<String, String> kafkaConsumerDiscover;
+	final ObjectMapper objectMapper;
 
-	@Autowired
-	@Qualifier("consumerEvent")
-    private Consumer<String, String> kafkaConsumerEvent;
+	private final Consumer<String, String> kafkaConsumerDiscover;
+
+	private final Consumer<String, String> kafkaConsumerEvent;
 	
 	public static Boolean startedReceivingData = false;
 	public static final Object startedReceivingDataLock = new Object();
@@ -59,46 +60,68 @@ public class KafkaConsumer {
 	public static final Object isListeningLock = new Object();
 	public static Boolean startedDiscoveringCollectors = false;
 	public static final Object startedDiscoveringCollectorsLock = new Object();
-
-	public static Boolean isDiscovering = true;
+	public static final Boolean isDiscovering = true;
 	public static final Object isDiscoveringLock = new Object();
+	public static final BlockingQueue<String> discoverMessageQueue = new LinkedBlockingQueue<>();
+	public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Long> eventConsumeCounters = new ConcurrentHashMap<>();
 
-	public static BlockingQueue<String> discoverMessageQueue = new LinkedBlockingQueue<>();
+	@Value("${nnwdaf-eventsubscription.log.consumer}")
+	private Boolean logConsumer;
 
-    @KafkaListener(topics = {"NF_LOAD","UE_MOBILITY"}, groupId = "event", containerFactory = "kafkaListenerContainerFactoryEvent")
-	public String dataListener(ConsumerRecord<String,String> record){
-		String topic = record.topic();
+	public KafkaConsumer(MetricsCacheService metricsCacheService,
+						 MetricsService metricsService,
+						 ObjectMapper objectMapper,
+						 @Qualifier("consumerDiscover") Consumer<String, String> kafkaConsumerDiscover,
+						 @Qualifier("consumerEvent") Consumer<String, String> kafkaConsumerEvent) {
+
+		this.metricsCacheService = metricsCacheService;
+		this.metricsService = metricsService;
+		this.objectMapper = objectMapper;
+		this.kafkaConsumerDiscover = kafkaConsumerDiscover;
+		this.kafkaConsumerEvent = kafkaConsumerEvent;
+		for (NwdafEvent.NwdafEventEnum e: supportedEvents) {
+			eventConsumeCounters.put(e,0L);
+		}
+	}
+
+	@KafkaListener(topics = {"NF_LOAD","UE_MOBILITY","UE_COMM"}, groupId = "event", containerFactory = "kafkaListenerContainerFactoryEvent")
+	public String dataListener(ConsumerRecord<String,String> record) {
+		NwdafEvent.NwdafEventEnum eventTopic = NwdafEvent.NwdafEventEnum.valueOf(record.topic());
 		String in = record.value();
-		if(!isListening){
+		if(!isListening) {
 			return "";
 		}
 		startedReceiving();
 		NfLoadLevelInformation nfLoadLevelInformation;
-		UeMobility ueMobility = null;
-		UeCommunication ueCommunication = null;
+		UeMobility ueMobility;
+		UeCommunication ueCommunication;
 		try{
-		switch(topic){
-			case "NF_LOAD":
+		switch(eventTopic){
+			case NF_LOAD:
 				nfLoadLevelInformation = objectMapper.reader().readValue(in, NfLoadLevelInformation.class);
 				// metricsCacheService.create(nfLoadLevelInformation);
 				metricsService.create(nfLoadLevelInformation);
 				break;
-			case "UE_MOBILITY":
+			case UE_MOBILITY:
 				ueMobility = objectMapper.reader().readValue(in, UeMobility.class);
 				metricsService.create(ueMobility);
 				break;
-			case "UE_COMM":
+			case UE_COMM:
 				ueCommunication = objectMapper.reader().readValue(in, UeCommunication.class);
 				metricsService.create(ueCommunication);
 				break;
 			default:
 				break;
 		}
+		eventConsumeCounters.compute(eventTopic, (k, v) -> (v == null || v < 0) ? 0 : v + 1);
+		if(logConsumer && eventConsumeCounters.get(eventTopic) % 10 == 0) {
+			logger.info("Saved "+eventTopic+" to database.");
+		}
 		} catch(IOException e){
-			NwdafSubApplication.getLogger().info("data not matching "+topic+" model: "+in);
+			NwdafSubApplication.getLogger().info("data not matching "+eventTopic+" model: "+in);
 			return "";
 		} catch(Exception e){
-			NwdafSubApplication.getLogger().info("failed to save "+topic+" info to timescaleDB");
+			NwdafSubApplication.getLogger().info("failed to save "+eventTopic+" info to timescaleDB");
 			NwdafSubApplication.getLogger().error("",e);
 			stopListening();
 			return "";

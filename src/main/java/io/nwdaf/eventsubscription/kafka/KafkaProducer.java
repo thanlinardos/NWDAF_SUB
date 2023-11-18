@@ -14,8 +14,11 @@ import lombok.Setter;
 @Getter @Setter
 public class KafkaProducer {
 
-    @Autowired
-    KafkaTemplate<String,String> kafkaTemplate;
+    final KafkaTemplate<String,String> kafkaTemplate;
+
+    public KafkaProducer(KafkaTemplate<String, String> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
 
     public String sendMessage(String msg, String topicName) throws IOException{
 		  return kafkaTemplate.send(topicName, msg).toString();

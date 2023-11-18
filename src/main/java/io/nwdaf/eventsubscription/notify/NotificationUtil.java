@@ -1,10 +1,12 @@
 package io.nwdaf.eventsubscription.notify;
 
 import java.io.IOException;
+import java.lang.Exception;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
 
+import io.nwdaf.eventsubscription.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,18 +22,9 @@ import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionListen
 import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.kafka.KafkaConsumer;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
-import io.nwdaf.eventsubscription.model.EventSubscription;
-import io.nwdaf.eventsubscription.model.FailureEventInfo;
-import io.nwdaf.eventsubscription.model.NetworkAreaInfo;
-import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
-import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
-import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
-import io.nwdaf.eventsubscription.model.ReportingInformation;
-import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
 import io.nwdaf.eventsubscription.model.NotificationMethod.NotificationMethodEnum;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
-import io.nwdaf.eventsubscription.model.NwdafFailureCode;
 import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
 import io.nwdaf.eventsubscription.notify.responsetypes.AggregateChecksForAOIResponse;
 import io.nwdaf.eventsubscription.notify.responsetypes.GetGlobalNotifMethodAndRepPeriodResponse;
@@ -44,6 +37,11 @@ import io.nwdaf.eventsubscription.utilities.OtherUtil;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
+
+import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckListNotEmpty;
+import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckObjectsEquals;
+import static io.nwdaf.eventsubscription.utilities.ParserUtil.parseListToFilterList;
+import static io.nwdaf.eventsubscription.utilities.ParserUtil.parseQuerryFilter;
 
 public class NotificationUtil {
 	private static final Logger logger = LoggerFactory.getLogger(NotificationUtil.class);
@@ -65,18 +63,18 @@ public class NotificationUtil {
 		}
 
 		if (body.getEvtReq() != null) {
-			if (body.getEvtReq().getNotifFlag() != null && CheckUtil.safeCheckObjectsEquals(
+			if (body.getEvtReq().getNotifFlag() != null && safeCheckObjectsEquals(
 					body.getEvtReq().getNotifFlag().getNotifFlag(), NotificationFlagEnum.DEACTIVATE)) {
 				return null;
 			}
-			if (!CheckUtil.safeCheckObjectsEquals(body.getEvtReq().getNotifMethod().getNotifMethod(), null)) {
+			if (!safeCheckObjectsEquals(body.getEvtReq().getNotifMethod().getNotifMethod(), null)) {
 				notificationMethod = body.getEvtReq().getNotifMethod().getNotifMethod();
 				if (body.getEvtReq().getNotifMethod().getNotifMethod().equals(NotificationMethodEnum.PERIODIC)) {
 					repetitionPeriod = body.getEvtReq().getRepPeriod();
 				}
 			}
 		}
-		if (CheckUtil.safeCheckObjectsEquals(notificationMethod, NotificationMethodEnum.THRESHOLD)) {
+		if (safeCheckObjectsEquals(notificationMethod, NotificationMethodEnum.THRESHOLD)) {
 			return 0;
 		}
 		return repetitionPeriod;
@@ -154,43 +152,41 @@ public class NotificationUtil {
 				// over all
 				// Supis filter (checks if the supis list on each nfinstance contains any of the
 				// supis in the sub request)
-				if (!eventSub.getTgtUe().isAnyUe() && CheckUtil.safeCheckListNotEmpty(eventSub.getTgtUe().getSupis())) {
+				if (!eventSub.getTgtUe().isAnyUe() && safeCheckListNotEmpty(eventSub.getTgtUe().getSupis())) {
 					params = ParserUtil.parseQuerryFilterContains(eventSub.getTgtUe().getSupis(), "supis");
 					filterTypes.add("supis");
-				} else if (CheckUtil.safeCheckListNotEmpty(eventSub.getNfInstanceIds())) {
-					params = ParserUtil.parseQuerryFilter(
-							ParserUtil.parseListToFilterList(eventSub.getNfInstanceIds(), "nfInstanceId"));
+				} else if (safeCheckListNotEmpty(eventSub.getNfInstanceIds())) {
+					params = parseQuerryFilter(
+							parseListToFilterList(eventSub.getNfInstanceIds(), "nfInstanceId"));
 					filterTypes.add("nfInstanceId");
-				} else if (CheckUtil.safeCheckListNotEmpty(eventSub.getNfSetIds())) {
-					params = ParserUtil.parseQuerryFilter(
-							ParserUtil.parseListToFilterList(eventSub.getNfSetIds(), "nfSetId"));
+				} else if (safeCheckListNotEmpty(eventSub.getNfSetIds())) {
+					params = parseQuerryFilter(
+							parseListToFilterList(eventSub.getNfSetIds(), "nfSetId"));
 					filterTypes.add("nfSetId");
 				} else if (eventSub.getNetworkArea() != null
-						&& CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getContainedAreaIds())
-						&& (CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getEcgis()) ||
-								CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getNcgis()) ||
-								CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getGRanNodeIds()) ||
-								CheckUtil.safeCheckListNotEmpty(eventSub.getNetworkArea().getTais()))) {
+						&& safeCheckListNotEmpty(eventSub.getNetworkArea().getContainedAreaIds())
+						&& (safeCheckListNotEmpty(eventSub.getNetworkArea().getEcgis()) ||
+								safeCheckListNotEmpty(eventSub.getNetworkArea().getNcgis()) ||
+								safeCheckListNotEmpty(eventSub.getNetworkArea().getGRanNodeIds()) ||
+								safeCheckListNotEmpty(eventSub.getNetworkArea().getTais()))) {
 					// aggregate container areas for the aoi inside the sub object as valid filters
-					params = ParserUtil.parseQuerryFilter(ParserUtil.parseListToFilterList(
+					params = parseQuerryFilter(parseListToFilterList(
 							eventSub.getNetworkArea().getContainedAreaIds(), "areaOfInterestId"));
 					filterTypes.add("areaOfInterestId");
 				}
 				// Network Slice Instances filter
-				else if (CheckUtil.safeCheckListNotEmpty(eventSub.getSnssaia())) {
-					params = ParserUtil
-							.parseQuerryFilter(
-									ParserUtil.parseListToFilterList(
+				else if (safeCheckListNotEmpty(eventSub.getSnssaia())) {
+					params = parseQuerryFilter(
+									parseListToFilterList(
 											ParserUtil.parseObjectListToFilterList(
 													ConvertUtil.convertObjectWriterList(eventSub.getSnssaia(), ow)),
 											"snssai"));
 					filterTypes.add("snssai");
 				}
 				// NfTypes filter
-				else if (CheckUtil.safeCheckListNotEmpty(eventSub.getNfTypes())) {
-					params = ParserUtil
-							.parseQuerryFilter(
-									ParserUtil.parseListToFilterList(
+				else if (safeCheckListNotEmpty(eventSub.getNfTypes())) {
+					params = parseQuerryFilter(
+									parseListToFilterList(
 											ParserUtil.parseObjectListToFilterList(
 													ConvertUtil.convertObjectWriterList(eventSub.getNfTypes(), ow)),
 											"nfType"));
@@ -226,27 +222,27 @@ public class NotificationUtil {
 				break;
 			case UE_MOBILITY:
 				List<UeMobility> ueMobilities;
-				if (eventSub.getTgtUe()!=null && !eventSub.getTgtUe().isAnyUe() && CheckUtil.safeCheckListNotEmpty(eventSub.getTgtUe().getSupis())) {
-					params = ParserUtil.parseQuerryFilter(
-							ParserUtil.parseListToFilterList(eventSub.getTgtUe().getSupis(), "supi"));
-				} else if (eventSub.getTgtUe()!=null && !eventSub.getTgtUe().isAnyUe() && CheckUtil.safeCheckListNotEmpty(eventSub.getTgtUe().getIntGroupIds())) {
-					params = ParserUtil.parseQuerryFilter(
-							ParserUtil.parseListToFilterList(eventSub.getTgtUe().getIntGroupIds(), "intGroupId"));
+				if (eventSub.getTgtUe()!=null && !eventSub.getTgtUe().isAnyUe() && safeCheckListNotEmpty(eventSub.getTgtUe().getSupis())) {
+					params = parseQuerryFilter(
+							parseListToFilterList(eventSub.getTgtUe().getSupis(), "supi"));
+				} else if (eventSub.getTgtUe()!=null && !eventSub.getTgtUe().isAnyUe() && safeCheckListNotEmpty(eventSub.getTgtUe().getIntGroupIds())) {
+					params = parseQuerryFilter(
+							parseListToFilterList(eventSub.getTgtUe().getIntGroupIds(), "intGroupId"));
 				} else if (eventSub.getVisitedAreas() != null
-						&& CheckUtil.safeCheckListNotEmpty(eventSub.getVisitedAreas())) {
+						&& safeCheckListNotEmpty(eventSub.getVisitedAreas())) {
 					List<String> validVisitedAreas = new ArrayList<>();
 					for (NetworkAreaInfo aoi:eventSub.getVisitedAreas()) {
-						if (aoi != null && CheckUtil.safeCheckListNotEmpty(aoi.getContainedAreaIds()) &&
-								(CheckUtil.safeCheckListNotEmpty(aoi.getEcgis()) ||
-								CheckUtil.safeCheckListNotEmpty(aoi.getNcgis()) ||
-								CheckUtil.safeCheckListNotEmpty(aoi.getGRanNodeIds()) ||
-								CheckUtil.safeCheckListNotEmpty(aoi.getTais()))) {
+						if (aoi != null && safeCheckListNotEmpty(aoi.getContainedAreaIds()) &&
+								(safeCheckListNotEmpty(aoi.getEcgis()) ||
+								safeCheckListNotEmpty(aoi.getNcgis()) ||
+								safeCheckListNotEmpty(aoi.getGRanNodeIds()) ||
+								safeCheckListNotEmpty(aoi.getTais()))) {
 							List<String> areaOfInterestIds = ParserUtil.safeParseListString(Collections.singletonList(aoi.getContainedAreaIds()));
 							validVisitedAreas.addAll(areaOfInterestIds);
 						}
 					}
 					validVisitedAreas = new ArrayList<>(new LinkedHashSet<>(validVisitedAreas));
-					params = ParserUtil.parseQuerryFilterContains(ParserUtil.parseListToFilterList(validVisitedAreas,"areaOfInterestId"), "areaOfInterestIds");
+					params = ParserUtil.parseQuerryFilterContains(parseListToFilterList(validVisitedAreas,"areaOfInterestId"), "areaOfInterestIds");
 				}
 				try {
 					ueMobilities = metricsService.findAllUeMobilityInLastIntervalByFilterAndOffset(params, no_secs,
@@ -261,6 +257,38 @@ public class NotificationUtil {
 				}
 				notification = notifBuilder.addEvent(notification, NwdafEventEnum.UE_MOBILITY, null, null, now, null,
 						null, null, ueMobilities);
+				break;
+			case UE_COMM:
+				List<UeCommunication> ueCommunications;
+				if (eventSub.getTgtUe()!=null && !eventSub.getTgtUe().isAnyUe() && safeCheckListNotEmpty(eventSub.getTgtUe().getSupis())) {
+					params = parseQuerryFilter(
+							parseListToFilterList(eventSub.getTgtUe().getSupis(), "supi"));
+				} else if (eventSub.getTgtUe()!=null && !eventSub.getTgtUe().isAnyUe() && safeCheckListNotEmpty(eventSub.getTgtUe().getIntGroupIds())) {
+					params = parseQuerryFilter(
+							parseListToFilterList(eventSub.getTgtUe().getIntGroupIds(), "intGroupId"));
+				} else if (eventSub.getNetworkArea() != null
+						&& safeCheckListNotEmpty(eventSub.getNetworkArea().getContainedAreaIds())
+						&& (safeCheckListNotEmpty(eventSub.getNetworkArea().getEcgis()) ||
+						safeCheckListNotEmpty(eventSub.getNetworkArea().getNcgis()) ||
+						safeCheckListNotEmpty(eventSub.getNetworkArea().getGRanNodeIds()) ||
+						safeCheckListNotEmpty(eventSub.getNetworkArea().getTais()))) {
+					// aggregate container areas for the aoi inside the sub object as valid filters
+					params = parseQuerryFilter(parseListToFilterList(
+							eventSub.getNetworkArea().getContainedAreaIds(), "areaOfInterestId"));
+				}
+				try {
+					ueCommunications = metricsService.findAllUeCommunicationInLastIntervalByFilterAndOffset(params, no_secs,
+							repPeriod, columns);
+				} catch (Exception e) {
+					NwdafSubApplication.getLogger()
+							.error("Service error for eventType: " + eType + " and subId: " + sub.getId(), e);
+					return null;
+				}
+				if (ueCommunications == null || ueCommunications.isEmpty()) {
+					return null;
+				}
+				notification = notifBuilder.addEvent(notification, NwdafEventEnum.UE_COMM, null, null, now, null,
+						null, null, ueCommunications);
 				break;
 			default:
 				break;
@@ -609,7 +637,7 @@ public class NotificationUtil {
 			}
 
 			// check whether data is available to be gathered
-			NnwdafEventsSubscriptionNotification notification = new NotificationBuilder().build(id);
+			NnwdafEventsSubscriptionNotification notification = new NotificationBuilder().build(id).time(Instant.now());
 			boolean isDataAvailable = false;
 			Integer expectedWaitTime = null;
 			try {

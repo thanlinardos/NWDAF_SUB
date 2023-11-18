@@ -3,177 +3,177 @@
     {
       "name": "nnwdaf-eventsubscription.openapi.dev_url",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.openapi.dev_url'"
+      "description": "A description for 'nnwdaf-eventsubscription.openapi.dev_url'."
     },
     {
       "name": "nnwdaf-eventsubscription.openapi.prod_url",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.openapi.prod_url'"
+      "description": "A description for 'nnwdaf-eventsubscription.openapi.prod_url'."
     },
     {
       "name": "nnwdaf-eventsubscription.client.dev_url",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.client.dev_url'"
+      "description": "A description for 'nnwdaf-eventsubscription.client.dev_url'."
     },
     {
       "name": "nnwdaf-eventsubscription.client.prod_url",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.client.prod_url'"
+      "description": "A description for 'nnwdaf-eventsubscription.client.prod_url'."
     },
     {
       "name": "nnwdaf-eventsubscription.init",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.init'"
+      "description": "A description for 'nnwdaf-eventsubscription.init'."
     },
     {
       "name": "eventnotification.datasource.generate-unique-name",
       "type": "java.lang.String",
-      "description": "A description for 'eventnotification.datasource.generate-unique-name'"
+      "description": "A description for 'eventnotification.datasource.generate-unique-name'."
     },
     {
       "name": "eventnotification.datasource.name",
       "type": "java.lang.String",
-      "description": "A description for 'eventnotification.datasource.name'"
+      "description": "A description for 'eventnotification.datasource.name'."
     },
     {
       "name": "eventnotification.datasource.url",
       "type": "java.lang.String",
-      "description": "A description for 'eventnotification.datasource.url'"
+      "description": "A description for 'eventnotification.datasource.url'."
     },
     {
       "name": "eventnotification.datasource.username",
       "type": "java.lang.String",
-      "description": "A description for 'eventnotification.datasource.username'"
+      "description": "A description for 'eventnotification.datasource.username'."
     },
     {
       "name": "eventnotification.datasource.password",
       "type": "java.lang.String",
-      "description": "A description for 'eventnotification.datasource.password'"
+      "description": "A description for 'eventnotification.datasource.password'."
     },
     {
       "name": "eventnotification.datasource.driverClassName",
       "type": "java.lang.String",
-      "description": "A description for 'eventnotification.datasource.driverClassName'"
+      "description": "A description for 'eventnotification.datasource.driverClassName'."
     },
     {
       "name": "nnwdaf-eventsubscription.prometheus_url",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.prometheus_url'"
+      "description": "A description for 'nnwdaf-eventsubscription.prometheus_url'."
     },
     {
       "name": "nnwdaf-eventsubscription.containerNames",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.containerNames'"
+      "description": "A description for 'nnwdaf-eventsubscription.containerNames'."
     },
     {
       "name": "nnwdaf-eventsubscription.influxdb.databaseURL",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.influxdb.databaseURL'"
+      "description": "A description for 'nnwdaf-eventsubscription.influxdb.databaseURL'."
     },
     {
       "name": "nnwdaf-eventsubscription.influxdb.token",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.influxdb.token'"
+      "description": "A description for 'nnwdaf-eventsubscription.influxdb.token'."
     },
     {
       "name": "nnwdaf-eventsubscription.influxdb.bucket",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.influxdb.bucket'"
+      "description": "A description for 'nnwdaf-eventsubscription.influxdb.bucket'."
     },
     {
       "name": "nnwdaf-eventsubscription.influxdb.org",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.influxdb.org'"
+      "description": "A description for 'nnwdaf-eventsubscription.influxdb.org'."
     },
     {
       "name": "eventmetrics.datasource.generate-unique-name",
       "type": "java.lang.String",
-      "description": "A description for 'eventmetrics.datasource.generate-unique-name'"
+      "description": "A description for 'eventmetrics.datasource.generate-unique-name'."
     },
     {
       "name": "eventmetrics.datasource.name",
       "type": "java.lang.String",
-      "description": "A description for 'eventmetrics.datasource.name'"
+      "description": "A description for 'eventmetrics.datasource.name'."
     },
     {
       "name": "eventmetrics.datasource.username",
       "type": "java.lang.String",
-      "description": "A description for 'eventmetrics.datasource.username'"
+      "description": "A description for 'eventmetrics.datasource.username'."
     },
     {
       "name": "eventmetrics.datasource.password",
       "type": "java.lang.String",
-      "description": "A description for 'eventmetrics.datasource.password'"
+      "description": "A description for 'eventmetrics.datasource.password'."
     },
     {
       "name": "eventmetrics.datasource.driverClassName",
       "type": "java.lang.String",
-      "description": "A description for 'eventmetrics.datasource.driverClassName'"
+      "description": "A description for 'eventmetrics.datasource.driverClassName'."
     },
     {
       "name": "eventmetrics.datasource.url",
       "type": "java.lang.String",
-      "description": "A description for 'eventmetrics.datasource.url'"
+      "description": "A description for 'eventmetrics.datasource.url'."
     },
     {
       "name": "trust.store",
       "type": "java.lang.String",
-      "description": "A description for 'trust.store'"
+      "description": "A description for 'trust.store'."
     },
     {
       "name": "trust.store.password",
       "type": "java.lang.String",
-      "description": "A description for 'trust.store.password'"
+      "description": "A description for 'trust.store.password'."
     },
     {
       "name": "nnwdaf-eventsubscription.client.port",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.client.port'"
+      "description": "A description for 'nnwdaf-eventsubscription.client.port'."
     },
     {
       "name": "nnwdaf-eventsubscription.log.kb",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.log.kb'"
+      "description": "A description for 'nnwdaf-eventsubscription.log.kb'."
     },
     {
       "name": "nnwdaf-eventsubscription.log.simple",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.log.simple'"
+      "description": "A description for 'nnwdaf-eventsubscription.log.simple'."
     },
     {
       "name": "nnwdaf-eventsubscription.log.sections",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.log.sections'"
+      "description": "A description for 'nnwdaf-eventsubscription.log.sections'."
     },
     {
       "name": "nnwdaf-eventsubscription.integration.startup",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.integration.startup'"
+      "description": "A description for 'nnwdaf-eventsubscription.integration.startup'."
     },
     {
       "name": "nnwdaf-eventsubscription.integration.nosubs",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.integration.nosubs'"
+      "description": "A description for 'nnwdaf-eventsubscription.integration.nosubs'."
     },
     {
       "name": "nnwdaf-eventsubscription.integration.noclients",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.integration.noclients'"
+      "description": "A description for 'nnwdaf-eventsubscription.integration.noclients'."
     },
     {
       "name": "nnwdaf-eventsubscription.integration.resetsubdb",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.integration.resetsubdb'"
+      "description": "A description for 'nnwdaf-eventsubscription.integration.resetsubdb'."
     },
     {
       "name": "nnwdaf-eventsubscription.integration.resetnotifdb",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.integration.resetnotifdb'"
+      "description": "A description for 'nnwdaf-eventsubscription.integration.resetnotifdb'."
     },
     {
       "name": "nnwdaf-eventsubscription.integration.resetmetricsdb",
       "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.integration.resetmetricsdb'"
+      "description": "A description for 'nnwdaf-eventsubscription.integration.resetmetricsdb'."
     },
     {
       "name": "nnwdaf-eventsubscription.integration.cycleSeconds",
@@ -184,5 +184,10 @@
       "name": "nnwdaf-eventsubscription.integration.max_no_cycles",
       "type": "java.lang.String",
       "description": "Description for nnwdaf-eventsubscription.integration.max_no_cycles."
+    },
+    {
+      "name": "nnwdaf-eventsubscription.log.consumer",
+      "type": "java.lang.String",
+      "description": "Description for nnwdaf-eventsubscription.log.consumer."
     }
-]}
+  ]}

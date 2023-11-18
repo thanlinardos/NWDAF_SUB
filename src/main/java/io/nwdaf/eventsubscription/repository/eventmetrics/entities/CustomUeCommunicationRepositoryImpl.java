@@ -28,11 +28,11 @@ public class CustomUeCommunicationRepositoryImpl implements CustomUeCommunicatio
         select distinct on (time_bucket(cast(:offset as interval), time), supi, intGroupId) 
         time_bucket(cast(:offset as interval), time) AS time , data, supi, intGroupId, 
          """ + columns + """
-         areaOfInterestId from ue_mobility_metrics where time > NOW() - cast(:no_secs as interval) 
+         areaOfInterestId from ue_communication_metrics where time > NOW() - cast(:no_secs as interval) 
         """ + params + """
         GROUP BY time_bucket(cast(:offset as interval), time), time, data, supi, intGroupId, areaOfInterestId;
         """;
-        return entityManager.createNativeQuery(query, UeMobilityTable.class)
+        return entityManager.createNativeQuery(query, UeCommunicationTable.class)
                 .setParameter("offset", offset)
                 .setParameter("no_secs", no_secs)
                 .getResultList();

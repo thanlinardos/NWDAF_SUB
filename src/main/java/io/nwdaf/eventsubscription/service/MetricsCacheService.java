@@ -43,14 +43,14 @@ public class MetricsCacheService {
 			entities = repository.findByTime(time);
 		}
 		List<NfLoadLevelInformation> res = new ArrayList<>();
-		for (int i = 0; i < entities.size(); i++) {
-			if (entities.get(i) != null) {
-				NfLoadLevelInformation info = entities.get(i).getData();
-				info.setTime(entities.get(i).getTime().toInstant());
-				res.add(info);
-			}
-		}
-		if (res.size() == 0) {
+        for (NfLoadLevelInformationHash entity : entities) {
+            if (entity != null) {
+                NfLoadLevelInformation info = entity.getData();
+                info.setTime(entity.getTime().toInstant());
+                res.add(info);
+            }
+        }
+		if (res.isEmpty()) {
 			try{
 			res = metricsService.findAllByTimeAndFilter(time, params);
 			} catch(Exception e) {
@@ -62,7 +62,7 @@ public class MetricsCacheService {
 
 	public List<NfLoadLevelInformation> findAllInLastIntervalByFilterAndOffset(EventSubscription eventSub,
 			List<String> filterTypes, String params, Integer no_secs, Integer offset, String columns)
-			throws JsonMappingException, JsonProcessingException {
+			throws JsonProcessingException {
 		List<NfLoadLevelInformationHash> entities;
 		if (no_secs == null) {
 			no_secs = Constants.MIN_PERIOD_SECONDS;

@@ -46,9 +46,11 @@ public class OpenAPIConfig {
 	        .title("Nnwdaf_Eventsubscription")
 		    .version("1.2.1")
 		    .contact(contact)
-	        .description(" Nnwdaf_EventsSubscription Service API.  \r\n"
-	        		+ "    © 2022, 3GPP Organizational Partners (ARIB, ATIS, CCSA, ETSI, TSDSI, TTA, TTC).  \r\n"
-	        		+ "    All rights reserved.")
+	        .description("""
+                     Nnwdaf_EventsSubscription Service API.  \r
+                        © 2022, 3GPP Organizational Partners (ARIB, ATIS, CCSA, ETSI, TSDSI, TTA, TTC).  \r
+                        All rights reserved.\
+                    """)
 	        .termsOfService("")
 	        .license(license);
 	    return new OpenAPI().info(info).servers(List.of(devServer, prodServer));

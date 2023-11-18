@@ -3,6 +3,7 @@ package io.nwdaf.eventsubscription.repository.eventsubscription.entities;
 import java.io.Serializable;
 import java.util.Map;
 
+import lombok.Getter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -15,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+@Getter
 @Entity
 @Table(name="nnwdaf_events_subscription")
 public class NnwdafEventsSubscriptionTable implements Serializable{
@@ -28,19 +30,11 @@ public class NnwdafEventsSubscriptionTable implements Serializable{
 	@Column(name="sub",columnDefinition = "jsonb")
 	@JsonProperty("sub")
 	private Map<String, Object> sub;
-	
-	public Long getId() {
-		return id;
-	}
-	
+
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
-	public Map<String, Object> getSub() {
-		return sub;
-	}
-	
+
 	public void setSub(Map<String, Object> sub) {
 		this.sub = sub;
 	}

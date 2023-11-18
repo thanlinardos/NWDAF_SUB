@@ -34,39 +34,41 @@ public class SubscriptionsService {
 
 	public NnwdafEventsSubscriptionTable create(NnwdafEventsSubscription body) {
 		NnwdafEventsSubscriptionTable body_table = new NnwdafEventsSubscriptionTable();
-		body_table.setSub(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));
+		body_table.setSub(objectMapper.convertValue(body, new TypeReference<>() {
+        }));
 		return repository.save(body_table);
 	}
 	
-	public List<NnwdafEventsSubscription> findAll() throws JsonMappingException, JsonProcessingException {
+	public List<NnwdafEventsSubscription> findAll() throws JsonProcessingException {
 //		long st_sub = System.nanoTime();
 		List<NnwdafEventsSubscriptionTable> tables = repository.findAll();
 //		NwdafSubApplication.getLogger().info("actual sub query time: "+(System.nanoTime()-st_sub)/1000000l);
 		List<NnwdafEventsSubscription> res = new ArrayList<>();
-		for(int i=0;i<tables.size();i++) {
-			NnwdafEventsSubscription sub = objectMapper.readValue((new JSONObject(tables.get(i).getSub())).toString(),NnwdafEventsSubscription.class);
-			sub.setId(tables.get(i).getId());
-			res.add(sub);
-		}
+        for (NnwdafEventsSubscriptionTable table : tables) {
+            NnwdafEventsSubscription sub = objectMapper.readValue((new JSONObject(table.getSub())).toString(), NnwdafEventsSubscription.class);
+            sub.setId(table.getId());
+            res.add(sub);
+        }
 		
 		return res;
 	}
 
-	public List<NnwdafEventsSubscription> findAllByNotifURI(String clientURI) throws JsonMappingException, JsonProcessingException {
+	public List<NnwdafEventsSubscription> findAllByNotifURI(String clientURI) throws JsonProcessingException {
 		final String filter = "'{\"notificationURI\":\""+clientURI+"\"}'";
 		List<NnwdafEventsSubscriptionTable> tables = repository.findAllByNotifURI(filter);
 		List<NnwdafEventsSubscription> res = new ArrayList<>();
-		for(int i=0;i<tables.size();i++) {
-			NnwdafEventsSubscription sub = objectMapper.readValue((new JSONObject(tables.get(i).getSub())).toString(),NnwdafEventsSubscription.class);
-			sub.setId(tables.get(i).getId());
-			res.add(sub);
-		}
+        for (NnwdafEventsSubscriptionTable table : tables) {
+            NnwdafEventsSubscription sub = objectMapper.readValue((new JSONObject(table.getSub())).toString(), NnwdafEventsSubscription.class);
+            sub.setId(table.getId());
+            res.add(sub);
+        }
 		return res;
 	}
 
     public NnwdafEventsSubscriptionTable update(Long id,NnwdafEventsSubscription body) {
 		NnwdafEventsSubscriptionTable body_table = new NnwdafEventsSubscriptionTable();
-		body_table.setSub(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));
+		body_table.setSub(objectMapper.convertValue(body, new TypeReference<>() {
+        }));
 		body_table.setId(id);
 		return repository.save(body_table);
     }

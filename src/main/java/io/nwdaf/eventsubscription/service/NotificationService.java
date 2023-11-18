@@ -1,7 +1,9 @@
 package io.nwdaf.eventsubscription.service;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
+import io.nwdaf.eventsubscription.NwdafSubApplication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -15,31 +17,29 @@ import io.nwdaf.eventsubscription.repository.eventnotification.entities.NnwdafNo
 
 @Service
 public class NotificationService {
-	
-	private final NotificationRepository repository;
-	
-	// @Autowired
-	public NotificationService(NotificationRepository repository) {
-		this.repository = repository;
-	}
-	
-	@Autowired
-	private ObjectMapper objectMapper;
-	
-	@Async
-	public void create(NnwdafEventsSubscriptionNotification body) {
-		NnwdafNotificationTable body_table = new NnwdafNotificationTable();
-		body_table.setNotif(objectMapper.convertValue(body,new TypeReference<Map<String, Object>>() {}));
-		repository.save(body_table);
-	}
 
-	public boolean truncate(){
-		try{
-			repository.truncate();
-			return true;
-		} catch(Exception e){
-			System.out.println(e);
-			return false;
-		}
-	}
+    private final NotificationRepository repository;
+    private final ObjectMapper objectMapper;
+
+    public NotificationService(NotificationRepository repository, ObjectMapper objectMapper) {
+        this.repository = repository;
+        this.objectMapper = objectMapper;
+    }
+
+    @Async
+    public void create(NnwdafEventsSubscriptionNotification body) {
+        NnwdafNotificationTable bodyTable = new NnwdafNotificationTable(
+                objectMapper.convertValue(body,new TypeReference<>() {}),
+                body.getTimeStamp());
+        repository.save(bodyTable);
+    }
+
+    public boolean truncate() {
+        try {
+            repository.truncate();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

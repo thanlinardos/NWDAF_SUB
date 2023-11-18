@@ -7,7 +7,6 @@ import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -86,7 +85,7 @@ public class SubscriptionsController implements SubscriptionsApi {
         List<Boolean> canServeSubscription = NotificationUtil.checkCanServeSubscriptions(getResponse.getNo_valid_events(), body,
                 getResponse.getEventIndexToNotifMethodMap(), getResponse.getEventIndexToRepPeriodMap(),
                 dataCollectionPublisher, dummyDataProducerPublisher, kafkaProducer, objectMapper, metricsService, metricsCacheService,
-                globalResponse.getImmRep(), 0l);
+                globalResponse.getImmRep(), 0L);
         // check the amount of subscriptions that need to be notifed
         for (int i = 0; i < canServeSubscription.size(); i++) {
             if (canServeSubscription.get(i)) {

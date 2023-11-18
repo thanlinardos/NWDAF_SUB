@@ -3,7 +3,6 @@ package io.nwdaf.eventsubscription.repository.eventmetrics;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import io.nwdaf.eventsubscription.repository.eventmetrics.entities.UeCommunicationTable;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

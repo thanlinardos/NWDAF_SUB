@@ -1,43 +1,47 @@
 package io.nwdaf.eventsubscription.datacollection.prometheus;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.env.Environment;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-
-import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.requestbuilders.PrometheusRequestBuilder;
 import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
+import io.nwdaf.eventsubscription.utilities.Constants;
+import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class DataCollectionListener {
+	@Getter
 	private static Integer no_dataCollectionEventListeners = 0;
+	@Getter
 	private static final Object dataCollectionLock = new Object();
+	@Getter
 	private static Boolean startedSavingData = false;
+	@Getter
 	private static final Object startedSavingDataLock = new Object();
-	private static Logger logger = LoggerFactory.getLogger(DataCollectionListener.class);
+	private static final Logger logger = LoggerFactory.getLogger(DataCollectionListener.class);
 	
-	@Autowired
-	MetricsService metricsService;
+	final MetricsService metricsService;
 	
-	@Autowired
-	MetricsCacheService metricsCacheService;
+	final MetricsCacheService metricsCacheService;
 
-	@Autowired
-	Environment env;
-	
-    @Async
+	final Environment env;
+
+	public DataCollectionListener(MetricsService metricsService, MetricsCacheService metricsCacheService, Environment env) {
+		this.metricsService = metricsService;
+		this.metricsCacheService = metricsCacheService;
+		this.env = env;
+	}
+
+	@Async
     @EventListener
     void excecuteDataCollection(String param) {
     	if(!start()) {
@@ -46,55 +50,52 @@ public class DataCollectionListener {
     	while(no_dataCollectionEventListeners>0) {
 			long start,prom_delay,diff,wait_time;
     		start = System.nanoTime();
-			prom_delay = 0l;
+			prom_delay = 0L;
     		for(NwdafEventEnum eType : Constants.supportedEvents) {
 				switch(eType){
 					case NF_LOAD:
-						if(eType.equals(NwdafEventEnum.NF_LOAD)) {
-							List<NfLoadLevelInformation> nfloadinfos=new ArrayList<>();
-							try {
-								long t = System.nanoTime();
-								nfloadinfos = new PrometheusRequestBuilder().execute(eType, env.getProperty("nnwdaf-eventsubscription.prometheus_url"));
-								prom_delay += (System.nanoTime() - t) / 1000000l;
-							} catch (JsonProcessingException e) {
-								logger.error("Failed to collect data for event: "+eType,e);
-								stop();
-								continue;
-							}
-							if(nfloadinfos==null || nfloadinfos.size()==0) {
-								logger.error("Failed to collect data for event: "+eType);
-								stop();
-								continue;
-							}
-							else {
-								for(int j=0;j<nfloadinfos.size();j++) {
-									try {
-										// System.out.println("nfloadinfo"+j+": "+nfloadinfos.get(j));
-										metricsCacheService.create(nfloadinfos.get(j));
-										synchronized(startedSavingDataLock){
-											startedSavingData = true;
-										}
-									}
-									catch(Exception e) {
-										logger.error("Failed to save nfloadlevelinfo to timescaledb",e);
-										stop();
-										continue;
-									}
-								}
-							}
-						}
-						break;
+                        List<NfLoadLevelInformation> nfloadinfos;
+                        try {
+                            long t = System.nanoTime();
+                            nfloadinfos = new PrometheusRequestBuilder().execute(eType, env.getProperty("nnwdaf-eventsubscription.prometheus_url"));
+                            prom_delay += (System.nanoTime() - t) / 1000000L;
+                        } catch (JsonProcessingException e) {
+                            logger.error("Failed to collect data for event: "+eType,e);
+                            stop();
+                            continue;
+                        }
+                        if(nfloadinfos==null || nfloadinfos.isEmpty()) {
+                            logger.error("Failed to collect data for event: "+eType);
+                            stop();
+                            continue;
+                        }
+                        else {
+                            for (NfLoadLevelInformation nfloadinfo : nfloadinfos) {
+                                try {
+                                    // System.out.println("nfloadinfo"+j+": "+nfloadinfos.get(j));
+                                    metricsCacheService.create(nfloadinfo);
+                                    synchronized (startedSavingDataLock) {
+                                        startedSavingData = true;
+                                    }
+                                } catch (Exception e) {
+                                    logger.error("Failed to save nfloadlevelinfo to timescaledb", e);
+                                    stop();
+                                    continue;
+                                }
+                            }
+                        }
+                        break;
 					default:
 						break;
 				}
     		}
-    		diff = (System.nanoTime()-start) / 1000000l;
-    		wait_time = (long)Constants.MIN_PERIOD_SECONDS*1000l;
+    		diff = (System.nanoTime()-start) / 1000000L;
+    		wait_time = (long)Constants.MIN_PERIOD_SECONDS* 1000L;
     		if(diff<wait_time) {
 	    		try {
 					Thread.sleep(wait_time-diff);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					logger.error("Failed to wait for thread...",e);
 					stop();
 					continue;
 				}
@@ -103,20 +104,8 @@ public class DataCollectionListener {
     		logger.info("data coll total delay = "+diff+"ms");
     	}
     	logger.info("Prometheus Data Collection stopped!");
-        return;
     }
-	public static Object getDataCollectionLock() {
-		return dataCollectionLock;
-	}
-	public static Integer getNo_dataCollectionEventListeners() {
-		return no_dataCollectionEventListeners;
-	}
-	public static Object getStartedSavingDataLock() {
-		return startedSavingDataLock;
-	}
-	public static Boolean getStartedSavingData() {
-		return startedSavingData;
-	}
+
 	public static void stop(){
 		synchronized (dataCollectionLock) {
     		no_dataCollectionEventListeners--;

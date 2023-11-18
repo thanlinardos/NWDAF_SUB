@@ -1,6 +1,5 @@
 package io.nwdaf.eventsubscription;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nwdaf.eventsubscription.config.NwdafSubProperties;
 import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerPublisher;
@@ -84,7 +83,12 @@ public class NwdafSubApplication {
 	private Integer max_no_cycles;
 
 
-	public NwdafSubApplication(NotifyPublisher notifyPublisher, DataCollectionPublisher dataCollectionPublisher, ApplicationContext applicationContext, RedisSubscriptionRepository redisSubscriptionRepository, NotificationService notificationService, DummyDataProducerPublisher dummyDataProducerPublisher, KafkaTemplate<String, String> kafkaTemplate, MetricsService metricsService, SubscriptionsService subscriptionsService, RedisNotificationRepository redisNotificationRepository, ObjectMapper objectMapper, Environment env, KafkaProducer producer, RedisMetricsRepository redisRepository) {
+	public NwdafSubApplication(NotifyPublisher notifyPublisher, DataCollectionPublisher dataCollectionPublisher, ApplicationContext applicationContext,
+                               RedisSubscriptionRepository redisSubscriptionRepository, NotificationService notificationService,
+                               DummyDataProducerPublisher dummyDataProducerPublisher, KafkaTemplate<String, String> kafkaTemplate,
+                               MetricsService metricsService, SubscriptionsService subscriptionsService, RedisNotificationRepository redisNotificationRepository,
+                               ObjectMapper objectMapper, Environment env, KafkaProducer producer, RedisMetricsRepository redisRepository) {
+
 		this.notifyPublisher = notifyPublisher;
 		this.dataCollectionPublisher = dataCollectionPublisher;
 		this.applicationContext = applicationContext;
@@ -156,11 +160,14 @@ public class NwdafSubApplication {
 
 	@Bean
 	@ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.startup", havingValue = "true")
-	public CommandLineRunner run() throws JsonProcessingException {
+	public CommandLineRunner integrationTest() {
 
 		return args -> {
 			Long subId = 0L;
-			File test = new File("nf_load_test.json");
+			File nf_load_test = new File("nf_load_test.json");
+			File ue_mobility_test = new File("ue_mobility_test.json");
+			File ue_communication_test = new File("ue_communication_test.json");
+
 			String uri = env.getProperty("nnwdaf-eventsubscription.client.prod-url");
 			Integer default_port = ParserUtil
 					.safeParseInteger(env.getProperty("nnwdaf-eventsubscription.client.port"));
@@ -174,6 +181,7 @@ public class NwdafSubApplication {
 					log.error("Truncate subscription table failed!");
 					return;
 				}
+
 				for (int i = 0; i < noSubs / noClients; i++) {
 					for (int j = 0; j < noClients; j++) {
 						int current_port = default_port + j;
@@ -183,11 +191,18 @@ public class NwdafSubApplication {
 									ParserUtil.safeParseString(j + 1) + ":" + current_port);
 						}
 						subscriptionsService
-								.create(objectMapper.reader().readValue(test, NnwdafEventsSubscription.class)
+								.create(objectMapper.reader().readValue(nf_load_test, NnwdafEventsSubscription.class)
+										.notificationURI(parsedUri));
+						subscriptionsService
+								.create(objectMapper.reader().readValue(ue_mobility_test, NnwdafEventsSubscription.class)
+										.notificationURI(parsedUri));
+						subscriptionsService
+								.create(objectMapper.reader().readValue(ue_communication_test, NnwdafEventsSubscription.class)
 										.notificationURI(parsedUri));
 					}
 				}
 				System.out.println("Created " + noSubs + " subs for scenario with " + noClients + " clients.");
+
 				NotificationUtil.wakeUpDataProducer("kafka",
 						NwdafEventEnum.NF_LOAD,
 						null,
@@ -195,7 +210,25 @@ public class NwdafSubApplication {
 						dummyDataProducerPublisher,
 						producer,
 						objectMapper);
+
+				NotificationUtil.wakeUpDataProducer("kafka",
+						NwdafEventEnum.UE_MOBILITY,
+						null,
+						dataCollectionPublisher,
+						dummyDataProducerPublisher,
+						producer,
+						objectMapper);
+
+				NotificationUtil.wakeUpDataProducer("kafka",
+						NwdafEventEnum.UE_COMM,
+						null,
+						dataCollectionPublisher,
+						dummyDataProducerPublisher,
+						producer,
+						objectMapper);
+
 				notifyPublisher.publishNotification(subId);
+
 				Thread.sleep(cycleSeconds*1000);
 				NotifyListener.stop();
 				Thread.sleep(2000);
