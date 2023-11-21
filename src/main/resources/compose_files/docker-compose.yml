@@ -66,15 +66,15 @@ services:
       nnwdaf-eventsubscription.log.kb: false
       nnwdaf-eventsubscription.log.simple: true
       nnwdaf-eventsubscription.log.sections: false
-      nnwdaf-eventsubscription.log.consumer: false
+      nnwdaf-eventsubscription.log.consumer: true
       nnwdaf-eventsubscription.integration.startup: true
       nnwdaf-eventsubscription.integration.nosubs: 4000
       nnwdaf-eventsubscription.integration.noclients: 5
       nnwdaf-eventsubscription.integration.resetsubdb: true
-      nnwdaf-eventsubscription.integration.resetmetricsdb: false
+      nnwdaf-eventsubscription.integration.resetmetricsdb: true
       nnwdaf-eventsubscription.integration.resetnotifdb: true
       nnwdaf-eventsubscription.integration.cycleSeconds: 100
-      nnwdaf-eventsubscription.integration.max_no_cycles: -1
+      nnwdaf-eventsubscription.integration.max_no_cycles: 1
   nwdafSubClient:
     container_name: nwdafSubClient
     image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT

@@ -5,7 +5,6 @@ import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 import io.nwdaf.eventsubscription.model.*;
 import lombok.Getter;
@@ -17,10 +16,8 @@ import org.springframework.data.util.Pair;
 import org.springframework.http.HttpEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import io.nwdaf.eventsubscription.utilities.CheckUtil;
 import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.config.RestTemplateFactoryConfig;
@@ -31,11 +28,13 @@ import io.nwdaf.eventsubscription.service.*;
 
 import org.springframework.core.io.Resource;
 
+import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckEqualsEvent;
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckEventNotificationWithinMilli;
 
 @Component
 public class NotifyListener {
 
+    public static final Logger logger = NwdafSubApplication.getLogger();
     public static Integer max_subs_per_process = 200;
     public static final Integer max_no_notifEventListeners = 1;
     @Getter
@@ -88,8 +87,9 @@ public class NotifyListener {
 
     @Async
     @EventListener
-    public void sendNotifications(Long wakeUpSubId) {
+    public void sendNotifications(NotificationEvent notificationEvent) {
         synchronized (notifLock) {
+            System.out.println("trying to enter with current number of notify listeners: " + no_notifEventListeners);
             if (no_notifEventListeners < max_no_notifEventListeners) {
                 no_notifEventListeners++;
             } else {
@@ -97,7 +97,6 @@ public class NotifyListener {
             }
         }
 
-        Logger logger = NwdafSubApplication.getLogger();
         List<NnwdafEventsSubscription> subs = new ArrayList<>();
         try {
             subs = subscriptionService.findAll();
@@ -105,6 +104,9 @@ public class NotifyListener {
             logger.error("Error with find subs in subscriptionService", e);
             stop();
         }
+        int listenerId = no_notifEventListeners - 1;
+        logger.info("Started NotifyListener(" + listenerId + ") with message: " + notificationEvent.getMessage() +
+                    " and caller id: " + notificationEvent.getCallerId());
 
         // map with key each served event (pair of sub id,event index)
         // and value being the last time a notification was sent for this event to the
@@ -216,7 +218,7 @@ public class NotifyListener {
 
                         sub.setFailEventReports(sub.getFailEventReports()
                                 .stream()
-                                .filter(t -> !CheckUtil.safeCheckEqualsEvent(t.getEvent(), event.getEvent()))
+                                .filter(t -> !safeCheckEqualsEvent(t.getEvent(), event.getEvent()))
                                 .toList());
                     }
                 } catch (Exception e) {
@@ -246,26 +248,12 @@ public class NotifyListener {
                 if ((repPeriod > 0
                         && now.isAfter(entry.getValue().plusSeconds(repPeriod))) ||
                         (repPeriod == 0 && thresholdReached(event, notification))) {
+
                     st = System.nanoTime();
                     HttpEntity<NnwdafEventsSubscriptionNotification> client_request = new HttpEntity<>(notification);
-
-                    try {
-                        CompletableFuture        //TODO: Extract to function and add retry functionality
-                                .supplyAsync(() -> restTemplate.postForEntity(sub.getNotificationURI() + "/notify",
-                                        client_request, NnwdafEventsSubscriptionNotification.class))
-                                .thenAccept(client_response -> {
-                                    if (client_response == null || !client_response.getStatusCode().is2xxSuccessful()) {
-                                        logger.warn("Client missed a notification for subscription with id: "
-                                                + sub.getId());
-                                    }
-                                });
-                    } catch (RestClientException e) {
-                        logger.error("Error connecting to client " + sub.getNotificationURI());
-                        logger.info(e.toString());
-                    }
-
+                    notificationService.sendToClient(restTemplate, sub, client_request);
                     client_delay += (double) (System.nanoTime() - st) / 1_000L;
-                    // if notifying the client was successful update the map with the current time
+
                     st = System.nanoTime();
                     lastNotifTimes.put(key, now);       //TODO: Bottleneck #3
                     no_sent_notifs++;
@@ -302,6 +290,7 @@ public class NotifyListener {
             }
 
             st = System.nanoTime();
+
             // make a copy of the map       //TODO: Bottleneck #4 -> map clean up & repopulate
             oldNotifTimes.clear();
             oldNotifTimes.putAll(lastNotifTimes);
@@ -333,7 +322,7 @@ public class NotifyListener {
                 }
             }
             if (logSections) {
-               System.out.println(" || maps="+decimalFormat.format((System.nanoTime()-st) / 1_000_000L)+"ms");
+                System.out.println(" || maps=" + decimalFormat.format((System.nanoTime() - st) / 1_000_000L) + "ms");
             }
 
             double total = (double) (System.nanoTime() - start) / 1_000_000L;
@@ -351,7 +340,7 @@ public class NotifyListener {
                 try {
                     Thread.sleep(wait_time - (long) total);
                 } catch (InterruptedException e) {
-                    logger.error("Failed to wait for thread...",e);
+                    logger.error("Failed to wait for thread...", e);
                     stop();
                     continue;
                 }
@@ -359,7 +348,7 @@ public class NotifyListener {
         }
 
         System.out.println("no of found notifications = " + no_found_notifs);
-        System.out.println("==NotifyListener(" + no_notifEventListeners + ") finished===");
+        System.out.println("==NotifyListener(" + listenerId + ") finished===");
 
         synchronized (notifLock) {
             if (no_notifEventListeners > 0) {
@@ -368,7 +357,10 @@ public class NotifyListener {
                 System.out.println("==(NotifyListener manually stopped)");
             }
         }
-
+        System.out.println("Number of listeners after stop: " + no_notifEventListeners);
+        if(counter == 0) {
+            return;
+        }
         logger.info(
                 "avg io delay= " + avg_io_delay / counter + "ms || avg program delay= " + avg_program_delay / counter
                         + "ms || avg total delay= " + (avg_io_delay + avg_program_delay) / counter + "ms");
@@ -444,10 +436,11 @@ public class NotifyListener {
 
     public static void stop() {
         synchronized (notifLock) {
-            if(no_notifEventListeners > 0) {
+            if (no_notifEventListeners > 0) {
                 no_notifEventListeners--;
             }
         }
+        System.out.println("after stop func: " + no_notifEventListeners);
     }
 
     private void printPerfA(double loop_section, double section_a, double section_b, double section_c,

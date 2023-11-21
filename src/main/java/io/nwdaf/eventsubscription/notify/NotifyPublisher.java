@@ -13,8 +13,9 @@ public class NotifyPublisher {
         this.eventPublisher = publisher;
     }
 
-    public void publishNotification(Long subId) {
-        eventPublisher.publishEvent(subId);
+    public void publishNotification(final String message, Long subId) {
+        final NotificationEvent event = new NotificationEvent(this, message, subId);
+        eventPublisher.publishEvent(event);
     }
 
 }

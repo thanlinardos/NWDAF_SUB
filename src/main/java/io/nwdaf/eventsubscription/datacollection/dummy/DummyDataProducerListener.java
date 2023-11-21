@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
@@ -64,7 +63,7 @@ public class DummyDataProducerListener{
                         nfloadinfos = DummyDataGenerator.changeNfLoadTimeDependentProperties(nfloadinfos);
                         for (NfLoadLevelInformation nfloadinfo : nfloadinfos) {
                             try {
-                                metricsService.create(nfloadinfo);
+                                metricsService.createNfload(nfloadinfo);
                                 synchronized (startedSavingDataLock) {
                                     startedSavingData = true;
                                 }
@@ -79,7 +78,7 @@ public class DummyDataProducerListener{
                         ueMobilities = DummyDataGenerator.changeUeMobilitiesTimeDependentProperties(ueMobilities);
                         for (UeMobility ueMobility : ueMobilities) {
                             try {
-                                metricsService.create(ueMobility);
+                                metricsService.createUeMob(ueMobility);
                                 synchronized (startedSavingDataLock) {
                                     startedSavingData = true;
                                 }

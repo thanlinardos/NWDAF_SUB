@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.nwdaf.eventsubscription.model.NwdafEvent;
 import io.nwdaf.eventsubscription.model.UeCommunication;
@@ -41,101 +42,91 @@ import static io.nwdaf.eventsubscription.utilities.Constants.supportedEvents;
 @Component
 public class KafkaConsumer {
 
-	private static final Logger logger = LoggerFactory.getLogger(KafkaConsumer.class);
-	final MetricsCacheService metricsCacheService;
+    private static final Logger logger = LoggerFactory.getLogger(KafkaConsumer.class);
+    final MetricsCacheService metricsCacheService;
 
-	final MetricsService metricsService;
+    final MetricsService metricsService;
 
-	final ObjectMapper objectMapper;
+    final ObjectMapper objectMapper;
 
-	private final Consumer<String, String> kafkaConsumerDiscover;
+    private final Consumer<String, String> kafkaConsumerDiscover;
 
-	private final Consumer<String, String> kafkaConsumerEvent;
-	
-	public static Boolean startedReceivingData = false;
-	public static final Object startedReceivingDataLock = new Object();
-	public static Boolean startedSavingData = false;
-	public static final Object startedSavingDataLock = new Object();
-	public static Boolean isListening = true;
-	public static final Object isListeningLock = new Object();
-	public static Boolean startedDiscoveringCollectors = false;
-	public static final Object startedDiscoveringCollectorsLock = new Object();
-	public static final Boolean isDiscovering = true;
-	public static final Object isDiscoveringLock = new Object();
-	public static final BlockingQueue<String> discoverMessageQueue = new LinkedBlockingQueue<>();
-	public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Long> eventConsumeCounters = new ConcurrentHashMap<>();
+    private final Consumer<String, String> kafkaConsumerEvent;
+    public static AtomicBoolean isListening = new AtomicBoolean(true);
+    public static AtomicBoolean isDiscovering = new AtomicBoolean(true);
+    public static final BlockingQueue<String> discoverMessageQueue = new LinkedBlockingQueue<>();
+    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Long> eventConsumerCounters = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Long> eventConsumerLastSaves = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Boolean> eventConsumerStartedSaving = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Boolean> eventConsumerStartedReceiving = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Boolean> eventConsumerIsSyncing = new ConcurrentHashMap<>();
 
-	@Value("${nnwdaf-eventsubscription.log.consumer}")
-	private Boolean logConsumer;
+    public static OffsetDateTime startTime;
+    public static OffsetDateTime endTime;
 
-	public KafkaConsumer(MetricsCacheService metricsCacheService,
-						 MetricsService metricsService,
-						 ObjectMapper objectMapper,
-						 @Qualifier("consumerDiscover") Consumer<String, String> kafkaConsumerDiscover,
-						 @Qualifier("consumerEvent") Consumer<String, String> kafkaConsumerEvent) {
+    @Value("${nnwdaf-eventsubscription.log.consumer}")
+    private Boolean logConsumer;
 
-		this.metricsCacheService = metricsCacheService;
-		this.metricsService = metricsService;
-		this.objectMapper = objectMapper;
-		this.kafkaConsumerDiscover = kafkaConsumerDiscover;
-		this.kafkaConsumerEvent = kafkaConsumerEvent;
-		for (NwdafEvent.NwdafEventEnum e: supportedEvents) {
-			eventConsumeCounters.put(e,0L);
-		}
-	}
+    public KafkaConsumer(MetricsCacheService metricsCacheService,
+                         MetricsService metricsService,
+                         ObjectMapper objectMapper,
+                         @Qualifier("consumerDiscover") Consumer<String, String> kafkaConsumerDiscover,
+                         @Qualifier("consumerEvent") Consumer<String, String> kafkaConsumerEvent) {
 
-	@KafkaListener(topics = {"NF_LOAD","UE_MOBILITY","UE_COMM"}, groupId = "event", containerFactory = "kafkaListenerContainerFactoryEvent")
-	public String dataListener(ConsumerRecord<String,String> record) {
-		NwdafEvent.NwdafEventEnum eventTopic = NwdafEvent.NwdafEventEnum.valueOf(record.topic());
-		String in = record.value();
-		if(!isListening) {
-			return "";
-		}
-		startedReceiving();
-		NfLoadLevelInformation nfLoadLevelInformation;
-		UeMobility ueMobility;
-		UeCommunication ueCommunication;
-		try{
-		switch(eventTopic){
-			case NF_LOAD:
-				nfLoadLevelInformation = objectMapper.reader().readValue(in, NfLoadLevelInformation.class);
-				// metricsCacheService.create(nfLoadLevelInformation);
-				metricsService.create(nfLoadLevelInformation);
-				break;
-			case UE_MOBILITY:
-				ueMobility = objectMapper.reader().readValue(in, UeMobility.class);
-				metricsService.create(ueMobility);
-				break;
-			case UE_COMM:
-				ueCommunication = objectMapper.reader().readValue(in, UeCommunication.class);
-				metricsService.create(ueCommunication);
-				break;
-			default:
-				break;
-		}
-		eventConsumeCounters.compute(eventTopic, (k, v) -> (v == null || v < 0) ? 0 : v + 1);
-		if(logConsumer && eventConsumeCounters.get(eventTopic) % 10 == 0) {
-			logger.info("Saved "+eventTopic+" to database.");
-		}
-		} catch(IOException e){
-			NwdafSubApplication.getLogger().info("data not matching "+eventTopic+" model: "+in);
-			return "";
-		} catch(Exception e){
-			NwdafSubApplication.getLogger().info("failed to save "+eventTopic+" info to timescaleDB");
-			NwdafSubApplication.getLogger().error("",e);
-			stopListening();
-			return "";
-		}
-		startedSaving();
-		return in;
-	}
+        this.metricsCacheService = metricsCacheService;
+        this.metricsService = metricsService;
+        this.objectMapper = objectMapper;
+        this.kafkaConsumerDiscover = kafkaConsumerDiscover;
+        this.kafkaConsumerEvent = kafkaConsumerEvent;
 
-	@Scheduled(fixedDelay = 1000)
-	public void discoverListener(){
-		if(!isDiscovering){
-			return;
-		}
-		List<PartitionInfo> partitions = kafkaConsumerDiscover.partitionsFor("DISCOVER");
+        for (NwdafEvent.NwdafEventEnum e : supportedEvents) {
+            eventConsumerCounters.put(e, 0L);
+            eventConsumerLastSaves.put(e, 0L);
+            eventConsumerStartedSaving.put(e, false);
+            eventConsumerStartedReceiving.put(e, false);
+            eventConsumerIsSyncing.put(e, false);
+        }
+    }
+
+    // Consumer for metrics since start offset of topic
+    @KafkaListener(topics = {"NF_LOAD", "UE_MOBILITY", "UE_COMM"}, groupId = "event", containerFactory = "kafkaListenerContainerFactoryEvent",
+            autoStartup = "true")
+    public String dataListener(ConsumerRecord<String, String> record) {
+        NwdafEvent.NwdafEventEnum eventTopic = NwdafEvent.NwdafEventEnum.valueOf(record.topic());
+        String in = record.value();
+        long timeDiff = System.currentTimeMillis() - record.timestamp() - Constants.MIN_PERIOD_SECONDS * 1_000L;
+        if (!isListening.get() || timeDiff <= 0) {
+            if (timeDiff < -Constants.MIN_PERIOD_SECONDS * 1_000L && eventConsumerIsSyncing.get(eventTopic)) {
+                logger.warn("Stopped syncing for event: " + eventTopic + " (" + timeDiff / 1_000L + " seconds behind)");
+                stopSyncing(eventTopic);
+            }
+            return "";
+        }
+        if (!eventConsumerIsSyncing.get(eventTopic) && timeDiff > Constants.MIN_PERIOD_SECONDS * 1_000L) {
+//            logger.warn("Started syncing for event: " + eventTopic + " (" + timeDiff / 1_000L + " seconds behind)");
+        }
+        startedSyncing(eventTopic);
+        try {
+            consumeMetric(eventTopic, in, record.timestamp(), false);
+        } catch (IOException e) {
+            logger.warn("data not matching " + eventTopic + " model: " + in);
+            return "";
+        } catch (Exception e) {
+            logger.info("failed to save " + eventTopic + " info to timescaleDB");
+            logger.error("", e);
+            stopListening(eventTopic);
+            return "";
+        }
+        startedSaving(eventTopic);
+        return in;
+    }
+
+    @Scheduled(fixedDelay = 1)
+    public void discoverListener() {
+        if (!isDiscovering.get()) {
+            return;
+        }
+        List<PartitionInfo> partitions = kafkaConsumerDiscover.partitionsFor("DISCOVER");
 
         // Get the beginning offset for each partition and convert it to a timestamp
         long earliestTimestamp = Long.MAX_VALUE;
@@ -147,17 +138,17 @@ public class KafkaConsumer {
             kafkaConsumerDiscover.seekToBeginning(Collections.singletonList(topicPartition));
 
             long beginningOffset = kafkaConsumerDiscover.position(topicPartition);
-			OffsetAndTimestamp offsetAndTimestamp = kafkaConsumerDiscover.offsetsForTimes(Collections.singletonMap(topicPartition, beginningOffset)).get(topicPartition);
-            if(offsetAndTimestamp!=null){
-				long partitionTimestamp = offsetAndTimestamp.timestamp();
-				if (partitionTimestamp < earliestTimestamp) {
-					earliestTimestamp = partitionTimestamp;
-				}
-			}
+            OffsetAndTimestamp offsetAndTimestamp = kafkaConsumerDiscover.offsetsForTimes(Collections.singletonMap(topicPartition, beginningOffset)).get(topicPartition);
+            if (offsetAndTimestamp != null) {
+                long partitionTimestamp = offsetAndTimestamp.timestamp();
+                if (partitionTimestamp < earliestTimestamp) {
+                    earliestTimestamp = partitionTimestamp;
+                }
+            }
         }
-		if(earliestTimestamp == Long.MAX_VALUE){
-			return;
-		}
+        if (earliestTimestamp == Long.MAX_VALUE) {
+            return;
+        }
         // Convert the earliest timestamp to a human-readable format
         // String formattedTimestamp = Instant.ofEpochMilli(earliestTimestamp).toString();
         // System.out.println("Earliest Timestamp in the DISCOVER topic: " + formattedTimestamp);
@@ -168,74 +159,184 @@ public class KafkaConsumer {
 
         // Seek to the beginning timestamp
         for (TopicPartition partition : topicPartitions) {
-			OffsetAndTimestamp offsetAndTimestamp = kafkaConsumerDiscover.offsetsForTimes(Collections.singletonMap(partition, startTimestamp)).get(partition);
-            if(offsetAndTimestamp!=null){
-				kafkaConsumerDiscover.seek(partition, offsetAndTimestamp.offset());
-			}
+            OffsetAndTimestamp offsetAndTimestamp = kafkaConsumerDiscover.offsetsForTimes(Collections.singletonMap(partition, startTimestamp)).get(partition);
+            if (offsetAndTimestamp != null) {
+                kafkaConsumerDiscover.seek(partition, offsetAndTimestamp.offset());
+            }
         }
 
-	    // consume messages inside the desired range
-        ConsumerRecords<String, String> records = kafkaConsumerDiscover.poll(Duration.ofMillis(1000));
+        // consume messages inside the desired range
+        ConsumerRecords<String, String> records = kafkaConsumerDiscover.poll(Duration.ofMillis(1));
 
         // Process the received messages here
         records.forEach(record -> {
             // Check if the message timestamp is within the desired range
-            if(record.timestamp() <= endTimestamp && record.timestamp() >= startTimestamp) {
-                System.out.println("Received message: " + record.value());
-                if(!discoverMessageQueue.offer(record.value())) {
+            if (record.timestamp() <= endTimestamp && record.timestamp() >= startTimestamp) {
+//                System.out.println("Received message: " + record.value());
+                if (!discoverMessageQueue.offer(record.value())) {
                     System.out.println("InterruptedException while writing to DISCOVER message queue.");
-					stopDiscovering();
+                    stopDiscovering();
+                } else {
+                    startedDiscovering();
                 }
-				else{
-					startedDiscovering();
-				}
             }
         });
-	}
-	public static void startedSaving(){
-		synchronized(startedSavingDataLock){
-			startedSavingData = true;
-		}
-	}
-    public static void stoppedSaving(){
-		synchronized(startedSavingDataLock){
-			startedSavingData = false;
-		}
-	}
-	public static void startListening(){
-		synchronized(isListeningLock){
-			isListening = true;
-		}
-	}
-    public static void stopListening(){
-		synchronized(isListeningLock){
-			isListening = false;
-		}
-		synchronized(startedSavingDataLock){
-			startedSavingData = false;
-		}
-		synchronized(startedReceivingDataLock){
-			startedReceivingData = false;
-		}
-	}
-	public static void startedDiscovering(){
-		synchronized(startedDiscoveringCollectorsLock){
-			startedDiscoveringCollectors = true;
-		}
-	}
-	public static void stopDiscovering(){
-		synchronized(startedDiscoveringCollectorsLock){
-			startedDiscoveringCollectors = false;
-		}
-	}
-	public static void startedReceiving(){
-		synchronized(startedReceivingDataLock){
-			startedReceivingData = true;
-		}
-	}
-	public static void stopReceiving(){
-		synchronized(startedReceivingDataLock){
-			startedReceivingData = false;
-		}
-	}
+    }
+
+    // Consumer for metrics only within period
+    @KafkaListener(topics = {"NF_LOAD", "UE_MOBILITY", "UE_COMM"}, groupId = "latestEvent", containerFactory = "kafkaListenerContainerFactoryEvent",
+            autoStartup = "true",
+            properties = {
+                    "max.poll.records=100", // Consume only one record per poll
+                    "auto.offset.reset=latest", // Start consuming from the latest offset
+                    "enable.auto.commit=false",
+                    "commitOffsetsOnFirstJoin=false"
+            })
+    public String concurrentDataListener(ConsumerRecord<String, String> record) {
+        NwdafEvent.NwdafEventEnum eventTopic = NwdafEvent.NwdafEventEnum.valueOf(record.topic());
+        String in = record.value();
+        if (!isListening.get() || record.timestamp() < eventConsumerLastSaves.get(eventTopic) || System.currentTimeMillis() - record.timestamp() > Constants.MIN_PERIOD_SECONDS * 1_000L) {
+            return "";
+        }
+        startedReceiving(eventTopic);
+
+        try {
+            consumeMetric(eventTopic, in, record.timestamp(), true);
+        } catch (IOException e) {
+            logger.info("data not matching " + eventTopic + " model: " + in);
+            return "";
+        } catch (Exception e) {
+            logger.info("failed to save " + eventTopic + " info to timescaleDB");
+            logger.error("", e);
+            stopListening(eventTopic);
+            return "";
+        }
+        startedSaving(eventTopic);
+        return in;
+    }
+
+    private void consumeMetric(NwdafEvent.NwdafEventEnum eventTopic, String in, Long recordTimeStamp, Boolean isLatest) throws IOException, Exception {
+        switch (eventTopic) {
+            case NF_LOAD:
+                NfLoadLevelInformation nfLoadLevelInformation = objectMapper.reader().readValue(in, NfLoadLevelInformation.class);
+                // metricsCacheService.create(nfLoadLevelInformation);
+                metricsService.createNfload(nfLoadLevelInformation);
+                break;
+            case UE_MOBILITY:
+                UeMobility ueMobility = objectMapper.reader().readValue(in, UeMobility.class);
+                metricsService.createUeMob(ueMobility);
+                break;
+            case UE_COMM:
+                UeCommunication ueCommunication = objectMapper.reader().readValue(in, UeCommunication.class);
+                metricsService.createUeComm(ueCommunication);
+                break;
+            default:
+                break;
+        }
+        setupAndLogCounters(eventTopic, recordTimeStamp, isLatest, 1);
+    }
+
+    private void consumeMetrics(NwdafEvent.NwdafEventEnum eventTopic, List<String> in, Long recordTimeStamp, Boolean isLatest) throws IOException, Exception {
+        switch (eventTopic) {
+            case NF_LOAD:
+                List<NfLoadLevelInformation> nfLoadLevelInformations = in.stream().map(s -> {
+                    try {
+                        return objectMapper.reader().readValue(s, NfLoadLevelInformation.class);
+                    } catch (IOException e) {
+                        logger.warn("data not matching " + eventTopic + " model: " + in);
+                    }
+                    return null;
+                }).toList();
+                // metricsCacheService.create(nfLoadLevelInformation);
+                metricsService.createAllNfload(nfLoadLevelInformations);
+                break;
+            case UE_MOBILITY:
+                List<UeMobility> ueMobilities = in.stream().map(s -> {
+                    try {
+                        return objectMapper.reader().readValue(s, UeMobility.class);
+                    } catch (IOException e) {
+                        logger.warn("data not matching " + eventTopic + " model: " + in);
+                    }
+                    return null;
+                }).toList();
+                metricsService.createAllUeMobs(ueMobilities);
+                break;
+            case UE_COMM:
+                List<UeCommunication> ueCommunications = in.stream().map(s -> {
+                    try {
+                        return objectMapper.reader().readValue(s, UeCommunication.class);
+                    } catch (IOException e) {
+                        logger.warn("data not matching " + eventTopic + " model: " + in);
+                    }
+                    return null;
+                }).toList();
+                metricsService.createAllUeCommms(ueCommunications);
+                break;
+            default:
+                break;
+        }
+        setupAndLogCounters(eventTopic, recordTimeStamp, isLatest, in.size());
+    }
+
+    private void setupAndLogCounters(NwdafEvent.NwdafEventEnum eventTopic, Long recordTimeStamp, Boolean isLatest, Integer length) {
+        if (isLatest) {
+            eventConsumerLastSaves.put(eventTopic, recordTimeStamp);
+        }
+        if (logConsumer && isLatest) {
+            eventConsumerCounters.compute(eventTopic, (k, v) -> (v == null || v < 0) ? 0 : v + length);
+            if (eventConsumerCounters.get(eventTopic) % 100 == 0) {
+                logger.info("Saved " + eventTopic + "(x100) to database.");
+            }
+        }
+    }
+
+    public static void startedSaving(NwdafEvent.NwdafEventEnum eventTopic) {
+        eventConsumerStartedSaving.compute(eventTopic, (k, v) -> true);
+    }
+
+    public static void stoppedSaving(NwdafEvent.NwdafEventEnum eventTopic) {
+        eventConsumerStartedSaving.compute(eventTopic, (k, v) -> false);
+    }
+
+    public static void startListening() {
+        isListening.set(true);
+    }
+
+    public static void stopListening(NwdafEvent.NwdafEventEnum eventTopic) {
+        isListening.set(false);
+        stoppedSaving(eventTopic);
+        stopReceiving(eventTopic);
+    }
+
+    public static void startedDiscovering() {
+        isDiscovering.set(true);
+    }
+
+    public static void stopDiscovering() {
+        isDiscovering.set(false);
+    }
+
+    public static void startedReceiving(NwdafEvent.NwdafEventEnum eventTopic) {
+        if (!eventConsumerStartedReceiving.get(eventTopic)) {
+            eventConsumerStartedReceiving.compute(eventTopic, (k, v) -> true);
+            startTime = OffsetDateTime.now();
+            eventConsumerCounters.compute(eventTopic, (k, v) -> 0L);
+        }
+    }
+
+    public static void stopReceiving(NwdafEvent.NwdafEventEnum eventTopic) {
+        if (eventConsumerStartedReceiving.get(eventTopic)) {
+            eventConsumerStartedReceiving.compute(eventTopic, (k, v) -> false);
+            endTime = OffsetDateTime.now();
+        }
+        stoppedSaving(eventTopic);
+    }
+
+    public static void startedSyncing(NwdafEvent.NwdafEventEnum eventTopic) {
+        eventConsumerStartedReceiving.compute(eventTopic, (k, v) -> true);
+    }
+
+    public static void stopSyncing(NwdafEvent.NwdafEventEnum eventTopic) {
+        eventConsumerStartedReceiving.compute(eventTopic, (k, v) -> false);
+    }
 }

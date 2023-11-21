@@ -63,6 +63,7 @@ public class SubscriptionsController implements SubscriptionsApi {
 
     @Override
     public ResponseEntity<NnwdafEventsSubscription> createNWDAFEventsSubscription(@Valid NnwdafEventsSubscription body) {
+
         String subsUri = env.getProperty("nnwdaf-eventsubscription.openapi.dev-url") + "/nwdaf-eventsubscription/v1/subscriptions";
         System.out.println("Controller logic...");
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -71,6 +72,7 @@ public class SubscriptionsController implements SubscriptionsApi {
         if (body == null || !CheckUtil.safeCheckListNotEmpty(body.getEventSubscriptions())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(responseHeaders).body(body);
         }
+
         List<Integer> negotiatedFeaturesList = NotificationUtil.negotiateSupportedFeatures(body);
         logger.info("negotiatedFeaturesList:" + negotiatedFeaturesList.toString());
 
@@ -93,14 +95,14 @@ public class SubscriptionsController implements SubscriptionsApi {
                 periods_to_serve.add(getResponse.getEventIndexToRepPeriodMap().get(i));
             }
         }
-        //if no subscriptions need notifying mute the subscription
+        // if no subscriptions need notifying mute the subscription
         if (count_of_notif == 0) {
             if (body.getEvtReq() == null) {
                 body.setEvtReq(new ReportingInformation());
             }
             body.getEvtReq().notifFlag(new NotificationFlag().notifFlag(NotificationFlagEnum.DEACTIVATE));
         }
-        //save sub to db and get back the created id
+        // save sub to db and get back the created id
         NnwdafEventsSubscriptionTable result = null;
         try {
             result = subscriptionService.create(body);
@@ -116,7 +118,7 @@ public class SubscriptionsController implements SubscriptionsApi {
         body.setId(result.getId());
         //notify about new saved subscription
         if (count_of_notif > 0 && !globalResponse.getMuted()) {
-            notifyPublisher.publishNotification(body.getId());
+            notifyPublisher.publishNotification("controller requested notification for client with URI: " + body.getNotificationURI(), body.getId());
         }
 
         System.out.println("id=" + body.getId());
@@ -171,7 +173,7 @@ public class SubscriptionsController implements SubscriptionsApi {
         subscriptionService.update(ParserUtil.safeParseLong(subscriptionId), body);
         //notify about updated subscription
         if (count_of_notif > 0 && !globalResponse.getMuted()) {
-            notifyPublisher.publishNotification(body.getId());
+            notifyPublisher.publishNotification("controller requested notification for client with URI: " + body.getNotificationURI(), body.getId());
         }
         responseHeaders.set("Location", subsUri);
         return ResponseEntity.status(HttpStatus.OK).headers(responseHeaders).body(body);

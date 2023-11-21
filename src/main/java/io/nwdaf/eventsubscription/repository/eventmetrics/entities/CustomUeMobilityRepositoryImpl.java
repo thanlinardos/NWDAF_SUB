@@ -21,7 +21,7 @@ public class CustomUeMobilityRepositoryImpl implements CustomUeMobilityRepositor
         } else {
             params = "";
         }
-        if(Objects.equals(columns, "")) {
+        if (Objects.equals(columns, "")) {
 
         }
         String query = """

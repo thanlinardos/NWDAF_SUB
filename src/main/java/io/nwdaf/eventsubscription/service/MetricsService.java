@@ -39,9 +39,13 @@ public class MetricsService {
 		nfLoadRepository.save(bodyTable);
 	}
 
-	public NfLoadLevelInformationTable create(NfLoadLevelInformation body) throws JsonProcessingException {
+	public NfLoadLevelInformationTable createNfload(NfLoadLevelInformation body) throws JsonProcessingException {
 		NfLoadLevelInformationTable bodyTable = new NfLoadLevelInformationTable(body);
 		return nfLoadRepository.save(bodyTable);
+	}
+
+	public List<NfLoadLevelInformationTable> createAllNfload(List<NfLoadLevelInformation> body) throws JsonProcessingException {
+		return nfLoadRepository.saveAll(body.stream().map(NfLoadLevelInformationTable::new).toList());
 	}
 
 	// NF_LOAD
@@ -106,9 +110,12 @@ public class MetricsService {
 	}
 
 	// UE_MOBILITY
-	public UeMobilityTable create(UeMobility body) throws JsonProcessingException {
+	public UeMobilityTable createUeMob(UeMobility body) throws JsonProcessingException {
 		UeMobilityTable bodyTable = new UeMobilityTable(body);
 		return ueMobilityRepository.save(bodyTable);
+	}
+	public List<UeMobilityTable> createAllUeMobs(List<UeMobility> body) throws JsonProcessingException {
+		return ueMobilityRepository.saveAll(body.stream().map(UeMobilityTable::new).toList());
 	}
 
 	public List<UeMobility> findAllUeMobilityInLastIntervalByFilterAndOffset(String params, Integer no_secs,
@@ -136,9 +143,12 @@ public class MetricsService {
 	}
 
 	// UE_COMM
-	public UeCommunicationTable create(UeCommunication body) throws JsonProcessingException {
+	public UeCommunicationTable createUeComm(UeCommunication body) throws JsonProcessingException {
 		UeCommunicationTable bodyTable = new UeCommunicationTable(body);
 		return ueCommunicationMetricsRepository.save(bodyTable);
+	}
+	public List<UeCommunicationTable> createAllUeCommms(List<UeCommunication> body) throws JsonProcessingException {
+		return ueCommunicationMetricsRepository.saveAll(body.stream().map(UeCommunicationTable::new).toList());
 	}
 
 	public List<UeCommunication> findAllUeCommunicationInLastIntervalByFilterAndOffset(String params, Integer no_secs,
