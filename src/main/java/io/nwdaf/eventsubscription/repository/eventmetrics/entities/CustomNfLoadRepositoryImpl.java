@@ -16,10 +16,11 @@ public class CustomNfLoadRepositoryImpl implements CustomNfLoadRepository {
     @SuppressWarnings("unchecked")
     public List<NfLoadLevelInformationTable> findAllInLastIntervalByFilterAndOffset(String params, String no_secs,
             String offset, String columns) {
+        String filter;
         if (params != null) {
-            params += " and " + params;
+            filter = " and " + params;
         } else {
-            params = "";
+            filter = "";
         }
         if(Objects.equals(columns, "")) {
             columns += """
@@ -31,17 +32,18 @@ public class CustomNfLoadRepositoryImpl implements CustomNfLoadRepository {
                     CAST(ROUND(AVG(CAST(data->>'nfLoadAvgInAoi' as numeric))) as integer) AS nfLoadAvgInAoi,
                     """;
         }
-        String querry = """
+        String query = """
         select distinct on (time_bucket(cast(:offset as interval), time), nfInstanceId, nfSetId) 
         time_bucket(cast(:offset as interval), time) AS time , data , nfInstanceId, nfSetId, 
         """ + columns + """
-          areaOfInterestId from nf_load_metrics where time > NOW() - cast(:no_secs as interval) 
+           areaOfInterestId from nf_load_metrics where time > NOW() - cast(:no_secs as interval) 
+          """ + filter + """
          GROUP BY time_bucket(cast(:offset as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;
          """;
-        // System.out.println(querry);
+        // System.out.println(query);
         // +" ORDER BY time_bucket(cast(:offset as interval), time) DESC, time,
         // nfInstanceId, nfSetId;"
-        return entityManager.createNativeQuery(querry, NfLoadLevelInformationTable.class).setParameter("offset", offset)
+        return entityManager.createNativeQuery(query, NfLoadLevelInformationTable.class).setParameter("offset", offset)
                 .setParameter("no_secs", no_secs).getResultList();
     }
 }

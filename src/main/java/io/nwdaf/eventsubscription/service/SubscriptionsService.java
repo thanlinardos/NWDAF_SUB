@@ -38,6 +38,17 @@ public class SubscriptionsService {
         }));
 		return repository.save(body_table);
 	}
+
+	public List<NnwdafEventsSubscriptionTable> create(List<NnwdafEventsSubscription> bodies) {
+		List<NnwdafEventsSubscriptionTable> body_tables = new ArrayList<>();
+		for(NnwdafEventsSubscription body: bodies) {
+			NnwdafEventsSubscriptionTable body_table = new NnwdafEventsSubscriptionTable();
+			body_table.setSub(objectMapper.convertValue(body, new TypeReference<>() {
+			}));
+			body_tables.add(body_table);
+		}
+		return repository.saveAll(body_tables);
+	}
 	
 	public List<NnwdafEventsSubscription> findAll() throws JsonProcessingException {
 //		long st_sub = System.nanoTime();

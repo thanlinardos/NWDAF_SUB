@@ -48,6 +48,44 @@ public class NotifyListener {
     RestTemplate restTemplate;
     private final MetricsCacheService metricsCacheService;
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.###");
+    @Getter
+    private static int no_served_subs;
+    @Getter
+    private static Map<Long, Integer> repPeriods;
+    @Getter
+    private static Map<Long, Integer> subIndexes;
+    @Getter
+    private static Map<Long, OffsetDateTime> lastNotifTimes;
+    @Getter
+    private static Map<Long, OffsetDateTime> oldNotifTimes;
+    @Getter
+    private static List<Pair<EventSubscription, NnwdafEventsSubscriptionNotification>> mapEventToNotification;
+    @Getter
+    private static double tsdb_req_delay;
+    @Getter
+    private static double client_delay;
+    @Getter
+    private static double notif_save_delay;
+    @Getter
+    private static long no_sent_notifs;
+    @Getter
+    private static double no_sent_kilobytes;
+    @Getter
+    private static double total_sent_kilobytes;
+    @Getter
+    private static long counter;
+    @Getter
+    private static long total_sent_notifs;
+    @Getter
+    private static long no_found_notifs;
+    @Getter
+    private static long avg_io_delay;
+    @Getter
+    private static long avg_program_delay;
+    @Getter
+    private static double total;
+    @Getter
+    private static double sub_delay;
 
     @Value("${trust.store}")
     private Resource trustStore;
@@ -111,16 +149,16 @@ public class NotifyListener {
         // map with key each served event (pair of sub id,event index)
         // and value being the last time a notification was sent for this event to the
         // corresponding client
-        Map<Long, OffsetDateTime> lastNotifTimes = new HashMap<>();
+        lastNotifTimes = new HashMap<>();
         // repetition period for each event
-        Map<Long, Integer> repPeriods = new HashMap<>();
-        Map<Long, OffsetDateTime> oldNotifTimes = new HashMap<>();
-        Map<Long, Integer> subIndexes = new HashMap<>();
-        List<Pair<EventSubscription, NnwdafEventsSubscriptionNotification>> mapEventToNotification = new ArrayList<>();
+        repPeriods = new HashMap<>();
+        oldNotifTimes = new HashMap<>();
+        subIndexes = new HashMap<>();
+        mapEventToNotification = new ArrayList<>();
 
         // builder for converting data to notification objects
         NotificationBuilder notificationBuilder = new NotificationBuilder();
-        int no_served_subs = 0;
+        no_served_subs = 0;
         for (int i = 0; i < subs.size(); i++) {
             for (int j = 0; j < subs.get(i).getEventSubscriptions().size(); j++) {
                 Integer period = NotificationUtil.needsServing(subs.get(i), j);
@@ -136,15 +174,15 @@ public class NotifyListener {
         System.out.println("no_subs=" + subs.size());
         System.out.println("no_Ssubs=" + no_served_subs);
         long start;
-        double tsdb_req_delay, client_delay, notif_save_delay;
-        long no_sent_notifs;
-        double no_sent_kilobytes, total_sent_kilobytes = 0;
-        long counter = 0, total_sent_notifs = 0;
+        total_sent_kilobytes = 0;
+        counter = 0;
+        total_sent_notifs = 0;
         RestTemplateFactoryConfig.setTrustStore(trustStore);
         RestTemplateFactoryConfig.setTrustStorePassword(trustStorePassword);
         restTemplate = new RestTemplate(Objects.requireNonNull(RestTemplateFactoryConfig.createRestTemplateFactory()));
-        long no_found_notifs = 0;
-        long avg_io_delay = 0, avg_program_delay = 0;
+        no_found_notifs = 0;
+        avg_io_delay = 0;
+        avg_program_delay = 0;
 
         while (no_served_subs > 0 && no_notifEventListeners > 0) {
             long st;
@@ -284,9 +322,9 @@ public class NotifyListener {
                 stop();
                 continue;
             }
-            long sub_delay = (System.nanoTime() - st_sub) / 1_000_000L;
+            sub_delay = (System.nanoTime() - st_sub) / 1_000_000.0;
             if (logSections) {
-                System.out.print(" || sub query time: " + sub_delay + "ms");
+                System.out.print(" || sub query time: " + decimalFormat.format(sub_delay) + "ms");
             }
 
             st = System.nanoTime();
@@ -325,7 +363,7 @@ public class NotifyListener {
                 System.out.println(" || maps=" + decimalFormat.format((System.nanoTime() - st) / 1_000_000L) + "ms");
             }
 
-            double total = (double) (System.nanoTime() - start) / 1_000_000L;
+            total = (double) (System.nanoTime() - start) / 1_000_000L;
             long io_delay = (long) (tsdb_req_delay + client_delay + notif_save_delay) / 1_000L;
             avg_io_delay += io_delay + sub_delay;
             avg_program_delay += (long) (total - io_delay - sub_delay);

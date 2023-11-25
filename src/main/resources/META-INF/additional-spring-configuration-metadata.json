@@ -189,5 +189,10 @@
       "name": "nnwdaf-eventsubscription.log.consumer",
       "type": "java.lang.String",
       "description": "Description for nnwdaf-eventsubscription.log.consumer."
+    },
+    {
+      "name": "spring.thread-executor",
+      "type": "java.lang.String",
+      "description": "Description for spring.thread-executor."
     }
   ]}

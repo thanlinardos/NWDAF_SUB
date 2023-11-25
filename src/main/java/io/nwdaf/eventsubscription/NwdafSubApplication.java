@@ -45,13 +45,13 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 
 import static io.nwdaf.eventsubscription.notify.NotificationUtil.wakeUpDataProducer;
+import static io.nwdaf.eventsubscription.utilities.ParserUtil.safeParseInteger;
 
 @EnableConfigurationProperties(NwdafSubProperties.class)
 @SpringBootApplication(exclude = {JacksonAutoConfiguration.class, JvmMetricsAutoConfiguration.class,
@@ -85,6 +85,8 @@ public class NwdafSubApplication {
     private Integer cycleSeconds;
     @Value("${nnwdaf-eventsubscription.integration.max_no_cycles}")
     private Integer max_no_cycles;
+    private final String default_port;
+    private final String uri;
 
 
     public NwdafSubApplication(NotifyPublisher notifyPublisher, DataCollectionPublisher dataCollectionPublisher, ApplicationContext applicationContext,
@@ -107,44 +109,12 @@ public class NwdafSubApplication {
         this.env = env;
         this.producer = producer;
         this.redisRepository = redisRepository;
+        this.default_port = env.getProperty("nnwdaf-eventsubscription.client.port");
+        this.uri = env.getProperty("nnwdaf-eventsubscription.client.prod-url");
     }
 
     public static void main(String[] args) {
         SpringApplication.run(NwdafSubApplication.class, args);
-        Scanner in = new Scanner(System.in);
-        while(true) {
-            System.out.println("(1)Start notifying, (2)Stop notifying, (3)Start Receiving, (4)Stop Receiving , (0)Exit the program");
-            int choice = in.nextInt();
-            String event;
-            in.next();
-            switch(choice) {
-                case 0:
-                    in.close();
-                    return;
-                case 1:
-
-                    break;
-                case 2:
-                    NotifyListener.stop();
-                    break;
-                case 3:
-                    System.out.println("choose event:");
-                    event = in.next();
-                    KafkaConsumer.startedReceiving(NwdafEventEnum.fromValue(event));
-                    break;
-                case 4:
-                    System.out.println("choose event:");
-                    event = in.next();
-                    KafkaConsumer.stopReceiving(NwdafEventEnum.fromValue(event));
-                    long timeDiff = KafkaConsumer.endTime.minusNanos(KafkaConsumer.startTime.getNano()).toInstant().toEpochMilli();
-                    double timePerSave = (double) timeDiff / KafkaConsumer.eventConsumerCounters.get(NwdafEventEnum.fromValue(event));
-                    System.out.println("StartTime: "+KafkaConsumer.startTime+", EndTime: "+KafkaConsumer.endTime+", TimePerSave: "+timePerSave+"ms");
-                    break;
-                default:
-                    break;
-            }
-        }
-
     }
 
     @Bean
@@ -199,7 +169,10 @@ public class NwdafSubApplication {
     @ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.startup", havingValue = "false")
     public CommandLineRunner start() {
         return args -> {
-            for(NwdafEventEnum e: Constants.supportedEvents) {
+
+            saveSubscriptions();
+
+            for (NwdafEventEnum e : Constants.supportedEvents) {
                 wakeUpDataProducer("kafka",
                         e,
                         null,
@@ -218,16 +191,6 @@ public class NwdafSubApplication {
 
         return args -> {
             long subId = 0L;
-            File nf_load_test = new File("nf_load_test.json");
-            File ue_mobility_test = new File("ue_mobility_test.json");
-            File ue_communication_test = new File("ue_communication_test.json");
-
-            String uri = env.getProperty("nnwdaf-eventsubscription.client.prod-url");
-            Integer default_port = ParserUtil
-                    .safeParseInteger(env.getProperty("nnwdaf-eventsubscription.client.port"));
-            if (uri == null) {
-                return;
-            }
             int n = 0;
             while (max_no_cycles == -1 || n < max_no_cycles) {
                 System.out.println("test iteration: " + n);
@@ -236,50 +199,18 @@ public class NwdafSubApplication {
                     return;
                 }
 
-                for (int i = 0; i < noSubs / noClients; i++) {
-                    for (int j = 0; j < noClients; j++) {
-                        int current_port = default_port + j;
-                        String parsedUri = uri.replace(default_port.toString(), Integer.toString(current_port));
-                        if (j > 0 && !uri.contains("localhost")) {
-                            parsedUri = parsedUri.replace(":" + current_port,
-                                    ParserUtil.safeParseString(j + 1) + ":" + current_port);
-                        }
-                        subscriptionsService
-                                .create(objectMapper.reader().readValue(nf_load_test, NnwdafEventsSubscription.class)
-                                        .notificationURI(parsedUri));
-                        subscriptionsService
-                                .create(objectMapper.reader().readValue(ue_mobility_test, NnwdafEventsSubscription.class)
-                                        .notificationURI(parsedUri));
-                        subscriptionsService
-                                .create(objectMapper.reader().readValue(ue_communication_test, NnwdafEventsSubscription.class)
-                                        .notificationURI(parsedUri));
-                    }
-                }
-                System.out.println("Created " + noSubs + " subs for scenario with " + noClients + " clients.");
+                saveSubscriptions();
+
                 String wakeUpMethod = "kafka";
-                wakeUpDataProducer(wakeUpMethod,
-                        NwdafEventEnum.NF_LOAD,
-                        null,
-                        dataCollectionPublisher,
-                        dummyDataProducerPublisher,
-                        producer,
-                        objectMapper);
-
-                wakeUpDataProducer(wakeUpMethod,
-                        NwdafEventEnum.UE_MOBILITY,
-                        null,
-                        dataCollectionPublisher,
-                        dummyDataProducerPublisher,
-                        producer,
-                        objectMapper);
-
-                wakeUpDataProducer(wakeUpMethod,
-                        NwdafEventEnum.UE_COMM,
-                        null,
-                        dataCollectionPublisher,
-                        dummyDataProducerPublisher,
-                        producer,
-                        objectMapper);
+                for (NwdafEventEnum e : Constants.supportedEvents) {
+                    wakeUpDataProducer(wakeUpMethod,
+                            e,
+                            null,
+                            dataCollectionPublisher,
+                            dummyDataProducerPublisher,
+                            producer,
+                            objectMapper);
+                }
 
                 Thread.sleep(2000);
                 notifyPublisher.publishNotification(
@@ -293,7 +224,7 @@ public class NwdafSubApplication {
 
                 long timeDiff = KafkaConsumer.endTime.minusNanos(KafkaConsumer.startTime.getNano()).toInstant().toEpochMilli();
                 double timePerSave = (double) timeDiff / KafkaConsumer.eventConsumerCounters.get(NwdafEventEnum.NF_LOAD);
-                System.out.println("StartTime: "+KafkaConsumer.startTime+", EndTime: "+KafkaConsumer.endTime+", TimePerSave: "+timePerSave+"ms");
+                System.out.println("StartTime: " + KafkaConsumer.startTime + ", EndTime: " + KafkaConsumer.endTime + ", TimePerSave: " + timePerSave + "ms");
 
                 KafkaConsumer.startedReceiving(NwdafEventEnum.NF_LOAD);
                 Thread.sleep(2000);
@@ -360,6 +291,36 @@ public class NwdafSubApplication {
 
     public static Logger getLogger() {
         return NwdafSubApplication.log;
+    }
+
+    private void saveSubscriptions() throws IOException {
+        File nf_load_test = new File("nf_load_test.json");
+        File ue_mobility_test = new File("ue_mobility_test.json");
+        File ue_communication_test = new File("ue_communication_test.json");
+
+        if (uri == null || noClients == null || noSubs == null || noClients == 0 || noSubs == 0) {
+            System.out.println("Invalid parameters, cannot save subscriptions.");
+            return;
+        }
+        List<NnwdafEventsSubscription> subs = new ArrayList<>();
+        for (int i = 0; i < noSubs / noClients; i++) {
+            for (int j = 0; j < noClients; j++) {
+                int current_port = safeParseInteger(default_port) + j;
+                String parsedUri = uri.replace(default_port, Integer.toString(current_port));
+                if (j > 0 && !uri.contains("localhost")) {
+                    parsedUri = parsedUri.replace(":" + current_port,
+                            ParserUtil.safeParseString(j + 1) + ":" + current_port);
+                }
+                subs.add(objectMapper.reader().readValue(nf_load_test, NnwdafEventsSubscription.class)
+                        .notificationURI(parsedUri));
+                subs.add(objectMapper.reader().readValue(ue_mobility_test, NnwdafEventsSubscription.class)
+                        .notificationURI(parsedUri));
+                subs.add(objectMapper.reader().readValue(ue_communication_test, NnwdafEventsSubscription.class)
+                        .notificationURI(parsedUri));
+            }
+        }
+        subscriptionsService.create(subs);
+        System.out.println("Created " + noSubs + " subs for scenario with " + noClients + " clients.");
     }
 
 }

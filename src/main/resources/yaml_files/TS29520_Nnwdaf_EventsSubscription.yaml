@@ -18,10 +18,10 @@ security:
     - nnwdaf-eventssubscription
 
 servers:
-  - url: 'http://localhost:8080/nnwdaf-eventssubscription/v1'
+  - url: 'https://localhost:8080/nnwdaf-eventssubscription/v1'
     variables:
       apiRoot:
-        default: https://example.com
+        default: https://localhost:8080
         description: apiRoot as defined in clause 4.4 of 3GPP TS 29.501.
 
 paths:

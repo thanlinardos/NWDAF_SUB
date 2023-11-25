@@ -39,12 +39,12 @@ public class MetricsService {
 		nfLoadRepository.save(bodyTable);
 	}
 
-	public NfLoadLevelInformationTable createNfload(NfLoadLevelInformation body) throws JsonProcessingException {
+	public NfLoadLevelInformationTable createNfload(NfLoadLevelInformation body) {
 		NfLoadLevelInformationTable bodyTable = new NfLoadLevelInformationTable(body);
 		return nfLoadRepository.save(bodyTable);
 	}
 
-	public List<NfLoadLevelInformationTable> createAllNfload(List<NfLoadLevelInformation> body) throws JsonProcessingException {
+	public List<NfLoadLevelInformationTable> createAllNfload(List<NfLoadLevelInformation> body) {
 		return nfLoadRepository.saveAll(body.stream().map(NfLoadLevelInformationTable::new).toList());
 	}
 
@@ -110,11 +110,11 @@ public class MetricsService {
 	}
 
 	// UE_MOBILITY
-	public UeMobilityTable createUeMob(UeMobility body) throws JsonProcessingException {
+	public UeMobilityTable createUeMob(UeMobility body) {
 		UeMobilityTable bodyTable = new UeMobilityTable(body);
 		return ueMobilityRepository.save(bodyTable);
 	}
-	public List<UeMobilityTable> createAllUeMobs(List<UeMobility> body) throws JsonProcessingException {
+	public List<UeMobilityTable> createAllUeMobs(List<UeMobility> body) {
 		return ueMobilityRepository.saveAll(body.stream().map(UeMobilityTable::new).toList());
 	}
 
@@ -143,11 +143,11 @@ public class MetricsService {
 	}
 
 	// UE_COMM
-	public UeCommunicationTable createUeComm(UeCommunication body) throws JsonProcessingException {
+	public UeCommunicationTable createUeComm(UeCommunication body) {
 		UeCommunicationTable bodyTable = new UeCommunicationTable(body);
 		return ueCommunicationMetricsRepository.save(bodyTable);
 	}
-	public List<UeCommunicationTable> createAllUeCommms(List<UeCommunication> body) throws JsonProcessingException {
+	public List<UeCommunicationTable> createAllUeCommms(List<UeCommunication> body) {
 		return ueCommunicationMetricsRepository.saveAll(body.stream().map(UeCommunicationTable::new).toList());
 	}
 

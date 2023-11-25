@@ -73,6 +73,8 @@ public class SubscriptionsController implements SubscriptionsApi {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(responseHeaders).body(body);
         }
 
+        System.out.println(Thread.currentThread());
+
         List<Integer> negotiatedFeaturesList = NotificationUtil.negotiateSupportedFeatures(body);
         logger.info("negotiatedFeaturesList:" + negotiatedFeaturesList.toString());
 

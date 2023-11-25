@@ -335,9 +335,13 @@ public class NotificationUtil {
                     Thread.sleep(0, 1_000);
                     System.out.println("isListening failed...");
                 }
+
                 // hit up data producers through kafka topic "WAKE_UP"
-                kafkaProducer.sendMessage(WakeUpMessage.builder().requestedEvent(requestedEvent)
-                        .requestedOffset(requestedOffset).build().toString(), "WAKE_UP");
+                WakeUpMessage wakeUpMessage = WakeUpMessage.builder().requestedEvent(requestedEvent)
+                        .requestedOffset(requestedOffset).build();
+                kafkaProducer.sendMessage(wakeUpMessage.toString(), "WAKE_UP");
+
+                KafkaConsumer.latestWakeUpMessageEventMap.put(wakeUpMessage.getRequestedEvent(), wakeUpMessage);
                 // wait for data sending & saving to start
                 long maxWait = 4_000L;
                 boolean responded = false;
@@ -351,11 +355,15 @@ public class NotificationUtil {
                             logger.error("InterruptedException: Couldn't take msg from discover queue");
                             break;
                         }
+
                         DiscoverMessage discoverMessage = DiscoverMessage.fromString(msg);
                         long diff = Instant.now().getNano() - discoverMessage.getTimestamp().getNano();
                         boolean tooOldMsg = diff > 500_000_000L && diff > discoverMessage.getAvailableOffset() * 1_000_000_000L;
                         if(!tooOldMsg) {
                             discoverMessages.add(discoverMessage);
+                            if(discoverMessage.getRequestedEvent()!=null) {
+                                KafkaConsumer.latestDiscoverMessageEventMap.put(discoverMessage.getRequestedEvent(),discoverMessage);
+                            }
                         }
                         hasData = discoverMessage.getHasData() && (!tooOldMsg);
                         responded = true;

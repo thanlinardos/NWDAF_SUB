@@ -20,6 +20,9 @@ services:
       nnwdaf-eventsubscription.prometheus_url: http://${prom_host}:${prom_port}/api/v1/query
       nnwdaf-eventsubscription.allow_dummy_data: true
       nnwdaf-eventsubscription.allow_prom_data: false
+      nnwdaf-eventsubscription.no_dummy_nfload: 50
+      nnwdaf-eventsubscription.no_dummy_uemob: 50
+      nnwdaf-eventsubscription.no_dummy_uecomm: 50
   nwdafSub:
     container_name: nwdafSub
     image: thanlinardos/nwdaf_sub:0.0.2-SNAPSHOT
@@ -64,11 +67,11 @@ services:
       spring.data.redis.host: redis
       spring.data.redis.port: 6379
       nnwdaf-eventsubscription.log.kb: false
-      nnwdaf-eventsubscription.log.simple: true
+      nnwdaf-eventsubscription.log.simple: false
       nnwdaf-eventsubscription.log.sections: false
-      nnwdaf-eventsubscription.log.consumer: true
-      nnwdaf-eventsubscription.integration.startup: true
-      nnwdaf-eventsubscription.integration.nosubs: 4000
+      nnwdaf-eventsubscription.log.consumer: false
+      nnwdaf-eventsubscription.integration.startup: false
+      nnwdaf-eventsubscription.integration.nosubs: 400
       nnwdaf-eventsubscription.integration.noclients: 5
       nnwdaf-eventsubscription.integration.resetsubdb: true
       nnwdaf-eventsubscription.integration.resetmetricsdb: true

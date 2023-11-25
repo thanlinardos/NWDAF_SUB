@@ -12,6 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.nwdaf.eventsubscription.customModel.DiscoverMessage;
+import io.nwdaf.eventsubscription.customModel.WakeUpMessage;
 import io.nwdaf.eventsubscription.model.NwdafEvent;
 import io.nwdaf.eventsubscription.model.UeCommunication;
 import io.nwdaf.eventsubscription.utilities.Constants;
@@ -55,6 +57,8 @@ public class KafkaConsumer {
     public static AtomicBoolean isListening = new AtomicBoolean(true);
     public static AtomicBoolean isDiscovering = new AtomicBoolean(true);
     public static final BlockingQueue<String> discoverMessageQueue = new LinkedBlockingQueue<>();
+    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, DiscoverMessage> latestDiscoverMessageEventMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, WakeUpMessage> latestWakeUpMessageEventMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Long> eventConsumerCounters = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Long> eventConsumerLastSaves = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Boolean> eventConsumerStartedSaving = new ConcurrentHashMap<>();
@@ -103,7 +107,7 @@ public class KafkaConsumer {
             return "";
         }
         if (!eventConsumerIsSyncing.get(eventTopic) && timeDiff > Constants.MIN_PERIOD_SECONDS * 1_000L) {
-//            logger.warn("Started syncing for event: " + eventTopic + " (" + timeDiff / 1_000L + " seconds behind)");
+            logger.warn("Started syncing for event: " + eventTopic + " (" + timeDiff / 1_000L + " seconds behind)");
         }
         startedSyncing(eventTopic);
         try {
@@ -187,7 +191,7 @@ public class KafkaConsumer {
     @KafkaListener(topics = {"NF_LOAD", "UE_MOBILITY", "UE_COMM"}, groupId = "latestEvent", containerFactory = "kafkaListenerContainerFactoryEvent",
             autoStartup = "true",
             properties = {
-                    "max.poll.records=100", // Consume only one record per poll
+                    "max.poll.records=1", // Consume only one record per poll
                     "auto.offset.reset=latest", // Start consuming from the latest offset
                     "enable.auto.commit=false",
                     "commitOffsetsOnFirstJoin=false"
@@ -281,11 +285,11 @@ public class KafkaConsumer {
     private void setupAndLogCounters(NwdafEvent.NwdafEventEnum eventTopic, Long recordTimeStamp, Boolean isLatest, Integer length) {
         if (isLatest) {
             eventConsumerLastSaves.put(eventTopic, recordTimeStamp);
-        }
-        if (logConsumer && isLatest) {
             eventConsumerCounters.compute(eventTopic, (k, v) -> (v == null || v < 0) ? 0 : v + length);
-            if (eventConsumerCounters.get(eventTopic) % 100 == 0) {
-                logger.info("Saved " + eventTopic + "(x100) to database.");
+            if (logConsumer) {
+                if (eventConsumerCounters.get(eventTopic) % 100 == 0) {
+                    logger.info("Saved " + eventTopic + "(x100) to database.");
+                }
             }
         }
     }
@@ -333,7 +337,7 @@ public class KafkaConsumer {
     }
 
     public static void startedSyncing(NwdafEvent.NwdafEventEnum eventTopic) {
-        eventConsumerStartedReceiving.compute(eventTopic, (k, v) -> true);
+        eventConsumerIsSyncing.compute(eventTopic, (k, v) -> true);
     }
 
     public static void stopSyncing(NwdafEvent.NwdafEventEnum eventTopic) {
