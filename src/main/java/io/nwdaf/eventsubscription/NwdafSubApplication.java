@@ -46,7 +46,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -60,6 +59,9 @@ import static io.nwdaf.eventsubscription.utilities.ParserUtil.safeParseInteger;
 @EnableScheduling
 @EntityScan({"io.nwdaf.eventsubscription.repository"})
 public class NwdafSubApplication {
+
+    public static final UUID NWDAF_INSTANCE_ID = UUID.randomUUID();
+    public static NetworkAreaInfo ServingAreaOfInterest = Constants.ServingAreaOfInterest;
 
     private static final Logger log = LoggerFactory.getLogger(NwdafSubApplication.class);
     private final NotifyPublisher notifyPublisher;
@@ -111,6 +113,10 @@ public class NwdafSubApplication {
         this.redisRepository = redisRepository;
         this.default_port = env.getProperty("nnwdaf-eventsubscription.client.port");
         this.uri = env.getProperty("nnwdaf-eventsubscription.client.prod-url");
+
+        if (env.getProperty("nnwdaf-eventsubscription.integration.servingAreaOfInterest") != null) {
+            ServingAreaOfInterest = Constants.ExampleAOIsMap.get(env.getProperty(("nnwdaf-eventsubscription.integration.servingAreaOfInterest"), UUID.class));
+        }
     }
 
     public static void main(String[] args) {

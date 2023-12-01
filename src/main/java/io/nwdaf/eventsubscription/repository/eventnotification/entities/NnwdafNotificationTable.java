@@ -30,14 +30,25 @@ public class NnwdafNotificationTable implements Serializable {
     @JsonProperty("notif")
     private Map<String, Object> notif;
 
+    @JdbcTypeCode(SqlTypes.UUID)
+    @Column(name = "notif_ref", columnDefinition = "UUID")
+    @JsonProperty("notifRef")
+    private UUID notifRef;
+
     public OffsetDateTime getTime() {
         return Id.time;
     }
 
-    public NnwdafNotificationTable(Map<String, Object> body, OffsetDateTime timeStamp) {
+    public NnwdafNotificationTable(Map<String, Object> body, OffsetDateTime timeStamp, UUID id) {
         this.setTime(timeStamp);
-        this.setId(UUID.randomUUID());
+        this.setId(id);
         this.notif = body;
+    }
+
+    public NnwdafNotificationTable(UUID notificationReference, OffsetDateTime timeStamp,  UUID id) {
+        this.setTime(timeStamp);
+        this.setId(id);
+        this.setNotifRef(notificationReference);
     }
 
     public void setTime(OffsetDateTime time) {

@@ -6,20 +6,30 @@ name: dockprom
 services:
   db:
     container_name: sub_notif
-    image: timescalewithcron:latest
+    image: timescale/timescaledb:latest-pg16
+    deploy:
+      resources:
+        limits:
+          memory: 4096M
+        reservations:
+          memory: 1024M
     build: .
     restart: always
     environment:
       POSTGRES_USER: "${POSTGRES_USER}"
       POSTGRES_DB: "test"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      MAX_CONNECTIONS: 100
+      SHARED_BUFFERS: 2048MB
+      WORK_MEM: 19MB
+      TEMP_BUFFERS: 1MB
     ports:
       - "5432:5432"
     networks:
       - monitor-net
     volumes:
-      # - ../../../../../project-db-files/postgres-data:/var/lib/postgresql/data
-      - /media/thanlinardos/hdd2/project-db-files/postgres-data:/var/lib/postgresql/data
+      - ../../../../../project-db-files/postgres-data:/var/lib/postgresql/data
+#      - /media/thanlinardos/hdd2/project-db-files/postgres-data:/var/lib/postgresql/data
       - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
 #  gadmin:
@@ -36,11 +46,18 @@ services:
 #      - monitor-net
 #    volumes:
 #      # - ../../../../../project-db-files/pgadmin-data:/var/lib/pgadmin
+#      - ../../../../../project-db-files/pgadmin-data:/var/lib/pgadmin
 #      - /media/thanlinardos/hdd2/project-db-files/pgadmin-data:/var/lib/pgadmin
 
   timescaledb:
     container_name: metrics
-    image: timescalewithcron:latest
+    image: timescale/timescaledb:latest-pg16
+    deploy:
+      resources:
+        limits:
+          memory: 8192M
+        reservations:
+          memory: 2048M
     build: .
     restart: always
     ports:
@@ -49,12 +66,16 @@ services:
       POSTGRES_USER: "${POSTGRES_USER}"
       POSTGRES_DB: "metrics"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      MAX_CONNECTIONS: 100
+      SHARED_BUFFERS: 4096MB
+      WORK_MEM: 39MB
+      TEMP_BUFFERS: 1MB
     networks:
       - monitor-net
     command: postgres -c port=5433
     volumes:
-      # - ../../../../../project-db-files/timescaledb-data:/var/lib/postgresql/data
-      - /media/thanlinardos/hdd2/project-db-files/timescaledb-data:/var/lib/postgresql/data
+      - ../../../../../project-db-files/timescaledb-data:/var/lib/postgresql/data
+#      - /media/thanlinardos/hdd2/project-db-files/timescaledb-data:/var/lib/postgresql/data
       - ./timescaleSchema.sql:/docker-entrypoint-initdb.d/timescaleSchema.sql
   redis:
     container_name: redis

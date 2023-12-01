@@ -205,6 +205,7 @@ public class NotifyListener {
                 // match the id to the subscription
                 long lst = System.nanoTime();
 
+                boolean found = false;
                 long key = entry.getKey();
                 long id = decodeKeyI(key);
                 int eventIndex = decodeKeyJ(key);
@@ -244,8 +245,9 @@ public class NotifyListener {
                             repPeriod * 1_250L, Instant.now().toEpochMilli())) {
 
                         notification = foundNotification;
-                        notification.setSubscriptionId(sub.getId().toString());
+                        notification = notification.notificationReference(foundNotification.getId()).id(UUID.randomUUID()).subscriptionId(sub.getId().toString());
                         no_found_notifs++;
+                        found = true;
                     } else {
                         st = System.nanoTime();
                         notification = NotificationUtil.getNotification(sub, eventIndex, notification, metricsService,
@@ -277,7 +279,11 @@ public class NotifyListener {
 
                 // save the sent notification to a second database
                 st = System.nanoTime();
-                notificationService.create(notification);
+                if (found) {
+                    notificationService.asyncCreate(notification.getNotificationReference(), notification.getTimeStamp(), notification.getId());
+                } else {
+                    notificationService.asyncCreate(notification);
+                }
                 notif_save_delay += (double) (System.nanoTime() - st) / 1_000L;
                 // check if period has passed -> notify client (or if threshold has been
                 // reached)

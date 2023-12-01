@@ -1,15 +1,15 @@
 package io.nwdaf.eventsubscription.kafka;
 
+import java.io.EOFException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.nwdaf.eventsubscription.customModel.DiscoverMessage;
@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.orm.jpa.JpaSystemException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +40,7 @@ import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
 import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
+import org.springframework.transaction.TransactionSystemException;
 
 import static io.nwdaf.eventsubscription.utilities.Constants.supportedEvents;
 
@@ -70,6 +73,7 @@ public class KafkaConsumer {
 
     @Value("${nnwdaf-eventsubscription.log.consumer}")
     private Boolean logConsumer;
+    private Future<?> scheduledTask;
 
     public KafkaConsumer(MetricsCacheService metricsCacheService,
                          MetricsService metricsService,
@@ -112,6 +116,11 @@ public class KafkaConsumer {
         startedSyncing(eventTopic);
         try {
             consumeMetric(eventTopic, in, record.timestamp(), false);
+        } catch (JpaSystemException | TransactionSystemException | SQLException e) {
+            logger.warn("JpaSystemException for event:"+eventTopic+". Sync-Consumer going to sleep mode for 1 minute.");
+            stopListening(eventTopic);
+            scheduleStartListeningTask(60_000);
+            return "";
         } catch (IOException e) {
             logger.warn("data not matching " + eventTopic + " model: " + in);
             return "";
@@ -209,6 +218,11 @@ public class KafkaConsumer {
         } catch (IOException e) {
             logger.info("data not matching " + eventTopic + " model: " + in);
             return "";
+        } catch (JpaSystemException | TransactionSystemException | SQLException e) {
+            logger.warn("JpaSystemException for event:"+eventTopic+". Consumer going to sleep mode for 1 minute.");
+            stopListening(eventTopic);
+            scheduleStartListeningTask(60_000);
+            return "";
         } catch (Exception e) {
             logger.info("failed to save " + eventTopic + " info to timescaleDB");
             logger.error("", e);
@@ -293,6 +307,21 @@ public class KafkaConsumer {
             }
         }
     }
+
+    @Async
+    public void performAsyncStartListeningTask() {
+        startListening();
+    }
+
+    public void scheduleStartListeningTask(int delayMilliseconds) {
+        if(scheduledTask == null || scheduledTask.isDone()) {
+            try (ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor()) {
+                scheduledTask = executorService.schedule(this::performAsyncStartListeningTask, delayMilliseconds, TimeUnit.MILLISECONDS);
+                executorService.shutdown();
+            }
+        }
+    }
+
 
     public static void startedSaving(NwdafEvent.NwdafEventEnum eventTopic) {
         eventConsumerStartedSaving.compute(eventTopic, (k, v) -> true);

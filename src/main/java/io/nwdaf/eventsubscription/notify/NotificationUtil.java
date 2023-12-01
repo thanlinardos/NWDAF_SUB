@@ -38,6 +38,7 @@ import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
 
+import static io.nwdaf.eventsubscription.NwdafSubApplication.NWDAF_INSTANCE_ID;
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckListNotEmpty;
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckObjectsEquals;
 import static io.nwdaf.eventsubscription.utilities.ParserUtil.parseListToFilterList;
@@ -337,7 +338,9 @@ public class NotificationUtil {
                 }
 
                 // hit up data producers through kafka topic "WAKE_UP"
-                WakeUpMessage wakeUpMessage = WakeUpMessage.builder().requestedEvent(requestedEvent)
+                WakeUpMessage wakeUpMessage = WakeUpMessage.builder()
+                        .requestedEvent(requestedEvent)
+                        .nfInstancedId(NWDAF_INSTANCE_ID)
                         .requestedOffset(requestedOffset).build();
                 kafkaProducer.sendMessage(wakeUpMessage.toString(), "WAKE_UP");
 
@@ -359,10 +362,10 @@ public class NotificationUtil {
                         DiscoverMessage discoverMessage = DiscoverMessage.fromString(msg);
                         long diff = Instant.now().getNano() - discoverMessage.getTimestamp().getNano();
                         boolean tooOldMsg = diff > 500_000_000L && diff > discoverMessage.getAvailableOffset() * 1_000_000_000L;
-                        if(!tooOldMsg) {
+                        if (!tooOldMsg) {
                             discoverMessages.add(discoverMessage);
-                            if(discoverMessage.getRequestedEvent()!=null) {
-                                KafkaConsumer.latestDiscoverMessageEventMap.put(discoverMessage.getRequestedEvent(),discoverMessage);
+                            if (discoverMessage.getRequestedEvent() != null) {
+                                KafkaConsumer.latestDiscoverMessageEventMap.put(discoverMessage.getRequestedEvent(), discoverMessage);
                             }
                         }
                         hasData = discoverMessage.getHasData() && (!tooOldMsg);
@@ -406,7 +409,7 @@ public class NotificationUtil {
                         Thread.sleep(0, 1_000);
                     }
                 }
-                System.out.println("consumer_save_wait_time= "+ (System.nanoTime() - start) / 1_000_000L + "ms");
+                System.out.println("consumer_save_wait_time= " + (System.nanoTime() - start) / 1_000_000L + "ms");
                 return new Integer[]{isDataAvailable, expectedWaitTime};
             default:
                 break;

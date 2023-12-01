@@ -139,13 +139,38 @@ changed to redis stack
 fixed hasData with discover topic
 made custom mappers for nfload & uemobs
 tried to optimize notifylistener with map of eventsub,notifs
+---8/11/23-----
+fixed ue_mobility
+add truncate for notify
+cleaned up perf logs & conditional props
+automated certs
+---9/11/23-----
+install script
+updated to 3.1.5
+fix certs & split compose files
+---12/11/23----
+repo for UeMobs,added supi and groupid to schema & querry
+fix remote debugger, foundNotification & formatting
+---14/11/23----
+java 21 , ue comm and fixes
+ue comm table & repo, ue mob filters
+---28/11/23----
+add cron jobs,compressed tables,views to timescaleSchema
+ue comm topic, notify optimizations, notif test db is now timescale, cleanup, fix notification table and service, more logging
+kafka consumer optimization and syncing, bug fixes
+admin panel with control signals, fixes, tried virtual threads
+Create LICENSE
+----2/12/23----
+timescale pg16 (configs inside schemas)
+notification save optimization (found -> notif_ref instead of body)
+NWDAF has its own nfInstanceId and areaOfInterestId
 
 TODO:
 
 -expand filter for other nfload cases (setId,nfType,AOI...) DONE
 -create job for pushing test data to timescaledb	DONE
 -add optionals to nf load DONE
--add db to client and showallsubs (+ choose a sub to update  or show latest notif)
+-add redis to client and showallsubs (+ choose a sub to update  or show latest notif)
 -add past offset to notify DONE
 -show metrics from each event notif object to client in a list	DONE
 -implement thresholds & immediate reporting DONE
@@ -154,10 +179,10 @@ TODO:
 -add kafka broker inbetween to talk to timescaledbs through subscriptions DONE
 -implement controller responses properly
 -implement the rest of the event types
--add master client to view all subs	& admin to control for eventlisteners (notifiers & data collectors/generators)
--add event listener that groups data with turncating in 60min timewindows with 1min averages and stores them permanently
--graph grouped data with graphana
--look at using redis to replace timescaledb until allocated memory cache fills up DONE
+-add master client to view all subs	& admin to control for eventlisteners (notifiers & data collectors/generators)  IN PROGRESS
+-add event listener that groups data with turncating in 60min timewindows with 1min averages and stores them permanently DONE
+-graph grouped data with graphana IN PROGRESS
+-look at using redis to replace timescaledb until allocated memory cache fills up IN PROGRESS
 -look at paging & buffers for large amounts of subs & metrics
 -scale with kubernetes
 -setup open5GS & expose metrics from various NFs (like AMF)

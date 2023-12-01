@@ -194,5 +194,10 @@
       "name": "spring.thread-executor",
       "type": "java.lang.String",
       "description": "Description for spring.thread-executor."
+    },
+    {
+      "name": "nnwdaf-eventsubscription.integration.servingAreaOfInterestId",
+      "type": "java.util.UUID",
+      "description": "Description for nnwdaf-eventsubscription.integration.servingAreaOfInterestId."
     }
   ]}
