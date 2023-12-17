@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin</title>
+</head>
+<body>
+<table class="table table-bordered">
+    <tbody>
+    <tr>
+        <th>Serving Area Of Interest ID</th>
+        <td th:text="${areaOfInterest.id}"></td>
+    </tr>
+    <tr>
+        <th>ECGIs</th>
+        <td>
+            <ul th:each="ecgi : ${areaOfInterest.ecgis}">
+                <li>
+                    <strong>PLMN ID:</strong> MCC: <span th:text="${ecgi.getPlmnId().mcc}"></span>,
+                    MNC: <span th:text="${ecgi.getPlmnId().mnc}"></span><br>
+                    <strong>NID:</strong> <span th:text="${ecgi.nid}"></span><br>
+                    <div th:if="${ecgi.getEutraCellId()!=null}"><strong>EUTRA Cell ID:</strong> <span
+                            th:text="${ecgi.eutraCellId}"></span><br></div>
+                </li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <th>NCGIS</th>
+        <td>
+            <ul th:each="ncgi : ${areaOfInterest.getNcgis()}">
+                <li>
+                    <strong>PLMN ID:</strong> MCC: <span th:text="${ncgi.getPlmnId().mcc}"></span>,
+                    MNC: <span th:text="${ncgi.getPlmnId().mnc}"></span><br>
+                    <strong>NID:</strong> <span th:text="${ncgi.nid}"></span><br>
+                    <div th:if="${ncgi.getNrCellId()!=null}"><strong>nrCellId:</strong> <span
+                            th:text="${ncgi.nrCellId}"></span><br></div>
+                </li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <th>GRanNodeIds</th>
+        <td>
+            <ul th:each="gRanNodeId : ${areaOfInterest.getGRanNodeIds()}">
+                <li>
+                    <strong>PLMN ID:</strong> MCC: <span th:text="${gRanNodeId.getPlmnId().mcc}"></span>,
+                    MNC: <span th:text="${gRanNodeId.getPlmnId().mnc}"></span><br>
+                    <strong>NID:</strong> <span th:text="${gRanNodeId.nid}"></span><br>
+                    <div th:if="${gRanNodeId.getN3IwfId()!=null}"><strong>n3IwfId:</strong> <span
+                            th:text="${gRanNodeId.n3IwfId}"></span><br></div>
+                    <div th:if="${gRanNodeId.getGNbId()!=null}"><strong>gNbId:</strong> <span
+                            th:text="${gRanNodeId.gNbId}"></span><br></div>
+                    <div th:if="${gRanNodeId.getNgeNbId()!=null}"><strong>ngeNbId:</strong> <span
+                            th:text="${gRanNodeId.ngeNbId}"></span><br></div>
+                    <div th:if="${gRanNodeId.getWagfId()!=null}"><strong>wagfId:</strong> <span
+                            th:text="${gRanNodeId.wagfId}"></span><br></div>
+                    <div th:if="${gRanNodeId.getTngfId()!=null}"><strong>tngfId:</strong> <span
+                            th:text="${gRanNodeId.tngfId}"></span><br></div>
+                    <div th:if="${gRanNodeId.getENbId()!=null}"><strong>eNbId:</strong> <span
+                            th:text="${gRanNodeId.eNbId}"></span><br></div>
+                </li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <th>Tracking Area Identities</th>
+        <td>
+            <ul th:each="tai : ${areaOfInterest.getTais()}">
+                <li>
+                    <strong>PLMN ID:</strong> MCC: <span th:text="${tai.getPlmnId().mcc}"></span>,
+                    MNC: <span th:text="${tai.getPlmnId().mnc}"></span><br>
+                    <strong>NID:</strong> <span th:text="${tai.nid}"></span><br>
+                    <div th:if="${tai.getTac()!=null}"><strong>tracking area code(tac):</strong> <span
+                            th:text="${tai.tac}"></span><br></div>
+                </li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <th>List of contained AOI ids</th>
+        <td>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>UUID</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="value : ${areaOfInterest.getContainedAreaIds()}">
+                    <td th:text="${value}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

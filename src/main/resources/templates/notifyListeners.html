@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin</title>
+    <style>
+        .text-end {
+            text-align: end;
+        }
+
+        .ms-text {
+            font-style: italic;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+<br>
+<div class="container">
+    <h3 class="display-6">Notify Listeners</h3>
+    <hr>
+    <br>
+    <div class="row mt-3">
+        <div class="col">
+            Number of active notify listeners:
+            <span id="noNotifyListeners" class="text-dark" th:text="${noNotifyListeners}"></span>
+            <button class="btn btn-sm btn-primary " hx-get="/admin/toggleNotifyListener" hx-target="#noNotifyListeners">
+                Toggle
+            </button>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            Number of served subscriptions:
+            <span id="no_served_subs" class="text-dark" th:text="${no_served_subs}"></span>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            Average program delay in milliseconds:
+            <span id="avg_program_delay" class="text-dark" th:text="${avg_program_delay / counter}"></span>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            Average io delay in milliseconds:
+            <span id="avg_io_delay" class="text-dark" th:text="${avg_io_delay / counter}"></span>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            Average total delay in milliseconds:
+            <span id="avg_total_delay" class="text-dark" th:text="${(avg_io_delay+avg_program_delay) / counter}"></span>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            Total sent MBs:
+            <span id="total_sent_megabytes" class="text-dark" th:text="${total_sent_kilobytes / 1024}"></span>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            Average throughput(Mbps):
+            <span id="avg_throughput" class="text-dark" th:text="${avg_throughput / 128}"></span>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <table class="table table-bordered mt-3">
+            <thead>
+            <tr>
+                <th>Description</th>
+                <th>Value</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>TSDB delay</td>
+                <td><span class="text-dark" th:text="${tsdb_req_delay}"></span>
+                    <span class="ms-text text-end">(ms)</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Client delay</td>
+                <td><span class="text-dark" th:text="${client_delay}"></span>
+                    <span class="ms-text text-end">(ms)</span>
+                </td>
+            </tr>
+            <tr>
+                <td>NotificationDB Save delay</td>
+                <td><span class="text-dark" th:text="${notif_save_delay}"></span>
+                    <span class="ms-text text-end">(ms)</span>
+                </td>
+            </tr>
+            <tr>
+                <td>SubscriptionDB FindAll delay</td>
+                <td><span class="text-dark" th:text="${sub_findall_delay}"></span>
+                    <span class="ms-text text-end">(ms)</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Total cycle delay</td>
+                <td><span class="text-dark" th:text="${total_cycle_delay}"></span>
+                    <span class="ms-text text-end">(ms)</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Number of sent notifications</td>
+                <td><span class="text-dark" th:text="${no_sent_notifs}"></span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

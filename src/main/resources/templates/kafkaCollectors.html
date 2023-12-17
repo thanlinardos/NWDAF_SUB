@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin</title>
+</head>
+<body>
+<div class="container">
+    <h3 class="display-6">Kafka Collectors</h3>
+    <hr>
+    <br>
+    <div class="row mt-3">
+        <div class="col">
+            <h3>Set of Event Collector Ids</h3>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>UUID</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="value : ${eventCollectorIdSet}">
+                    <td th:text="${value}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

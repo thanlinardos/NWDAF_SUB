@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin</title>
+</head>
+<body>
+<div class="container">
+    <h3 class="display-6">Kafka Consumers</h3>
+    <hr>
+    <br>
+    <div class="row mt-3 fs-3">
+        <div class="col">
+            Is kafka consumer listening:
+            <span id="isListening" class="text-dark" th:text="${isListening}"></span>
+            <button class="btn btn-sm btn-primary " hx-get="/admin/toggleKafkaConsumer" hx-target="#isListening">
+                Toggle
+            </button>
+        </div>
+    </div>
+    <br>
+    <div class="row mt-3">
+        <div class="col">
+            <h3>Map of started receiving events</h3>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${eventConsumerStartedReceiving}">
+                    <td th:text="${entry.key}"></td>
+                    <td th:text="${entry.value}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            <h3>Map of counters to events</h3>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${eventConsumerCounters}">
+                    <td th:text="${entry.key}"></td>
+                    <td th:text="${entry.value}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            <h3>Map of consume rates per second to events</h3>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${eventConsumerRates}">
+                    <td th:text="${entry.key}"></td>
+                    <td th:text="${entry.value}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            <h3>Map of isSyncing to events</h3>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${eventConsumerIsSyncing}">
+                    <td th:text="${entry.key}"></td>
+                    <td th:text="${entry.value}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            <h3>Map of latest wake-up messages to events</h3>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Requested Event</th>
+                    <th>Requested Offset</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${latestWakeUpMessageEventMap}">
+                    <td th:text="${entry.value.timestamp}"></td>
+                    <td th:text="${entry.value.requestedEvent}"></td>
+                    <td th:text="${entry.value.requestedOffset}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            <h3>Map of latest discover messages to events</h3>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Requested Event</th>
+                    <th>Requested Offset</th>
+                    <th>Has Data</th>
+                    <th>Available Offset</th>
+                    <th>Expected Wait Time</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${latestDiscoverMessageEventMap}">
+                    <td th:text="${entry.value.timestamp}"></td>
+                    <td th:text="${entry.value.requestedEvent}"></td>
+                    <td th:text="${entry.value.requestedOffset}"></td>
+                    <td th:text="${entry.value.hasData}"></td>
+                    <td th:text="${entry.value.availableOffset}"></td>
+                    <td th:text="${entry.value.expectedWaitTime}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

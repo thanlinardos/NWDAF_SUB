@@ -367,6 +367,9 @@ public class NotificationUtil {
                             if (discoverMessage.getRequestedEvent() != null) {
                                 KafkaConsumer.latestDiscoverMessageEventMap.put(discoverMessage.getRequestedEvent(), discoverMessage);
                             }
+                            if(discoverMessage.getCollectorInstanceId()!=null) {
+                                KafkaConsumer.eventCollectorIdSet.add(discoverMessage.getCollectorInstanceId());
+                            }
                         }
                         hasData = discoverMessage.getHasData() && (!tooOldMsg);
                         responded = true;

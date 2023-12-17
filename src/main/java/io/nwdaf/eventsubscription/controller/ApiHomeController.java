@@ -1,7 +1,6 @@
 package io.nwdaf.eventsubscription.controller;
 
-import io.nwdaf.eventsubscription.customModel.DiscoverMessage;
-import io.nwdaf.eventsubscription.customModel.WakeUpMessage;
+import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.kafka.KafkaConsumer;
 import io.nwdaf.eventsubscription.model.NwdafEvent;
 import io.nwdaf.eventsubscription.notify.NotifyListener;
@@ -43,25 +42,16 @@ public class ApiHomeController {
     }
 
     @GetMapping(value = "/admin")
-    public String getAdminView() {
+    public String getAdminView(ModelMap model) {
+        model.addAttribute("NWDAF_INSTANCE_ID", NwdafSubApplication.NWDAF_INSTANCE_ID);
+        model.addAttribute("ServingAreaOfInterest", NwdafSubApplication.ServingAreaOfInterest);
         return "admin";
     }
 
-    @GetMapping(value = "/admin/signals")
-    public String getSignals(ModelMap model) {
+    @GetMapping(value = "/admin/notifyListeners")
+    public String getNotifyListeners(ModelMap model) {
 
         model.addAttribute("noNotifyListeners", NotifyListener.getNo_notifEventListeners());
-        model.addAttribute("eventConsumerStartedReceiving", KafkaConsumer.eventConsumerStartedReceiving);
-        model.addAttribute("eventConsumerCounters", KafkaConsumer.eventConsumerCounters);
-        long interval = KafkaConsumer.startTime != null ? Duration.between(KafkaConsumer.startTime, OffsetDateTime.now()).toSeconds() : 1L;
-        Constants.supportedEvents.forEach(e -> {
-            eventConsumerRates.compute(e, (k, v) -> decimalFormat.format((double) KafkaConsumer.eventConsumerCounters.get(e) / (double) interval));
-        });
-        model.addAttribute("eventConsumerRates", eventConsumerRates);
-        model.addAttribute("eventConsumerIsSyncing", KafkaConsumer.eventConsumerIsSyncing);
-        model.addAttribute("latestWakeUpMessageEventMap", KafkaConsumer.latestWakeUpMessageEventMap);
-        model.addAttribute("latestDiscoverMessageEventMap", KafkaConsumer.latestDiscoverMessageEventMap);
-
         model.addAttribute("no_served_subs", NotifyListener.getNo_served_subs());
         model.addAttribute("subIndexes", NotifyListener.getSubIndexes());
         model.addAttribute("client_delay", decimalFormat.format(NotifyListener.getClient_delay() / 1000.0));
@@ -84,12 +74,38 @@ public class ApiHomeController {
         seconds = System.currentTimeMillis() / 1000L;
         prev_no_kb = NotifyListener.getNo_sent_kilobytes();
 
-        return "signals";
+        return "notifyListeners";
+    }
+
+    @GetMapping(value = "/admin/kafkaConsumers")
+    public String getKafkaConsumers(ModelMap model) {
+
+        model.addAttribute("eventConsumerStartedReceiving", KafkaConsumer.eventConsumerStartedReceiving);
+        model.addAttribute("eventConsumerCounters", KafkaConsumer.eventConsumerCounters);
+        long interval = KafkaConsumer.startTime != null ? Duration.between(KafkaConsumer.startTime, OffsetDateTime.now()).toSeconds() : 1L;
+        Constants.supportedEvents.forEach(e -> {
+            eventConsumerRates.compute(e, (k, v) -> decimalFormat.format((double) KafkaConsumer.eventConsumerCounters.get(e) / (double) interval));
+        });
+        model.addAttribute("eventConsumerRates", eventConsumerRates);
+        model.addAttribute("eventConsumerIsSyncing", KafkaConsumer.eventConsumerIsSyncing);
+        model.addAttribute("latestWakeUpMessageEventMap", KafkaConsumer.latestWakeUpMessageEventMap);
+        model.addAttribute("latestDiscoverMessageEventMap", KafkaConsumer.latestDiscoverMessageEventMap);
+        model.addAttribute("isListening", KafkaConsumer.isListening.get());
+
+        return "kafkaConsumers";
+    }
+
+    @GetMapping(value = "/admin/kafkaCollectors")
+    public String getKafkaCollectors(ModelMap model) {
+
+        model.addAttribute("eventCollectorIdSet", KafkaConsumer.eventCollectorIdSet);
+
+        return "kafkaCollectors";
     }
 
     @GetMapping("/admin/toggleNotifyListener")
     @ResponseBody
-    public ResponseEntity<Integer> updateVariable() {
+    public ResponseEntity<Integer> toggleNotifyListener() {
 
         if(NotifyListener.getNo_notifEventListeners()>0) {
             NotifyListener.stop();
@@ -103,5 +119,24 @@ public class ApiHomeController {
     @GetMapping("/admin/getNoNotifyListeners")
     public Integer getNoNotifyListeners() {
         return NotifyListener.getNo_notifEventListeners();
+    }
+
+    @GetMapping("/admin/toggleKafkaConsumer")
+    @ResponseBody
+    public ResponseEntity<Boolean> toggleKafkaConsumer() {
+
+        if(KafkaConsumer.isListening.get()) {
+            KafkaConsumer.stopListening();
+        } else {
+            KafkaConsumer.startListening();
+        }
+
+        return ResponseEntity.ok(KafkaConsumer.isListening.get());
+    }
+
+    @GetMapping(value = "/admin/fragments/areaOfInterestTable")
+    public String getAreaOfInterestTable(ModelMap map) {
+        map.addAttribute("areaOfInterest", NwdafSubApplication.ServingAreaOfInterest);
+        return "fragments/areaOfInterestTable";
     }
 }
