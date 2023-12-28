@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
 
+import io.nwdaf.eventsubscription.config.WebClientConfig;
 import io.nwdaf.eventsubscription.model.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -27,6 +30,8 @@ import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.*;
 
 import org.springframework.core.io.Resource;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
 
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckEqualsEvent;
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckEventNotificationWithinMilli;
@@ -46,6 +51,7 @@ public class NotifyListener {
     private final NotificationService notificationService;
     private final MetricsService metricsService;
     RestTemplate restTemplate;
+    WebClient webClient;
     private final MetricsCacheService metricsCacheService;
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.###");
     @Getter
@@ -177,9 +183,17 @@ public class NotifyListener {
         total_sent_kilobytes = 0;
         counter = 0;
         total_sent_notifs = 0;
-        RestTemplateFactoryConfig.setTrustStore(trustStore);
-        RestTemplateFactoryConfig.setTrustStorePassword(trustStorePassword);
-        restTemplate = new RestTemplate(Objects.requireNonNull(RestTemplateFactoryConfig.createRestTemplateFactory()));
+        WebClientConfig.setTrustStore(trustStore);
+        WebClientConfig.setTrustStorePassword(trustStorePassword);
+        webClient = WebClient
+                .builder()
+                .exchangeStrategies(WebClientConfig.createExchangeStrategies(5 * 1024 * 1024))  //5MB
+                .clientConnector(Objects.requireNonNull(WebClientConfig.createWebClientFactory()))
+                .build();
+//        RestTemplateFactoryConfig.setTrustStore(trustStore);
+//        RestTemplateFactoryConfig.setTrustStorePassword(trustStorePassword);
+//        restTemplate = new RestTemplate(Objects.requireNonNull(RestTemplateFactoryConfig.createRestTemplateFactory()));
+
         no_found_notifs = 0;
         avg_io_delay = 0;
         avg_program_delay = 0;
@@ -295,7 +309,9 @@ public class NotifyListener {
 
                     st = System.nanoTime();
                     HttpEntity<NnwdafEventsSubscriptionNotification> client_request = new HttpEntity<>(notification);
-                    notificationService.sendToClient(restTemplate, sub, client_request);
+//                    notificationService.sendToClient(restTemplate, sub, client_request);
+                    notificationService.sendToClientWebClient(webClient, sub, client_request);
+
                     client_delay += (double) (System.nanoTime() - st) / 1_000L;
 
                     st = System.nanoTime();

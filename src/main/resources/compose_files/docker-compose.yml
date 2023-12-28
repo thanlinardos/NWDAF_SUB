@@ -20,28 +20,28 @@ services:
       nnwdaf-eventsubscription.prometheus_url: http://${prom_host}:${prom_port}/api/v1/query
       nnwdaf-eventsubscription.allow_dummy_data: true
       nnwdaf-eventsubscription.allow_prom_data: false
-      nnwdaf-eventsubscription.no_dummy_nfload: 10
-      nnwdaf-eventsubscription.no_dummy_uemob: 10
-      nnwdaf-eventsubscription.no_dummy_uecomm: 10
-  nwdafSubCollector2:
-    container_name: nwdafSubCollector2
-    image: thanlinardos/nwdaf_sub_collector:0.0.1-SNAPSHOT
-    # restart: always
-    ports:
-      - "${collector_port2}:${collector_port2}"
-      - "5012:5012"
-    networks:
-      - monitor-net
-    environment:
-      spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
-      spring.kafka.consumer.group-id: events
-      logging.level.org.apache.kafka: false
-      nnwdaf-eventsubscription.prometheus_url: http://${prom_host}:${prom_port}/api/v1/query
-      nnwdaf-eventsubscription.allow_dummy_data: true
-      nnwdaf-eventsubscription.allow_prom_data: false
-      nnwdaf-eventsubscription.no_dummy_nfload: 10
-      nnwdaf-eventsubscription.no_dummy_uemob: 10
-      nnwdaf-eventsubscription.no_dummy_uecomm: 10
+      nnwdaf-eventsubscription.no_dummy_nfload: 100
+      nnwdaf-eventsubscription.no_dummy_uemob: 100
+      nnwdaf-eventsubscription.no_dummy_uecomm: 100
+#  nwdafSubCollector2:
+#    container_name: nwdafSubCollector2
+#    image: thanlinardos/nwdaf_sub_collector:0.0.1-SNAPSHOT
+#    # restart: always
+#    ports:
+#      - "${collector_port2}:${collector_port2}"
+#      - "5012:5012"
+#    networks:
+#      - monitor-net
+#    environment:
+#      spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
+#      spring.kafka.consumer.group-id: events
+#      logging.level.org.apache.kafka: false
+#      nnwdaf-eventsubscription.prometheus_url: http://${prom_host}:${prom_port}/api/v1/query
+#      nnwdaf-eventsubscription.allow_dummy_data: true
+#      nnwdaf-eventsubscription.allow_prom_data: false
+#      nnwdaf-eventsubscription.no_dummy_nfload: 10
+#      nnwdaf-eventsubscription.no_dummy_uemob: 10
+#      nnwdaf-eventsubscription.no_dummy_uecomm: 10
   nwdafSub:
     container_name: nwdafSub
     image: thanlinardos/nwdaf_sub:0.0.2-SNAPSHOT
@@ -80,6 +80,7 @@ services:
       management.endpoint.health.show-details: always
       # logging.level.org.hibernate.SQL: DEBUG
       # logging.level.org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+      spring.task.scheduling.pool.size: 16
       spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
       spring.kafka.consumer.group-id: events
       logging.level.org.apache.kafka: false

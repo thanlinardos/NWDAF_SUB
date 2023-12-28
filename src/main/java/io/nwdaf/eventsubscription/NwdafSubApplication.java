@@ -176,7 +176,7 @@ public class NwdafSubApplication {
     public CommandLineRunner start() {
         return args -> {
 
-//            saveSubscriptions();
+            saveSubscriptions();
 
             for (NwdafEventEnum e : Constants.supportedEvents) {
                 wakeUpDataProducer("kafka",

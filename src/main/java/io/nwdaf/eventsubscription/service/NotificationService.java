@@ -8,19 +8,27 @@ import io.nwdaf.eventsubscription.notify.NotifyListener;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.repository.eventnotification.NotificationRepository;
 import io.nwdaf.eventsubscription.repository.eventnotification.entities.NnwdafNotificationTable;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -91,7 +99,7 @@ public class NotificationService {
         return safeSaveAll(bodyTables);
     }
 
-    private List<UUID> safeSaveAll(List<NnwdafNotificationTable> bodyTables) {
+    public List<UUID> safeSaveAll(List<NnwdafNotificationTable> bodyTables) {
         try {
             List<NnwdafNotificationTable> results = repository.saveAll(bodyTables);
             return results.stream().map(NnwdafNotificationTable::getId).toList();
@@ -99,24 +107,24 @@ public class NotificationService {
             logger.warn("JpaSystemException for notification service. Going to sleep mode for 1 minute.");
             NotifyListener.stop();
             scheduleStartNotifyingTask(60_000);
+        } catch (InvalidDataAccessApiUsageException e) {
+            logger.warn("InvalidDataAccessApiUsageException for notification service.", e);
         }
         return null;
     }
 
-    @Async
     public void asyncCreate(NnwdafEventsSubscriptionNotification body) {
         NnwdafNotificationTable bodyTable = new NnwdafNotificationTable(
                 objectMapper.<Map<String, Object>>convertValue(body, new TypeReference<>() {
                 }),
                 body.getTimeStamp(),
                 body.getId());
-        safeVoidSaveSingle(bodyTable);
+        ScheduledTasksService.notificationMessageQueue.offer(bodyTable);
     }
 
-    @Async
     public void asyncCreate(UUID notificationReference, OffsetDateTime timeStamp, UUID id) {
         NnwdafNotificationTable bodyTable = new NnwdafNotificationTable(notificationReference, timeStamp, id);
-        safeVoidSaveSingle(bodyTable);
+        ScheduledTasksService.notificationMessageQueue.offer(bodyTable);
     }
 
     private void safeVoidSaveSingle(NnwdafNotificationTable bodyTable) {
@@ -166,17 +174,29 @@ public class NotificationService {
         }
     }
 
-    @Async
-    public void saveAndSendToClient(RestTemplate restTemplate, NnwdafEventsSubscription sub, NnwdafEventsSubscriptionNotification notification) {
-        try {
-            ResponseEntity<NnwdafEventsSubscriptionNotification> client_response = restTemplate.postForEntity(sub.getNotificationURI() + "/notify",
-                    new HttpEntity<>(notification), NnwdafEventsSubscriptionNotification.class);
-            if (!client_response.getStatusCode().is2xxSuccessful()) {
-                logger.warn("Client missed a notification for subscription with id: "
-                        + sub.getId());
+    public void sendToClientWebClient(WebClient webClient, NnwdafEventsSubscription sub, HttpEntity<NnwdafEventsSubscriptionNotification> client_request) {
+        Flux<NnwdafEventsSubscriptionNotification> notificationFlux = webClient
+                .post()
+                .uri(sub.getNotificationURI() + "/notify")
+                .bodyValue(Objects.requireNonNull(client_request.getBody()))
+                .retrieve()
+                .onStatus(
+                        status -> !status.is2xxSuccessful(),
+                        response -> {
+                            logger.warn("Client missed a notification with id: " + client_request.getBody().getId() + " for subscription with id: "
+                                    + sub.getId());
+                            return Mono.empty();
+                        }
+                )
+                .bodyToFlux(NnwdafEventsSubscriptionNotification.class);
+        notificationFlux.subscribe(response -> {
+        }, error -> {
+            if (error instanceof WebClientResponseException responseException) {
+                HttpStatusCode statusCode = responseException.getStatusCode();
+                logger.error("Error notifying client " + sub.getNotificationURI() + " with status code " + statusCode, error);
+            } else {
+                logger.error("Unexpected error notifying client " + sub.getNotificationURI(), error);
             }
-        } catch (RestClientException e) {
-            logger.error("Error connecting to client " + sub.getNotificationURI(), e);
-        }
+        });
     }
 }
