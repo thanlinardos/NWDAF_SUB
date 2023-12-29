@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -16,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+@Setter
 @Getter
 @Entity
 @Table(name="nnwdaf_events_subscription")
@@ -31,11 +33,4 @@ public class NnwdafEventsSubscriptionTable implements Serializable{
 	@JsonProperty("sub")
 	private Map<String, Object> sub;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public void setSub(Map<String, Object> sub) {
-		this.sub = sub;
-	}
 }

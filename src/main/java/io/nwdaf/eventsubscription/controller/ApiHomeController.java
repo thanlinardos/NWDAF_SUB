@@ -22,10 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Controller
 public class ApiHomeController {
 
-    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, String> eventConsumerRates = new ConcurrentHashMap<NwdafEvent.NwdafEventEnum, String>() {{
-        Constants.supportedEvents.forEach(e -> {
-            put(e, "0.0");
-        });
+    public static final ConcurrentHashMap<NwdafEvent.NwdafEventEnum, String> eventConsumerRates = new ConcurrentHashMap<>() {{
+        Constants.supportedEvents.forEach(e -> put(e, "0.0"));
     }};
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.###");
     private final NotifyPublisher notifyPublisher;
@@ -83,9 +81,7 @@ public class ApiHomeController {
         model.addAttribute("eventConsumerStartedReceiving", KafkaConsumer.eventConsumerStartedReceiving);
         model.addAttribute("eventConsumerCounters", KafkaConsumer.eventConsumerCounters);
         long interval = KafkaConsumer.startTime != null ? Duration.between(KafkaConsumer.startTime, OffsetDateTime.now()).toSeconds() : 1L;
-        Constants.supportedEvents.forEach(e -> {
-            eventConsumerRates.compute(e, (k, v) -> decimalFormat.format((double) KafkaConsumer.eventConsumerCounters.get(e) / (double) interval));
-        });
+        Constants.supportedEvents.forEach(e -> eventConsumerRates.compute(e, (k, v) -> decimalFormat.format((double) KafkaConsumer.eventConsumerCounters.get(e) / (double) interval)));
         model.addAttribute("eventConsumerRates", eventConsumerRates);
         model.addAttribute("eventConsumerIsSyncing", KafkaConsumer.eventConsumerIsSyncing);
         model.addAttribute("latestWakeUpMessageEventMap", KafkaConsumer.latestWakeUpMessageEventMap);

@@ -80,7 +80,6 @@ public class DataCollectionListener {
                                 } catch (Exception e) {
                                     logger.error("Failed to save nfloadlevelinfo to timescaledb", e);
                                     stop();
-                                    continue;
                                 }
                             }
                         }

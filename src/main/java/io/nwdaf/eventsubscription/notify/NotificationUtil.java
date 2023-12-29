@@ -482,7 +482,7 @@ public class NotificationUtil {
 
     // negotiate the supported features with the client
     public static List<Integer> negotiateSupportedFeatures(NnwdafEventsSubscription body) {
-        List<Integer> negotiatedFeaturesList = new ArrayList<>();
+        List<Integer> negotiatedFeaturesList;
         if (body.getSupportedFeatures() != null && !body.getSupportedFeatures().isEmpty()) {
             if (!Constants.supportedFeatures.equals(body.getSupportedFeatures()) &&
                     CheckUtil.listInside(Constants.supportedFeaturesList,
@@ -532,7 +532,7 @@ public class NotificationUtil {
     public static GetNotifMethodAndRepPeriodsResponse getNotifMethodAndRepPeriods(
             List<EventSubscription> eventSubscriptions, NotificationMethodEnum notificationMethod,
             Integer repetionPeriod) {
-        int no_valid_events = 0;
+        int no_valid_events;
         List<Integer> invalid_events = new ArrayList<>();
         Map<Integer, NotificationMethodEnum> eventIndexToNotifMethodMap = new HashMap<>();
         Map<Integer, Integer> eventIndexToRepPeriodMap = new HashMap<>();
@@ -593,8 +593,8 @@ public class NotificationUtil {
             if (eventIndexToRepPeriodMap.get(i) != null) {
                 periodic = eventIndexToNotifMethodMap.get(i).equals(NotificationMethodEnum.PERIODIC);
             }
-            boolean failed_notif = false;
-            NwdafFailureCodeEnum failCode = null;
+            boolean failed_notif;
+            NwdafFailureCodeEnum failCode;
             // check if eventType is supported
             if (!Constants.supportedEvents.contains(eType)) {
                 body.addFailEventReportsItem(new FailureEventInfo()

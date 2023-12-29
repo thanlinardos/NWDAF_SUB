@@ -17,8 +17,7 @@ import jakarta.transaction.Transactional;
 @EntityScan("io.nwdaf.eventsubscription.repository.eventsubscription")
 public interface SubscriptionRepository extends JpaRepository<NnwdafEventsSubscriptionTable, Long>{
 	
-	static final String FILTER_FOR_JSONB_COLUMN =
-	            "select id, sub from nnwdaf_events_subscription where sub @> ";
+	String FILTER_FOR_JSONB_COLUMN = "select id, sub from nnwdaf_events_subscription where sub @> ";
 	
 	List<NnwdafEventsSubscriptionTable> findAll();
 	

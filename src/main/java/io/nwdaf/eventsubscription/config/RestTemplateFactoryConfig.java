@@ -8,6 +8,7 @@ import java.security.cert.CertificateException;
 
 import javax.net.ssl.SSLContext;
 
+import io.nwdaf.eventsubscription.NwdafSubApplication;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
@@ -52,7 +53,7 @@ public class RestTemplateFactoryConfig {
             return new HttpComponentsClientHttpRequestFactory(httpClient);
 		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | CertificateException
 				| IOException e) {
-			e.printStackTrace();
+			NwdafSubApplication.getLogger().error("Error creating rest template factory", e);
 		}
         return null;
 	}

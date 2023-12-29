@@ -248,7 +248,7 @@ public class NwdafSubApplication {
             System.out.println(bodyTable.getData());
             NfLoadLevelInformationHash nfLoadLevelInformationCached = new NfLoadLevelInformationHash();
             nfLoadLevelInformationCached.setData(nfLoadLevelInformation);
-            System.out.println("before:" + nfLoadLevelInformationCached.toString());
+            System.out.println("before:" + nfLoadLevelInformationCached);
             redisRepository.save(nfLoadLevelInformationCached);
 
             NfLoadLevelInformationHash result = redisRepository
@@ -260,7 +260,7 @@ public class NwdafSubApplication {
             NnwdafEventsSubscription sub = objectMapper.reader().readValue(test, NnwdafEventsSubscription.class);
             sub.setId(1L);
             nnwdafEventsSubscriptionCached.setSub(sub);
-            System.out.println("before:" + nnwdafEventsSubscriptionCached.toString());
+            System.out.println("before:" + nnwdafEventsSubscriptionCached);
             redisSubscriptionRepository.save(nnwdafEventsSubscriptionCached);
 
             NnwdafEventsSubscriptionCached subRes = redisSubscriptionRepository
@@ -272,7 +272,7 @@ public class NwdafSubApplication {
             NnwdafEventsSubscriptionNotification notification = objectMapper.reader().readValue(notifTest,
                     NnwdafEventsSubscriptionNotification.class);
             notificationCached.setNotification(notification);
-            System.out.println("before:" + notificationCached.toString());
+            System.out.println("before:" + notificationCached);
             redisNotificationRepository.save(notificationCached);
 
             NnwdafEventsSubscriptionNotificationCached notifRes = redisNotificationRepository
@@ -287,7 +287,7 @@ public class NwdafSubApplication {
             NfLoadLevelInformationHash nfLoadLevelInformationCached = new NfLoadLevelInformationHash();
             nfLoadLevelInformationCached.setData(
                     new NfLoadLevelInformation().nfInstanceId(UUID.randomUUID()).nfCpuUsage(100).time(Instant.now()));
-            System.out.println("before:" + nfLoadLevelInformationCached.toString());
+            System.out.println("before:" + nfLoadLevelInformationCached);
             redisRepository.save(nfLoadLevelInformationCached);
 
             List<NfLoadLevelInformationHash> res = redisRepository.findBy(null, null);

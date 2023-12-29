@@ -70,7 +70,6 @@ public class DummyDataProducerListener{
                             } catch (Exception e) {
                                 logger.error("Failed to save dummy nfloadlevelinfo to timescaledb", e);
                                 stop();
-                                continue;
                             }
                         }
                         break;
@@ -85,7 +84,6 @@ public class DummyDataProducerListener{
                             } catch (Exception e) {
                                 logger.error("Failed to save dummy ueMobilities to timescaledb", e);
                                 stop();
-                                continue;
                             }
                         }
                         break;
@@ -101,8 +99,7 @@ public class DummyDataProducerListener{
 				} catch (InterruptedException e) {
 					logger.error("Failed to wait for thread...",e);
 					stop();
-                    continue;
-				}
+                }
     		}
         }
         logger.info("Dummy Data Production stopped!");

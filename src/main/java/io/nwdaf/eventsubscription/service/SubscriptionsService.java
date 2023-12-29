@@ -3,15 +3,14 @@ package io.nwdaf.eventsubscription.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import io.nwdaf.eventsubscription.NwdafSubApplication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
@@ -93,7 +92,7 @@ public class SubscriptionsService {
 			repository.truncate();
 			return true;
 		} catch(Exception e){
-			System.out.println(e);
+			NwdafSubApplication.getLogger().error("Error truncating subscriptions table", e);
 			return false;
 		}
 	}

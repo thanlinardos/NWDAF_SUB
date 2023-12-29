@@ -123,7 +123,7 @@ paths:
         description: JSON Patch instructions to update at the NSSF, the S-NSSAIs supported per TA
         required: true
         content:
-          application/json-patch+json::
+          application/json-patch+json:
             schema:
               $ref: '#/components/schemas/PatchDocument'
 
@@ -386,7 +386,7 @@ paths:
         description: JSON Patch instructions to update at the NSSF, the NSSAI availability notification subscription
         required: true
         content:
-          application/json-patch+json::
+          application/json-patch+json:
             schema:
               $ref: '#/components/schemas/PatchDocument'
 

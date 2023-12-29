@@ -54,17 +54,17 @@ public class KafkaConsumer {
     private final Consumer<String, String> kafkaConsumerDiscover;
     private final ThreadLocal<Consumer<String, String>> kafkaConsumerEventThreadLocal;
 
-    public static AtomicBoolean isListening = new AtomicBoolean(true);
-    public static AtomicBoolean isDiscovering = new AtomicBoolean(true);
+    public static final AtomicBoolean isListening = new AtomicBoolean(true);
+    public static final AtomicBoolean isDiscovering = new AtomicBoolean(true);
     public static final BlockingQueue<String> discoverMessageQueue = new LinkedBlockingQueue<>();
-    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, DiscoverMessage> latestDiscoverMessageEventMap = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, WakeUpMessage> latestWakeUpMessageEventMap = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Long> eventConsumerCounters = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Long> eventConsumerLastSaves = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Boolean> eventConsumerStartedSaving = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Boolean> eventConsumerStartedReceiving = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Boolean> eventConsumerIsSyncing = new ConcurrentHashMap<>();
-    public static Set<UUID> eventCollectorIdSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    public static final ConcurrentHashMap<NwdafEvent.NwdafEventEnum, DiscoverMessage> latestDiscoverMessageEventMap = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<NwdafEvent.NwdafEventEnum, WakeUpMessage> latestWakeUpMessageEventMap = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Long> eventConsumerCounters = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Long> eventConsumerLastSaves = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Boolean> eventConsumerStartedSaving = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Boolean> eventConsumerStartedReceiving = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Boolean> eventConsumerIsSyncing = new ConcurrentHashMap<>();
+    public static final Set<UUID> eventCollectorIdSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     public static OffsetDateTime startTime;
     public static OffsetDateTime endTime;
@@ -137,38 +137,21 @@ public class KafkaConsumer {
         if (!isDiscovering.get()) {
             return;
         }
-        List<PartitionInfo> partitions = kafkaConsumerDiscover.partitionsFor("DISCOVER");
+        String topic = "DISCOVER";
+        List<PartitionInfo> partitions = kafkaConsumerDiscover.partitionsFor(topic);
 
         // Get the beginning offset for each partition and convert it to a timestamp
         long earliestTimestamp = Long.MAX_VALUE;
         List<TopicPartition> topicPartitions = new ArrayList<>();
-        for (PartitionInfo partition : partitions) {
-            TopicPartition topicPartition = new TopicPartition("DISCOVER", partition.partition());
-            topicPartitions.add(topicPartition);
-            kafkaConsumerDiscover.assign(Collections.singletonList(topicPartition));
-            kafkaConsumerDiscover.seekToBeginning(Collections.singletonList(topicPartition));
+        earliestTimestamp = assignTopicPartitions(kafkaConsumerDiscover, partitions, topic, topicPartitions, earliestTimestamp);
 
-            long beginningOffset = kafkaConsumerDiscover.position(topicPartition);
-            OffsetAndTimestamp offsetAndTimestamp = kafkaConsumerDiscover.offsetsForTimes(Collections.singletonMap(topicPartition, beginningOffset)).get(topicPartition);
-            if (offsetAndTimestamp != null) {
-                long partitionTimestamp = offsetAndTimestamp.timestamp();
-                if (partitionTimestamp < earliestTimestamp) {
-                    earliestTimestamp = partitionTimestamp;
-                }
-            }
-        }
         if (earliestTimestamp == Long.MAX_VALUE) {
             return;
         }
-        // Convert the earliest timestamp to a human-readable format
-        // String formattedTimestamp = Instant.ofEpochMilli(earliestTimestamp).toString();
-        // System.out.println("Earliest Timestamp in the DISCOVER topic: " + formattedTimestamp);
 
-        // Set the desired timestamps for the beginning and end of the range
         long endTimestamp = Instant.parse(OffsetDateTime.now().toString()).toEpochMilli();
         long startTimestamp = Instant.parse(OffsetDateTime.now().minusSeconds(1).toString()).toEpochMilli();
 
-        // Seek to the beginning timestamp
         for (TopicPartition partition : topicPartitions) {
             OffsetAndTimestamp offsetAndTimestamp = kafkaConsumerDiscover.offsetsForTimes(Collections.singletonMap(partition, startTimestamp)).get(partition);
             if (offsetAndTimestamp != null) {
@@ -246,25 +229,12 @@ public class KafkaConsumer {
         }
         startedReceiving(eventEnum);
         List<PartitionInfo> partitions = kafkaConsumer.partitionsFor(eventEnum.toString());
+        String topic = eventEnum.toString();
 
         // Get the beginning offset for each partition and convert it to a timestamp
         long earliestTimestamp = Long.MAX_VALUE;
         List<TopicPartition> topicPartitions = new ArrayList<>();
-        for (PartitionInfo partition : partitions) {
-            TopicPartition topicPartition = new TopicPartition(eventEnum.toString(), partition.partition());
-            topicPartitions.add(topicPartition);
-            kafkaConsumer.assign(Collections.singletonList(topicPartition));
-            kafkaConsumer.seekToBeginning(Collections.singletonList(topicPartition));
-
-            long beginningOffset = kafkaConsumer.position(topicPartition);
-            OffsetAndTimestamp offsetAndTimestamp = kafkaConsumer.offsetsForTimes(Collections.singletonMap(topicPartition, beginningOffset)).get(topicPartition);
-            if (offsetAndTimestamp != null) {
-                long partitionTimestamp = offsetAndTimestamp.timestamp();
-                if (partitionTimestamp < earliestTimestamp) {
-                    earliestTimestamp = partitionTimestamp;
-                }
-            }
-        }
+        earliestTimestamp = assignTopicPartitions(kafkaConsumer, partitions, topic, topicPartitions, earliestTimestamp);
         if (earliestTimestamp == Long.MAX_VALUE) {
             return;
         }
@@ -317,7 +287,26 @@ public class KafkaConsumer {
         }
     }
 
-    private void consumeMetric(NwdafEvent.NwdafEventEnum eventTopic, String in, Long recordTimeStamp, Boolean isLatest) throws IOException, Exception {
+    private static long assignTopicPartitions(Consumer<String, String> kafkaConsumer, List<PartitionInfo> partitions, String topic, List<TopicPartition> topicPartitions, long earliestTimestamp) {
+        for (PartitionInfo partition : partitions) {
+            TopicPartition topicPartition = new TopicPartition(topic, partition.partition());
+            topicPartitions.add(topicPartition);
+            kafkaConsumer.assign(Collections.singletonList(topicPartition));
+            kafkaConsumer.seekToBeginning(Collections.singletonList(topicPartition));
+
+            long beginningOffset = kafkaConsumer.position(topicPartition);
+            OffsetAndTimestamp offsetAndTimestamp = kafkaConsumer.offsetsForTimes(Collections.singletonMap(topicPartition, beginningOffset)).get(topicPartition);
+            if (offsetAndTimestamp != null) {
+                long partitionTimestamp = offsetAndTimestamp.timestamp();
+                if (partitionTimestamp < earliestTimestamp) {
+                    earliestTimestamp = partitionTimestamp;
+                }
+            }
+        }
+        return earliestTimestamp;
+    }
+
+    private void consumeMetric(NwdafEvent.NwdafEventEnum eventTopic, String in, Long recordTimeStamp, Boolean isLatest) throws Exception {
         switch (eventTopic) {
             case NF_LOAD:
                 NfLoadLevelInformation nfLoadLevelInformation = objectMapper.reader().readValue(in, NfLoadLevelInformation.class);
@@ -338,7 +327,7 @@ public class KafkaConsumer {
         setupAndLogCounters(eventTopic, recordTimeStamp, isLatest, 1);
     }
 
-    private void consumeMetrics(NwdafEvent.NwdafEventEnum eventTopic, List<String> in, Long recordTimeStamp, Boolean isLatest) throws IOException, Exception {
+    private void consumeMetrics(NwdafEvent.NwdafEventEnum eventTopic, List<String> in, Long recordTimeStamp, Boolean isLatest) throws Exception {
         switch (eventTopic) {
             case NF_LOAD:
                 List<NfLoadLevelInformation> nfLoadLevelInformations = in.stream().map(s -> {

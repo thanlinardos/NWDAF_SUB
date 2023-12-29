@@ -24,7 +24,6 @@ import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.config.RestTemplateFactoryConfig;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
-import io.nwdaf.eventsubscription.utilities.ParserUtil;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.*;
 
@@ -39,7 +38,7 @@ import static io.nwdaf.eventsubscription.utilities.ParserUtil.parsePresentNfLoad
 public class NotifyListener {
 
     public static final Logger logger = NwdafSubApplication.getLogger();
-    public static Integer max_subs_per_process = 200;
+//    public static Integer max_subs_per_process = 200;
     public static final Integer max_no_notifEventListeners = 1;
     @Getter
     @Setter
@@ -172,7 +171,7 @@ public class NotifyListener {
         while (no_served_subs > 0 && no_notifEventListeners.get() > 0) {
             long st;
             initLogs();
-            long loop_section = 0;
+            long loop_section;
             long st2 = System.nanoTime();
             start = System.nanoTime();
 
@@ -314,7 +313,6 @@ public class NotifyListener {
                 } catch (InterruptedException e) {
                     logger.error("Failed to wait for thread...", e);
                     stop();
-                    continue;
                 }
             }
         }

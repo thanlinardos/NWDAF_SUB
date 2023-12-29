@@ -4,13 +4,12 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.model.UeCommunication;
 import io.nwdaf.eventsubscription.repository.eventmetrics.UeCommunicationMetricsRepository;
 import io.nwdaf.eventsubscription.repository.eventmetrics.entities.UeCommunicationTable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
@@ -181,7 +180,7 @@ public class MetricsService {
 			ueMobilityRepository.truncate();
 			return true;
 		} catch(Exception e){
-			System.out.println(e);
+			NwdafSubApplication.getLogger().error("Error truncating metrics tables", e);
 			return false;
 		}
 	}

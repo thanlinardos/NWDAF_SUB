@@ -8,7 +8,6 @@ import io.nwdaf.eventsubscription.notify.NotifyListener;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.repository.eventnotification.NotificationRepository;
 import io.nwdaf.eventsubscription.repository.eventnotification.entities.NnwdafNotificationTable;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatusCode;

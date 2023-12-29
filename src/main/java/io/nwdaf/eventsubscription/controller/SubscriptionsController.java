@@ -90,7 +90,7 @@ public class SubscriptionsController implements SubscriptionsApi {
                 getResponse.getEventIndexToNotifMethodMap(), getResponse.getEventIndexToRepPeriodMap(),
                 dataCollectionPublisher, dummyDataProducerPublisher, kafkaProducer, objectMapper, metricsService, metricsCacheService,
                 globalResponse.getImmRep(), 0L);
-        // check the amount of subscriptions that need to be notifed
+        // check the amount of subscriptions that need to be notified
         for (int i = 0; i < canServeSubscription.size(); i++) {
             if (canServeSubscription.get(i)) {
                 count_of_notif++;
@@ -105,7 +105,7 @@ public class SubscriptionsController implements SubscriptionsApi {
             body.getEvtReq().notifFlag(new NotificationFlag().notifFlag(NotificationFlagEnum.DEACTIVATE));
         }
         // save sub to db and get back the created id
-        NnwdafEventsSubscriptionTable result = null;
+        NnwdafEventsSubscriptionTable result;
         try {
             result = subscriptionService.create(body);
         } catch (Exception e) {
@@ -157,7 +157,7 @@ public class SubscriptionsController implements SubscriptionsApi {
                 getResponse.getEventIndexToNotifMethodMap(), getResponse.getEventIndexToRepPeriodMap(),
                 dataCollectionPublisher, dummyDataProducerPublisher, kafkaProducer, objectMapper, metricsService, metricsCacheService,
                 globalResponse.getImmRep(), 0L);
-        // check the amount of subscriptions that need to be notifed
+        // check the amount of subscriptions that need to be notified
         for (int i = 0; i < canServeSubscription.size(); i++) {
             if (canServeSubscription.get(i)) {
                 count_of_notif++;

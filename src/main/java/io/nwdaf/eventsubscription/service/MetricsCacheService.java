@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.model.EventSubscription;
@@ -37,7 +36,6 @@ public class MetricsCacheService {
 		List<NfLoadLevelInformationHash> entities;
 		if (params != null) {
 			entities = repository.findByTime(time).stream()
-					.filter(e -> true)
 					.collect(Collectors.toList());
 		} else {
 			entities = repository.findByTime(time);
@@ -98,7 +96,7 @@ public class MetricsCacheService {
 						&&
 						(!filterTypes.contains("nfType") || (e.getData().getNfType() != null
 								&& eventSub.getNfTypes().contains(e.getData().getNfType()))))
-				.collect(Collectors.toList());
+				.toList();
 		List<NfLoadLevelInformation> res = new ArrayList<>();
 		for (int i = 0; i < entities.size(); i++) {
 			if (entities.get(i) != null) {
