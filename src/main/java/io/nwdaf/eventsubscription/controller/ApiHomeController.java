@@ -107,18 +107,18 @@ public class ApiHomeController {
     @ResponseBody
     public ResponseEntity<Integer> toggleNotifyListener() {
 
-        if(NotifyListener.getNo_notifEventListeners()>0) {
+        if(NotifyListener.getNo_notifEventListeners().get()>0) {
             NotifyListener.stop();
         } else {
             notifyPublisher.publishNotification("toggled from ui", 0L);
         }
 
-        return ResponseEntity.ok(NotifyListener.getNo_notifEventListeners());
+        return ResponseEntity.ok(NotifyListener.getNo_notifEventListeners().get());
     }
 
     @GetMapping("/admin/getNoNotifyListeners")
     public Integer getNoNotifyListeners() {
-        return NotifyListener.getNo_notifEventListeners();
+        return NotifyListener.getNo_notifEventListeners().get();
     }
 
     @GetMapping("/admin/toggleKafkaConsumer")

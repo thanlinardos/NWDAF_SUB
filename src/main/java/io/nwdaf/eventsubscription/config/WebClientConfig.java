@@ -6,9 +6,7 @@ import io.nwdaf.eventsubscription.NwdafSubApplication;
 import org.springframework.core.io.Resource;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
-import org.springframework.http.codec.xml.Jaxb2XmlEncoder;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
 import javax.net.ssl.TrustManagerFactory;

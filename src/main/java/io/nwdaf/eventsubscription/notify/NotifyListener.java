@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.nwdaf.eventsubscription.config.WebClientConfig;
 import io.nwdaf.eventsubscription.model.*;
@@ -15,8 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -31,10 +30,10 @@ import io.nwdaf.eventsubscription.service.*;
 
 import org.springframework.core.io.Resource;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.netty.http.client.HttpClient;
 
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckEqualsEvent;
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckEventNotificationWithinMilli;
+import static io.nwdaf.eventsubscription.utilities.ParserUtil.parsePresentNfLoadLevelInformations;
 
 @Component
 public class NotifyListener {
@@ -44,9 +43,7 @@ public class NotifyListener {
     public static final Integer max_no_notifEventListeners = 1;
     @Getter
     @Setter
-    private static Integer no_notifEventListeners = 0;
-    @Getter
-    private static final Object notifLock = new Object();
+    private static AtomicInteger no_notifEventListeners = new AtomicInteger();
     private final SubscriptionsService subscriptionService;
     private final NotificationService notificationService;
     private final MetricsService metricsService;
@@ -132,13 +129,11 @@ public class NotifyListener {
     @Async
     @EventListener
     public void sendNotifications(NotificationEvent notificationEvent) {
-        synchronized (notifLock) {
-            System.out.println("trying to enter with current number of notify listeners: " + no_notifEventListeners);
-            if (no_notifEventListeners < max_no_notifEventListeners) {
-                no_notifEventListeners++;
-            } else {
-                return;
-            }
+        System.out.println("trying to enter with current number of notify listeners: " + no_notifEventListeners.get());
+        if (no_notifEventListeners.get() < max_no_notifEventListeners) {
+            no_notifEventListeners.getAndIncrement();
+        } else {
+            return;
         }
 
         List<NnwdafEventsSubscription> subs = new ArrayList<>();
@@ -148,9 +143,9 @@ public class NotifyListener {
             logger.error("Error with find subs in subscriptionService", e);
             stop();
         }
-        int listenerId = no_notifEventListeners - 1;
+        int listenerId = no_notifEventListeners.get() - 1;
         logger.info("Started NotifyListener(" + listenerId + ") with message: " + notificationEvent.getMessage() +
-                    " and caller id: " + notificationEvent.getCallerId());
+                " and caller id: " + notificationEvent.getCallerId());
 
         // map with key each served event (pair of sub id,event index)
         // and value being the last time a notification was sent for this event to the
@@ -162,52 +157,24 @@ public class NotifyListener {
         subIndexes = new HashMap<>();
         mapEventToNotification = new ArrayList<>();
 
-        // builder for converting data to notification objects
         NotificationBuilder notificationBuilder = new NotificationBuilder();
-        no_served_subs = 0;
-        for (int i = 0; i < subs.size(); i++) {
-            for (int j = 0; j < subs.get(i).getEventSubscriptions().size(); j++) {
-                Integer period = NotificationUtil.needsServing(subs.get(i), j);
-                if (period != null) {
-                    no_served_subs++;
-                    repPeriods.put(encodeKey(subs.get(i).getId(), j), period);
-                    lastNotifTimes.put(encodeKey(subs.get(i).getId(), j), OffsetDateTime.now());
-                    subIndexes.put(subs.get(i).getId(), i);
-                }
-            }
-        }
+        mapRepopulate(subs);
 
         System.out.println("no_subs=" + subs.size());
         System.out.println("no_Ssubs=" + no_served_subs);
         long start;
-        total_sent_kilobytes = 0;
-        counter = 0;
-        total_sent_notifs = 0;
-        WebClientConfig.setTrustStore(trustStore);
-        WebClientConfig.setTrustStorePassword(trustStorePassword);
-        webClient = WebClient
-                .builder()
-                .exchangeStrategies(WebClientConfig.createExchangeStrategies(5 * 1024 * 1024))  //5MB
-                .clientConnector(Objects.requireNonNull(WebClientConfig.createWebClientFactory()))
-                .build();
-//        RestTemplateFactoryConfig.setTrustStore(trustStore);
-//        RestTemplateFactoryConfig.setTrustStorePassword(trustStorePassword);
-//        restTemplate = new RestTemplate(Objects.requireNonNull(RestTemplateFactoryConfig.createRestTemplateFactory()));
 
-        no_found_notifs = 0;
-        avg_io_delay = 0;
-        avg_program_delay = 0;
+        initGlobalLogs();
 
-        while (no_served_subs > 0 && no_notifEventListeners > 0) {
+        setupWebClient();
+//        setupRestTemplate();
+
+        while (no_served_subs > 0 && no_notifEventListeners.get() > 0) {
             long st;
-            no_sent_notifs = 0;
-            no_sent_kilobytes = 0;
-            start = System.nanoTime();
-            tsdb_req_delay = 0;
-            client_delay = 0;
-            notif_save_delay = 0;
+            initLogs();
             long loop_section = 0;
             long st2 = System.nanoTime();
+            start = System.nanoTime();
 
             // loop through the event subscriptions and the dates of last producing a
             // notification for each of them
@@ -259,7 +226,7 @@ public class NotifyListener {
                             repPeriod * 1_250L, Instant.now().toEpochMilli())) {
 
                         notification = foundNotification;
-                        notification = notification.notificationReference(foundNotification.getId()).id(UUID.randomUUID()).subscriptionId(sub.getId().toString());
+                        notification.notificationReference(foundNotification.getId()).id(UUID.randomUUID()).subscriptionId(sub.getId().toString());
                         no_found_notifs++;
                         found = true;
                     } else {
@@ -291,42 +258,13 @@ public class NotifyListener {
                     mapEventToNotification.add(Pair.of(event, notification));
                 }
 
-                // save the sent notification to a second database
-                st = System.nanoTime();
-                if (found) {
-                    notificationService.asyncCreate(notification.getNotificationReference(), notification.getTimeStamp(), notification.getId());
-                } else {
-                    notificationService.asyncCreate(notification);
-                }
-                notif_save_delay += (double) (System.nanoTime() - st) / 1_000L;
-                // check if period has passed -> notify client (or if threshold has been
-                // reached)
-                long st_if = System.nanoTime();
-                OffsetDateTime now = OffsetDateTime.now();
-                if ((repPeriod > 0
-                        && now.isAfter(entry.getValue().plusSeconds(repPeriod))) ||
-                        (repPeriod == 0 && thresholdReached(event, notification))) {
+                saveNotification(found, notification);
 
-                    st = System.nanoTime();
-                    HttpEntity<NnwdafEventsSubscriptionNotification> client_request = new HttpEntity<>(notification);
-//                    notificationService.sendToClient(restTemplate, sub, client_request);
-                    notificationService.sendToClientWebClient(webClient, sub, client_request);
-
-                    client_delay += (double) (System.nanoTime() - st) / 1_000L;
-
-                    st = System.nanoTime();
-                    lastNotifTimes.put(key, now);       //TODO: Bottleneck #3
-                    no_sent_notifs++;
-
-                    if (logKilobyteCount) {
-                        long kb_start = System.nanoTime();
-                        no_sent_kilobytes += (double) notification.toString().getBytes().length / 1_024L;
-                        kb_time += (System.nanoTime() - kb_start) / 1_000L;
-                    }
-                    total_sent_notifs++;
-                    section_c += (double) (System.nanoTime() - st) / 1_000L;
-                }
-                section_b += (double) (System.nanoTime() - st_if) / 1_000L;
+                // check if period has passed -> notify client (or if threshold has been reached)
+                SectionBLogs sectionBLogs = handleSendNotification(repPeriod, notification, event, sub, key, section_b, section_c, kb_time, entry);
+                section_b = sectionBLogs.section_b();
+                section_c = sectionBLogs.section_c();
+                kb_time = sectionBLogs.kb_time();
             }
 
             if (logKilobyteCount) {
@@ -351,43 +289,17 @@ public class NotifyListener {
 
             st = System.nanoTime();
 
-            // make a copy of the map       //TODO: Bottleneck #4 -> map clean up & repopulate
-            oldNotifTimes.clear();
-            oldNotifTimes.putAll(lastNotifTimes);
-            mapEventToNotification.clear();
-            lastNotifTimes.clear();
-            repPeriods.clear();
-            subIndexes.clear();
-            no_served_subs = 0;
+            mapCleanUp();   //TODO: Bottleneck #4 -> map clean up & repopulate
 
-            for (int i = 0; i < subs.size(); i++) {
+            mapRepopulate(subs);
 
-                Long id = subs.get(i).getId();
-                for (int j = 0; j < subs.get(i).getEventSubscriptions().size(); j++) {
-                    long key = encodeKey(id, j);
-                    Integer period = NotificationUtil.needsServing(subs.get(i), j);
-
-                    if (period != null) {
-
-                        no_served_subs++;
-                        repPeriods.put(key, period);
-
-                        if (oldNotifTimes.get(key) == null) {
-                            lastNotifTimes.put(key, OffsetDateTime.now());
-                        } else {
-                            lastNotifTimes.put(key, oldNotifTimes.get(key));
-                        }
-                        subIndexes.put(subs.get(i).getId(), i);
-                    }
-                }
-            }
             if (logSections) {
                 System.out.println(" || maps=" + decimalFormat.format((System.nanoTime() - st) / 1_000_000L) + "ms");
             }
 
             total = (double) (System.nanoTime() - start) / 1_000_000L;
             long io_delay = (long) (tsdb_req_delay + client_delay + notif_save_delay) / 1_000L;
-            avg_io_delay += io_delay + sub_delay;
+            avg_io_delay += (long) (io_delay + sub_delay);
             avg_program_delay += (long) (total - io_delay - sub_delay);
             total_sent_kilobytes += no_sent_kilobytes;
             counter++;
@@ -410,15 +322,13 @@ public class NotifyListener {
         System.out.println("no of found notifications = " + no_found_notifs);
         System.out.println("==NotifyListener(" + listenerId + ") finished===");
 
-        synchronized (notifLock) {
-            if (no_notifEventListeners > 0) {
-                no_notifEventListeners--;
-            } else {
-                System.out.println("==(NotifyListener manually stopped)");
-            }
+        if (no_notifEventListeners.get() > 0) {
+            no_notifEventListeners.getAndDecrement();
+        } else {
+            System.out.println("==(NotifyListener manually stopped)");
         }
-        System.out.println("Number of listeners after stop: " + no_notifEventListeners);
-        if(counter == 0) {
+        System.out.println("Number of listeners after stop: " + no_notifEventListeners.get());
+        if (counter == 0) {
             return;
         }
         logger.info(
@@ -433,6 +343,105 @@ public class NotifyListener {
         logger.info(total_sent_notifs + "/" + cycleSeconds * noSubs + " notifications sent");
     }
 
+    private static void initGlobalLogs() {
+        total_sent_kilobytes = 0;
+        counter = 0;
+        total_sent_notifs = 0;
+        no_found_notifs = 0;
+        avg_io_delay = 0;
+        avg_program_delay = 0;
+    }
+
+    private static void initLogs() {
+        no_sent_notifs = 0;
+        no_sent_kilobytes = 0;
+        tsdb_req_delay = 0;
+        client_delay = 0;
+        notif_save_delay = 0;
+    }
+
+    private static void mapRepopulate(List<NnwdafEventsSubscription> subs) {
+        no_served_subs = 0;
+        for (int i = 0; i < subs.size(); i++) {
+
+            Long id = subs.get(i).getId();
+            for (int j = 0; j < subs.get(i).getEventSubscriptions().size(); j++) {
+                long key = encodeKey(id, j);
+                Integer period = NotificationUtil.needsServing(subs.get(i), j);
+
+                if (period != null) {
+
+                    no_served_subs++;
+                    repPeriods.put(key, period);
+
+                    if (oldNotifTimes.get(key) == null) {
+                        lastNotifTimes.put(key, OffsetDateTime.now());
+                    } else {
+                        lastNotifTimes.put(key, oldNotifTimes.get(key));
+                    }
+                    subIndexes.put(subs.get(i).getId(), i);
+                }
+            }
+        }
+    }
+
+    private static void mapCleanUp() {
+        oldNotifTimes.clear();
+        oldNotifTimes.putAll(lastNotifTimes);
+        mapEventToNotification.clear();
+        lastNotifTimes.clear();
+        repPeriods.clear();
+        subIndexes.clear();
+    }
+
+    private record SectionBLogs(double section_b, double section_c, long kb_time) {
+    }
+
+    private void saveNotification(boolean found, NnwdafEventsSubscriptionNotification notification) {
+        long st = System.nanoTime();
+        if (found) {
+            notificationService.asyncCreate(notification.getNotificationReference(), notification.getTimeStamp(), notification.getId());
+        } else {
+            notificationService.asyncCreate(notification);
+        }
+        notif_save_delay += (double) (System.nanoTime() - st) / 1_000L;
+    }
+
+    private SectionBLogs handleSendNotification(Integer repPeriod, NnwdafEventsSubscriptionNotification notification,
+                                                EventSubscription event, NnwdafEventsSubscription sub, long key, double section_b, double section_c, long kb_time,
+                                                Map.Entry<Long, OffsetDateTime> entry) {
+        long st_if = System.nanoTime();
+
+        OffsetDateTime now = OffsetDateTime.now();
+        if ((repPeriod > 0 && now.isAfter(entry.getValue().plusSeconds(repPeriod))) || (repPeriod == 0 && thresholdReached(event, notification))) {
+
+            long st = System.nanoTime();
+
+            HttpEntity<NnwdafEventsSubscriptionNotification> client_request = new HttpEntity<>(notification);
+//          notificationService.sendToClient(restTemplate, sub, client_request);
+            notificationService.sendToClientWebClient(webClient, sub, client_request);
+
+            client_delay += (double) (System.nanoTime() - st) / 1_000L;
+
+            st = System.nanoTime();
+
+            lastNotifTimes.put(key, now);       //TODO: Bottleneck #3
+            no_sent_notifs++;
+
+            if (logKilobyteCount) {
+                long kb_start = System.nanoTime();
+                no_sent_kilobytes += (double) notification.toString().getBytes().length / 1_024L;
+                kb_time += (System.nanoTime() - kb_start) / 1_000L;
+            }
+            total_sent_notifs++;
+
+            section_c += (double) (System.nanoTime() - st) / 1_000L;
+        }
+
+        section_b += (double) (System.nanoTime() - st_if) / 1_000L;
+        return new SectionBLogs(section_b, section_c, kb_time);
+    }
+
     private boolean thresholdReached(EventSubscription event, NnwdafEventsSubscriptionNotification notification) {
         NwdafEventEnum eType = event.getEvent().getEvent();
 
@@ -442,25 +451,19 @@ public class NotifyListener {
                 if (thresholdLevels == null || thresholdLevels.isEmpty()) {
                     return false;
                 }
-                int size = Math.min(notification.getEventNotifications().get(0).getNfLoadLevelInfos().size(),
+
+                int size = Math.min(notification.getEventNotifications().getFirst().getNfLoadLevelInfos().size(),
                         thresholdLevels.size());
-                List<NfLoadLevelInformation> presentNfLevelInformations = ParserUtil
-                        .parsePresentNfLoadLevelInformations(
-                                notification.getEventNotifications().get(0).getNfLoadLevelInfos());
+                List<NfLoadLevelInformation> presentNfLevelInformations = parsePresentNfLoadLevelInformations(notification.getEventNotifications().getFirst().getNfLoadLevelInfos());
                 int index;
+
                 for (int i = 0; i < size; i++) {
                     NfLoadLevelInformation nfLoadLevelInformation = presentNfLevelInformations.get(i);
                     if (thresholdLevels.get(i) == null) {
                         continue;
                     }
-                    boolean[] isThresholdBooleans = {(thresholdLevels.get(i).getNfCpuUsage() != null    //TODO: extract to map function
-                            && nfLoadLevelInformation.getNfCpuUsage() >= thresholdLevels.get(i).getNfCpuUsage()),
-                            (thresholdLevels.get(i).getNfMemoryUsage() != null && nfLoadLevelInformation
-                                    .getNfMemoryUsage() >= thresholdLevels.get(i).getNfMemoryUsage()),
-                            (thresholdLevels.get(i).getNfStorageUsage() != null && nfLoadLevelInformation
-                                    .getNfStorageUsage() >= thresholdLevels.get(i).getNfStorageUsage()),
-                            (thresholdLevels.get(i).getNfLoadLevel() != null && nfLoadLevelInformation
-                                    .getNfLoadLevelAverage() >= thresholdLevels.get(i).getNfLoadLevel())};
+
+                    boolean[] isThresholdBooleans = mapIsThresholdBooleans(thresholdLevels, i, nfLoadLevelInformation);
                     int booleanIndex = -1;
                     for (int j = 0; j < isThresholdBooleans.length; j++) {
                         if (isThresholdBooleans[j]) {
@@ -468,21 +471,15 @@ public class NotifyListener {
                             break;
                         }
                     }
+
                     if (booleanIndex != -1) {
-                        index = notification.getEventNotifications().get(0).getNfLoadLevelInfos()
+                        index = notification.getEventNotifications().getFirst().getNfLoadLevelInfos()
                                 .indexOf(nfLoadLevelInformation);
-                        int[] propertyValues = {
-                                notification.getEventNotifications().get(0).getNfLoadLevelInfos().get(index)  //TODO: extract to map function
-                                        .getNfCpuUsage(),
-                                notification.getEventNotifications().get(0).getNfLoadLevelInfos().get(index)
-                                        .getNfMemoryUsage(),
-                                notification.getEventNotifications().get(0).getNfLoadLevelInfos().get(index)
-                                        .getNfStorageUsage(),
-                                notification.getEventNotifications().get(0).getNfLoadLevelInfos().get(index)
-                                        .getNfLoadLevelAverage()};
-                        notification.getEventNotifications().get(0).getNfLoadLevelInfos().get(index)
+                        int[] propertyValues = mapPropertyValues(notification, index);
+
+                        notification.getEventNotifications().getFirst().getNfLoadLevelInfos().get(index)
                                 .setThresholdProperty(Constants.nfLoadThresholdProps[booleanIndex]);
-                        notification.getEventNotifications().get(0).getNfLoadLevelInfos().get(index)
+                        notification.getEventNotifications().getFirst().getNfLoadLevelInfos().get(index)
                                 .setThresholdValue(propertyValues[booleanIndex]);
                         return true;
                     }
@@ -494,13 +491,34 @@ public class NotifyListener {
         return false;
     }
 
+    private static boolean[] mapIsThresholdBooleans(List<ThresholdLevel> thresholdLevels, int i, NfLoadLevelInformation nfLoadLevelInformation) {
+        return new boolean[]{(thresholdLevels.get(i).getNfCpuUsage() != null
+                && nfLoadLevelInformation.getNfCpuUsage() >= thresholdLevels.get(i).getNfCpuUsage()),
+                (thresholdLevels.get(i).getNfMemoryUsage() != null && nfLoadLevelInformation
+                        .getNfMemoryUsage() >= thresholdLevels.get(i).getNfMemoryUsage()),
+                (thresholdLevels.get(i).getNfStorageUsage() != null && nfLoadLevelInformation
+                        .getNfStorageUsage() >= thresholdLevels.get(i).getNfStorageUsage()),
+                (thresholdLevels.get(i).getNfLoadLevel() != null && nfLoadLevelInformation
+                        .getNfLoadLevelAverage() >= thresholdLevels.get(i).getNfLoadLevel())};
+    }
+
+    private static int[] mapPropertyValues(NnwdafEventsSubscriptionNotification notification, int index) {
+        return new int[]{
+                notification.getEventNotifications().getFirst().getNfLoadLevelInfos().get(index)
+                        .getNfCpuUsage(),
+                notification.getEventNotifications().getFirst().getNfLoadLevelInfos().get(index)
+                        .getNfMemoryUsage(),
+                notification.getEventNotifications().getFirst().getNfLoadLevelInfos().get(index)
+                        .getNfStorageUsage(),
+                notification.getEventNotifications().getFirst().getNfLoadLevelInfos().get(index)
+                        .getNfLoadLevelAverage()};
+    }
+
     public static void stop() {
-        synchronized (notifLock) {
-            if (no_notifEventListeners > 0) {
-                no_notifEventListeners--;
-            }
+        if (no_notifEventListeners.get() > 0) {
+            no_notifEventListeners.getAndDecrement();
         }
-        System.out.println("after stop func: " + no_notifEventListeners);
+        System.out.println("after stop func: " + no_notifEventListeners.get());
     }
 
     private void printPerfA(double loop_section, double section_a, double section_b, double section_c,
@@ -530,5 +548,21 @@ public class NotifyListener {
             }
             System.out.print(" || total delay: " + decimalFormat.format(total) + "ms\n");
         }
+    }
+
+    private void setupWebClient() {
+        WebClientConfig.setTrustStore(trustStore);
+        WebClientConfig.setTrustStorePassword(trustStorePassword);
+        webClient = WebClient
+                .builder()
+                .exchangeStrategies(WebClientConfig.createExchangeStrategies(5 * 1024 * 1024))  //5MB
+                .clientConnector(Objects.requireNonNull(WebClientConfig.createWebClientFactory()))
+                .build();
+    }
+
+    private void setupRestTemplate() {
+        RestTemplateFactoryConfig.setTrustStore(trustStore);
+        RestTemplateFactoryConfig.setTrustStorePassword(trustStorePassword);
+        restTemplate = new RestTemplate(Objects.requireNonNull(RestTemplateFactoryConfig.createRestTemplateFactory()));
     }
 }
