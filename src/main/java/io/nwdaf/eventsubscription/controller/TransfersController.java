@@ -6,23 +6,25 @@ import org.springframework.http.ResponseEntity;
 
 import io.nwdaf.eventsubscription.api.TransfersApi;
 import io.nwdaf.eventsubscription.model.AnalyticsSubscriptionsTransfer;
+import org.springframework.web.bind.annotation.RestController;
 
-public class TransfersController implements TransfersApi{
+@RestController
+public class TransfersController implements TransfersApi {
 
-	@Override
-	public ResponseEntity<Void> createNWDAFEventSubscriptionTransfer(@Valid AnalyticsSubscriptionsTransfer body) {
-		return null;
-	}
+    @Override
+    public ResponseEntity<Void> createNWDAFEventSubscriptionTransfer(@Valid AnalyticsSubscriptionsTransfer body) {
+        throw new UnsupportedOperationException("/nnwdaf-eventsubscription/v1/transfers: Not supported yet.");
+    }
 
-	@Override
-	public ResponseEntity<Void> deleteNWDAFEventSubscriptionTransfer(String transferId) {
-		return null;
-	}
+    @Override
+    public ResponseEntity<Void> updateNWDAFEventSubscriptionTransfer(String transferId,
+                                                                     @Valid AnalyticsSubscriptionsTransfer body) {
+        throw new UnsupportedOperationException("/nnwdaf-eventsubscription/v1/transfers/{transferId}: (PUT) Not supported yet.");
+    }
 
-	@Override
-	public ResponseEntity<Void> updateNWDAFEventSubscriptionTransfer(String transferId,
-			@Valid AnalyticsSubscriptionsTransfer body) {
-		return null;
-	}
+    @Override
+    public ResponseEntity<Void> deleteNWDAFEventSubscriptionTransfer(String transferId) {
+        throw new UnsupportedOperationException("/nnwdaf-eventsubscription/v1/transfers/{transferId}: (DELETE) Not supported yet.");
+    }
 
 }

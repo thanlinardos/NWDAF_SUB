@@ -1,21 +1,26 @@
 package io.nwdaf.eventsubscription.controller;
 
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
 
+import io.nwdaf.eventsubscription.controller.http.HttpServletRequestAdapter;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.ConversionNotSupportedException;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nwdaf.eventsubscription.utilities.CheckUtil;
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;
 import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerPublisher;
 import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionPublisher;
@@ -24,7 +29,6 @@ import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.model.NotificationFlag;
 import io.nwdaf.eventsubscription.model.ReportingInformation;
 import io.nwdaf.eventsubscription.model.NotificationFlag.NotificationFlagEnum;
-import io.nwdaf.eventsubscription.notify.NotificationUtil;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.notify.responsetypes.GetGlobalNotifMethodAndRepPeriodResponse;
 import io.nwdaf.eventsubscription.notify.responsetypes.GetNotifMethodAndRepPeriodsResponse;
@@ -33,6 +37,11 @@ import io.nwdaf.eventsubscription.utilities.ParserUtil;
 import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import static io.nwdaf.eventsubscription.controller.http.ValidateSubscriptionRequest.validateRequest;
+import static io.nwdaf.eventsubscription.notify.NotificationUtil.*;
 
 @RestController
 public class SubscriptionsController implements SubscriptionsApi {
@@ -61,35 +70,38 @@ public class SubscriptionsController implements SubscriptionsApi {
     }
 
 
+    @SneakyThrows
     @Override
     public ResponseEntity<NnwdafEventsSubscription> createNWDAFEventsSubscription(@Valid NnwdafEventsSubscription body) {
 
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequestAdapter request = attributes != null ? new HttpServletRequestAdapter(attributes.getRequest()) : null;
         String subsUri = env.getProperty("nnwdaf-eventsubscription.openapi.dev-url") + "/nwdaf-eventsubscription/v1/subscriptions";
         System.out.println("Controller logic...");
         HttpHeaders responseHeaders = new HttpHeaders();
         int count_of_notif = 0;
         List<Integer> periods_to_serve = new ArrayList<>();
-        if (body == null || !CheckUtil.safeCheckListNotEmpty(body.getEventSubscriptions())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(responseHeaders).body(body);
-        }
 
-        System.out.println(Thread.currentThread());
+        validateRequest(body, attributes, request);
 
-        List<Integer> negotiatedFeaturesList = NotificationUtil.negotiateSupportedFeatures(body);
+        logger.info(String.valueOf(Thread.currentThread()));
+
+        List<Integer> negotiatedFeaturesList = negotiateSupportedFeatures(body);
         logger.info("negotiatedFeaturesList:" + negotiatedFeaturesList.toString());
 
-        GetGlobalNotifMethodAndRepPeriodResponse globalResponse = NotificationUtil.getGlobalNotifMethodAndRepPeriod(body.getEvtReq());
-        GetNotifMethodAndRepPeriodsResponse getResponse = NotificationUtil.getNotifMethodAndRepPeriods(
+        GetGlobalNotifMethodAndRepPeriodResponse globalResponse = getGlobalNotifMethodAndRepPeriod(body.getEvtReq());
+        GetNotifMethodAndRepPeriodsResponse getResponse = getNotifMethodAndRepPeriods(
                 body.getEventSubscriptions(),
                 globalResponse.getNotificationMethod(),
                 globalResponse.getRepetionPeriod());
         for (int i = 0; i < getResponse.getInvalid_events().size(); i++) {
             body.getEventSubscriptions().remove((int) getResponse.getInvalid_events().get(i));
         }
-        List<Boolean> canServeSubscription = NotificationUtil.checkCanServeSubscriptions(getResponse.getNo_valid_events(), body,
+        List<Boolean> canServeSubscription = checkCanServeSubscriptions(getResponse.getNo_valid_events(), body,
                 getResponse.getEventIndexToNotifMethodMap(), getResponse.getEventIndexToRepPeriodMap(),
                 dataCollectionPublisher, dummyDataProducerPublisher, kafkaProducer, objectMapper, metricsService, metricsCacheService,
                 globalResponse.getImmRep(), 0L);
+
         // check the amount of subscriptions that need to be notified
         for (int i = 0; i < canServeSubscription.size(); i++) {
             if (canServeSubscription.get(i)) {
@@ -110,11 +122,11 @@ public class SubscriptionsController implements SubscriptionsApi {
             result = subscriptionService.create(body);
         } catch (Exception e) {
             logger.error("Couldn't save sub to db", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(responseHeaders).body(body);
+            throw new Exception("Couldn't save sub to db", e);
         }
         if (result == null) {
             logger.error("Couldn't save sub to db (service returned null)");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(responseHeaders).body(body);
+            throw new Exception("Couldn't save sub to db (service returned null)");
         }
 
         body.setId(result.getId());
@@ -130,30 +142,41 @@ public class SubscriptionsController implements SubscriptionsApi {
         return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders).body(body);
     }
 
+    @SneakyThrows
     @Override
     public ResponseEntity<NnwdafEventsSubscription> updateNWDAFEventsSubscription(String subscriptionId,
                                                                                   @Valid NnwdafEventsSubscription body) {
+
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequestAdapter request = attributes != null ? new HttpServletRequestAdapter(attributes.getRequest()) : null;
         HttpHeaders responseHeaders = new HttpHeaders();
+
+        if (subscriptionId == null) {
+            throw new MissingPathVariableException("subscriptionId",
+                    new MethodParameter(this.getClass().getDeclaredMethod("updateNWDAFEventsSubscription", String.class, NnwdafEventsSubscription.class), 0));
+        }
+        if (ParserUtil.safeParseLong(subscriptionId) == null) {
+            throw new ConversionNotSupportedException(new PropertyChangeEvent(SubscriptionsController.class, "subscriptionId", subscriptionId, subscriptionId), Long.class, null);
+        }
         String subsUri = env.getProperty("nnwdaf-eventsubscription.openapi.dev-url") + "/nwdaf-eventsubscription/v1/subscriptions" + "/" + subscriptionId;
         int count_of_notif = 0;
         List<Integer> periods_to_serve = new ArrayList<>();
 
-        if (body == null || !CheckUtil.safeCheckListNotEmpty(body.getEventSubscriptions())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(responseHeaders).body(body);
-        }
+        validateRequest(body, attributes, request);
+
         body.setId(ParserUtil.safeParseLong(subscriptionId));
-        List<Integer> negotiatedFeaturesList = NotificationUtil.negotiateSupportedFeatures(body);
+        List<Integer> negotiatedFeaturesList = negotiateSupportedFeatures(body);
         logger.info("negotiatedFeaturesList:" + negotiatedFeaturesList.toString());
 
-        GetGlobalNotifMethodAndRepPeriodResponse globalResponse = NotificationUtil.getGlobalNotifMethodAndRepPeriod(body.getEvtReq());
-        GetNotifMethodAndRepPeriodsResponse getResponse = NotificationUtil.getNotifMethodAndRepPeriods(
+        GetGlobalNotifMethodAndRepPeriodResponse globalResponse = getGlobalNotifMethodAndRepPeriod(body.getEvtReq());
+        GetNotifMethodAndRepPeriodsResponse getResponse = getNotifMethodAndRepPeriods(
                 body.getEventSubscriptions(),
                 globalResponse.getNotificationMethod(),
                 globalResponse.getRepetionPeriod());
         for (int i = 0; i < getResponse.getInvalid_events().size(); i++) {
             body.getEventSubscriptions().remove((int) getResponse.getInvalid_events().get(i));
         }
-        List<Boolean> canServeSubscription = NotificationUtil.checkCanServeSubscriptions(getResponse.getNo_valid_events(), body,
+        List<Boolean> canServeSubscription = checkCanServeSubscriptions(getResponse.getNo_valid_events(), body,
                 getResponse.getEventIndexToNotifMethodMap(), getResponse.getEventIndexToRepPeriodMap(),
                 dataCollectionPublisher, dummyDataProducerPublisher, kafkaProducer, objectMapper, metricsService, metricsCacheService,
                 globalResponse.getImmRep(), 0L);

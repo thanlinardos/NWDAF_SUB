@@ -36,6 +36,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -54,7 +55,7 @@ import static io.nwdaf.eventsubscription.utilities.ParserUtil.safeParseInteger;
 
 @EnableConfigurationProperties(NwdafSubProperties.class)
 @SpringBootApplication(exclude = {JacksonAutoConfiguration.class, JvmMetricsAutoConfiguration.class,
-        LogbackMetricsAutoConfiguration.class, MetricsAutoConfiguration.class})
+        LogbackMetricsAutoConfiguration.class, MetricsAutoConfiguration.class, SecurityAutoConfiguration.class})
 @EnableAsync
 @EnableScheduling
 @EntityScan({"io.nwdaf.eventsubscription.repository"})

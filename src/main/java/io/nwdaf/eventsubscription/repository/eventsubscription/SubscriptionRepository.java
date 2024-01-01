@@ -31,7 +31,7 @@ public interface SubscriptionRepository extends JpaRepository<NnwdafEventsSubscr
 
 	@Query(value="delete from nnwdaf_events_subscription where id=?",
 			nativeQuery=true)
-    NnwdafEventsSubscriptionTable delete(Long id);
+    void delete(Long id);
 
 	@Modifying
 	@Transactional

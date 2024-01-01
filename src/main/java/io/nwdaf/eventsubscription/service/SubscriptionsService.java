@@ -83,8 +83,8 @@ public class SubscriptionsService {
 		return repository.save(body_table);
     }
 
-	public NnwdafEventsSubscriptionTable delete(Long id) {
-		return repository.delete(id);
+	public void delete(Long id) {
+		repository.delete(id);
     }
 
 	public boolean truncate(){

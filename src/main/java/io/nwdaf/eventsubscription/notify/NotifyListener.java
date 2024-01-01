@@ -38,7 +38,6 @@ import static io.nwdaf.eventsubscription.utilities.ParserUtil.parsePresentNfLoad
 public class NotifyListener {
 
     public static final Logger logger = NwdafSubApplication.getLogger();
-//    public static Integer max_subs_per_process = 200;
     public static final Integer max_no_notifEventListeners = 1;
     @Getter
     @Setter

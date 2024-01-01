@@ -20,9 +20,9 @@ services:
       nnwdaf-eventsubscription.prometheus_url: http://${prom_host}:${prom_port}/api/v1/query
       nnwdaf-eventsubscription.allow_dummy_data: true
       nnwdaf-eventsubscription.allow_prom_data: false
-      nnwdaf-eventsubscription.no_dummy_nfload: 100
-      nnwdaf-eventsubscription.no_dummy_uemob: 100
-      nnwdaf-eventsubscription.no_dummy_uecomm: 100
+      nnwdaf-eventsubscription.no_dummy_nfload: 10
+      nnwdaf-eventsubscription.no_dummy_uemob: 10
+      nnwdaf-eventsubscription.no_dummy_uecomm: 10
 #  nwdafSubCollector2:
 #    container_name: nwdafSubCollector2
 #    image: thanlinardos/nwdaf_sub_collector:0.0.1-SNAPSHOT

@@ -15,10 +15,10 @@ externalDocs:
 security:
   - {}
   - oAuth2ClientCredentials:
-    - nnwdaf-eventssubscription
+    - nwdaf-eventsubscription
 
 servers:
-  - url: 'https://localhost:8080/nnwdaf-eventssubscription/v1'
+  - url: 'https://localhost:8080/nwdaf-eventsubscription/v1'
     variables:
       apiRoot:
         default: https://localhost:8080
@@ -44,7 +44,7 @@ paths:
             Location:
               description: >
                 Contains the URI of the newly created resource, according to the structure
-                {apiRoot}/nnwdaf-eventssubscription/<apiVersion>/subscriptions/{subscriptionId}
+                {apiRoot}/nwdaf-eventsubscription/<apiVersion>/subscriptions/{subscriptionId}
               required: true
               schema:
                 type: string
@@ -234,7 +234,7 @@ paths:
             Location:
               description: >
                 Contains the URI of the newly created resource, according to the structure
-                {apiRoot}/nnwdaf-eventssubscription/<apiVersion>/transfers/{transferId}
+                {apiRoot}/nwdaf-eventsubscription/<apiVersion>/transfers/{transferId}
               required: true
               schema:
                 type: string
