@@ -40,4 +40,8 @@ src/main/resources/certificates/local-client-ssl.p12
 src/main/resources/certificates/hosts
 src/main/resources/certificates/sanClientHosts.txt
 src/main/resources/certificates/sanHosts.txt
+src/main/resources/certificates/certificate.pem
+src/main/resources/certificates/client-certificate.pem
+src/main/resources/certificates/privatekey.pem
+src/main/resources/certificates/client-privatekey.pem
 src/main/resources/compose_files/clusterID/clusterID

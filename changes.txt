@@ -7,8 +7,8 @@ todo:
 	-add request builder with parameters (construct the body from these parameters) by making a Client DONE
 	-make html form for client DONE
 	-fix api annotations for swagger ui (+transfersapi)
-	-controller if statements for building the response INPROGRESS (responsebuilder: same datatype as request but with added fields)
-	- Location Header = uri of created subscription DONE (need to test it with jpa)
+	-controller if statements for building the response DONE
+	- Location Header = uri of created subscription DONE
 	- notifURI = client address DONE (in env variables like with apiRoot)
 	-add database DONE
 	-make schema for database DONE (with jsonb)
@@ -177,7 +177,7 @@ TODO:
 -make fake metrics for UE_Mobility and implement the use case DONE
 -add second prometheus instance (implement data collection for list of prometheus instances) DONE (only left to scale the prom containers)
 -add kafka broker inbetween to talk to timescaledbs through subscriptions DONE
--implement controller responses properly
+-implement controller responses properly DONE (only redirects left)
 -implement the rest of the event types
 -add master client to view all subs	& admin to control for eventlisteners (notifiers & data collectors/generators)  IN PROGRESS
 -add event listener that groups data with turncating in 60min timewindows with 1min averages and stores them permanently DONE

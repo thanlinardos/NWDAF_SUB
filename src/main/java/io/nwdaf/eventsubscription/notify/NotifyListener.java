@@ -451,11 +451,11 @@ public class NotifyListener {
 
                 int size = Math.min(notification.getEventNotifications().getFirst().getNfLoadLevelInfos().size(),
                         thresholdLevels.size());
-                List<NfLoadLevelInformation> presentNfLevelInformations = parsePresentNfLoadLevelInformations(notification.getEventNotifications().getFirst().getNfLoadLevelInfos());
+                List<NfLoadLevelInformation> presentNfLevelInformation = parsePresentNfLoadLevelInformations(notification.getEventNotifications().getFirst().getNfLoadLevelInfos());
                 int index;
 
                 for (int i = 0; i < size; i++) {
-                    NfLoadLevelInformation nfLoadLevelInformation = presentNfLevelInformations.get(i);
+                    NfLoadLevelInformation nfLoadLevelInformation = presentNfLevelInformation.get(i);
                     if (thresholdLevels.get(i) == null) {
                         continue;
                     }
