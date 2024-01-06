@@ -180,13 +180,7 @@ public class NwdafSubApplication {
             saveSubscriptions();
 
             for (NwdafEventEnum e : Constants.supportedEvents) {
-                wakeUpDataProducer("kafka",
-                        e,
-                        null,
-                        dataCollectionPublisher,
-                        dummyDataProducerPublisher,
-                        producer,
-                        objectMapper);
+                wakeUpDataProducer(e, null, producer);
             }
             notifyPublisher.publishNotification("wakeupMethod: kafka, normal startup", 0L);
         };
@@ -210,13 +204,7 @@ public class NwdafSubApplication {
 
                 String wakeUpMethod = "kafka";
                 for (NwdafEventEnum e : Constants.supportedEvents) {
-                    wakeUpDataProducer(wakeUpMethod,
-                            e,
-                            null,
-                            dataCollectionPublisher,
-                            dummyDataProducerPublisher,
-                            producer,
-                            objectMapper);
+                    wakeUpDataProducer(e, null, producer);
                 }
 
                 Thread.sleep(2000);

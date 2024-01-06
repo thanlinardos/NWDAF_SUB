@@ -224,7 +224,9 @@ public class NotifyListener {
                             repPeriod * 1_250L, Instant.now().toEpochMilli())) {
 
                         notification = foundNotification;
-                        notification.notificationReference(foundNotification.getId()).id(UUID.randomUUID()).subscriptionId(sub.getId().toString());
+                        notification.notificationReference(foundNotification.getId())
+                                .id(UUID.randomUUID())
+                                .subscriptionId(sub.getId().toString());
                         no_found_notifs++;
                         found = true;
                     } else {
@@ -404,9 +406,9 @@ public class NotifyListener {
         notif_save_delay += (double) (System.nanoTime() - st) / 1_000L;
     }
 
-    private SectionBLogs handleSendNotification(Integer repPeriod, NnwdafEventsSubscriptionNotification notification,
-                                                EventSubscription event, NnwdafEventsSubscription sub, long key, double section_b, double section_c, long kb_time,
-                                                Map.Entry<Long, OffsetDateTime> entry) {
+    private SectionBLogs handleSendNotification(Integer repPeriod, NnwdafEventsSubscriptionNotification
+            notification, EventSubscription event, NnwdafEventsSubscription sub, long key, double section_b, double section_c,
+                                                long kb_time, Map.Entry<Long, OffsetDateTime> entry) {
         long st_if = System.nanoTime();
 
         OffsetDateTime now = OffsetDateTime.now();
@@ -488,7 +490,8 @@ public class NotifyListener {
         return false;
     }
 
-    private static boolean[] mapIsThresholdBooleans(List<ThresholdLevel> thresholdLevels, int i, NfLoadLevelInformation nfLoadLevelInformation) {
+    private static boolean[] mapIsThresholdBooleans(List<ThresholdLevel> thresholdLevels,
+                                                    int i, NfLoadLevelInformation nfLoadLevelInformation) {
         return new boolean[]{(thresholdLevels.get(i).getNfCpuUsage() != null
                 && nfLoadLevelInformation.getNfCpuUsage() >= thresholdLevels.get(i).getNfCpuUsage()),
                 (thresholdLevels.get(i).getNfMemoryUsage() != null && nfLoadLevelInformation
@@ -531,7 +534,8 @@ public class NotifyListener {
         }
     }
 
-    private void printPerfB(double tsdb_req_delay, double client_delay, double notif_save_delay, long no_sent_notifs,
+    private void printPerfB(double tsdb_req_delay, double client_delay, double notif_save_delay,
+                            long no_sent_notifs,
                             double no_sent_kilobytes, double total) {
         if (logSections) {
             System.out.print(" || client_delay:" + decimalFormat.format(client_delay / 1_000L) + "ms");

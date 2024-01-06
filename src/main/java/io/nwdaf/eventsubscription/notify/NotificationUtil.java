@@ -38,6 +38,8 @@ import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
 
+import javax.validation.constraints.NotNull;
+
 import static io.nwdaf.eventsubscription.NwdafSubApplication.NWDAF_INSTANCE_ID;
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckListNotEmpty;
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckObjectsEquals;
@@ -145,6 +147,8 @@ public class NotificationUtil {
         if (isFuture == 1 || repPeriod == null) {
             return null;
         }
+        TargetUeInformation tgtUe = eventSub.getTgtUe();
+        boolean isAnyUe = tgtUe == null || tgtUe.isAnyUe() == null || tgtUe.isAnyUe();
         switch (eType) {
             case NF_LOAD:
                 List<NfLoadLevelInformation> nfloadlevels;
@@ -153,8 +157,8 @@ public class NotificationUtil {
                 // over all
                 // Supis filter (checks if the supis list on each nfinstance contains any of the
                 // supis in the sub request)
-                if (eventSub.getTgtUe() != null && eventSub.getTgtUe().isAnyUe() != null && !eventSub.getTgtUe().isAnyUe() && safeCheckListNotEmpty(eventSub.getTgtUe().getSupis())) {
-                    params = ParserUtil.parseQuerryFilterContains(eventSub.getTgtUe().getSupis(), "supis");
+                if (!isAnyUe && safeCheckListNotEmpty(tgtUe.getSupis())) {
+                    params = ParserUtil.parseQuerryFilterContains(tgtUe.getSupis(), "supis");
                     filterTypes.add("supis");
                 } else if (safeCheckListNotEmpty(eventSub.getNfInstanceIds())) {
                     params = parseQuerryFilter(
@@ -223,12 +227,12 @@ public class NotificationUtil {
                 break;
             case UE_MOBILITY:
                 List<UeMobility> ueMobilities;
-                if (eventSub.getTgtUe() != null && eventSub.getTgtUe().isAnyUe() != null && !eventSub.getTgtUe().isAnyUe() && safeCheckListNotEmpty(eventSub.getTgtUe().getSupis())) {
+                if (!isAnyUe && safeCheckListNotEmpty(tgtUe.getSupis())) {
                     params = parseQuerryFilter(
-                            parseListToFilterList(eventSub.getTgtUe().getSupis(), "supi"));
-                } else if (eventSub.getTgtUe() != null && eventSub.getTgtUe().isAnyUe() != null && !eventSub.getTgtUe().isAnyUe() && safeCheckListNotEmpty(eventSub.getTgtUe().getIntGroupIds())) {
+                            parseListToFilterList(tgtUe.getSupis(), "supi"));
+                } else if (!isAnyUe && safeCheckListNotEmpty(tgtUe.getIntGroupIds())) {
                     params = parseQuerryFilter(
-                            parseListToFilterList(eventSub.getTgtUe().getIntGroupIds(), "intGroupId"));
+                            parseListToFilterList(tgtUe.getIntGroupIds(), "intGroupId"));
                 } else if (eventSub.getVisitedAreas() != null
                         && safeCheckListNotEmpty(eventSub.getVisitedAreas())) {
                     List<String> validVisitedAreas = new ArrayList<>();
@@ -261,12 +265,12 @@ public class NotificationUtil {
                 break;
             case UE_COMM:
                 List<UeCommunication> ueCommunications;
-                if (eventSub.getTgtUe() != null && eventSub.getTgtUe().isAnyUe() != null && !eventSub.getTgtUe().isAnyUe() && safeCheckListNotEmpty(eventSub.getTgtUe().getSupis())) {
+                if (!isAnyUe && safeCheckListNotEmpty(tgtUe.getSupis())) {
                     params = parseQuerryFilter(
-                            parseListToFilterList(eventSub.getTgtUe().getSupis(), "supi"));
-                } else if (eventSub.getTgtUe() != null && eventSub.getTgtUe().isAnyUe() != null && !eventSub.getTgtUe().isAnyUe() && safeCheckListNotEmpty(eventSub.getTgtUe().getIntGroupIds())) {
+                            parseListToFilterList(tgtUe.getSupis(), "supi"));
+                } else if (!isAnyUe && safeCheckListNotEmpty(tgtUe.getIntGroupIds())) {
                     params = parseQuerryFilter(
-                            parseListToFilterList(eventSub.getTgtUe().getIntGroupIds(), "intGroupId"));
+                            parseListToFilterList(tgtUe.getIntGroupIds(), "intGroupId"));
                 } else if (eventSub.getNetworkArea() != null
                         && safeCheckListNotEmpty(eventSub.getNetworkArea().getContainedAreaIds())
                         && (safeCheckListNotEmpty(eventSub.getNetworkArea().getEcgis()) ||
@@ -300,124 +304,94 @@ public class NotificationUtil {
         return notification;
     }
 
-    public static Integer[] wakeUpDataProducer(String choise, NwdafEventEnum requestedEvent, Integer requestedOffset,
-                                               DataCollectionPublisher dataCollectionPublisher, DummyDataProducerPublisher dummyDataProducerPublisher,
-                                               KafkaProducer kafkaProducer, ObjectMapper objectMapper) throws InterruptedException, IOException {
-        switch (choise) {
-            case "prom":
-                // check if it needs to wake up data collector
-                if (DataCollectionListener.getNo_dataCollectionEventListeners() == 0) {
-                    dataCollectionPublisher.publishDataCollection("");
-                    // wait for data collection to start
-                    while ((!DataCollectionListener.getStartedSavingData())
-                            && DataCollectionListener.getNo_dataCollectionEventListeners() > 0) {
-                        Thread.sleep(50);
-                    }
-                    Thread.sleep(50);
-                }
-                break;
-            case "dummy":
-                // check if it needs to wake up dummy data producer
-                if (DummyDataProducerListener.getNo_dummyDataProducerEventListeners() == 0) {
-                    dummyDataProducerPublisher.publishDataCollection("dummy data production");
-                    // wait for data publishing to start
-                    while ((!DummyDataProducerListener.getStartedSavingData())
-                            && DummyDataProducerListener.getNo_dummyDataProducerEventListeners() > 0) {
-                        Thread.sleep(50);
-                    }
-                }
-                break;
-            case "kafka":
-                // start the kafka consumer listener
-                KafkaConsumer.startListening();
-                Thread.sleep(0, 1_000);
-                if (!KafkaConsumer.isListening.get()) {
-                    KafkaConsumer.startListening();
-                    Thread.sleep(0, 1_000);
-                    System.out.println("isListening failed...");
-                }
-
-                // hit up data producers through kafka topic "WAKE_UP"
-                WakeUpMessage wakeUpMessage = WakeUpMessage.builder()
-                        .requestedEvent(requestedEvent)
-                        .nfInstancedId(NWDAF_INSTANCE_ID)
-                        .requestedOffset(requestedOffset).build();
-                kafkaProducer.sendMessage(wakeUpMessage.toString(), "WAKE_UP");
-
-                KafkaConsumer.latestWakeUpMessageEventMap.put(wakeUpMessage.getRequestedEvent(), wakeUpMessage);
-                // wait for data sending & saving to start
-                long maxWait = 4_000L;
-                boolean responded = false;
-                List<DiscoverMessage> discoverMessages = new ArrayList<>();
-                boolean hasData = false;
-                long start = System.nanoTime();
-                while (System.nanoTime() <= start + maxWait * 1_000_000L) {
-                    while (!KafkaConsumer.discoverMessageQueue.isEmpty()) {
-                        String msg = KafkaConsumer.discoverMessageQueue.poll();
-                        if (msg == null) {
-                            logger.error("InterruptedException: Couldn't take msg from discover queue");
-                            break;
-                        }
-
-                        DiscoverMessage discoverMessage = DiscoverMessage.fromString(msg);
-                        long diff = Instant.now().getNano() - discoverMessage.getTimestamp().getNano();
-                        boolean tooOldMsg = diff > 500_000_000L && diff > discoverMessage.getAvailableOffset() * 1_000_000_000L;
-                        if (!tooOldMsg) {
-                            discoverMessages.add(discoverMessage);
-                            if (discoverMessage.getRequestedEvent() != null) {
-                                KafkaConsumer.latestDiscoverMessageEventMap.put(discoverMessage.getRequestedEvent(), discoverMessage);
-                            }
-                            if(discoverMessage.getCollectorInstanceId()!=null) {
-                                KafkaConsumer.eventCollectorIdSet.add(discoverMessage.getCollectorInstanceId());
-                            }
-                        }
-                        hasData = discoverMessage.getHasData() && (!tooOldMsg);
-                        responded = true;
-                    }
-                    if (responded && hasData) {
-                        // remove duplicate messages
-                        discoverMessages = new ArrayList<>(new LinkedHashSet<>(discoverMessages));
-                        break;
-                    }
-                    Thread.sleep(0, 1_000);
-                }
-                System.out.println("kafka_wait_time= " + (System.nanoTime() - start) / 1_000_000L + "ms");
-                int isDataAvailable = 0;
-                int expectedWaitTime = 0;
-                for (DiscoverMessage msg : discoverMessages) {
-                    System.out.println("discover msg: " + msg);
-                    if (msg.getHasData() != null && msg.getHasData()) {
-                        if (msg.getRequestedOffset() == null
-                                || msg.getRequestedOffset() <= Constants.MIN_PERIOD_SECONDS) {
-                            isDataAvailable = 1;
-                            break;
-                        } else if (msg.getAvailableOffset() != null
-                                && msg.getAvailableOffset() >= msg.getRequestedOffset()) {
-                            isDataAvailable = 1;
-                            break;
-                        } else {
-                            expectedWaitTime = msg.getRequestedOffset() - msg.getAvailableOffset();
-                        }
-                    }
-                    if ((msg.getHasData() == null || !msg.getHasData()) &&
-                            msg.getAvailableOffset() != null &&
-                            msg.getRequestedOffset() != null &&
-                            msg.getExpectedWaitTime() != null) {
-                        expectedWaitTime = msg.getExpectedWaitTime() + msg.getRequestedOffset();
-                    }
-                }
-                if (isDataAvailable == 1) {
-                    start = System.nanoTime();
-                    while (KafkaConsumer.isListening.get() && !KafkaConsumer.eventConsumerStartedSaving.get(requestedEvent) && System.nanoTime() <= start + maxWait * 1_000_000L) {
-                        Thread.sleep(0, 1_000);
-                    }
-                }
-                System.out.println("consumer_save_wait_time= " + (System.nanoTime() - start) / 1_000_000L + "ms");
-                return new Integer[]{isDataAvailable, expectedWaitTime};
-            default:
-                break;
+    public static Integer[] wakeUpDataProducer(NwdafEventEnum requestedEvent, Integer requestedOffset,
+                                               @NotNull KafkaProducer kafkaProducer) throws InterruptedException, IOException {
+        // start the kafka consumer listener
+        KafkaConsumer.startListening();
+        Thread.sleep(0, 1_000);
+        if (!KafkaConsumer.isListening.get()) {
+            KafkaConsumer.startListening();
+            Thread.sleep(0, 1_000);
+            System.out.println("isListening failed...");
         }
-        return new Integer[]{null, null};
+
+        // hit up data producers through kafka topic "WAKE_UP"
+        WakeUpMessage wakeUpMessage = WakeUpMessage.builder()
+                .requestedEvent(requestedEvent)
+                .nfInstancedId(NWDAF_INSTANCE_ID)
+                .requestedOffset(requestedOffset).build();
+        kafkaProducer.sendMessage(wakeUpMessage.toString(), "WAKE_UP");
+
+        KafkaConsumer.latestWakeUpMessageEventMap.put(wakeUpMessage.getRequestedEvent(), wakeUpMessage);
+        // wait for data sending & saving to start
+        long maxWait = 4_000L;
+        boolean responded = false;
+        List<DiscoverMessage> discoverMessages = new ArrayList<>();
+        boolean hasData = false;
+        long start = System.nanoTime();
+        while (System.nanoTime() <= start + maxWait * 1_000_000L) {
+            while (!KafkaConsumer.discoverMessageQueue.isEmpty()) {
+                String msg = KafkaConsumer.discoverMessageQueue.poll();
+                if (msg == null) {
+                    logger.error("InterruptedException: Couldn't take msg from discover queue");
+                    break;
+                }
+
+                DiscoverMessage discoverMessage = DiscoverMessage.fromString(msg);
+                long diff = Instant.now().getNano() - discoverMessage.getTimestamp().getNano();
+                boolean tooOldMsg = diff > 500_000_000L && diff > discoverMessage.getAvailableOffset() * 1_000_000_000L;
+                if (!tooOldMsg) {
+                    discoverMessages.add(discoverMessage);
+                    if (discoverMessage.getRequestedEvent() != null) {
+                        KafkaConsumer.latestDiscoverMessageEventMap.put(discoverMessage.getRequestedEvent(), discoverMessage);
+                    }
+                    if (discoverMessage.getCollectorInstanceId() != null) {
+                        KafkaConsumer.eventCollectorIdSet.add(discoverMessage.getCollectorInstanceId());
+                    }
+                }
+                hasData = discoverMessage.getHasData() && (!tooOldMsg);
+                responded = true;
+            }
+            if (responded && hasData) {
+                // remove duplicate messages
+                discoverMessages = new ArrayList<>(new LinkedHashSet<>(discoverMessages));
+                break;
+            }
+            Thread.sleep(0, 1_000);
+        }
+        System.out.println("kafka_wait_time= " + (System.nanoTime() - start) / 1_000_000L + "ms");
+        int isDataAvailable = 0;
+        int expectedWaitTime = 0;
+        for (DiscoverMessage msg : discoverMessages) {
+            System.out.println("discover msg: " + msg);
+            if (msg.getHasData() != null && msg.getHasData()) {
+                if (msg.getRequestedOffset() == null
+                        || msg.getRequestedOffset() <= Constants.MIN_PERIOD_SECONDS) {
+                    isDataAvailable = 1;
+                    break;
+                } else if (msg.getAvailableOffset() != null
+                        && msg.getAvailableOffset() >= msg.getRequestedOffset()) {
+                    isDataAvailable = 1;
+                    break;
+                } else {
+                    expectedWaitTime = msg.getRequestedOffset() - msg.getAvailableOffset();
+                }
+            }
+            if ((msg.getHasData() == null || !msg.getHasData()) &&
+                    msg.getAvailableOffset() != null &&
+                    msg.getRequestedOffset() != null &&
+                    msg.getExpectedWaitTime() != null) {
+                expectedWaitTime = msg.getExpectedWaitTime() + msg.getRequestedOffset();
+            }
+        }
+        if (isDataAvailable == 1) {
+            start = System.nanoTime();
+            while (KafkaConsumer.isListening.get() && !KafkaConsumer.eventConsumerStartedSaving.get(requestedEvent) && System.nanoTime() <= start + maxWait * 1_000_000L) {
+                Thread.sleep(0, 1_000);
+            }
+        }
+        System.out.println("consumer_save_wait_time= " + (System.nanoTime() - start) / 1_000_000L + "ms");
+        return new Integer[]{isDataAvailable, expectedWaitTime};
     }
 
     // check if for this event subscription the requested area of interest
@@ -655,13 +629,7 @@ public class NotificationUtil {
             try {
                 // wakeUpDataProducer("kafka_local_dummy", eType);
                 // wakeUpDataProducer("kafka_local_prom", eType);
-                Integer[] wakeUpResult = NotificationUtil.wakeUpDataProducer("kafka",
-                        eType,
-                        no_secs,
-                        dataCollectionPublisher,
-                        dummyDataProducerPublisher,
-                        kafkaProducer,
-                        objectMapper);
+                Integer[] wakeUpResult = NotificationUtil.wakeUpDataProducer(eType, no_secs, kafkaProducer);
                 isDataAvailable = wakeUpResult[0] == 1;
                 expectedWaitTime = wakeUpResult[1];
             } catch (IOException e) {

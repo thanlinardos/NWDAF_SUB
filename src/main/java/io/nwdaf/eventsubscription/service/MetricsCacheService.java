@@ -21,10 +21,13 @@ import io.nwdaf.eventsubscription.utilities.Constants;
 
 @Service
 public class MetricsCacheService {
-	@Autowired
-	private RedisMetricsRepository repository;
-	@Autowired
-	private MetricsService metricsService;
+	private final RedisMetricsRepository repository;
+	private final MetricsService metricsService;
+
+	public MetricsCacheService(RedisMetricsRepository repository, MetricsService metricsService) {
+		this.repository = repository;
+		this.metricsService = metricsService;
+	}
 
 	public NfLoadLevelInformationHash create(NfLoadLevelInformation body) {
 		NfLoadLevelInformationHash bodyHash = new NfLoadLevelInformationHash(body);
@@ -35,8 +38,7 @@ public class MetricsCacheService {
 	public List<NfLoadLevelInformation> findAllByTimeAndFilter(OffsetDateTime time, String params) {
 		List<NfLoadLevelInformationHash> entities;
 		if (params != null) {
-			entities = repository.findByTime(time).stream()
-					.collect(Collectors.toList());
+			entities = new ArrayList<>(repository.findByTime(time));
 		} else {
 			entities = repository.findByTime(time);
 		}
