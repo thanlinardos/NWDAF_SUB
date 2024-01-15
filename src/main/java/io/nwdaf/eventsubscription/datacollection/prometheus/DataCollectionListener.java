@@ -19,57 +19,57 @@ import java.util.List;
 
 @Component
 public class DataCollectionListener {
-	@Getter
-	private static Integer no_dataCollectionEventListeners = 0;
-	@Getter
-	private static final Object dataCollectionLock = new Object();
-	@Getter
-	private static Boolean startedSavingData = false;
-	@Getter
-	private static final Object startedSavingDataLock = new Object();
-	private static final Logger logger = LoggerFactory.getLogger(DataCollectionListener.class);
-	
-	final MetricsService metricsService;
-	
-	final MetricsCacheService metricsCacheService;
+    @Getter
+    private static Integer no_dataCollectionEventListeners = 0;
+    @Getter
+    private static final Object dataCollectionLock = new Object();
+    @Getter
+    private static Boolean startedSavingData = false;
+    @Getter
+    private static final Object startedSavingDataLock = new Object();
+    private static final Logger logger = LoggerFactory.getLogger(DataCollectionListener.class);
 
-	final Environment env;
+    final MetricsService metricsService;
 
-	public DataCollectionListener(MetricsService metricsService, MetricsCacheService metricsCacheService, Environment env) {
-		this.metricsService = metricsService;
-		this.metricsCacheService = metricsCacheService;
-		this.env = env;
-	}
+    final MetricsCacheService metricsCacheService;
 
-	@Async
+    final Environment env;
+
+    public DataCollectionListener(MetricsService metricsService, MetricsCacheService metricsCacheService, Environment env) {
+        this.metricsService = metricsService;
+        this.metricsCacheService = metricsCacheService;
+        this.env = env;
+    }
+
+    @Async
     @EventListener
     void excecuteDataCollection(String param) {
-    	if(!start()) {
-			return;
-		}
-    	while(no_dataCollectionEventListeners>0) {
-			long start,prom_delay,diff,wait_time;
-    		start = System.nanoTime();
-			prom_delay = 0L;
-    		for(NwdafEventEnum eType : Constants.supportedEvents) {
-				switch(eType){
-					case NF_LOAD:
+        if (!start()) {
+            return;
+        }
+        PrometheusRequestBuilder prometheusRequestBuilder = new PrometheusRequestBuilder();
+        while (no_dataCollectionEventListeners > 0) {
+            long start, prom_delay, diff, wait_time;
+            start = System.nanoTime();
+            prom_delay = 0L;
+            for (NwdafEventEnum eType : Constants.supportedEvents) {
+                switch (eType) {
+                    case NF_LOAD:
                         List<NfLoadLevelInformation> nfloadinfos;
                         try {
                             long t = System.nanoTime();
-                            nfloadinfos = new PrometheusRequestBuilder().execute(eType, env.getProperty("nnwdaf-eventsubscription.prometheus_url"));
+                            nfloadinfos = prometheusRequestBuilder.execute(eType, env.getProperty("nnwdaf-eventsubscription.prometheus_url"));
                             prom_delay += (System.nanoTime() - t) / 1000000L;
                         } catch (JsonProcessingException e) {
-                            logger.error("Failed to collect data for event: "+eType,e);
+                            logger.error("Failed to collect data for event: " + eType, e);
                             stop();
                             continue;
                         }
-                        if(nfloadinfos==null || nfloadinfos.isEmpty()) {
-                            logger.error("Failed to collect data for event: "+eType);
+                        if (nfloadinfos == null || nfloadinfos.isEmpty()) {
+                            logger.error("Failed to collect data for event: " + eType);
                             stop();
                             continue;
-                        }
-                        else {
+                        } else {
                             for (NfLoadLevelInformation nfloadinfo : nfloadinfos) {
                                 try {
                                     // System.out.println("nfloadinfo"+j+": "+nfloadinfos.get(j));
@@ -84,43 +84,44 @@ public class DataCollectionListener {
                             }
                         }
                         break;
-					default:
-						break;
-				}
-    		}
-    		diff = (System.nanoTime()-start) / 1000000L;
-    		wait_time = (long)Constants.MIN_PERIOD_SECONDS* 1000L;
-    		if(diff<wait_time) {
-	    		try {
-					Thread.sleep(wait_time-diff);
-				} catch (InterruptedException e) {
-					logger.error("Failed to wait for thread...",e);
-					stop();
-					continue;
-				}
-    		}
-    		logger.info("prom request delay = "+prom_delay+"ms");
-    		logger.info("data coll total delay = "+diff+"ms");
-    	}
-    	logger.info("Prometheus Data Collection stopped!");
+                    default:
+                        break;
+                }
+            }
+            diff = (System.nanoTime() - start) / 1000000L;
+            wait_time = (long) Constants.MIN_PERIOD_SECONDS * 1000L;
+            if (diff < wait_time) {
+                try {
+                    Thread.sleep(wait_time - diff);
+                } catch (InterruptedException e) {
+                    logger.error("Failed to wait for thread...", e);
+                    stop();
+                    continue;
+                }
+            }
+            logger.info("prom request delay = " + prom_delay + "ms");
+            logger.info("data coll total delay = " + diff + "ms");
+        }
+        logger.info("Prometheus Data Collection stopped!");
     }
 
-	public static void stop(){
-		synchronized (dataCollectionLock) {
-    		no_dataCollectionEventListeners--;
-    	}
-		synchronized(startedSavingDataLock){
-			startedSavingData = false;
-		}
-	}
-	public static boolean start(){
-		synchronized (dataCollectionLock) {
-			if(no_dataCollectionEventListeners<1) {
-				no_dataCollectionEventListeners++;
-				logger.info("collecting data...");
-				return true;
-			}
-		}
-		return false;
-	}
+    public static void stop() {
+        synchronized (dataCollectionLock) {
+            no_dataCollectionEventListeners--;
+        }
+        synchronized (startedSavingDataLock) {
+            startedSavingData = false;
+        }
+    }
+
+    public static boolean start() {
+        synchronized (dataCollectionLock) {
+            if (no_dataCollectionEventListeners < 1) {
+                no_dataCollectionEventListeners++;
+                logger.info("collecting data...");
+                return true;
+            }
+        }
+        return false;
+    }
 }

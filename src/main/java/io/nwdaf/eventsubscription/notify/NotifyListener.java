@@ -1,6 +1,11 @@
 package io.nwdaf.eventsubscription.notify;
 
+import java.io.IOException;
 import java.lang.Exception;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -9,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.nwdaf.eventsubscription.config.WebClientConfig;
 import io.nwdaf.eventsubscription.model.*;
+import io.nwdaf.eventsubscription.requestbuilders.RestTemplateFactory;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -22,7 +28,6 @@ import org.springframework.web.client.RestTemplate;
 
 import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
-import io.nwdaf.eventsubscription.config.RestTemplateFactoryConfig;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.*;
@@ -561,9 +566,7 @@ public class NotifyListener {
                 .build();
     }
 
-    private void setupRestTemplate() {
-        RestTemplateFactoryConfig.setTrustStore(trustStore);
-        RestTemplateFactoryConfig.setTrustStorePassword(trustStorePassword);
-        restTemplate = new RestTemplate(Objects.requireNonNull(RestTemplateFactoryConfig.createRestTemplateFactory()));
+    private void setupRestTemplate() throws CertificateException, IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+        restTemplate = new RestTemplate(Objects.requireNonNull(RestTemplateFactory.createRestTemplateFactory(trustStore, trustStorePassword)));
     }
 }

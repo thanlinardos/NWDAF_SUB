@@ -16,9 +16,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import io.nwdaf.eventsubscription.customModel.DiscoverMessage;
 import io.nwdaf.eventsubscription.customModel.WakeUpMessage;
-import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerListener;
 import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerPublisher;
-import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionListener;
 import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.kafka.KafkaConsumer;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
@@ -43,6 +41,8 @@ import javax.validation.constraints.NotNull;
 import static io.nwdaf.eventsubscription.NwdafSubApplication.NWDAF_INSTANCE_ID;
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckListNotEmpty;
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckObjectsEquals;
+import static io.nwdaf.eventsubscription.utilities.Constants.ExampleAOIsMap;
+import static io.nwdaf.eventsubscription.utilities.Constants.ExampleAOIsToUUIDsMap;
 import static io.nwdaf.eventsubscription.utilities.ParserUtil.parseListToFilterList;
 import static io.nwdaf.eventsubscription.utilities.ParserUtil.parseQuerryFilter;
 
@@ -338,6 +338,9 @@ public class NotificationUtil {
                 }
 
                 DiscoverMessage discoverMessage = DiscoverMessage.fromString(msg);
+                if(discoverMessage.getAvailableOffset() == null ) {
+                    discoverMessage.setAvailableOffset(0);
+                }
                 long diff = Instant.now().getNano() - discoverMessage.getTimestamp().getNano();
                 boolean tooOldMsg = diff > 500_000_000L && diff > discoverMessage.getAvailableOffset() * 1_000_000_000L;
                 if (!tooOldMsg) {
@@ -404,7 +407,7 @@ public class NotificationUtil {
         boolean failed_notif = false;
         NwdafFailureCodeEnum failCode = null;
         if (requestNetworkArea != null && requestNetworkArea.getId() != null) {
-            matchingArea = Constants.ExampleAOIsMap.get(requestNetworkArea.getId());
+            matchingArea = ExampleAOIsMap.get(requestNetworkArea.getId());
             insideServiceArea = Constants.ServingAreaOfInterest.containsArea(matchingArea);
         }
         if (requestNetworkArea != null
@@ -416,14 +419,14 @@ public class NotificationUtil {
                 failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
                 System.out.println("not inside serving aoi");
             } else {
-                if (Constants.ExampleAOIsToUUIDsMap.containsKey(requestNetworkArea)) {
+                if (ExampleAOIsToUUIDsMap.containsKey(requestNetworkArea)) {
                     // check if its lists equal one of the known AOIs -> set the id
-                    requestNetworkArea.id(Constants.ExampleAOIsToUUIDsMap.get(requestNetworkArea));
+                    requestNetworkArea.id(ExampleAOIsToUUIDsMap.get(requestNetworkArea));
                     System.out.println("same as aoi with id: " + requestNetworkArea.getId());
                 } else if (requestNetworkArea.getId() != null
-                        && Constants.ExampleAOIsMap.containsKey(requestNetworkArea.getId())) {
+                        && ExampleAOIsMap.containsKey(requestNetworkArea.getId())) {
                     // check if id equals to a known AOI -> set the area lists
-                    NetworkAreaInfo matchingAOI = Constants.ExampleAOIsMap.get(requestNetworkArea.getId());
+                    NetworkAreaInfo matchingAOI = ExampleAOIsMap.get(requestNetworkArea.getId());
                     requestNetworkArea.ecgis(matchingAOI.getEcgis()).ncgis(matchingAOI.getNcgis())
                             .gRanNodeIds(matchingAOI.getGRanNodeIds()).tais(matchingAOI.getTais());
                 } else {
@@ -431,11 +434,11 @@ public class NotificationUtil {
                     if (requestNetworkArea.getId() == null) {
                         requestNetworkArea.id(UUID.randomUUID());
                     }
-                    Constants.ExampleAOIsMap.put(requestNetworkArea.getId(), requestNetworkArea);
-                    Constants.ExampleAOIsToUUIDsMap.put(requestNetworkArea, requestNetworkArea.getId());
+                    ExampleAOIsMap.put(requestNetworkArea.getId(), requestNetworkArea);
+                    ExampleAOIsToUUIDsMap.put(requestNetworkArea, requestNetworkArea.getId());
                 }
                 // aggregate known areas that are inside of this area of interest
-                for (Map.Entry<UUID, NetworkAreaInfo> entry : Constants.ExampleAOIsMap.entrySet()) {
+                for (Map.Entry<UUID, NetworkAreaInfo> entry : ExampleAOIsMap.entrySet()) {
                     UUID key = entry.getKey();
                     NetworkAreaInfo aoi = entry.getValue();
                     if (requestNetworkArea.containsArea(aoi) || key.equals(requestNetworkArea.getId())) {
@@ -673,7 +676,7 @@ public class NotificationUtil {
             } else {
                 canServeSubscription.set(i, true);
                 if (immRep) {
-                    body.addEventNotificationsItem(notification.getEventNotifications().get(0)
+                    body.addEventNotificationsItem(notification.getEventNotifications().getFirst()
                             .rvWaitTime(expectedWaitTime));
                 }
             }

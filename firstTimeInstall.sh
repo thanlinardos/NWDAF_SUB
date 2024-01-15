@@ -2,4 +2,5 @@
 ./src/main/resources/certificates//generateCertificates.sh &&
 ./src/main/resources/certificates//installCertificatesChrome.sh &&
 ./build.sh &&
-./installDockprom.sh
+./installDockprom.sh &&
+./installNef.sh

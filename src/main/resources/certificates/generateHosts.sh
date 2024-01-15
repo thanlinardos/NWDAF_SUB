@@ -21,6 +21,7 @@ kafka2=${kafka2_host:-"kafka2"}
 kafka3=${kafka3_host:-"kafka3"}
 client=${client_host:-"nwdafSubClient"}
 redis=${redis_host:-"redis"}
+nef=${nef_host:-"3gppnef"}
 # Loop through and generate host names and write them to hosts & sanHosts.txt
 echo "127.0.0.1 $kafka1" >> hosts
 echo "127.0.0.1 $kafka2" >> hosts
@@ -28,6 +29,7 @@ echo "127.0.0.1 $kafka3" >> hosts
 echo "127.0.0.1 $server" >> hosts
 echo "127.0.0.1 $client" >> hosts
 echo "127.0.0.1 $redis" >> hosts
+echo "127.0.0.1 $nef" >> hosts
 echo "127.0.0.1" >> sanHosts.txt
 echo "$server" >> sanHosts.txt
 echo "localhost" >> sanHosts.txt

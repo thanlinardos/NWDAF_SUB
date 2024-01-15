@@ -208,17 +208,17 @@ public class KafkaConsumer {
 //        return in;
 //    }
 
-    @Scheduled(fixedDelay = 1)
+    @Scheduled(fixedDelay = 230)
     public void scheduledConcurrentNfLoadListener() {
         concurrentDataListener(NF_LOAD, kafkaConsumerEventThreadLocal.get());
     }
 
-    @Scheduled(fixedDelay = 1)
+    @Scheduled(fixedDelay = 230)
     public void scheduledConcurrentUeMobilityListener() {
         concurrentDataListener(NwdafEvent.NwdafEventEnum.UE_MOBILITY, kafkaConsumerEventThreadLocal.get());
     }
 
-    @Scheduled(fixedDelay = 1)
+    @Scheduled(fixedDelay = 230)
     public void scheduledConcurrentUeCommunicationListener() {
         concurrentDataListener(NwdafEvent.NwdafEventEnum.UE_COMM, kafkaConsumerEventThreadLocal.get());
     }
@@ -240,7 +240,7 @@ public class KafkaConsumer {
         }
 
         long endTimestamp = Instant.parse(OffsetDateTime.now().toString()).toEpochMilli();
-        long startTimestamp = Instant.parse(OffsetDateTime.now().minusNanos(Constants.MIN_PERIOD_SECONDS * 500_000_000).toString()).toEpochMilli();
+        long startTimestamp = Instant.parse(OffsetDateTime.now().minusNanos(Constants.MIN_PERIOD_SECONDS * 250_000_000).toString()).toEpochMilli();
 
         for (TopicPartition partition : topicPartitions) {
             OffsetAndTimestamp offsetAndTimestamp = kafkaConsumer.offsetsForTimes(Collections.singletonMap(partition, startTimestamp)).get(partition);
@@ -271,8 +271,8 @@ public class KafkaConsumer {
 
         try {
             consumeMetrics(eventEnum, values, latestRecordTimeStamp.get(), true);
-//            System.out.println("Saved " + eventEnum + " x " + values.size() + " to database from "
-//                                + Instant.ofEpochMilli(earliestRecordTimeStamp.get()) + " to " + Instant.ofEpochMilli(latestRecordTimeStamp.get()));
+            System.out.println("Saved " + eventEnum + " x " + values.size() + " to database from "
+                                + Instant.ofEpochMilli(earliestRecordTimeStamp.get()) + " to " + Instant.ofEpochMilli(latestRecordTimeStamp.get()));
             startedSaving(eventEnum);
         } catch (IOException e) {
             logger.info("data not matching " + eventEnum + " model: " + values);

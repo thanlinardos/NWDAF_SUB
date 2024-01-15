@@ -66,10 +66,8 @@ public class NwdafSubApplication {
 
     private static final Logger log = LoggerFactory.getLogger(NwdafSubApplication.class);
     private final NotifyPublisher notifyPublisher;
-    private final DataCollectionPublisher dataCollectionPublisher;
     @Getter
     private final ApplicationContext applicationContext;
-    private final DummyDataProducerPublisher dummyDataProducerPublisher;
     final KafkaTemplate<String, String> kafkaTemplate;
     final MetricsService metricsService;
     final SubscriptionsService subscriptionsService;
@@ -92,18 +90,15 @@ public class NwdafSubApplication {
     private final String uri;
 
 
-    public NwdafSubApplication(NotifyPublisher notifyPublisher, DataCollectionPublisher dataCollectionPublisher, ApplicationContext applicationContext,
-                               RedisSubscriptionRepository redisSubscriptionRepository, NotificationService notificationService,
-                               DummyDataProducerPublisher dummyDataProducerPublisher, KafkaTemplate<String, String> kafkaTemplate,
+    public NwdafSubApplication(NotifyPublisher notifyPublisher, ApplicationContext applicationContext,
+                               RedisSubscriptionRepository redisSubscriptionRepository, NotificationService notificationService, KafkaTemplate<String, String> kafkaTemplate,
                                MetricsService metricsService, SubscriptionsService subscriptionsService, RedisNotificationRepository redisNotificationRepository,
                                ObjectMapper objectMapper, Environment env, KafkaProducer producer, RedisMetricsRepository redisRepository) {
 
         this.notifyPublisher = notifyPublisher;
-        this.dataCollectionPublisher = dataCollectionPublisher;
         this.applicationContext = applicationContext;
         this.redisSubscriptionRepository = redisSubscriptionRepository;
         this.notificationService = notificationService;
-        this.dummyDataProducerPublisher = dummyDataProducerPublisher;
         this.kafkaTemplate = kafkaTemplate;
         this.metricsService = metricsService;
         this.subscriptionsService = subscriptionsService;
@@ -157,17 +152,17 @@ public class NwdafSubApplication {
     @Bean
     public CommandLineRunner testMetricsDB() {
         return args -> {
-            NfLoadLevelInformation nfLoadLevelInformation = DummyDataGenerator.generateDummyNfLoadLevelInfo(1).get(0);
+            NfLoadLevelInformation nfLoadLevelInformation = DummyDataGenerator.generateDummyNfLoadLevelInfo(1).getFirst();
             metricsService.createNfload(nfLoadLevelInformation);
-            assert (metricsService.findAllInLastIntervalByFilterAndOffset(null, 1, 1, "").get(0).getNfInstanceId() == nfLoadLevelInformation.getNfInstanceId());
+            assert (metricsService.findAllInLastIntervalByFilterAndOffset(null, 1, 1, "").getFirst().getNfInstanceId() == nfLoadLevelInformation.getNfInstanceId());
 
-            UeMobility ueMobility = DummyDataGenerator.generateDummyUeMobilities(1).get(0);
+            UeMobility ueMobility = DummyDataGenerator.generateDummyUeMobilities(1).getFirst();
             metricsService.createUeMob(ueMobility);
-            assert (Objects.equals(metricsService.findAllUeMobilityInLastIntervalByFilterAndOffset(null, 1, 1, "").get(0).getSupi(), ueMobility.getSupi()));
+            assert (Objects.equals(metricsService.findAllUeMobilityInLastIntervalByFilterAndOffset(null, 1, 1, "").getFirst().getSupi(), ueMobility.getSupi()));
 
-            UeCommunication ueCommunication = DummyDataGenerator.generateDummyUeCommunications(1).get(0);
+            UeCommunication ueCommunication = DummyDataGenerator.generateDummyUeCommunications(1).getFirst();
             metricsService.createUeComm(ueCommunication);
-            assert (Objects.equals(metricsService.findAllUeCommunicationInLastIntervalByFilterAndOffset(null, 1, 1, "").get(0).getSupi(), ueCommunication.getSupi()));
+            assert (Objects.equals(metricsService.findAllUeCommunicationInLastIntervalByFilterAndOffset(null, 1, 1, "").getFirst().getSupi(), ueCommunication.getSupi()));
             log.info("Metrics DB tests passed.");
         };
     }

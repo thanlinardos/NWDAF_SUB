@@ -1,0 +1,1864 @@
+Subject: [PATCH] customize grafana and prom label
+---
+Index: grafana/provisioning/dashboards/docker_host.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/grafana/provisioning/dashboards/docker_host.json b/grafana/provisioning/dashboards/docker_host.json
+--- a/grafana/provisioning/dashboards/docker_host.json	(revision 595d3405e7fcbd2427d534ff3775a61b527ea9b1)
++++ b/grafana/provisioning/dashboards/docker_host.json	(date 1705167695969)
+@@ -477,7 +477,7 @@
+           },
+           "targets": [
+             {
+-              "expr": "sum(node_filesystem_free_bytes{fstype=\"aufs\"})",
++              "expr": "sum(node_filesystem_free_bytes{fstype=\"tmpfs\"})",
+               "interval": "30s",
+               "intervalFactor": 1,
+               "legendFormat": "",
+Index: grafana/provisioning/dashboards/docker_containers.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/grafana/provisioning/dashboards/docker_containers.json b/grafana/provisioning/dashboards/docker_containers.json
+--- a/grafana/provisioning/dashboards/docker_containers.json	(revision 595d3405e7fcbd2427d534ff3775a61b527ea9b1)
++++ b/grafana/provisioning/dashboards/docker_containers.json	(date 1705167677221)
+@@ -403,7 +403,7 @@
+           },
+           "targets": [
+             {
+-              "expr": "(node_filesystem_size_bytes{fstype=\"aufs\"} - node_filesystem_free_bytes{fstype=\"aufs\"}) / node_filesystem_size_bytes{fstype=\"aufs\"}  * 100",
++              "expr": "(node_filesystem_size_bytes{fstype=\"tmpfs\"} - node_filesystem_free_bytes{fstype=\"tmpfs\"}) / node_filesystem_size_bytes{fstype=\"tmpfs\"}  * 100",
+               "interval": "30s",
+               "intervalFactor": 1,
+               "legendFormat": "",
+Index: prometheus/prometheus.yml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/prometheus/prometheus.yml b/prometheus/prometheus.yml
+--- a/prometheus/prometheus.yml	(revision 595d3405e7fcbd2427d534ff3775a61b527ea9b1)
++++ b/prometheus/prometheus.yml	(date 1705167746346)
+@@ -22,6 +22,8 @@
+     scrape_interval: 5s
+     static_configs:
+       - targets: ['cadvisor:8080']
++        labels:
++          nfType: AMF
+ 
+   - job_name: 'prometheus'
+     scrape_interval: 10s
+Index: grafana/provisioning/dashboards/nfload_metrics.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/grafana/provisioning/dashboards/nfload_metrics.json b/grafana/provisioning/dashboards/nfload_metrics.json
+new file mode 100644
+--- /dev/null	(date 1705168178443)
++++ b/grafana/provisioning/dashboards/nfload_metrics.json	(date 1705168178443)
+@@ -0,0 +1,1800 @@
++{
++  "annotations": {
++    "list": [
++      {
++        "builtIn": 1,
++        "datasource": {
++          "type": "grafana",
++          "uid": "-- Grafana --"
++        },
++        "enable": true,
++        "hide": true,
++        "iconColor": "rgba(0, 211, 255, 1)",
++        "name": "Annotations & Alerts",
++        "type": "dashboard"
++      }
++    ]
++  },
++  "editable": true,
++  "fiscalYearStartMonth": 0,
++  "graphTooltip": 0,
++  "id": 5,
++  "links": [],
++  "liveNow": false,
++  "panels": [
++    {
++      "datasource": {
++        "type": "prometheus",
++        "uid": "PBFA97CFB590B2093"
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 0,
++        "y": 0
++      },
++      "id": 6,
++      "options": {
++        "alertInstanceLabelFilter": "",
++        "alertName": "",
++        "dashboardAlerts": false,
++        "groupBy": [],
++        "groupMode": "default",
++        "maxItems": 20,
++        "sortOrder": 1,
++        "stateFilter": {
++          "error": true,
++          "firing": true,
++          "noData": false,
++          "normal": false,
++          "pending": true
++        },
++        "viewMode": "list"
++      },
++      "title": "Panel Title",
++      "type": "alertlist"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "orange",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 12,
++        "y": 0
++      },
++      "id": 2,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 second' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 second' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfMemoryUsage' as numeric))) as integer) AS nfMemoryUsage from nf_load_metrics\nGROUP BY time_bucket(cast('1 second' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "Memory Usage",
++      "type": "timeseries"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "green",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 0,
++        "y": 8
++      },
++      "id": 1,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 second' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 second' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfCpuUsage' as numeric))) as integer) AS nfCpuUsage from nf_load_metrics\nGROUP BY time_bucket(cast('1 second' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "Cpu Usage",
++      "type": "timeseries"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "yellow",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 12,
++        "y": 8
++      },
++      "id": 4,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 second' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 second' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfLoadAvgInAoi' as numeric))) as integer) AS nfLoadAvgInAoi from nf_load_metrics\nGROUP BY time_bucket(cast('1 second' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "NfLoadAvgInAreaOfInterest",
++      "type": "timeseries"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "semi-dark-blue",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 0,
++        "y": 16
++      },
++      "id": 3,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 second' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 second' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfLoadLevelAverage' as numeric))) as integer) AS nfLoadLevelAverage,\n    CAST(ROUND(AVG(CAST(data->>'nfLoadLevelpeak' as numeric))) as integer) AS nfLoadLevelpeak from nf_load_metrics\nGROUP BY time_bucket(cast('1 second' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "NfLoadLevel",
++      "type": "timeseries"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "green",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 12,
++        "y": 16
++      },
++      "id": 5,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 second' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 second' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfStorageUsage' as numeric))) as integer) AS nfStorageUsage from nf_load_metrics\nGROUP BY time_bucket(cast('1 second' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "NfStorageUsage",
++      "type": "timeseries"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "green",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 0,
++        "y": 24
++      },
++      "id": 7,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 minute' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 minute' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfCpuUsage' as numeric))) as integer) AS nfCpuUsage from compressed_nf_load_metrics\nGROUP BY time_bucket(cast('1 minute' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "Compressed Cpu Usage",
++      "type": "timeseries"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "orange",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 12,
++        "y": 24
++      },
++      "id": 8,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 minute' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 minute' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfMemoryUsage' as numeric))) as integer) AS nfMemoryUsage from compressed_nf_load_metrics\nGROUP BY time_bucket(cast('1 minute' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "Compressed Memory Usage",
++      "type": "timeseries"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "semi-dark-blue",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 0,
++        "y": 32
++      },
++      "id": 9,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 minute' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 minute' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfLoadLevelAverage' as numeric))) as integer) AS nfLoadLevelAverage,\n    CAST(ROUND(AVG(CAST(data->>'nfLoadLevelpeak' as numeric))) as integer) AS nfLoadLevelpeak from compressed_nf_load_metrics\nGROUP BY time_bucket(cast('1 minute' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "Compressed NfLoadLevel",
++      "type": "timeseries"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "yellow",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 12,
++        "y": 32
++      },
++      "id": 10,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 minute' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 minute' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfLoadAvgInAoi' as numeric))) as integer) AS nfLoadAvgInAoi from compressed_nf_load_metrics\nGROUP BY time_bucket(cast('1 minute' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "Compressed NfLoadAvgInAreaOfInterest",
++      "type": "timeseries"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "green",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 0,
++        "y": 40
++      },
++      "id": 11,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 minute' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 minute' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfStorageUsage' as numeric))) as integer) AS nfStorageUsage from compressed_nf_load_metrics\nGROUP BY time_bucket(cast('1 minute' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "Compressed NfStorageUsage",
++      "type": "timeseries"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "green",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 12,
++        "y": 40
++      },
++      "id": 12,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 hour' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 hour' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfCpuUsage' as numeric))) as integer) AS nfCpuUsage from compressed_nf_load_metrics_hour\nGROUP BY time_bucket(cast('1 hour' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "Compressed Cpu Usage Hour",
++      "type": "timeseries"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "orange",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 0,
++        "y": 48
++      },
++      "id": 13,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 hour' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 hour' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfMemoryUsage' as numeric))) as integer) AS nfMemoryUsage from compressed_nf_load_metrics_hour\nGROUP BY time_bucket(cast('1 hour' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "Compressed Memory Usage Hour",
++      "type": "timeseries"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "semi-dark-blue",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 12,
++        "y": 48
++      },
++      "id": 14,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 hour' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 hour' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfLoadLevelAverage' as numeric))) as integer) AS nfLoadLevelAverage,\n    CAST(ROUND(AVG(CAST(data->>'nfLoadLevelpeak' as numeric))) as integer) AS nfLoadLevelpeak from compressed_nf_load_metrics_hour\nGROUP BY time_bucket(cast('1 hour' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "Compressed NfLoadLevel Hour",
++      "type": "timeseries"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "yellow",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 0,
++        "y": 56
++      },
++      "id": 15,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 hour' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 hour' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfLoadAvgInAoi' as numeric))) as integer) AS nfLoadAvgInAoi from compressed_nf_load_metrics_hour\nGROUP BY time_bucket(cast('1 hour' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "Compressed NfLoadAvgInAreaOfInterest Hour",
++      "type": "timeseries"
++    },
++    {
++      "datasource": {
++        "type": "postgres",
++        "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++      },
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "thresholds",
++            "seriesBy": "last"
++          },
++          "custom": {
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 50,
++            "gradientMode": "opacity",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "lineInterpolation": "linear",
++            "lineStyle": {
++              "fill": "solid"
++            },
++            "lineWidth": 1,
++            "pointSize": 4,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "auto",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "line"
++            }
++          },
++          "mappings": [],
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "green",
++                "value": null
++              },
++              {
++                "color": "red",
++                "value": 90
++              }
++            ]
++          },
++          "unit": "none"
++        },
++        "overrides": []
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 12,
++        "y": 56
++      },
++      "id": 16,
++      "interval": "1m",
++      "options": {
++        "legend": {
++          "calcs": [],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "single",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "postgres",
++            "uid": "b05bb015-f89e-40b2-bf29-1eb8758134cb"
++          },
++          "editorMode": "code",
++          "format": "table",
++          "rawQuery": true,
++          "rawSql": "select distinct on (time_bucket(cast('1 hour' as interval), time), nfInstanceId, nfSetId)\n    time_bucket(cast('1 hour' as interval), time) AS time,\n    CAST(ROUND(AVG(CAST(data->>'nfStorageUsage' as numeric))) as integer) AS nfStorageUsage from compressed_nf_load_metrics_hour\nGROUP BY time_bucket(cast('1 hour' as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;",
++          "refId": "A",
++          "sql": {
++            "columns": [
++              {
++                "parameters": [],
++                "type": "function"
++              }
++            ],
++            "groupBy": [
++              {
++                "property": {
++                  "type": "string"
++                },
++                "type": "groupBy"
++              }
++            ],
++            "limit": 50
++          }
++        }
++      ],
++      "title": "Compressed NfStorageUsage Hour",
++      "type": "timeseries"
++    }
++  ],
++  "refresh": "",
++  "schemaVersion": 38,
++  "style": "dark",
++  "tags": [],
++  "templating": {
++    "list": []
++  },
++  "time": {
++    "from": "now-15m",
++    "to": "now"
++  },
++  "timepicker": {},
++  "timezone": "",
++  "title": "NfLoad Metrics",
++  "uid": "e3498ecd-3769-4579-85be-cfb112c9c45a",
++  "version": 23,
++  "weekStart": ""
++}
+\ No newline at end of file

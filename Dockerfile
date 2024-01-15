@@ -21,7 +21,7 @@
 #for ubuntu:
 FROM eclipse-temurin:21-jre-alpine
 VOLUME /tmp
-EXPOSE 8080 5005
+EXPOSE 8081 5005
 ARG JAR_FILE=target/NWDAF_SUB.jar
 ARG CERT_FILE=src/main/resources/certificates/local-cert.crt
 ARG SSL_FILE=src/main/resources/certificates/local-ssl.p12

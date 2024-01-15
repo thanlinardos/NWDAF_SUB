@@ -24,7 +24,8 @@ services:
       WORK_MEM: 19MB
       TEMP_BUFFERS: 1MB
     ports:
-      - "5432:5432"
+      - "5434:5434"
+    command: postgres -c port=5434
     networks:
       - monitor-net
     volumes:
@@ -43,7 +44,7 @@ services:
 #    ports:
 #      - "5050:80"
 #    networks:
-#      - monitor-net
+#      - services_default
 #    volumes:
 #      # - ../../../../../project-db-files/pgadmin-data:/var/lib/pgadmin
 #      - ../../../../../project-db-files/pgadmin-data:/var/lib/pgadmin
