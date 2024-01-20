@@ -3,6 +3,7 @@ package io.nwdaf.eventsubscription.controller;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -33,7 +34,6 @@ import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.notify.responsetypes.GetGlobalNotifMethodAndRepPeriodResponse;
 import io.nwdaf.eventsubscription.notify.responsetypes.GetNotifMethodAndRepPeriodsResponse;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
-import io.nwdaf.eventsubscription.utilities.ParserUtil;
 import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
@@ -42,6 +42,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import static io.nwdaf.eventsubscription.controller.http.ValidateSubscriptionRequest.validateRequest;
 import static io.nwdaf.eventsubscription.notify.NotificationUtil.*;
+import static io.nwdaf.eventsubscription.utilities.ParserUtil.safeParseLong;
 
 @RestController
 public class SubscriptionsController implements SubscriptionsApi {
@@ -155,7 +156,7 @@ public class SubscriptionsController implements SubscriptionsApi {
             throw new MissingPathVariableException("subscriptionId",
                     new MethodParameter(this.getClass().getDeclaredMethod("updateNWDAFEventsSubscription", String.class, NnwdafEventsSubscription.class), 0));
         }
-        if (ParserUtil.safeParseLong(subscriptionId) == null) {
+        if (safeParseLong(subscriptionId) == null) {
             throw new ConversionNotSupportedException(new PropertyChangeEvent(SubscriptionsController.class, "subscriptionId", subscriptionId, subscriptionId), Long.class, null);
         }
         String subsUri = env.getProperty("nnwdaf-eventsubscription.openapi.dev-url") + "/nwdaf-eventsubscription/v1/subscriptions" + "/" + subscriptionId;
@@ -164,7 +165,7 @@ public class SubscriptionsController implements SubscriptionsApi {
 
         validateRequest(body, attributes, request);
 
-        body.setId(ParserUtil.safeParseLong(subscriptionId));
+        body.setId(safeParseLong(subscriptionId));
         List<Integer> negotiatedFeaturesList = negotiateSupportedFeatures(body);
         logger.info("negotiatedFeaturesList:" + negotiatedFeaturesList.toString());
 
@@ -195,7 +196,7 @@ public class SubscriptionsController implements SubscriptionsApi {
             body.getEvtReq().notifFlag(new NotificationFlag().notifFlag(NotificationFlagEnum.DEACTIVATE));
         }
 
-        subscriptionService.update(ParserUtil.safeParseLong(subscriptionId), body);
+        subscriptionService.update(safeParseLong(subscriptionId), body);
         //notify about updated subscription
         if (count_of_notif > 0 && !globalResponse.getMuted()) {
             notifyPublisher.publishNotification("controller requested notification for client with URI: " + body.getNotificationURI(), body.getId());
@@ -207,10 +208,32 @@ public class SubscriptionsController implements SubscriptionsApi {
     @Override
     public ResponseEntity<Void> deleteNWDAFEventsSubscription(String subscriptionId) {
         try {
-            subscriptionService.delete(ParserUtil.safeParseLong(subscriptionId));
+            subscriptionService.delete(safeParseLong(subscriptionId));
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+
+    @SneakyThrows
+    public ResponseEntity<List<NnwdafEventsSubscription>> getNWDAFEventsSubscriptions(Optional<String> notificationUri) {
+        List<NnwdafEventsSubscription> res;
+        if (notificationUri.isPresent()) {
+            res = subscriptionService.findAllByNotifURI(notificationUri.get());
+        } else {
+            res = subscriptionService.findAll();
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @SneakyThrows
+    public ResponseEntity<NnwdafEventsSubscription> getNWDAFEventsSubscription(String subscriptionId) {
+        NnwdafEventsSubscription res;
+        try {
+            res = subscriptionService.findById(safeParseLong(subscriptionId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 }

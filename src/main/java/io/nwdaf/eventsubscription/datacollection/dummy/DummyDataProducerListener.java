@@ -2,6 +2,7 @@ package io.nwdaf.eventsubscription.datacollection.dummy;
 
 import java.util.List;
 
+import io.nwdaf.eventsubscription.utilities.BenchmarkUtil;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,24 +20,24 @@ import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
 
 @Component
-public class DummyDataProducerListener{
+public class DummyDataProducerListener {
     @Getter
     private static Integer no_dummyDataProducerEventListeners = 0;
-	@Getter
+    @Getter
     private static final Object dummyDataProducerLock = new Object();
-	@Getter
+    @Getter
     private static Boolean startedSavingData = false;
-	@Getter
+    @Getter
     private static final Object startedSavingDataLock = new Object();
     private static final Logger logger = LoggerFactory.getLogger(DummyDataProducerListener.class);
     private List<NfLoadLevelInformation> nfloadinfos;
     private List<UeMobility> ueMobilities;
 
-	final MetricsService metricsService;
+    final MetricsService metricsService;
 
     final MetricsCacheService metricsCacheService;
-	
-	final Environment env;
+
+    final Environment env;
 
     public DummyDataProducerListener(MetricsService metricsService, MetricsCacheService metricsCacheService, Environment env) {
         this.metricsService = metricsService;
@@ -46,19 +47,19 @@ public class DummyDataProducerListener{
 
     @Async
     @EventListener
-    public void onApplicationEvent(final DummyDataProducerEvent event){
-        if(!start()) {
-			return;
-		}
-        if(no_dummyDataProducerEventListeners>0){
-            nfloadinfos=DummyDataGenerator.generateDummyNfLoadLevelInfo(10);
+    public void onApplicationEvent(final DummyDataProducerEvent event) {
+        if (!start()) {
+            return;
+        }
+        if (no_dummyDataProducerEventListeners > 0) {
+            nfloadinfos = DummyDataGenerator.generateDummyNfLoadLevelInfo(10);
             ueMobilities = DummyDataGenerator.generateDummyUeMobilities(10);
         }
-        long start;
-        while(no_dummyDataProducerEventListeners>0){
-            start = System.nanoTime();
-            for(NwdafEventEnum eType : NwdafEventEnum.values()){
-                switch(eType){
+        BenchmarkUtil benchmarkUtil = new BenchmarkUtil();
+        while (no_dummyDataProducerEventListeners > 0) {
+            benchmarkUtil.start();
+            for (NwdafEventEnum eType : NwdafEventEnum.values()) {
+                switch (eType) {
                     case NF_LOAD:
                         nfloadinfos = DummyDataGenerator.changeNfLoadTimeDependentProperties(nfloadinfos);
                         for (NfLoadLevelInformation nfloadinfo : nfloadinfos) {
@@ -91,37 +92,37 @@ public class DummyDataProducerListener{
                         break;
                 }
             }
-            long diff = (System.nanoTime()-start) / 1000000L;
-    		long wait_time = (long)Constants.MIN_PERIOD_SECONDS* 1000L;
-            if(diff<wait_time) {
-	    		try {
-					Thread.sleep(wait_time-diff);
-				} catch (InterruptedException e) {
-					logger.error("Failed to wait for thread...",e);
-					stop();
+            long diff = benchmarkUtil.end().getDuration().toMillis();
+            long wait_time = (long) Constants.MIN_PERIOD_SECONDS * 1000L;
+            if (diff < wait_time) {
+                try {
+                    Thread.sleep(wait_time - diff);
+                } catch (InterruptedException e) {
+                    logger.error("Failed to wait for thread...", e);
+                    stop();
                 }
-    		}
+            }
         }
         logger.info("Dummy Data Production stopped!");
     }
 
-    public static void stop(){
+    public static void stop() {
         synchronized (dummyDataProducerLock) {
-			no_dummyDataProducerEventListeners--;
-		}
-		synchronized(startedSavingDataLock){
-			startedSavingData = false;
-		}
+            no_dummyDataProducerEventListeners--;
+        }
+        synchronized (startedSavingDataLock) {
+            startedSavingData = false;
+        }
     }
-    
+
     public static boolean start() {
         synchronized (dummyDataProducerLock) {
-			if(no_dummyDataProducerEventListeners<1) {
-				no_dummyDataProducerEventListeners++;
+            if (no_dummyDataProducerEventListeners < 1) {
+                no_dummyDataProducerEventListeners++;
                 logger.info("producing dummy data...");
                 return true;
-			}
-		}
+            }
+        }
         return false;
     }
 }

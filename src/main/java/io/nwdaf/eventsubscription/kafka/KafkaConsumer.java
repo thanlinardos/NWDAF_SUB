@@ -271,8 +271,8 @@ public class KafkaConsumer {
 
         try {
             consumeMetrics(eventEnum, values, latestRecordTimeStamp.get(), true);
-            System.out.println("Saved " + eventEnum + " x " + values.size() + " to database from "
-                                + Instant.ofEpochMilli(earliestRecordTimeStamp.get()) + " to " + Instant.ofEpochMilli(latestRecordTimeStamp.get()));
+//            System.out.println("Saved " + eventEnum + " x " + values.size() + " to database from "
+//                                + Instant.ofEpochMilli(earliestRecordTimeStamp.get()) + " to " + Instant.ofEpochMilli(latestRecordTimeStamp.get()));
             startedSaving(eventEnum);
         } catch (IOException e) {
             logger.info("data not matching " + eventEnum + " model: " + values);

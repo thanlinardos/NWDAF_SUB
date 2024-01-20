@@ -20,6 +20,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import static io.nwdaf.eventsubscription.utilities.OtherUtil.fillUeMobilityWithGeographicalInfo;
+
 @Entity
 @Table(name="ue_mobility_metrics")
 @Getter
@@ -39,6 +41,7 @@ public class UeMobilityTable{
 	private String intGroupId;
 	
 	public UeMobilityTable(UeMobility data) {
+		fillUeMobilityWithGeographicalInfo(data);
 		this.data = data.toMap();
 		this.setTime(data.getTs());
 		this.setSupi(data.getSupi());

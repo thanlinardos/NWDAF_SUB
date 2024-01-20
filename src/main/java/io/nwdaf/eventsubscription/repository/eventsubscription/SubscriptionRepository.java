@@ -15,27 +15,23 @@ import jakarta.transaction.Transactional;
 
 @Repository("eventsubscription")
 @EntityScan("io.nwdaf.eventsubscription.repository.eventsubscription")
-public interface SubscriptionRepository extends JpaRepository<NnwdafEventsSubscriptionTable, Long>{
-	
-	String FILTER_FOR_JSONB_COLUMN = "select id, sub from nnwdaf_events_subscription where sub @> ";
-	
-	List<NnwdafEventsSubscriptionTable> findAll();
-	
-	@Query(value="select id, sub from nnwdaf_events_subscription where sub @> '{\"notificationURI\":\"http://localhost:8082/client\"}'",
-			nativeQuery=true)
-	List<NnwdafEventsSubscriptionTable> findAllByNotifURI(String filterForClientURI);
+public interface SubscriptionRepository
+        extends JpaRepository<NnwdafEventsSubscriptionTable, Long> {
 
-	@Query(value="update nnwdaf_events_subscription set sub @> ?1 where id=?2",
-			nativeQuery=true)
+    String FILTER_FOR_JSONB_COLUMN = "select id, sub from nnwdaf_events_subscription where sub @> ";
+
+    List<NnwdafEventsSubscriptionTable> findAll();
+
+    @Query(value = "update nnwdaf_events_subscription set sub @> ?1 where id=?2",
+            nativeQuery = true)
     NnwdafEventsSubscriptionTable update(NnwdafEventsSubscription body, Long id);
 
-	@Query(value="delete from nnwdaf_events_subscription where id=?",
-			nativeQuery=true)
-    void delete(Long id);
+    @Override
+    void deleteById(Long id);
 
-	@Modifying
-	@Transactional
+    @Modifying
+    @Transactional
     @Query(value = "truncate table nnwdaf_events_subscription", nativeQuery = true)
     void truncate();
-	
+
 }

@@ -39,12 +39,17 @@ import io.nwdaf.eventsubscription.service.MetricsService;
 import javax.validation.constraints.NotNull;
 
 import static io.nwdaf.eventsubscription.NwdafSubApplication.NWDAF_INSTANCE_ID;
+import static io.nwdaf.eventsubscription.kafka.KafkaConsumer.latestWakeUpMessageEventMap;
+import static io.nwdaf.eventsubscription.kafka.KafkaConsumer.latestDiscoverMessageEventMap;
+import static io.nwdaf.eventsubscription.kafka.KafkaConsumer.discoverMessageQueue;
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckListNotEmpty;
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckObjectsEquals;
 import static io.nwdaf.eventsubscription.utilities.Constants.ExampleAOIsMap;
 import static io.nwdaf.eventsubscription.utilities.Constants.ExampleAOIsToUUIDsMap;
 import static io.nwdaf.eventsubscription.utilities.ParserUtil.parseListToFilterList;
 import static io.nwdaf.eventsubscription.utilities.ParserUtil.parseQuerryFilter;
+import static io.nwdaf.eventsubscription.utilities.ParserUtil.parseQuerryFilterContains;
+
 
 public class NotificationUtil {
     private static final Logger logger = LoggerFactory.getLogger(NotificationUtil.class);
@@ -127,8 +132,7 @@ public class NotificationUtil {
         return new int[]{no_secs, isFuture};
     }
 
-    // get the notification for the event subscription by querrying the given
-    // service
+    // get the notification for the event subscription by querying the given service
     public static NnwdafEventsSubscriptionNotification getNotification(NnwdafEventsSubscription sub, Integer index,
                                                                        NnwdafEventsSubscriptionNotification notification, MetricsService metricsService,
                                                                        MetricsCacheService metricsCacheService) {
@@ -158,7 +162,7 @@ public class NotificationUtil {
                 // Supis filter (checks if the supis list on each nfinstance contains any of the
                 // supis in the sub request)
                 if (!isAnyUe && safeCheckListNotEmpty(tgtUe.getSupis())) {
-                    params = ParserUtil.parseQuerryFilterContains(tgtUe.getSupis(), "supis");
+                    params = parseQuerryFilterContains(tgtUe.getSupis(), "supis");
                     filterTypes.add("supis");
                 } else if (safeCheckListNotEmpty(eventSub.getNfInstanceIds())) {
                     params = parseQuerryFilter(
@@ -247,7 +251,7 @@ public class NotificationUtil {
                         }
                     }
                     validVisitedAreas = new ArrayList<>(new LinkedHashSet<>(validVisitedAreas));
-                    params = ParserUtil.parseQuerryFilterContains(parseListToFilterList(validVisitedAreas, "areaOfInterestId"), "areaOfInterestIds");
+                    params = parseQuerryFilterContains(parseListToFilterList(validVisitedAreas, "areaOfInterestId"), "areaOfInterestIds");
                 }
                 try {
                     ueMobilities = metricsService.findAllUeMobilityInLastIntervalByFilterAndOffset(params, no_secs,
@@ -322,23 +326,33 @@ public class NotificationUtil {
                 .requestedOffset(requestedOffset).build();
         kafkaProducer.sendMessage(wakeUpMessage.toString(), "WAKE_UP");
 
-        KafkaConsumer.latestWakeUpMessageEventMap.put(wakeUpMessage.getRequestedEvent(), wakeUpMessage);
-        // wait for data sending & saving to start
+        // check if there is data already available
+
         long maxWait = 4_000L;
+        OffsetDateTime latestWakeUpMessageTimestamp = latestWakeUpMessageEventMap.get(requestedEvent) != null ?
+                latestWakeUpMessageEventMap.get(requestedEvent).getTimestamp() : null;
+        latestWakeUpMessageEventMap.put(wakeUpMessage.getRequestedEvent(), wakeUpMessage);
+        DiscoverMessage lastDiscoverMessage = latestDiscoverMessageEventMap.get(requestedEvent);
+        if (lastDiscoverMessage != null && !lastDiscoverMessage.getHasData() && latestWakeUpMessageTimestamp != null &&
+                latestWakeUpMessageTimestamp.isAfter(OffsetDateTime.now().minusSeconds(60))) {
+            maxWait = 50L;
+        }
+
+        // wait for data sending & saving to start
         boolean responded = false;
         List<DiscoverMessage> discoverMessages = new ArrayList<>();
         boolean hasData = false;
         long start = System.nanoTime();
         while (System.nanoTime() <= start + maxWait * 1_000_000L) {
-            while (!KafkaConsumer.discoverMessageQueue.isEmpty()) {
-                String msg = KafkaConsumer.discoverMessageQueue.poll();
+            while (!discoverMessageQueue.isEmpty()) {
+                String msg = discoverMessageQueue.poll();
                 if (msg == null) {
                     logger.error("InterruptedException: Couldn't take msg from discover queue");
                     break;
                 }
 
                 DiscoverMessage discoverMessage = DiscoverMessage.fromString(msg);
-                if(discoverMessage.getAvailableOffset() == null ) {
+                if (discoverMessage.getAvailableOffset() == null) {
                     discoverMessage.setAvailableOffset(0);
                 }
                 long diff = Instant.now().getNano() - discoverMessage.getTimestamp().getNano();
@@ -346,7 +360,7 @@ public class NotificationUtil {
                 if (!tooOldMsg) {
                     discoverMessages.add(discoverMessage);
                     if (discoverMessage.getRequestedEvent() != null) {
-                        KafkaConsumer.latestDiscoverMessageEventMap.put(discoverMessage.getRequestedEvent(), discoverMessage);
+                        latestDiscoverMessageEventMap.put(discoverMessage.getRequestedEvent(), discoverMessage);
                     }
                     if (discoverMessage.getCollectorInstanceId() != null) {
                         KafkaConsumer.eventCollectorIdSet.add(discoverMessage.getCollectorInstanceId());
@@ -625,13 +639,32 @@ public class NotificationUtil {
                 continue;
             }
 
-            // check whether data is available to be gathered
+            // check whether data is already being gathered
+            NnwdafEventsSubscriptionNotification notificationBeforeKafka = new NotificationBuilder().build(id).time(Instant.now());
+            try {
+                notificationBeforeKafka = NotificationUtil.getNotification(body, i, notificationBeforeKafka, metricsService,
+                        metricsCacheService);
+            } catch (Exception e) {
+                logger.error("getNotification error for event: " + eType + " and subId: " + id, e);
+            }
+            if (notificationBeforeKafka == null) {
+                logger.error("Notification is NULL for event: " + eType + " and subId: " + id);
+            } else {
+                canServeSubscription.set(i, true);
+                if (immRep) {
+                    body.addEventNotificationsItem(notificationBeforeKafka.getEventNotifications().getFirst()
+                            .rvWaitTime(0));
+                }
+                logger.info("notifMethod=" + eventIndexToNotifMethodMap.get(i) + ", repPeriod="
+                        + eventIndexToRepPeriodMap.get(i));
+                continue;
+            }
+
+            // check whether data is available to be gathered from kafka
             NnwdafEventsSubscriptionNotification notification = new NotificationBuilder().build(id).time(Instant.now());
             boolean isDataAvailable = false;
             Integer expectedWaitTime = null;
             try {
-                // wakeUpDataProducer("kafka_local_dummy", eType);
-                // wakeUpDataProducer("kafka_local_prom", eType);
                 Integer[] wakeUpResult = NotificationUtil.wakeUpDataProducer(eType, no_secs, kafkaProducer);
                 isDataAvailable = wakeUpResult[0] == 1;
                 expectedWaitTime = wakeUpResult[1];

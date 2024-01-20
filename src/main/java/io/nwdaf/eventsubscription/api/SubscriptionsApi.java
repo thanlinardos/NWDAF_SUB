@@ -22,7 +22,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Optional;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2023-06-10T19:22:13.652419400+03:00[Europe/Athens]")
 @Validated
@@ -136,5 +140,52 @@ public interface SubscriptionsApi {
         method = RequestMethod.PUT)
     ResponseEntity<NnwdafEventsSubscription> updateNWDAFEventsSubscription(@Parameter(in = ParameterIn.PATH, description = "String identifying a subscription to the Nnwdaf_EventsSubscription Service", required=true, schema=@Schema()) @PathVariable("subscriptionId") String subscriptionId, @Parameter(in = ParameterIn.DEFAULT, description = "", required=true, schema=@Schema()) @Valid @RequestBody NnwdafEventsSubscription body);
 
+    @Operation(summary = "Retrieve an existing Individual NWDAF Events Subscription", description = "", security = {
+        @SecurityRequirement(name = "oAuth2ClientCredentials", scopes = {
+            "nnwdaf-eventssubscription"        })    }, tags={ "Individual NWDAF Events Subscription (Document)" })
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "The Individual NWDAF Event Subscription resource was retrieved successfully. ", content = @Content(mediaType = "application/json", schema = @Schema(implementation = NnwdafEventsSubscription.class))),
+        @ApiResponse(responseCode = "307", description = "Temporary Redirect", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RedirectResponse.class))),
+        @ApiResponse(responseCode = "308", description = "Permanent Redirect", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RedirectResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "411", description = "Length Required", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "413", description = "Payload Too Large", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "415", description = "Unsupported Media Type", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "429", description = "Too Many Requests", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "501", description = "Not Implemented", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "503", description = "Service Unavailable", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class)))
+    })
+    @RequestMapping(value = "/nwdaf-eventsubscription/v1/subscriptions/{subscriptionId}",
+        produces = { "application/json", "application/problem+json" },
+        method = RequestMethod.GET)
+    ResponseEntity<NnwdafEventsSubscription> getNWDAFEventsSubscription(@Parameter(in = ParameterIn.PATH, description = "String identifying a subscription to the Nnwdaf_EventsSubscription Service", required=true, schema=@Schema()) @PathVariable("subscriptionId") String subscriptionId);
+
+    @Operation(summary = "Retrieve all existing Individual NWDAF Events Subscriptions", description = "", security = {
+        @SecurityRequirement(name = "oAuth2ClientCredentials", scopes = {
+            "nnwdaf-eventssubscription"        })    }, tags={ "NWDAF Events Subscriptions (Collection)" })
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "The Individual NWDAF Event Subscription resource was retrieved successfully. ", content = @Content(mediaType = "application/json", schema = @Schema(implementation = NnwdafEventsSubscription.class))),
+        @ApiResponse(responseCode = "307", description = "Temporary Redirect", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RedirectResponse.class))),
+        @ApiResponse(responseCode = "308", description = "Permanent Redirect", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RedirectResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "411", description = "Length Required", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "413", description = "Payload Too Large", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "415", description = "Unsupported Media Type", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "429", description = "Too Many Requests", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "501", description = "Not Implemented", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class))),
+        @ApiResponse(responseCode = "503", description = "Service Unavailable", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetails.class)))
+    })
+    @RequestMapping(value = "/nwdaf-eventsubscription/v1/subscriptions",
+        produces = { "application/json", "application/problem+json" },
+        method = RequestMethod.GET)
+    ResponseEntity<List<NnwdafEventsSubscription>> getNWDAFEventsSubscriptions(@Parameter(in = ParameterIn.QUERY, description = "String identifying the uri of the client that the requested subscriptions have as notification callback", required=false, schema=@Schema()) @RequestParam("notificationUri") Optional<String> notificationUri);
 }
 

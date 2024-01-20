@@ -2,8 +2,6 @@ package io.nwdaf.eventsubscription;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nwdaf.eventsubscription.config.NwdafSubProperties;
-import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerPublisher;
-import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.kafka.KafkaConsumer;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
 import io.nwdaf.eventsubscription.model.*;
@@ -19,6 +17,7 @@ import io.nwdaf.eventsubscription.repository.redis.entities.NnwdafEventsSubscrip
 import io.nwdaf.eventsubscription.repository.redis.entities.NnwdafEventsSubscriptionNotificationCached;
 import io.nwdaf.eventsubscription.service.MetricsService;
 import io.nwdaf.eventsubscription.service.NotificationService;
+import io.nwdaf.eventsubscription.service.PredictUeMobilityService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
 import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.utilities.DummyDataGenerator;
@@ -78,6 +77,8 @@ public class NwdafSubApplication {
     final RedisSubscriptionRepository redisSubscriptionRepository;
     final RedisNotificationRepository redisNotificationRepository;
     final NotificationService notificationService;
+    final PredictUeMobilityService predictUeMobilityService;
+
     @Value("${nnwdaf-eventsubscription.integration.nosubs}")
     private Integer noSubs;
     @Value("${nnwdaf-eventsubscription.integration.noclients}")
@@ -93,7 +94,7 @@ public class NwdafSubApplication {
     public NwdafSubApplication(NotifyPublisher notifyPublisher, ApplicationContext applicationContext,
                                RedisSubscriptionRepository redisSubscriptionRepository, NotificationService notificationService, KafkaTemplate<String, String> kafkaTemplate,
                                MetricsService metricsService, SubscriptionsService subscriptionsService, RedisNotificationRepository redisNotificationRepository,
-                               ObjectMapper objectMapper, Environment env, KafkaProducer producer, RedisMetricsRepository redisRepository) {
+                               ObjectMapper objectMapper, Environment env, KafkaProducer producer, RedisMetricsRepository redisRepository, PredictUeMobilityService predictUeMobilityService) {
 
         this.notifyPublisher = notifyPublisher;
         this.applicationContext = applicationContext;
@@ -109,6 +110,7 @@ public class NwdafSubApplication {
         this.redisRepository = redisRepository;
         this.default_port = env.getProperty("nnwdaf-eventsubscription.client.port");
         this.uri = env.getProperty("nnwdaf-eventsubscription.client.prod-url");
+        this.predictUeMobilityService = predictUeMobilityService;
 
         if (env.getProperty("nnwdaf-eventsubscription.integration.servingAreaOfInterest") != null) {
             ServingAreaOfInterest = Constants.ExampleAOIsMap.get(env.getProperty(("nnwdaf-eventsubscription.integration.servingAreaOfInterest"), UUID.class));
@@ -197,14 +199,13 @@ public class NwdafSubApplication {
 
                 saveSubscriptions();
 
-                String wakeUpMethod = "kafka";
                 for (NwdafEventEnum e : Constants.supportedEvents) {
                     wakeUpDataProducer(e, null, producer);
                 }
 
                 Thread.sleep(2000);
                 notifyPublisher.publishNotification(
-                        "wakeupMethod: " + wakeUpMethod + ", integrationTest with "
+                        "wakeupMethod: kafka, integrationTest with "
                                 + noSubs + " subs for " + cycleSeconds + " seconds",
                         ++subId);
 

@@ -108,7 +108,7 @@ services:
       nnwdaf-eventsubscription.integration.nosubs: 20
       nnwdaf-eventsubscription.integration.noclients: 5
       nnwdaf-eventsubscription.integration.resetsubdb: true
-      nnwdaf-eventsubscription.integration.resetmetricsdb: true
+      nnwdaf-eventsubscription.integration.resetmetricsdb: false
       nnwdaf-eventsubscription.integration.resetnotifdb: true
       nnwdaf-eventsubscription.integration.cycleSeconds: 100
       nnwdaf-eventsubscription.integration.max_no_cycles: 1

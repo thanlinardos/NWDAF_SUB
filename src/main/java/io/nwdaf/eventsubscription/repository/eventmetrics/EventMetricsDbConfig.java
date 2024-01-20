@@ -20,40 +20,42 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-  entityManagerFactoryRef = "eventmetricsEntityManagerFactory",
-  transactionManagerRef = "eventmetricsTransactionManager"
+        entityManagerFactoryRef = "eventmetricsEntityManagerFactory",
+        transactionManagerRef = "eventmetricsTransactionManager"
 )
 public class EventMetricsDbConfig {
-	@Bean(name="eventmetricsDataSourceProperties")
-	@ConfigurationProperties("eventmetrics.datasource")
-	  public DataSourceProperties eventmetricsProperties() {
-	      return new DataSourceProperties();
-	  }
-	@Bean(name = "eventmetricsDataSource")
-	public DataSource eventmetricsDataSource(@Qualifier("eventmetricsDataSourceProperties") DataSourceProperties eventmetricsProperties) {
-		return eventmetricsProperties
-		    .initializeDataSourceBuilder()
-		    .build();
-		}
-  
-  @Bean(name = "eventmetricsEntityManagerFactory")
-  public LocalContainerEntityManagerFactoryBean 
-  eventmetricsEntityManagerFactory(@Qualifier("eventmetricsDataSource") DataSource dataSource,
-		  @Qualifier("eventmetricsDataSourceProperties") DataSourceProperties dataSourceProperties
-  ) {
-	  final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-	  LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
-	  factoryBean.setDataSource(eventmetricsDataSource(dataSourceProperties));
-	  factoryBean.setPackagesToScan("io.nwdaf.eventsubscription.repository.eventmetrics.entities");
-      factoryBean.setJpaVendorAdapter(vendorAdapter);
-      
-      return factoryBean;
-	  
-  }
-  @Bean(name = "eventmetricsTransactionManager")
-  public PlatformTransactionManager eventmetricsTransactionManager() {
-      final JpaTransactionManager transactionManager = new JpaTransactionManager();
-      transactionManager.setEntityManagerFactory(eventmetricsEntityManagerFactory(eventmetricsDataSource(eventmetricsProperties()),eventmetricsProperties()).getObject());
-      return transactionManager;
-  }
+    @Bean(name = "eventmetricsDataSourceProperties")
+    @ConfigurationProperties("eventmetrics.datasource")
+    public DataSourceProperties eventmetricsProperties() {
+        return new DataSourceProperties();
+    }
+
+    @Bean(name = "eventmetricsDataSource")
+    public DataSource eventmetricsDataSource(@Qualifier("eventmetricsDataSourceProperties") DataSourceProperties eventmetricsProperties) {
+        return eventmetricsProperties
+                .initializeDataSourceBuilder()
+                .build();
+    }
+
+    @Bean(name = "eventmetricsEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean
+    eventmetricsEntityManagerFactory(@Qualifier("eventmetricsDataSource") DataSource dataSource,
+                                     @Qualifier("eventmetricsDataSourceProperties") DataSourceProperties dataSourceProperties
+    ) {
+        final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
+        factoryBean.setDataSource(eventmetricsDataSource(dataSourceProperties));
+        factoryBean.setPackagesToScan("io.nwdaf.eventsubscription.repository.eventmetrics.entities");
+        factoryBean.setJpaVendorAdapter(vendorAdapter);
+
+        return factoryBean;
+
+    }
+
+    @Bean(name = "eventmetricsTransactionManager")
+    public PlatformTransactionManager eventmetricsTransactionManager() {
+        final JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(eventmetricsEntityManagerFactory(eventmetricsDataSource(eventmetricsProperties()), eventmetricsProperties()).getObject());
+        return transactionManager;
+    }
 }

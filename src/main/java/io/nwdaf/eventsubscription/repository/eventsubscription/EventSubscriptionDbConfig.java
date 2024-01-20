@@ -20,12 +20,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-  entityManagerFactoryRef = "entityManagerFactory",
-  transactionManagerRef = "transactionManager"
+        entityManagerFactoryRef = "entityManagerFactory",
+        transactionManagerRef = "transactionManager"
 )
 public class EventSubscriptionDbConfig {
-	@Bean(name="dataSourceProperties")
-	@Primary
+    @Bean(name = "dataSourceProperties")
+    @Primary
     @ConfigurationProperties("spring.datasource")
     public DataSourceProperties eventSubscriptionDataSourceProperties() {
         return new DataSourceProperties();
@@ -35,35 +35,31 @@ public class EventSubscriptionDbConfig {
     @Primary
     public DataSource eventSubscriptionDataSource(DataSourceProperties dataSourceProperties) {
         return dataSourceProperties
-          .initializeDataSourceBuilder()
-          .build();
-    }	
-	
-  
-  @Primary
-  @Bean(name = "entityManagerFactory")
-  public LocalContainerEntityManagerFactoryBean 
-  entityManagerFactory(
-    @Qualifier("dataSource") DataSource dataSource, @Qualifier("dataSourceProperties") DataSourceProperties dataSourceProperties
-  ) {
-	  final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-	  LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
-	  factoryBean.setDataSource(eventSubscriptionDataSource(dataSourceProperties));
-	  factoryBean.setPackagesToScan("io.nwdaf.eventsubscription.repository.eventsubscription.entities");
-      factoryBean.setJpaVendorAdapter(vendorAdapter);
-      
-//      final HashMap<String, Object> properties = new HashMap<String, Object>();
-//      properties.put("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
-//      properties.put("hibernate.dialect", env.getProperty("hibernate.dialect"));
-//      factoryBean.setJpaPropertyMap(properties);
-      return factoryBean;
-  }
-    
-  @Primary
-  @Bean(name = "transactionManager")
-  public PlatformTransactionManager transactionManager() {
-    final JpaTransactionManager transactionManager = new JpaTransactionManager();
-    transactionManager.setEntityManagerFactory(entityManagerFactory(eventSubscriptionDataSource(eventSubscriptionDataSourceProperties()),eventSubscriptionDataSourceProperties()).getObject());
-    return transactionManager;
-  }
+                .initializeDataSourceBuilder()
+                .build();
+    }
+
+
+    @Primary
+    @Bean(name = "entityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean
+    entityManagerFactory(
+            @Qualifier("dataSource") DataSource dataSource, @Qualifier("dataSourceProperties") DataSourceProperties dataSourceProperties
+    ) {
+        final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
+        factoryBean.setDataSource(eventSubscriptionDataSource(dataSourceProperties));
+        factoryBean.setPackagesToScan("io.nwdaf.eventsubscription.repository.eventsubscription.entities");
+        factoryBean.setJpaVendorAdapter(vendorAdapter);
+
+        return factoryBean;
+    }
+
+    @Primary
+    @Bean(name = "transactionManager")
+    public PlatformTransactionManager transactionManager() {
+        final JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(entityManagerFactory(eventSubscriptionDataSource(eventSubscriptionDataSourceProperties()), eventSubscriptionDataSourceProperties()).getObject());
+        return transactionManager;
+    }
 }
