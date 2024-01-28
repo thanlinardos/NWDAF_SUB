@@ -36,8 +36,8 @@ else
     sudo apt-get update && 
     sudo apt-get install libnss3-tools &&
 
-    while read -r -d $'\0' i ; do    sudo certutil -d 'sql:'"$i" -D -n local_cert; done < <(sudo find "$HOME" -type f -iregex '.*[/]cert[89][.]db' -printf '%h\0') &&
-    while read -r -d $'\0' i ; do    sudo certutil -d 'sql:'"$i" -D -n local_client_cert; done < <(sudo find "$HOME" -type f -iregex '.*[/]cert[89][.]db' -printf '%h\0') &&
+    while read -r -d $'\0' i ; do    sudo certutil -d 'sql:'"$i" -D -n local_cert; done < <(sudo find "$HOME" -type f -iregex '.*[/]cert[89][.]db' -printf '%h\0')
+    while read -r -d $'\0' i ; do    sudo certutil -d 'sql:'"$i" -D -n local_client_cert; done < <(sudo find "$HOME" -type f -iregex '.*[/]cert[89][.]db' -printf '%h\0')
 
     echo "Removed existing certificates from chrome" &&
 

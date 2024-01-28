@@ -1,6 +1,8 @@
-./src/main/resources/certificates/generateHosts.sh &&
-./src/main/resources/certificates//generateCertificates.sh &&
-./src/main/resources/certificates//installCertificatesChrome.sh &&
+cd src/main/resources/certificates &&
+./generateHosts.sh &&
+./generateCertificates.sh &&
+./installCertificatesChrome.sh &&
+cd ../../../../ &&
 ./build.sh &&
 ./installDockprom.sh &&
 ./installNef.sh
