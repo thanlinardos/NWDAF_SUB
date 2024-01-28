@@ -8,6 +8,7 @@ services:
   kafka-gen:
     image: confluentinc/cp-kafka:7.3.3
     hostname: kafka-gen
+    user: root
     container_name: kafka-gen
     networks:
       - monitor-net
