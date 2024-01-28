@@ -160,7 +160,9 @@ public class NotificationService {
     }
 
     @Async
-    public void sendToClient(RestTemplate restTemplate, NnwdafEventsSubscription sub, HttpEntity<NnwdafEventsSubscriptionNotification> client_request) {
+    public void sendToClient(RestTemplate restTemplate,
+                             NnwdafEventsSubscription sub,
+                             HttpEntity<NnwdafEventsSubscriptionNotification> client_request) {
         try {
             ResponseEntity<NnwdafEventsSubscriptionNotification> client_response = restTemplate.postForEntity(sub.getNotificationURI() + "/notify",
                     client_request, NnwdafEventsSubscriptionNotification.class);
@@ -173,16 +175,18 @@ public class NotificationService {
         }
     }
 
-    public void sendToClientWebClient(WebClient webClient, NnwdafEventsSubscription sub, HttpEntity<NnwdafEventsSubscriptionNotification> client_request) {
+    public void sendToClientWebClient(WebClient webClient,
+                                      NnwdafEventsSubscription sub,
+                                      HttpEntity<NnwdafEventsSubscriptionNotification> clientRequest) {
         Flux<NnwdafEventsSubscriptionNotification> notificationFlux = webClient
                 .post()
                 .uri(sub.getNotificationURI() + "/notify")
-                .bodyValue(Objects.requireNonNull(client_request.getBody()))
+                .bodyValue(Objects.requireNonNull(clientRequest.getBody()))
                 .retrieve()
                 .onStatus(
                         status -> !status.is2xxSuccessful(),
                         response -> {
-                            logger.warn("Client missed a notification with id: " + client_request.getBody().getId() + " for subscription with id: "
+                            logger.warn("Client missed a notification with id: " + clientRequest.getBody().getId() + " for subscription with id: "
                                     + sub.getId());
                             return Mono.empty();
                         }

@@ -100,7 +100,7 @@ public class SubscriptionsController implements SubscriptionsApi {
         }
         List<Boolean> canServeSubscription = checkCanServeSubscriptions(getResponse.getNo_valid_events(), body,
                 getResponse.getEventIndexToNotifMethodMap(), getResponse.getEventIndexToRepPeriodMap(),
-                dataCollectionPublisher, dummyDataProducerPublisher, kafkaProducer, objectMapper, metricsService, metricsCacheService,
+                kafkaProducer, metricsService, metricsCacheService,
                 globalResponse.getImmRep(), 0L);
 
         // check the amount of subscriptions that need to be notified
@@ -179,7 +179,7 @@ public class SubscriptionsController implements SubscriptionsApi {
         }
         List<Boolean> canServeSubscription = checkCanServeSubscriptions(getResponse.getNo_valid_events(), body,
                 getResponse.getEventIndexToNotifMethodMap(), getResponse.getEventIndexToRepPeriodMap(),
-                dataCollectionPublisher, dummyDataProducerPublisher, kafkaProducer, objectMapper, metricsService, metricsCacheService,
+                kafkaProducer, metricsService, metricsCacheService,
                 globalResponse.getImmRep(), 0L);
         // check the amount of subscriptions that need to be notified
         for (int i = 0; i < canServeSubscription.size(); i++) {

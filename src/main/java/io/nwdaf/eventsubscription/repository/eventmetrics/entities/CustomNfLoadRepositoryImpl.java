@@ -1,5 +1,6 @@
 package io.nwdaf.eventsubscription.repository.eventmetrics.entities;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,5 +46,14 @@ public class CustomNfLoadRepositoryImpl implements CustomNfLoadRepository {
         // nfInstanceId, nfSetId;"
         return entityManager.createNativeQuery(query, NfLoadLevelInformationTable.class).setParameter("offset", offset)
                 .setParameter("no_secs", no_secs).getResultList();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<OffsetDateTime> findAvailableMetricsTimeStamps() {
+        String query = """
+        select distinct time from compressed_nf_load_metrics order by time desc;
+        """;
+        return entityManager.createNativeQuery(query, OffsetDateTime.class).getResultList();
     }
 }

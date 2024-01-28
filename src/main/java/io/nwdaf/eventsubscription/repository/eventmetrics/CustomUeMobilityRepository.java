@@ -1,5 +1,6 @@
 package io.nwdaf.eventsubscription.repository.eventmetrics;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import io.nwdaf.eventsubscription.model.PointUncertaintyCircle;
@@ -12,4 +13,6 @@ public interface CustomUeMobilityRepository {
     List<UeMobilityTable> findAllInLastIntervalByFilterAndOffset(String filter,String no_secs,String offset, String columns);
 
     List<PointUncertaintyCircleResult> findAllUeLocationInLastIntervalByFilterAndOffset(String filter, String no_secs, String offset);
+
+    List<OffsetDateTime> findAvailableMetricsTimeStamps();
 }

@@ -132,6 +132,11 @@
 			<artifactId>commons-math3</artifactId>
 			<version>3.6.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-spatial</artifactId>
+			<version>5.5.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>

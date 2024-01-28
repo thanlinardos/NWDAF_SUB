@@ -2,6 +2,7 @@ package io.nwdaf.eventsubscription;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nwdaf.eventsubscription.config.NwdafSubProperties;
+import io.nwdaf.eventsubscription.customModel.WakeUpMessage;
 import io.nwdaf.eventsubscription.kafka.KafkaConsumer;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
 import io.nwdaf.eventsubscription.model.*;
@@ -43,13 +44,15 @@ import org.springframework.core.env.Environment;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.*;
 
-import static io.nwdaf.eventsubscription.notify.NotificationUtil.wakeUpDataProducer;
+import static io.nwdaf.eventsubscription.notify.NotificationUtil.*;
 import static io.nwdaf.eventsubscription.utilities.ParserUtil.safeParseInteger;
 
 @EnableConfigurationProperties(NwdafSubProperties.class)
@@ -62,6 +65,9 @@ public class NwdafSubApplication {
 
     public static final UUID NWDAF_INSTANCE_ID = UUID.randomUUID();
     public static NetworkAreaInfo ServingAreaOfInterest = Constants.ServingAreaOfInterest;
+    public static List<OffsetDateTime> nfLoadTimeStamps = new ArrayList<>();
+    public static List<OffsetDateTime> ueMobilityTimeStamps = new ArrayList<>();
+    public static List<OffsetDateTime> ueCommunicationTimeStamps = new ArrayList<>();
 
     private static final Logger log = LoggerFactory.getLogger(NwdafSubApplication.class);
     private final NotifyPublisher notifyPublisher;
@@ -121,6 +127,17 @@ public class NwdafSubApplication {
         SpringApplication.run(NwdafSubApplication.class, args);
     }
 
+    @Scheduled(fixedDelay = 5000)
+    public void wakeUpSupportedEvents() {
+        for (NwdafEventEnum e : Constants.supportedEvents) {
+            wakeUpDataProducer(producer, e, null);
+        }
+//        nfLoadTimeStamps = metricsService.findAvailableNfLoadTimeStamps();
+//        ueMobilityTimeStamps = metricsService.findAvailableUeMobilityMetricsTimeStamps();
+//        ueCommunicationTimeStamps = metricsService.findAvailableUeCommunicationMetricsTimeStamps();
+//        System.out.println(checkOffsetInsideAvailableData(0,null, NwdafEventEnum.NF_LOAD));
+    }
+
     @Bean
     @ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.resetsubdb", havingValue = "true")
     public CommandLineRunner resetSubDb() {
@@ -173,11 +190,14 @@ public class NwdafSubApplication {
     @ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.startup", havingValue = "false")
     public CommandLineRunner start() {
         return args -> {
-
             saveSubscriptions();
+            nfLoadTimeStamps = metricsService.findAvailableNfLoadTimeStamps();
+            ueMobilityTimeStamps = metricsService.findAvailableUeMobilityMetricsTimeStamps();
+            ueCommunicationTimeStamps = metricsService.findAvailableUeCommunicationMetricsTimeStamps();
 
             for (NwdafEventEnum e : Constants.supportedEvents) {
-                wakeUpDataProducer(e, null, producer);
+                WakeUpMessage wakeUpMessage = wakeUpDataProducer(producer, e, null);
+                waitForDataProducer(e, wakeUpMessage);
             }
             notifyPublisher.publishNotification("wakeupMethod: kafka, normal startup", 0L);
         };
@@ -200,7 +220,8 @@ public class NwdafSubApplication {
                 saveSubscriptions();
 
                 for (NwdafEventEnum e : Constants.supportedEvents) {
-                    wakeUpDataProducer(e, null, producer);
+                    WakeUpMessage wakeUpMessage = wakeUpDataProducer(producer, e, null);
+                    waitForDataProducer(e, wakeUpMessage);
                 }
 
                 Thread.sleep(2000);
@@ -267,7 +288,7 @@ public class NwdafSubApplication {
     }
 
     // @Bean
-    public CommandLineRunner redisQuerryTest() {
+    public CommandLineRunner redisQueryTest() {
         return args -> {
             NfLoadLevelInformationHash nfLoadLevelInformationCached = new NfLoadLevelInformationHash();
             nfLoadLevelInformationCached.setData(

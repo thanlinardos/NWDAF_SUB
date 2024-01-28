@@ -27,7 +27,9 @@ public class MetricsService {
     private final UeMobilityMetricsRepository ueMobilityRepository;
     private final UeCommunicationMetricsRepository ueCommunicationMetricsRepository;
 
-    public MetricsService(NfLoadMetricsRepository nfLoadRepository, UeMobilityMetricsRepository ueMobilityMetricsRepository, UeCommunicationMetricsRepository ueCommunicationMetricsRepository) {
+    public MetricsService(NfLoadMetricsRepository nfLoadRepository,
+                          UeMobilityMetricsRepository ueMobilityMetricsRepository,
+                          UeCommunicationMetricsRepository ueCommunicationMetricsRepository) {
         this.nfLoadRepository = nfLoadRepository;
         this.ueMobilityRepository = ueMobilityMetricsRepository;
         this.ueCommunicationMetricsRepository = ueCommunicationMetricsRepository;
@@ -79,17 +81,16 @@ public class MetricsService {
     }
 
     // NF_LOAD
-    public List<NfLoadLevelInformation> findAllInLastIntervalByFilterAndOffset(String params, Integer no_secs,
-                                                                               Integer offset, String columns) {
+    public List<NfLoadLevelInformation> findAllInLastIntervalByFilterAndOffset(String params,
+                                                                               Integer no_secs,
+                                                                               Integer offset,
+                                                                               String columns) {
         List<NfLoadLevelInformationTable> tables;
-        if (no_secs == null) {
-            no_secs = Constants.MIN_PERIOD_SECONDS;
-        }
         if (offset == 0) {
             offset = Constants.MIN_PERIOD_SECONDS;
         }
-        tables = nfLoadRepository.findAllInLastIntervalByFilterAndOffset(params, no_secs + " second", offset + " second",
-                columns);
+        tables = nfLoadRepository.
+                    findAllInLastIntervalByFilterAndOffset(params, no_secs + " second", offset + " second", columns);
         List<NfLoadLevelInformation> res = new ArrayList<>();
         for (NfLoadLevelInformationTable table : tables) {
             if (table != null) {
@@ -122,9 +123,6 @@ public class MetricsService {
     public List<UeMobility> findAllUeMobilityInLastIntervalByFilterAndOffset(String params, Integer no_secs,
                                                                              Integer offset, String columns) {
         List<UeMobilityTable> tables;
-        if (no_secs == null) {
-            no_secs = Constants.MIN_PERIOD_SECONDS;
-        }
         if (offset == 0) {
             offset = Constants.MIN_PERIOD_SECONDS;
         }
@@ -186,6 +184,18 @@ public class MetricsService {
             NwdafSubApplication.getLogger().error("Error truncating metrics tables", e);
             return false;
         }
+    }
+
+    public List<OffsetDateTime> findAvailableNfLoadTimeStamps() {
+        return nfLoadRepository.findAvailableMetricsTimeStamps();
+    }
+
+    public List<OffsetDateTime> findAvailableUeMobilityMetricsTimeStamps() {
+        return ueMobilityRepository.findAvailableMetricsTimeStamps();
+    }
+
+    public List<OffsetDateTime> findAvailableUeCommunicationMetricsTimeStamps() {
+        return ueCommunicationMetricsRepository.findAvailableMetricsTimeStamps();
     }
 
     private List<NfLoadLevelInformation> getNfLoadLevelInformationFromTable(List<NfLoadLevelInformationTable> tables) {

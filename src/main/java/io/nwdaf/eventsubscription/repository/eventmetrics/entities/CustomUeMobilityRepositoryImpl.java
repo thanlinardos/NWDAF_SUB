@@ -1,5 +1,6 @@
 package io.nwdaf.eventsubscription.repository.eventmetrics.entities;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,7 +18,7 @@ public class CustomUeMobilityRepositoryImpl implements CustomUeMobilityRepositor
     @Override
     @SuppressWarnings("unchecked")
     public List<UeMobilityTable> findAllInLastIntervalByFilterAndOffset(String params, String no_secs,
-            String offset, String columns) {
+                                                                        String offset, String columns) {
         if (params != null) {
             params += " and " + params;
         } else {
@@ -27,41 +28,55 @@ public class CustomUeMobilityRepositoryImpl implements CustomUeMobilityRepositor
 
         }
         String query = """
-        select distinct on (time_bucket(cast(:offset as interval), time), supi, intGroupId) 
-        time_bucket(cast(:offset as interval), time) AS time , data, supi, intGroupId 
-         """ + columns + """
-         from ue_mobility_metrics where time > NOW() - cast(:no_secs as interval) 
-        """ + params + """
-        GROUP BY time_bucket(cast(:offset as interval), time), time, data, supi, intGroupId;
-        """;
+                select distinct on (time_bucket(cast(:offset as interval), time), supi, intGroupId) 
+                time_bucket(cast(:offset as interval), time) AS time , data, supi, intGroupId 
+                 """ + columns + """
+                 from ue_mobility_metrics where time > NOW() - cast(:no_secs as interval) 
+                """ + params + """
+                GROUP BY time_bucket(cast(:offset as interval), time), time, data, supi, intGroupId;
+                """;
         return entityManager.createNativeQuery(query, UeMobilityTable.class)
                 .setParameter("offset", offset)
                 .setParameter("no_secs", no_secs)
                 .getResultList();
     }
+
     @Override
     @SuppressWarnings("unchecked")
     public List<PointUncertaintyCircleResult> findAllUeLocationInLastIntervalByFilterAndOffset(String params, String no_secs,
-                                                                                         String offset) {
-        if (params != null) {
-            params += " and " + params;
+                                                                                               String offset) {
+        if (params != null && !params.isEmpty()) {
+            if (params.startsWith("data")) {
+                params += " and " + params;
+            } else {
+                params = " and " + params + " ";
+            }
         } else {
             params = "";
         }
         String query = """
-        select distinct on (time_bucket(cast(:offset as interval), time), supi, intGroupId) cast(jsonb_path_query(
-            data, '$.locInfos[0].loc.nrLocation.pointUncertaintyCircle.point.lat') as double precision) AS latitude,
-            cast(jsonb_path_query(data,
-            '$.locInfos[0].loc.nrLocation.pointUncertaintyCircle.point.lon') as double precision) AS longitude,
-            cast(jsonb_path_query(data,
-            '$.locInfos[0].loc.nrLocation.pointUncertaintyCircle.uncertainty') as double precision) AS uncertainty
-            from ue_mobility_metrics where time > NOW() - cast(:no_secs as interval) 
-        """ + params + """
-        GROUP BY time_bucket(cast(:offset as interval), time), time, data, supi, intGroupId;
-        """;
+                select distinct on (time_bucket(cast(:offset as interval), time), supi, intGroupId) cast(jsonb_path_query(
+                    data, '$.locInfos[0].loc.nrLocation.pointUncertaintyCircle.point.lat') as double precision) AS latitude,
+                    cast(jsonb_path_query(data,
+                    '$.locInfos[0].loc.nrLocation.pointUncertaintyCircle.point.lon') as double precision) AS longitude,
+                    cast(jsonb_path_query(data,
+                    '$.locInfos[0].loc.nrLocation.pointUncertaintyCircle.uncertainty') as double precision) AS uncertainty
+                    from ue_mobility_metrics where time > NOW() - cast(:no_secs as interval) 
+                """ + params + """
+                GROUP BY time_bucket(cast(:offset as interval), time), time, data, supi, intGroupId;
+                """;
         return entityManager.createNativeQuery(query, PointUncertaintyCircleResult.class)
                 .setParameter("offset", offset)
                 .setParameter("no_secs", no_secs)
                 .getResultList();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<OffsetDateTime> findAvailableMetricsTimeStamps() {
+        String query = """
+                select distinct time from compressed_ue_mobility_metrics order by time desc;
+                """;
+        return entityManager.createNativeQuery(query, OffsetDateTime.class).getResultList();
     }
 }

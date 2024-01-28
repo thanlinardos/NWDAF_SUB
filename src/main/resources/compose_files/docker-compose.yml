@@ -20,7 +20,7 @@ services:
       logging.level.org.apache.kafka: false
       nnwdaf-eventsubscription.prometheus_url: http://localhost:${prom_port}/api/v1/query
       nnwdaf-eventsubscription.allow_dummy_data: false
-      nnwdaf-eventsubscription.allow_prom_data: false
+      nnwdaf-eventsubscription.allow_prom_data: true
       nnwdaf-eventsubscription.allow_nef_data: true
       nnwdaf-eventsubscription.no_dummy_nfload: 10
       nnwdaf-eventsubscription.no_dummy_uemob: 10
@@ -30,32 +30,32 @@ services:
       nnwdaf-eventsubscription.nef_token: ${nef_token}
     entrypoint: /bin/sh -c
     command: ["java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:$${DEBUG_PORT} -jar /app.jar"]
-#  nwdafSubCollector2:
-#    container_name: nwdafSubCollector2
-#    image: thanlinardos/nwdaf_sub_collector:0.0.1-SNAPSHOT
-#    # restart: always
-#    ports:
-#      - "${collector_port2}:${collector_port2}"
-#      - "5012:5012"
-#    network_mode: host
-#    environment:
-#      server.port: ${collector_port2}
-#      DEBUG_PORT: 5012
-#      spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
-#      spring.kafka.consumer.group-id: events
-#      logging.level.org.apache.kafka: false
-#      nnwdaf-eventsubscription.prometheus_url: http://localhost:${prom_port}/api/v1/query
-#      nnwdaf-eventsubscription.allow_dummy_data: true
-#      nnwdaf-eventsubscription.allow_prom_data: false
-#      nnwdaf-eventsubscription.allow_nef_data: false
-#      nnwdaf-eventsubscription.no_dummy_nfload: 10
-#      nnwdaf-eventsubscription.no_dummy_uemob: 10
-#      nnwdaf-eventsubscription.no_dummy_uecomm: 10
-#      nnwdaf-eventsubscription.nef_url: https://${nef_host}:${nef_port}/api/v1/
-#      nnwdaf-eventsubscription.nef_state_ues: ue_movement/state-ues
-#      nnwdaf-eventsubscription.nef_token: ${nef_token}
-#    entrypoint: /bin/sh -c
-#    command: [ "java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:$${DEBUG_PORT} -jar /app.jar" ]
+  nwdafSubCollector2:
+    container_name: nwdafSubCollector2
+    image: thanlinardos/nwdaf_sub_collector:0.0.1-SNAPSHOT
+    # restart: always
+    ports:
+      - "${collector_port2}:${collector_port2}"
+      - "5012:5012"
+    network_mode: host
+    environment:
+      server.port: ${collector_port2}
+      DEBUG_PORT: 5012
+      spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
+      spring.kafka.consumer.group-id: events
+      logging.level.org.apache.kafka: false
+      nnwdaf-eventsubscription.prometheus_url: http://localhost:${prom_port}/api/v1/query
+      nnwdaf-eventsubscription.allow_dummy_data: true
+      nnwdaf-eventsubscription.allow_prom_data: false
+      nnwdaf-eventsubscription.allow_nef_data: false
+      nnwdaf-eventsubscription.no_dummy_nfload: 100
+      nnwdaf-eventsubscription.no_dummy_uemob: 100
+      nnwdaf-eventsubscription.no_dummy_uecomm: 100
+      nnwdaf-eventsubscription.nef_url: https://${nef_host}:${nef_port}/api/v1/
+      nnwdaf-eventsubscription.nef_state_ues: ue_movement/state-ues
+      nnwdaf-eventsubscription.nef_token: ${nef_token}
+    entrypoint: /bin/sh -c
+    command: [ "java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:$${DEBUG_PORT} -jar /app.jar" ]
   nwdafSub:
     container_name: nwdafSub
     image: thanlinardos/nwdaf_sub:0.0.2-SNAPSHOT

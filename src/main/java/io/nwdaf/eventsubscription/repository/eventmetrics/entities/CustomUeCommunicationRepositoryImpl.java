@@ -1,5 +1,6 @@
 package io.nwdaf.eventsubscription.repository.eventmetrics.entities;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,5 +37,14 @@ public class CustomUeCommunicationRepositoryImpl implements CustomUeCommunicatio
                 .setParameter("offset", offset)
                 .setParameter("no_secs", no_secs)
                 .getResultList();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<OffsetDateTime> findAvailableMetricsTimeStamps() {
+        String query = """
+        select distinct time from compressed_ue_communication_metrics order by time desc;
+        """;
+        return entityManager.createNativeQuery(query, OffsetDateTime.class).getResultList();
     }
 }

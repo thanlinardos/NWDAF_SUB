@@ -150,7 +150,7 @@ public class KafkaConsumer {
         }
 
         long endTimestamp = Instant.parse(OffsetDateTime.now().toString()).toEpochMilli();
-        long startTimestamp = Instant.parse(OffsetDateTime.now().minusSeconds(1).toString()).toEpochMilli();
+        long startTimestamp = Instant.parse(OffsetDateTime.now().minusNanos(100_000_000).toString()).toEpochMilli();
 
         for (TopicPartition partition : topicPartitions) {
             OffsetAndTimestamp offsetAndTimestamp = kafkaConsumerDiscover.offsetsForTimes(Collections.singletonMap(partition, startTimestamp)).get(partition);
