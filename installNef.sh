@@ -5,7 +5,7 @@ patch -p1 < ../../NWDAF_SUB/scripts/customize_nef_emulator.patch &&
 rm -rf .git &&
 make prepare-dev-env &&
 make build &&
-make up &&
+make upd &&
 make db-init &&
 make down &&
 cd -
