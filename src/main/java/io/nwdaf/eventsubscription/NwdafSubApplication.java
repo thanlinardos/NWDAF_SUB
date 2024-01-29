@@ -190,7 +190,7 @@ public class NwdafSubApplication {
     @ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.startup", havingValue = "false")
     public CommandLineRunner start() {
         return args -> {
-            saveSubscriptions();
+//            saveSubscriptions();
             nfLoadTimeStamps = metricsService.findAvailableNfLoadTimeStamps();
             ueMobilityTimeStamps = metricsService.findAvailableUeMobilityMetricsTimeStamps();
             ueCommunicationTimeStamps = metricsService.findAvailableUeCommunicationMetricsTimeStamps();

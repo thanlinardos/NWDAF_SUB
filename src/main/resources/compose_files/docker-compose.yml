@@ -112,6 +112,7 @@ services:
       nnwdaf-eventsubscription.integration.resetnotifdb: true
       nnwdaf-eventsubscription.integration.cycleSeconds: 100
       nnwdaf-eventsubscription.integration.max_no_cycles: 1
+      nnwdaf-eventsubscription.secureWithTrustStore: false
   nwdafSubClient:
     container_name: nwdafSubClient
     image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
@@ -135,6 +136,7 @@ services:
       spring.datasource.generate-unique-name: false
       spring.datasource.name: eventsubscription
       spring.profiles.active: production
+      nnwdaf-eventsubscription.secureWithTrustStore: false
 
       #endpoints:
       management.endpoint.health.show-details: always
@@ -161,6 +163,7 @@ services:
       spring.datasource.generate-unique-name: false
       spring.datasource.name: eventsubscription
       spring.profiles.active: production
+      nnwdaf-eventsubscription.secureWithTrustStore: false
 
       #endpoints:
       management.endpoint.health.show-details: always
@@ -187,6 +190,7 @@ services:
       spring.datasource.generate-unique-name: false
       spring.datasource.name: eventsubscription
       spring.profiles.active: production
+      nnwdaf-eventsubscription.secureWithTrustStore: false
 
       #endpoints:
       management.endpoint.health.show-details: always
@@ -213,6 +217,7 @@ services:
       spring.datasource.generate-unique-name: false
       spring.datasource.name: eventsubscription
       spring.profiles.active: production
+      nnwdaf-eventsubscription.secureWithTrustStore: false
 
       #endpoints:
       management.endpoint.health.show-details: always
@@ -239,6 +244,7 @@ services:
       spring.datasource.generate-unique-name: false
       spring.datasource.name: eventsubscription
       spring.profiles.active: production
+      nnwdaf-eventsubscription.secureWithTrustStore: false
 
       #endpoints:
       management.endpoint.health.show-details: always

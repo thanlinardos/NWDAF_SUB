@@ -2,6 +2,7 @@ package io.nwdaf.eventsubscription.config;
 
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.nwdaf.eventsubscription.NwdafSubApplication;
 import org.springframework.core.io.Resource;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -21,7 +22,7 @@ public class WebClientConfig {
     private static Resource trustStore;
     private static String trustStorePassword;
 
-    public static ReactorClientHttpConnector createWebClientFactory() {
+    public static ReactorClientHttpConnector createWebClientFactory(boolean secure) {
         try {
             KeyStore trustStoreObject = KeyStore.getInstance("PKCS12");
             trustStoreObject.load(trustStore.getInputStream(), trustStorePassword.toCharArray());
@@ -35,7 +36,18 @@ public class WebClientConfig {
                     .build();
 
             HttpClient httpClient = HttpClient.create().secure(sslSpec -> sslSpec.sslContext(sslContext));
-            return new ReactorClientHttpConnector(httpClient);
+
+            SslContext insecureSslContext = SslContextBuilder.forClient()
+                    .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                    .build();
+
+            HttpClient insecureHttpClient = HttpClient.create()
+                    .secure(sslSpec -> sslSpec.sslContext(insecureSslContext));
+
+            if (secure) {
+                return new ReactorClientHttpConnector(httpClient);
+            }
+            return new ReactorClientHttpConnector(insecureHttpClient);
         } catch (IOException e) {
             NwdafSubApplication.getLogger().info("Error creating WebClientFactory: " + e.getMessage());
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException e) {

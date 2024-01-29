@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nwdaf.eventsubscription.api.SubscriptionsApi;
-import io.nwdaf.eventsubscription.datacollection.dummy.DummyDataProducerPublisher;
-import io.nwdaf.eventsubscription.datacollection.prometheus.DataCollectionPublisher;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.model.NotificationFlag;
@@ -49,24 +47,18 @@ public class SubscriptionsController implements SubscriptionsApi {
 
     private final Environment env;
     private final NotifyPublisher notifyPublisher;
-    private final DataCollectionPublisher dataCollectionPublisher;
-    private final DummyDataProducerPublisher dummyDataProducerPublisher;
     private final SubscriptionsService subscriptionService;
     private final MetricsService metricsService;
     private final KafkaProducer kafkaProducer;
-    private final ObjectMapper objectMapper;
     private final MetricsCacheService metricsCacheService;
     private final Logger logger = LoggerFactory.getLogger(SubscriptionsController.class);
 
-    public SubscriptionsController(Environment env, NotifyPublisher notifyPublisher, DataCollectionPublisher dataCollectionPublisher, DummyDataProducerPublisher dummyDataProducerPublisher, SubscriptionsService subscriptionService, MetricsService metricsService, KafkaProducer kafkaProducer, ObjectMapper objectMapper, MetricsCacheService metricsCacheService) {
+    public SubscriptionsController(Environment env, NotifyPublisher notifyPublisher, SubscriptionsService subscriptionService, MetricsService metricsService, KafkaProducer kafkaProducer, ObjectMapper objectMapper, MetricsCacheService metricsCacheService) {
         this.env = env;
         this.notifyPublisher = notifyPublisher;
-        this.dataCollectionPublisher = dataCollectionPublisher;
-        this.dummyDataProducerPublisher = dummyDataProducerPublisher;
         this.subscriptionService = subscriptionService;
         this.metricsService = metricsService;
         this.kafkaProducer = kafkaProducer;
-        this.objectMapper = objectMapper;
         this.metricsCacheService = metricsCacheService;
     }
 

@@ -97,6 +97,8 @@ public class NotifyListener {
     private Resource trustStore;
     @Value("${trust.store.password}")
     private String trustStorePassword;
+    @Value("${nnwdaf-eventsubscription.secureWithTrustStore}")
+    private Boolean secureWithTrustStore;
 
     @Value("${nnwdaf-eventsubscription.log.kb}")
     private Boolean logKilobyteCount;
@@ -562,7 +564,7 @@ public class NotifyListener {
         webClient = WebClient
                 .builder()
                 .exchangeStrategies(WebClientConfig.createExchangeStrategies(5 * 1024 * 1024))  //5MB
-                .clientConnector(Objects.requireNonNull(WebClientConfig.createWebClientFactory()))
+                .clientConnector(Objects.requireNonNull(WebClientConfig.createWebClientFactory(secureWithTrustStore)))
                 .build();
     }
 

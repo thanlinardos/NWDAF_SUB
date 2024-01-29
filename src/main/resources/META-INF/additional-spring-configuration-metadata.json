@@ -199,5 +199,10 @@
       "name": "nnwdaf-eventsubscription.integration.servingAreaOfInterestId",
       "type": "java.util.UUID",
       "description": "Description for nnwdaf-eventsubscription.integration.servingAreaOfInterestId."
+    },
+    {
+      "name": "nnwdaf-eventsubscription.secureWithTrustStore",
+      "type": "java.lang.Boolean",
+      "description": "Description for nnwdaf-eventsubscription.secureWithTrustStore."
     }
   ]}
