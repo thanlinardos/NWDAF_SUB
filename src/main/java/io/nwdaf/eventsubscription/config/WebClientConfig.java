@@ -9,6 +9,7 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.resources.ConnectionProvider;
 
 import javax.net.ssl.TrustManagerFactory;
 import java.io.IOException;
@@ -24,6 +25,11 @@ public class WebClientConfig {
 
     public static ReactorClientHttpConnector createWebClientFactory(boolean secure) {
         try {
+            ConnectionProvider connectionProvider = ConnectionProvider.builder("myConnectionPool")
+                    .maxConnections(3000)
+                    .pendingAcquireMaxCount(6000)
+                    .build();
+
             KeyStore trustStoreObject = KeyStore.getInstance("PKCS12");
             trustStoreObject.load(trustStore.getInputStream(), trustStorePassword.toCharArray());
 
@@ -35,13 +41,13 @@ public class WebClientConfig {
                     .keyStoreType("PKCS12")
                     .build();
 
-            HttpClient httpClient = HttpClient.create().secure(sslSpec -> sslSpec.sslContext(sslContext));
+            HttpClient httpClient = HttpClient.create(connectionProvider).secure(sslSpec -> sslSpec.sslContext(sslContext));
 
             SslContext insecureSslContext = SslContextBuilder.forClient()
                     .trustManager(InsecureTrustManagerFactory.INSTANCE)
                     .build();
 
-            HttpClient insecureHttpClient = HttpClient.create()
+            HttpClient insecureHttpClient = HttpClient.create(connectionProvider)
                     .secure(sslSpec -> sslSpec.sslContext(insecureSslContext));
 
             if (secure) {

@@ -77,8 +77,6 @@ public class SubscriptionsController implements SubscriptionsApi {
 
         validateRequest(body, attributes, request);
 
-        logger.info(String.valueOf(Thread.currentThread()));
-
         List<Integer> negotiatedFeaturesList = negotiateSupportedFeatures(body);
         logger.info("negotiatedFeaturesList:" + negotiatedFeaturesList.toString());
 
@@ -128,8 +126,7 @@ public class SubscriptionsController implements SubscriptionsApi {
             notifyPublisher.publishNotification("controller requested notification for client with URI: " + body.getNotificationURI(), body.getId());
         }
 
-        System.out.println("id=" + body.getId());
-        System.out.println(body);
+        System.out.println("created Sub with id=" + body.getId());
         //set the location header to the subscription uri
         responseHeaders.set("Location", subsUri + "/" + body.getId());
         return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders).body(body);

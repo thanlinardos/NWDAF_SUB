@@ -196,9 +196,9 @@ public class NotificationService {
         }, error -> {
             if (error instanceof WebClientResponseException responseException) {
                 HttpStatusCode statusCode = responseException.getStatusCode();
-                logger.error("Error notifying client " + sub.getNotificationURI() + " with status code " + statusCode, error);
+                logger.error("Error notifying client " + sub.getNotificationURI() + " with status code " + statusCode + " and message: "+error.getMessage());
             } else {
-                logger.error("Unexpected error notifying client " + sub.getNotificationURI(), error);
+                logger.error("Unexpected error notifying client " + sub.getNotificationURI()+": "+error.getMessage());
             }
         });
     }
