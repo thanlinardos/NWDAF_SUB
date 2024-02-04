@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.nwdaf.eventsubscription.NwdafSubApplication;
+import io.nwdaf.eventsubscription.model.NwdafEvent;
 import io.nwdaf.eventsubscription.model.UeCommunication;
 import io.nwdaf.eventsubscription.repository.eventmetrics.UeCommunicationMetricsRepository;
 import io.nwdaf.eventsubscription.repository.eventmetrics.entities.PointUncertaintyCircleResult;
@@ -82,15 +83,22 @@ public class MetricsService {
 
     // NF_LOAD
     public List<NfLoadLevelInformation> findAllInLastIntervalByFilterAndOffset(String params,
-                                                                               Integer no_secs,
+                                                                               Long no_secs,
+                                                                               Long end,
                                                                                Integer offset,
                                                                                String columns) {
         List<NfLoadLevelInformationTable> tables;
+        if (no_secs == null) {
+            no_secs = Long.valueOf(Constants.MIN_PERIOD_SECONDS);
+        }
         if (offset == 0) {
             offset = Constants.MIN_PERIOD_SECONDS;
         }
+        if (end == null) {
+            end = 0L;
+        }
         tables = nfLoadRepository.
-                    findAllInLastIntervalByFilterAndOffset(params, no_secs + " second", offset + " second", columns);
+                findAllInLastIntervalByFilterAndOffset(params, no_secs + " second", end + " second", offset + " second", columns);
         List<NfLoadLevelInformation> res = new ArrayList<>();
         for (NfLoadLevelInformationTable table : tables) {
             if (table != null) {
@@ -120,14 +128,20 @@ public class MetricsService {
         return ueMobilityRepository.saveAll(body.stream().map(UeMobilityTable::new).toList());
     }
 
-    public List<UeMobility> findAllUeMobilityInLastIntervalByFilterAndOffset(String params, Integer no_secs,
-                                                                             Integer offset, String columns) {
+    public List<UeMobility> findAllUeMobilityInLastIntervalByFilterAndOffset(String params, Long no_secs,
+                                                                             Long end, Integer offset, String columns) {
         List<UeMobilityTable> tables;
+        if (no_secs == null) {
+            no_secs = Long.valueOf(Constants.MIN_PERIOD_SECONDS);
+        }
         if (offset == 0) {
             offset = Constants.MIN_PERIOD_SECONDS;
         }
+        if (end == null) {
+            end = 0L;
+        }
         tables = ueMobilityRepository.findAllInLastIntervalByFilterAndOffset(params, no_secs + " second",
-                offset + " second", columns);
+                end + " second", offset + " second", columns);
         List<UeMobility> res = new ArrayList<>();
         for (UeMobilityTable table : tables) {
             if (table != null) {
@@ -151,17 +165,20 @@ public class MetricsService {
         return ueCommunicationMetricsRepository.saveAll(body.stream().map(UeCommunicationTable::new).toList());
     }
 
-    public List<UeCommunication> findAllUeCommunicationInLastIntervalByFilterAndOffset(String params, Integer no_secs,
-                                                                                       Integer offset, String columns) {
+    public List<UeCommunication> findAllUeCommunicationInLastIntervalByFilterAndOffset(String params, Long no_secs,
+                                                                                       Long end, Integer offset, String columns) {
         List<UeCommunicationTable> tables;
         if (no_secs == null) {
-            no_secs = Constants.MIN_PERIOD_SECONDS;
+            no_secs = Long.valueOf(Constants.MIN_PERIOD_SECONDS);
         }
         if (offset == 0) {
             offset = Constants.MIN_PERIOD_SECONDS;
         }
+        if(end == null) {
+            end = 0L;
+        }
         tables = ueCommunicationMetricsRepository.findAllInLastIntervalByFilterAndOffset(params, no_secs + " second",
-                offset + " second", columns);
+                end + " second", offset + " second", columns);
         List<UeCommunication> res = new ArrayList<>();
         for (UeCommunicationTable table : tables) {
             if (table != null) {
@@ -186,16 +203,37 @@ public class MetricsService {
         }
     }
 
-    public List<OffsetDateTime> findAvailableNfLoadTimeStamps() {
-        return nfLoadRepository.findAvailableMetricsTimeStamps();
+    public List<OffsetDateTime> findAvailableHistoricMetricsTimeStamps(NwdafEvent.NwdafEventEnum event, Integer start, Integer end) {
+        String startInterval = start != null ? start + " second" : "1 second";
+        String endInterval = end != null ? end + " second" : "0 second";
+        try {
+        return switch (event) {
+            case NF_LOAD -> nfLoadRepository.findAvailableHistoricMetricsTimeStamps(startInterval, endInterval);
+            case UE_MOBILITY -> ueMobilityRepository.findAvailableHistoricMetricsTimeStamps(startInterval, endInterval);
+            case UE_COMM -> ueCommunicationMetricsRepository.findAvailableHistoricMetricsTimeStamps(startInterval, endInterval);
+            default -> null;
+        };
+        } catch (Exception e) {
+            NwdafSubApplication.getLogger().error("Error finding available metrics timestamps", e);
+            return null;
+        }
     }
 
-    public List<OffsetDateTime> findAvailableUeMobilityMetricsTimeStamps() {
-        return ueMobilityRepository.findAvailableMetricsTimeStamps();
-    }
-
-    public List<OffsetDateTime> findAvailableUeCommunicationMetricsTimeStamps() {
-        return ueCommunicationMetricsRepository.findAvailableMetricsTimeStamps();
+    public List<OffsetDateTime> findAvailableConcurrentMetricsTimeStamps(NwdafEvent.NwdafEventEnum event, Long start, Long end) {
+        String startInterval = start != null ? start + " second" : "1 second";
+        String endInterval = end != null ? end + " second" : "0 second";
+        try {
+            return switch (event) {
+                case NF_LOAD -> nfLoadRepository.findAvailableMetricsTimeStamps(startInterval, endInterval);
+                case UE_MOBILITY -> ueMobilityRepository.findAvailableMetricsTimeStamps(startInterval, endInterval);
+                case UE_COMM ->
+                        ueCommunicationMetricsRepository.findAvailableMetricsTimeStamps(startInterval, endInterval);
+                default -> null;
+            };
+        } catch (Exception e) {
+            NwdafSubApplication.getLogger().error("Error finding available metrics timestamps", e);
+            return null;
+        }
     }
 
     private List<NfLoadLevelInformation> getNfLoadLevelInformationFromTable(List<NfLoadLevelInformationTable> tables) {
@@ -211,7 +249,7 @@ public class MetricsService {
     }
 
     public List<PointUncertaintyCircleResult> getUeLocationInLastIntervalByFilterAndOffset(String params, Integer no_secs,
-                                                                                           Integer offset) {
+                                                                                           Integer end, Integer offset) {
         List<PointUncertaintyCircleResult> result;
         if (no_secs == null) {
             no_secs = Constants.MIN_PERIOD_SECONDS;
@@ -219,8 +257,29 @@ public class MetricsService {
         if (offset == 0) {
             offset = Constants.MIN_PERIOD_SECONDS;
         }
+        if(end == null) {
+            end = 0;
+        }
         result = ueMobilityRepository.findAllUeLocationInLastIntervalByFilterAndOffset(params, no_secs + " second",
-                offset + " second");
+                end + " second", offset + " second");
         return result;
+    }
+
+    public OffsetDateTime findOldestConcurrentMetricsTimeStamp(NwdafEvent.NwdafEventEnum event) {
+        return switch (event) {
+            case NF_LOAD -> nfLoadRepository.findOldestTimeStamp();
+            case UE_MOBILITY -> ueMobilityRepository.findOldestTimeStamp();
+            case UE_COMM -> ueCommunicationMetricsRepository.findOldestTimeStamp();
+            default -> null;
+        };
+    }
+
+    public OffsetDateTime findOldestHistoricMetricsTimeStamp(NwdafEvent.NwdafEventEnum event) {
+        return switch (event) {
+            case NF_LOAD -> nfLoadRepository.findOldestHistoricTimeStamp();
+            case UE_MOBILITY -> ueMobilityRepository.findOldestHistoricTimeStamp();
+            case UE_COMM -> ueCommunicationMetricsRepository.findOldestHistoricTimeStamp();
+            default -> null;
+        };
     }
 }

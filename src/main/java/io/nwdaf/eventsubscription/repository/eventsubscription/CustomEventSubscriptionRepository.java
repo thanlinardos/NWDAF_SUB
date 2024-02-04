@@ -5,5 +5,5 @@ import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEv
 import java.util.List;
 
 public interface CustomEventSubscriptionRepository {
-    List<NnwdafEventsSubscriptionTable> findAllInLastFilter(String filter);
+    List<NnwdafEventsSubscriptionTable> findAllInLastFilter(String filter, Boolean not);
 }

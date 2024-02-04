@@ -228,6 +228,7 @@ BEGIN
     where time > NOW() - cast(config ->> 'pastOffset' as interval)
     GROUP BY time_bucket(cast(config ->> 'period' as interval), time), time, data, nfInstanceId, nfSetId,
              areaofinterestid;
+    DELETE FROM nf_load_metrics WHERE time < NOW() - cast('1 day' as interval);
 END
 $$;
 
@@ -247,6 +248,7 @@ BEGIN
     from ue_mobility_metrics
     where time > NOW() - cast(config ->> 'pastOffset' as interval)
     GROUP BY time_bucket(cast(config ->> 'period' as interval), time), time, data, supi, intGroupId;
+    DELETE FROM ue_mobility_metrics WHERE time < NOW() - cast('1 day' as interval);
 END
 $$;
 
@@ -268,6 +270,7 @@ BEGIN
     from ue_communication_metrics
     where time > NOW() - cast(config ->> 'pastOffset' as interval)
     GROUP BY time_bucket(cast(config ->> 'period' as interval), time), time, data, supi, intGroupId, areaOfInterestId;
+    DELETE FROM ue_communication_metrics WHERE time < NOW() - cast('1 day' as interval);
 END
 $$;
 

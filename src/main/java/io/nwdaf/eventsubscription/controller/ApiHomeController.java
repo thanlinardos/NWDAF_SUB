@@ -9,6 +9,7 @@ import io.nwdaf.eventsubscription.utilities.Constants;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.view.RedirectView;
@@ -20,6 +21,7 @@ import java.time.OffsetDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
+@CrossOrigin
 public class ApiHomeController {
 
     public static final ConcurrentHashMap<NwdafEvent.NwdafEventEnum, String> eventConsumerRates = new ConcurrentHashMap<>() {{

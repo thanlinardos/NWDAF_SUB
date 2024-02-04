@@ -4,18 +4,19 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
+import io.nwdaf.eventsubscription.repository.eventmetrics.CustomEventMetricsRepository;
 import io.nwdaf.eventsubscription.repository.eventmetrics.CustomNfLoadRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
-public class CustomNfLoadRepositoryImpl implements CustomNfLoadRepository {
+public class CustomNfLoadRepositoryImpl implements CustomEventMetricsRepository<NfLoadLevelInformationTable>, CustomNfLoadRepository {
 
     @PersistenceContext(unitName = "eventmetricsEntityManagerFactory")
     private EntityManager entityManager;
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<NfLoadLevelInformationTable> findAllInLastIntervalByFilterAndOffset(String params, String no_secs,
+    public List<NfLoadLevelInformationTable> findAllInLastIntervalByFilterAndOffset(String params, String no_secs, String end,
             String offset, String columns) {
         String filter;
         if (params != null) {
@@ -37,23 +38,62 @@ public class CustomNfLoadRepositoryImpl implements CustomNfLoadRepository {
         select distinct on (time_bucket(cast(:offset as interval), time), nfInstanceId, nfSetId) 
         time_bucket(cast(:offset as interval), time) AS time , data , nfInstanceId, nfSetId, 
         """ + columns + """
-           areaOfInterestId from nf_load_metrics where time > NOW() - cast(:no_secs as interval) 
+           areaOfInterestId from nf_load_metrics where time >= NOW() - cast(:no_secs as interval) 
+           and time <= NOW() - cast(:end as interval) 
           """ + filter + """
          GROUP BY time_bucket(cast(:offset as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;
          """;
         // System.out.println(query);
         // +" ORDER BY time_bucket(cast(:offset as interval), time) DESC, time,
         // nfInstanceId, nfSetId;"
-        return entityManager.createNativeQuery(query, NfLoadLevelInformationTable.class).setParameter("offset", offset)
-                .setParameter("no_secs", no_secs).getResultList();
+        return entityManager.createNativeQuery(query, NfLoadLevelInformationTable.class)
+                .setParameter("offset", offset)
+                .setParameter("no_secs", no_secs)
+                .setParameter("end", end)
+                .getResultList();
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<OffsetDateTime> findAvailableMetricsTimeStamps() {
+    public List<OffsetDateTime> findAvailableHistoricMetricsTimeStamps(String start, String end) {
         String query = """
-        select distinct time from compressed_nf_load_metrics order by time desc;
+        select distinct time from compressed_nf_load_metrics 
+        where time >= NOW() - cast(:start as interval) and time <= NOW() - cast(:end as interval) 
+        order by time desc;
         """;
-        return entityManager.createNativeQuery(query, OffsetDateTime.class).getResultList();
+        return entityManager.createNativeQuery(query, OffsetDateTime.class)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getResultList();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<OffsetDateTime> findAvailableMetricsTimeStamps(String start, String end) {
+        String query = """
+        select distinct date_trunc('second', time) as time from nf_load_metrics 
+        where time >= NOW() - cast(:start as interval) and time <= NOW() - cast(:end as interval) 
+        order by time desc;
+        """;
+        return entityManager.createNativeQuery(query, OffsetDateTime.class)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getResultList();
+    }
+
+    @Override
+    public OffsetDateTime findOldestTimeStamp() {
+        String query = """
+        select distinct time from nf_load_metrics order by time limit 1;
+        """;
+        return (OffsetDateTime) entityManager.createNativeQuery(query, OffsetDateTime.class).getSingleResult();
+    }
+
+    @Override
+    public OffsetDateTime findOldestHistoricTimeStamp() {
+        String query = """
+        select distinct time from compressed_nf_load_metrics order by time limit 1;
+        """;
+        return (OffsetDateTime) entityManager.createNativeQuery(query, OffsetDateTime.class).getSingleResult();
     }
 }

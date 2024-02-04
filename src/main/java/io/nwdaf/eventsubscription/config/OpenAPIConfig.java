@@ -2,7 +2,6 @@ package io.nwdaf.eventsubscription.config;
 
 import java.util.List;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,21 +18,20 @@ import io.swagger.v3.oas.models.servers.Server;
 @RegisterReflectionForBinding({NnwdafNotificationTable.class,NnwdafEventsSubscriptionTable.class})
 @EntityScan({"io.nwdaf.eventsubscription.repository.eventnotification.entities","io.nwdaf.eventsubscription.repository.eventsubscription.entities"})
 public class OpenAPIConfig {
-	
-	@Value("${nnwdaf-eventsubscription.openapi.dev-url}")
-	private String devUrl;
-	
-	@Value("${nnwdaf-eventsubscription.openapi.prod-url}")
-	private String prodUrl;
+	private final NwdafSubProperties nwdafSubProperties;
 
-	@Bean
+    public OpenAPIConfig(NwdafSubProperties nwdafSubProperties) {
+        this.nwdafSubProperties = nwdafSubProperties;
+    }
+
+    @Bean
 	public OpenAPI myOpenAPI() {
 		Server devServer = new Server();
-		devServer.setUrl(devUrl);
+		devServer.setUrl(nwdafSubProperties.openapi().dev_url());
 		devServer.setDescription("Server URL in Development environment");
 
 	    Server prodServer = new Server();
-	    prodServer.setUrl(prodUrl);
+	    prodServer.setUrl(nwdafSubProperties.openapi().prod_url());
   	    prodServer.setDescription("Server URL in Production environment");
 
 		Contact contact = new Contact();

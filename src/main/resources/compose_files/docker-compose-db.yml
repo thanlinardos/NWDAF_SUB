@@ -16,6 +16,7 @@ services:
     build: .
     restart: always
     environment:
+      TIMEZONE: "${TIMEZONE}"
       POSTGRES_USER: "${POSTGRES_USER}"
       POSTGRES_DB: "test"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
@@ -64,6 +65,7 @@ services:
     ports:
       - "5433:5433"
     environment:
+      TIMEZONE: "${TIMEZONE}"
       POSTGRES_USER: "${POSTGRES_USER}"
       POSTGRES_DB: "metrics"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
@@ -88,5 +90,6 @@ services:
       - "6379:6379"
       - "8001:8001"
     environment:
+      - TIMEZONE="${TIMEZONE}"
       - REDIS_PORT=6379
       - REDIS_DATABASES=16

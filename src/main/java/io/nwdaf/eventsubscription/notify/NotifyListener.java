@@ -12,6 +12,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.nwdaf.eventsubscription.config.NwdafSubProperties;
 import io.nwdaf.eventsubscription.config.WebClientConfig;
 import io.nwdaf.eventsubscription.model.*;
 import io.nwdaf.eventsubscription.requestbuilders.RestTemplateFactory;
@@ -97,25 +98,18 @@ public class NotifyListener {
     private Resource trustStore;
     @Value("${trust.store.password}")
     private String trustStorePassword;
-    @Value("${nnwdaf-eventsubscription.secureWithTrustStore}")
-    private Boolean secureWithTrustStore;
+    private final NwdafSubProperties nwdafSubProperties;
+    private final NwdafSubProperties.Log log;
+    private final NwdafSubProperties.Integration integration;
 
-    @Value("${nnwdaf-eventsubscription.log.kb}")
-    private Boolean logKilobyteCount;
-    @Value("${nnwdaf-eventsubscription.log.simple}")
-    private Boolean logSimple;
-    @Value("${nnwdaf-eventsubscription.log.sections}")
-    private Boolean logSections;
-    @Value("${nnwdaf-eventsubscription.integration.cycleSeconds}")
-    private Integer cycleSeconds;
-    @Value("${nnwdaf-eventsubscription.integration.nosubs}")
-    private Integer noSubs;
-
-    public NotifyListener(SubscriptionsService subscriptionService, NotificationService notificationService, MetricsService metricsService, MetricsCacheService metricsCacheService) {
+    public NotifyListener(SubscriptionsService subscriptionService, NotificationService notificationService, MetricsService metricsService, MetricsCacheService metricsCacheService, NwdafSubProperties nwdafSubProperties) {
         this.subscriptionService = subscriptionService;
         this.notificationService = notificationService;
         this.metricsService = metricsService;
         this.metricsCacheService = metricsCacheService;
+        this.nwdafSubProperties = nwdafSubProperties;
+        this.log = nwdafSubProperties.log();
+        this.integration  = nwdafSubProperties.integration();
     }
 
     static Long encodeKey(Long i, Integer j) {
@@ -143,7 +137,7 @@ public class NotifyListener {
 
         List<NnwdafEventsSubscription> subs = new ArrayList<>();
         try {
-            subs = subscriptionService.findAll();
+            subs = subscriptionService.findAllByActive(NotificationFlag.NotificationFlagEnum.DEACTIVATE);
         } catch (Exception e) {
             logger.error("Error with find subs in subscriptionService", e);
             stop();
@@ -274,7 +268,7 @@ public class NotifyListener {
                 kb_time = sectionBLogs.kb_time();
             }
 
-            if (logKilobyteCount) {
+            if (log.kb()) {
                 System.out.println("kb_time= " + kb_time / 1_000L + "ms");
             }
 
@@ -283,14 +277,14 @@ public class NotifyListener {
             long st_sub = System.nanoTime();
 
             try {
-                subs = subscriptionService.findAll();
+                subs = subscriptionService.findAllByActive(NotificationFlag.NotificationFlagEnum.DEACTIVATE);
             } catch (Exception e) {
                 logger.error("Error with find subs in subscriptionService", e);
                 stop();
                 continue;
             }
             sub_delay = (System.nanoTime() - st_sub) / 1_000_000.0;
-            if (logSections) {
+            if (log.sections()) {
                 System.out.print(" || sub query time: " + decimalFormat.format(sub_delay) + "ms");
             }
 
@@ -300,7 +294,7 @@ public class NotifyListener {
 
             mapRepopulate(subs);
 
-            if (logSections) {
+            if (log.sections()) {
                 System.out.println(" || maps=" + decimalFormat.format((System.nanoTime() - st) / 1_000_000L) + "ms");
             }
 
@@ -340,13 +334,13 @@ public class NotifyListener {
         logger.info(
                 "avg io delay= " + avg_io_delay / counter + "ms || avg program delay= " + avg_program_delay / counter
                         + "ms || avg total delay= " + (avg_io_delay + avg_program_delay) / counter + "ms");
-        if (logKilobyteCount) {
+        if (log.kb()) {
             logger.info("total_sent_megabytes= " + total_sent_kilobytes / 1024 + "MB");
             double avg_throughput = total_sent_kilobytes / (128 * 100_000);
             logger.info("avg throughput= " + avg_throughput + "mbps");
         }
 
-        logger.info(total_sent_notifs + "/" + cycleSeconds * noSubs + " notifications sent");
+        logger.info(total_sent_notifs + "/" + integration.cycleSeconds() * integration.noSubs() + " notifications sent");
     }
 
     private static void initGlobalLogs() {
@@ -373,7 +367,7 @@ public class NotifyListener {
             Long id = subs.get(i).getId();
             for (int j = 0; j < subs.get(i).getEventSubscriptions().size(); j++) {
                 long key = encodeKey(id, j);
-                Integer period = NotificationUtil.needsServing(subs.get(i), j);
+                Integer period = NotificationUtil.needsServing(subs.get(i), j, false);
 
                 if (period != null) {
 
@@ -434,7 +428,7 @@ public class NotifyListener {
             lastNotifTimes.put(key, now);       //TODO: Bottleneck #3
             no_sent_notifs++;
 
-            if (logKilobyteCount) {
+            if (log.kb()) {
                 long kb_start = System.nanoTime();
                 no_sent_kilobytes += (double) notification.toString().getBytes().length / 1_024L;
                 kb_time += (System.nanoTime() - kb_start) / 1_000L;
@@ -530,13 +524,13 @@ public class NotifyListener {
 
     private void printPerfA(double loop_section, double section_a, double section_b, double section_c,
                             int no_served_subs) {
-        if (logSections) {
+        if (log.sections()) {
             System.out.print("loop_section=" + decimalFormat.format(loop_section / 1_000_000L) + "ms");
             System.out.print(" || section_a=" + decimalFormat.format(section_a / 1_000L) + "ms");
             System.out.print(" || section_b=" + decimalFormat.format(section_b / 1_000L) + "ms");
             System.out.print(" || section_c=" + decimalFormat.format(section_c / 1_000L) + "ms");
         }
-        if (logSimple) {
+        if (log.simple()) {
             System.out.print(" || served_subs=" + no_served_subs);
         }
     }
@@ -544,14 +538,14 @@ public class NotifyListener {
     private void printPerfB(double tsdb_req_delay, double client_delay, double notif_save_delay,
                             long no_sent_notifs,
                             double no_sent_kilobytes, double total) {
-        if (logSections) {
+        if (log.sections()) {
             System.out.print(" || client_delay:" + decimalFormat.format(client_delay / 1_000L) + "ms");
             System.out.print(" || notif_save_delay:" + decimalFormat.format(notif_save_delay / 1_000L) + "ms");
         }
-        if (logSimple) {
+        if (log.simple()) {
             System.out.print(" || tsdb_req_delay: " + decimalFormat.format(tsdb_req_delay / 1_000L) + "ms");
             System.out.print(" || no_sent_notifs:" + no_sent_notifs);
-            if (logKilobyteCount) {
+            if (log.kb()) {
                 System.out.print(" || no_sent_kilobytes:" + no_sent_kilobytes + "KB");
             }
             System.out.print(" || total delay: " + decimalFormat.format(total) + "ms\n");
@@ -564,7 +558,7 @@ public class NotifyListener {
         webClient = WebClient
                 .builder()
                 .exchangeStrategies(WebClientConfig.createExchangeStrategies(5 * 1024 * 1024))  //5MB
-                .clientConnector(Objects.requireNonNull(WebClientConfig.createWebClientFactory(secureWithTrustStore)))
+                .clientConnector(Objects.requireNonNull(WebClientConfig.createWebClientFactory(nwdafSubProperties.secureWithTrustStore())))
                 .build();
     }
 

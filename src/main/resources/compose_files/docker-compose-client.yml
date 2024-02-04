@@ -13,6 +13,7 @@ services:
       networks:
       - monitor-net
       environment:
+        TIMEZONE: "${TIMEZONE}"
         springdoc.enable-native-support: true
         springdoc.swagger-ui.path: /swagger-ui
         server.port: "${client_port}"

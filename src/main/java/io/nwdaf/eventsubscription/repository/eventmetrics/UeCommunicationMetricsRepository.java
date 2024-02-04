@@ -14,7 +14,8 @@ import io.nwdaf.eventsubscription.repository.eventmetrics.entities.UeCommunicati
 
 @Repository("eventUeCommunicationMetrics")
 @EntityScan("io.nwdaf.eventsubscription.repository.eventmetrics")
-public interface UeCommunicationMetricsRepository extends JpaRepository<UeCommunicationTable, OffsetDateTime>, CustomUeCommunicationRepository {
+public interface UeCommunicationMetricsRepository extends JpaRepository<UeCommunicationTable, OffsetDateTime>,
+        CustomUeCommunicationRepository {
 
     List<UeCommunicationTable> findAll();
 

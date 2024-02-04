@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import io.nwdaf.eventsubscription.NwdafSubApplication;
+import io.nwdaf.eventsubscription.model.NotificationFlag;
 import io.nwdaf.eventsubscription.repository.eventsubscription.CustomEventSubscriptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.json.JSONObject;
@@ -70,7 +71,19 @@ public class SubscriptionsService {
 
     public List<NnwdafEventsSubscription> findAllByNotifURI(String clientURI) throws JsonProcessingException {
         final String filter = "'{\"notificationURI\":\"" + clientURI + "\"}'";
-        List<NnwdafEventsSubscriptionTable> tables = customRepository.findAllInLastFilter(filter);
+        List<NnwdafEventsSubscriptionTable> tables = customRepository.findAllInLastFilter(filter, false);
+        List<NnwdafEventsSubscription> res = new ArrayList<>();
+        for (NnwdafEventsSubscriptionTable table : tables) {
+            NnwdafEventsSubscription sub = objectMapper.readValue((new JSONObject(table.getSub())).toString(), NnwdafEventsSubscription.class);
+            sub.setId(table.getId());
+            res.add(sub);
+        }
+        return res;
+    }
+
+    public List<NnwdafEventsSubscription> findAllByActive(NotificationFlag.NotificationFlagEnum notifFlag) throws JsonProcessingException {
+        final String filter = "'{\"evtReq\": {\"notifFlag\": {\"notifFlag\": \"" + notifFlag + "\"}}}'";
+        List<NnwdafEventsSubscriptionTable> tables = customRepository.findAllInLastFilter(filter, true);
         List<NnwdafEventsSubscription> res = new ArrayList<>();
         for (NnwdafEventsSubscriptionTable table : tables) {
             NnwdafEventsSubscription sub = objectMapper.readValue((new JSONObject(table.getSub())).toString(), NnwdafEventsSubscription.class);

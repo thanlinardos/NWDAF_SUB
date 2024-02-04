@@ -76,6 +76,35 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(NwdafFailureException.class)
+    public ResponseEntity<ProblemDetails> handleException(NwdafFailureException ex) {
+
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        String method = null, uri = null;
+        if (attributes != null) {
+            HttpServletRequest request = attributes.getRequest();
+            method = request.getMethod();
+            uri = request.getRequestURI();
+        }
+
+        ProblemDetails error = new ProblemDetails();
+        if (ex.getCause() != null) {
+            error.setCause(ex.getCause().getMessage());
+        }
+        error.setTitle("[" + ex.getClass() + "] An unexpected internal server error occurred while processing the " + method + " request.");
+        error.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        error.setDetail(ex.getMessage());
+        if (ex.getCauseString() != null && !ex.getCauseString().isEmpty()) {
+            error.setCause(ex.getCauseString());
+        }
+        error.setType(uri);
+        error.setInstance(NwdafSubApplication.NWDAF_INSTANCE_ID.toString());
+        error.setSupportedFeatures(Constants.supportedFeatures);
+
+        logger.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(MethodValidationException.class)
     public ResponseEntity<ProblemDetails> handleException(MethodValidationException ex) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

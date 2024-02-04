@@ -27,6 +27,7 @@ services:
     networks:
       - monitor-net
     environment:
+      TIMEZONE: "${TIMEZONE}"
       KAFKA_LISTENERS: BROKER://kafka1:19092,EXTERNAL://kafka1:${kafka1_port},CONTROLLER://kafka1:9093
       KAFKA_ADVERTISED_LISTENERS: BROKER://kafka1:19092,EXTERNAL://${kafka1_ext_host}:${kafka1_port}
       KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
@@ -55,6 +56,7 @@ services:
     networks:
       - monitor-net
     environment:
+      TIMEZONE: "${TIMEZONE}"
       KAFKA_LISTENERS: BROKER://kafka2:19093,EXTERNAL://kafka2:${kafka2_port},CONTROLLER://kafka2:9093
       KAFKA_ADVERTISED_LISTENERS: BROKER://kafka2:19093,EXTERNAL://${kafka2_ext_host}:${kafka2_port}
       KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
@@ -79,10 +81,11 @@ services:
     hostname: kafka3
     container_name: kafka3
     ports:
-      - "39094:39094"
+      - "39095:39095"
     networks:
       - monitor-net
     environment:
+      TIMEZONE: "${TIMEZONE}"
       KAFKA_LISTENERS: BROKER://kafka3:19094,EXTERNAL://kafka3:${kafka3_port},CONTROLLER://kafka3:9093
       KAFKA_ADVERTISED_LISTENERS: BROKER://kafka3:19094,EXTERNAL://${kafka3_ext_host}:${kafka3_port}
       KAFKA_INTER_BROKER_LISTENER_NAME: BROKER

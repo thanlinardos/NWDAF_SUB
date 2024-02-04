@@ -6,9 +6,11 @@ import org.springframework.http.ResponseEntity;
 
 import io.nwdaf.eventsubscription.api.TransfersApi;
 import io.nwdaf.eventsubscription.model.AnalyticsSubscriptionsTransfer;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@CrossOrigin
 public class TransfersController implements TransfersApi {
 
     @Override

@@ -132,22 +132,22 @@
     },
     {
       "name": "nnwdaf-eventsubscription.log.kb",
-      "type": "java.lang.String",
+      "type": "java.lang.Boolean",
       "description": "A description for 'nnwdaf-eventsubscription.log.kb'."
     },
     {
       "name": "nnwdaf-eventsubscription.log.simple",
-      "type": "java.lang.String",
+      "type": "java.lang.Boolean",
       "description": "A description for 'nnwdaf-eventsubscription.log.simple'."
     },
     {
       "name": "nnwdaf-eventsubscription.log.sections",
-      "type": "java.lang.String",
+      "type": "java.lang.Boolean",
       "description": "A description for 'nnwdaf-eventsubscription.log.sections'."
     },
     {
       "name": "nnwdaf-eventsubscription.integration.startup",
-      "type": "java.lang.String",
+      "type": "java.lang.Boolean",
       "description": "A description for 'nnwdaf-eventsubscription.integration.startup'."
     },
     {
@@ -162,32 +162,32 @@
     },
     {
       "name": "nnwdaf-eventsubscription.integration.resetsubdb",
-      "type": "java.lang.String",
+      "type": "java.lang.Boolean",
       "description": "A description for 'nnwdaf-eventsubscription.integration.resetsubdb'."
     },
     {
       "name": "nnwdaf-eventsubscription.integration.resetnotifdb",
-      "type": "java.lang.String",
+      "type": "java.lang.Boolean",
       "description": "A description for 'nnwdaf-eventsubscription.integration.resetnotifdb'."
     },
     {
       "name": "nnwdaf-eventsubscription.integration.resetmetricsdb",
-      "type": "java.lang.String",
+      "type": "java.lang.Boolean",
       "description": "A description for 'nnwdaf-eventsubscription.integration.resetmetricsdb'."
     },
     {
       "name": "nnwdaf-eventsubscription.integration.cycleSeconds",
-      "type": "java.lang.String",
+      "type": "java.lang.Integer",
       "description": "Description for nnwdaf-eventsubscription.integration.cycleSeconds."
     },
     {
       "name": "nnwdaf-eventsubscription.integration.max_no_cycles",
-      "type": "java.lang.String",
+      "type": "java.lang.Integer",
       "description": "Description for nnwdaf-eventsubscription.integration.max_no_cycles."
     },
     {
       "name": "nnwdaf-eventsubscription.log.consumer",
-      "type": "java.lang.String",
+      "type": "java.lang.Boolean",
       "description": "Description for nnwdaf-eventsubscription.log.consumer."
     },
     {

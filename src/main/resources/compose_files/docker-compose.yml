@@ -7,12 +7,15 @@ services:
   nwdafSubCollector:
     container_name: nwdafSubCollector
     image: thanlinardos/nwdaf_sub_collector:0.0.1-SNAPSHOT
+    volumes:
+      - ./scripts/setTimeZone.sh:/tmp/setTimeZone.sh
     # restart: always
     ports:
       - "${collector_port}:${collector_port}"
       - "5006:5006"
     network_mode: host
     environment:
+      TIMEZONE: "${TIMEZONE}"
       server.port: ${collector_port}
       DEBUG_PORT: 5006
       spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
@@ -29,16 +32,20 @@ services:
       nnwdaf-eventsubscription.nef_state_ues: ue_movement/state-ues
       nnwdaf-eventsubscription.nef_token: ${nef_token}
     entrypoint: /bin/sh -c
-    command: ["java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:$${DEBUG_PORT} -jar /app.jar"]
+    command: [ "java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:$${DEBUG_PORT} -jar /app.jar",
+              "bash -c '/tmp/setTimeZone.sh'" ]
   nwdafSubCollector2:
     container_name: nwdafSubCollector2
     image: thanlinardos/nwdaf_sub_collector:0.0.1-SNAPSHOT
+    volumes:
+      - ./scripts/setTimeZone.sh:/tmp/setTimeZone.sh
     # restart: always
     ports:
       - "${collector_port2}:${collector_port2}"
       - "5012:5012"
     network_mode: host
     environment:
+      TIMEZONE: "${TIMEZONE}"
       server.port: ${collector_port2}
       DEBUG_PORT: 5012
       spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
@@ -55,18 +62,23 @@ services:
       nnwdaf-eventsubscription.nef_state_ues: ue_movement/state-ues
       nnwdaf-eventsubscription.nef_token: ${nef_token}
     entrypoint: /bin/sh -c
-    command: [ "java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:$${DEBUG_PORT} -jar /app.jar" ]
+    command: [ "java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:$${DEBUG_PORT} -jar /app.jar",
+               "bash -c '/tmp/setTimeZone.sh'" ]
   nwdafSub:
     container_name: nwdafSub
     image: thanlinardos/nwdaf_sub:0.0.2-SNAPSHOT
     restart: always
     tty: true
+    volumes:
+      - ./scripts/setTimeZone.sh:/tmp/setTimeZone.sh
+    command: "bash -c '/tmp/setTimeZone.sh'"
     ports:
       - "${server_port}:${server_port}"
       - "5005:5005"
     networks:
       - monitor-net
     environment:
+      TIMEZONE: "${TIMEZONE}"
       SPRING.PROFILES.ACTIVE: production
       nnwdaf-eventsubscription.openapi.dev_url: "https://${server_host}:${server_port}"
       nnwdaf-eventsubscription.openapi.prod_url: "https://${server_host}:${server_port}"
@@ -105,8 +117,8 @@ services:
       nnwdaf-eventsubscription.log.sections: false
       nnwdaf-eventsubscription.log.consumer: false
       nnwdaf-eventsubscription.integration.startup: false
-      nnwdaf-eventsubscription.integration.nosubs: 20
-      nnwdaf-eventsubscription.integration.noclients: 5
+      nnwdaf-eventsubscription.integration.noSubs: 20
+      nnwdaf-eventsubscription.integration.noClients: 5
       nnwdaf-eventsubscription.integration.resetsubdb: true
       nnwdaf-eventsubscription.integration.resetmetricsdb: false
       nnwdaf-eventsubscription.integration.resetnotifdb: true
@@ -118,12 +130,16 @@ services:
     image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
     restart: always
     tty: true
+    volumes:
+      - ./scripts/setTimeZone.sh:/tmp/setTimeZone.sh
+    command: "bash -c '/tmp/setTimeZone.sh'"
     ports:
       - "${client_port}:${client_port}"
       - "5007:5007"
     networks:
       - monitor-net
     environment:
+      TIMEZONE: "${TIMEZONE}"
       springdoc.enable-native-support: true
       springdoc.swagger-ui.path: /swagger-ui
       server.port: "${client_port}"
@@ -145,12 +161,16 @@ services:
     image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
     restart: always
     tty: true
+    volumes:
+      - ./scripts/setTimeZone.sh:/tmp/setTimeZone.sh
+    command: "bash -c '/tmp/setTimeZone.sh'"
     ports:
       - "${client_port2}:${client_port2}"
       - "5008:5008"
     networks:
       - monitor-net
     environment:
+      TIMEZONE: "${TIMEZONE}"
       springdoc.enable-native-support: true
       springdoc.swagger-ui.path: /swagger-ui
       server.port: "${client_port2}"
@@ -172,12 +192,16 @@ services:
     image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
     restart: always
     tty: true
+    volumes:
+      - ./scripts/setTimeZone.sh:/tmp/setTimeZone.sh
+    command: "bash -c '/tmp/setTimeZone.sh'"
     ports:
       - "${client_port3}:${client_port3}"
       - "5009:5009"
     networks:
       - monitor-net
     environment:
+      TIMEZONE: "${TIMEZONE}"
       springdoc.enable-native-support: true
       springdoc.swagger-ui.path: /swagger-ui
       server.port: "${client_port3}"
@@ -199,12 +223,16 @@ services:
     image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
     restart: always
     tty: true
+    volumes:
+      - ./scripts/setTimeZone.sh:/tmp/setTimeZone.sh
+    command: "bash -c '/tmp/setTimeZone.sh'"
     ports:
       - "${client_port4}:${client_port4}"
       - "5010:5010"
     networks:
       - monitor-net
     environment:
+      TIMEZONE: "${TIMEZONE}"
       springdoc.enable-native-support: true
       springdoc.swagger-ui.path: /swagger-ui
       server.port: "${client_port4}"
@@ -226,12 +254,16 @@ services:
     image: thanlinardos/nwdaf_sub_client:0.0.2-SNAPSHOT
     restart: always
     tty: true
+    volumes:
+      - ./scripts/setTimeZone.sh:/tmp/setTimeZone.sh
+    command: "bash -c '/tmp/setTimeZone.sh'"
     ports:
       - "${client_port5}:${client_port5}"
       - "5011:5011"
     networks:
       - monitor-net
     environment:
+      TIMEZONE: "${TIMEZONE}"
       springdoc.enable-native-support: true
       springdoc.swagger-ui.path: /swagger-ui
       server.port: "${client_port5}"

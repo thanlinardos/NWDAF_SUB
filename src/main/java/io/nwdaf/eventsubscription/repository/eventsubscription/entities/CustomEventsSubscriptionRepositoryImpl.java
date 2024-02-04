@@ -15,10 +15,9 @@ public class CustomEventsSubscriptionRepositoryImpl implements CustomEventSubscr
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<NnwdafEventsSubscriptionTable> findAllInLastFilter(String filter) {
-        String query = """
-                select * from nnwdaf_events_subscription where sub @> 
-                """ + filter + ";";
+    public List<NnwdafEventsSubscriptionTable> findAllInLastFilter(String filter, Boolean not) {
+        String reverse = not ? " not" : "";
+        String query = "select * from nnwdaf_events_subscription where" + reverse + " sub @> " + filter + ";";
         return (List<NnwdafEventsSubscriptionTable>) entityManager.createNativeQuery(query, NnwdafEventsSubscriptionTable.class).getResultList();
     }
 
