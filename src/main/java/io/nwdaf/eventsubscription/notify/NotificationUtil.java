@@ -639,15 +639,23 @@ public class NotificationUtil {
             WakeUpMessage wakeUpMessage = wakeUpDataProducer(kafkaProducer, eType, no_secs);
 
             // check whether data is already being gathered
-            Long start = no_secs == null ? MIN_PERIOD_SECONDS : no_secs;
-            List<OffsetDateTime> metricsTimeStamps = metricsService.findAvailableConcurrentMetricsTimeStamps(eType, start + 1, findOffset[2]);
+            long start = no_secs == null ? MIN_PERIOD_SECONDS : no_secs;
             Integer period = eventIndexToRepPeriodMap.get(i);
-            boolean hasData = checkOffsetInsideAvailableData(start, findOffset[2] + 1, period, metricsTimeStamps, false);
-            boolean hasHistoricData = true;
+            List<OffsetDateTime> metricsTimeStamps;
+            boolean hasData;
             if (start > 3600 * 24) {
-                hasHistoricData = checkOffsetInsideAvailableData(start, findOffset[2] + 1, period, metricsTimeStamps, true);
+                metricsTimeStamps = metricsService.findAvailableHistoricMetricsTimeStamps(eType, start + 1, findOffset[2]);
+                if (findOffset[2] < 5L * 60L) {
+                    List<OffsetDateTime> concurrentTimeStamps = metricsService.findAvailableConcurrentMetricsTimeStampsWithOffset(eType, 5L * 60L + 1, findOffset[2], 60);
+                    metricsTimeStamps.addAll(concurrentTimeStamps);
+                }
+                hasData = checkOffsetInsideAvailableData(start, findOffset[2] + 60, period, metricsTimeStamps, true);
+            } else {
+                metricsTimeStamps = metricsService.findAvailableConcurrentMetricsTimeStamps(eType, start + 1, findOffset[2]);
+                hasData = checkOffsetInsideAvailableData(start, findOffset[2] + 1, period, metricsTimeStamps, false);
             }
-            if (!hasHistoricData || (!hasData && start > period)) {
+
+            if ((!hasData && start > period)) {
                 body.addFailEventReportsItem(new FailureEventInfo()
                         .event(eventSubscription.getEvent())
                         .failureCode(new NwdafFailureCode()

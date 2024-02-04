@@ -17,20 +17,20 @@ public class CustomUeCommunicationRepositoryImpl implements CustomEventMetricsRe
     @Override
     @SuppressWarnings("unchecked")
     public List<UeCommunicationTable> findAllInLastIntervalByFilterAndOffset(String params, String no_secs,
-                                                                             String end, String offset, String columns) {
+                                                                             String end, String offset, String columns, Boolean historic) {
         if (params != null) {
             params += " and " + params;
         } else {
             params = "";
         }
-        if (Objects.equals(columns, "")) {
+        String table = historic ? " compressed_ue_communication_metrics" : " ue_communication_metrics";
 
-        }
         String query = """
                 select distinct on (time_bucket(cast(:offset as interval), time), supi, intGroupId) 
                 time_bucket(cast(:offset as interval), time) AS time , data, supi, intGroupId, 
                  """ + columns + """
-                 areaOfInterestId from ue_communication_metrics where time >= NOW() - cast(:no_secs as interval) 
+                 areaOfInterestId from """ + table + """
+                 where time >= NOW() - cast(:no_secs as interval) 
                  and time <= NOW() - cast(:end as interval) 
                 """ + params + """
                 GROUP BY time_bucket(cast(:offset as interval), time), time, data, supi, intGroupId, areaOfInterestId;
@@ -47,6 +47,20 @@ public class CustomUeCommunicationRepositoryImpl implements CustomEventMetricsRe
     public List<OffsetDateTime> findAvailableMetricsTimeStamps(String start, String end) {
         String query = """
                 select distinct date_trunc('second', time) as time from ue_communication_metrics 
+                where time >= NOW() - cast(:start as interval) and time <= NOW() - cast(:end as interval) 
+                order by time desc;
+                """;
+        return entityManager.createNativeQuery(query, OffsetDateTime.class)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getResultList();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<OffsetDateTime> findAvailableMetricsTimeStamps(String start, String end, Integer offset) {
+        String query = """
+                select distinct (time_bucket(cast(:offset as interval), time)) as time from ue_communication_metrics 
                 where time >= NOW() - cast(:start as interval) and time <= NOW() - cast(:end as interval) 
                 order by time desc;
                 """;

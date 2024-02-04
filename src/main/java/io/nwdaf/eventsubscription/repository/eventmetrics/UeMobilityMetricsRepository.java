@@ -1,7 +1,6 @@
 package io.nwdaf.eventsubscription.repository.eventmetrics;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.JpaRepository;

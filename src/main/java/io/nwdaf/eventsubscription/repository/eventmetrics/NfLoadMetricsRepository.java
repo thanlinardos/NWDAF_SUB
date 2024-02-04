@@ -17,8 +17,6 @@ import io.nwdaf.eventsubscription.repository.eventmetrics.entities.NfLoadLevelIn
 public interface NfLoadMetricsRepository extends JpaRepository<NfLoadLevelInformationTable, OffsetDateTime>,
         CustomNfLoadRepository {
 
-    List<NfLoadLevelInformationTable> findAll();
-
     @Query(value = "select * from nf_load_metrics where date_trunc('seconds',cast(time as timestamp)) = date_trunc('seconds',cast(? as timestamp))", nativeQuery = true)
     List<NfLoadLevelInformationTable> findAllByTime(OffsetDateTime time);
 

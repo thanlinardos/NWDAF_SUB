@@ -17,7 +17,7 @@ public class CustomNfLoadRepositoryImpl implements CustomEventMetricsRepository<
     @Override
     @SuppressWarnings("unchecked")
     public List<NfLoadLevelInformationTable> findAllInLastIntervalByFilterAndOffset(String params, String no_secs, String end,
-            String offset, String columns) {
+            String offset, String columns, Boolean historic) {
         String filter;
         if (params != null) {
             filter = " and " + params;
@@ -34,18 +34,18 @@ public class CustomNfLoadRepositoryImpl implements CustomEventMetricsRepository<
                     CAST(ROUND(AVG(CAST(data->>'nfLoadAvgInAoi' as numeric))) as integer) AS nfLoadAvgInAoi,
                     """;
         }
+        String table = historic ? " compressed_nf_load_metrics" : " nf_load_metrics";
+
         String query = """
         select distinct on (time_bucket(cast(:offset as interval), time), nfInstanceId, nfSetId) 
         time_bucket(cast(:offset as interval), time) AS time , data , nfInstanceId, nfSetId, 
         """ + columns + """
-           areaOfInterestId from nf_load_metrics where time >= NOW() - cast(:no_secs as interval) 
+           areaOfInterestId from""" + table + """
+           where time >= NOW() - cast(:no_secs as interval) 
            and time <= NOW() - cast(:end as interval) 
           """ + filter + """
          GROUP BY time_bucket(cast(:offset as interval), time), time, data, nfInstanceId, nfSetId, areaofinterestid;
          """;
-        // System.out.println(query);
-        // +" ORDER BY time_bucket(cast(:offset as interval), time) DESC, time,
-        // nfInstanceId, nfSetId;"
         return entityManager.createNativeQuery(query, NfLoadLevelInformationTable.class)
                 .setParameter("offset", offset)
                 .setParameter("no_secs", no_secs)
@@ -72,6 +72,20 @@ public class CustomNfLoadRepositoryImpl implements CustomEventMetricsRepository<
     public List<OffsetDateTime> findAvailableMetricsTimeStamps(String start, String end) {
         String query = """
         select distinct date_trunc('second', time) as time from nf_load_metrics 
+        where time >= NOW() - cast(:start as interval) and time <= NOW() - cast(:end as interval) 
+        order by time desc;
+        """;
+        return entityManager.createNativeQuery(query, OffsetDateTime.class)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getResultList();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<OffsetDateTime> findAvailableMetricsTimeStamps(String start, String end, Integer offset) {
+        String query = """
+        select distinct time_bucket(cast(:offset as interval), time) as time from nf_load_metrics 
         where time >= NOW() - cast(:start as interval) and time <= NOW() - cast(:end as interval) 
         order by time desc;
         """;

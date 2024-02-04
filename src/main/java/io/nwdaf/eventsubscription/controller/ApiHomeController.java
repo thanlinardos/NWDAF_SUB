@@ -37,7 +37,7 @@ public class ApiHomeController {
     }
 
     @GetMapping(value = "/")
-    public RedirectView redirectWithUsingRedirectView(RedirectAttributes attributes) {
+    public RedirectView redirectWithUsingRedirectView() {
         return new RedirectView("swagger-ui/index.html");
     }
 
