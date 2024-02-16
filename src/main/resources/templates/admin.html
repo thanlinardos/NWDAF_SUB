@@ -43,9 +43,9 @@
     </div>
 </div>
 <br>
-<div hx-get="admin/kafkaConsumers" hx-trigger="every 1s"></div>
-<div hx-get="admin/kafkaCollectors" hx-trigger="every 1s"></div>
-<div hx-get="admin/notifyListeners" hx-trigger="every 1s"></div>
+<div th:if="${isConsumer}" hx-get="admin/kafkaConsumers" hx-trigger="every 1s"></div>
+<div th:if="${isConsumer}" hx-get="admin/kafkaCollectors" hx-trigger="every 1s"></div>
+<div th:if="${isNotifier}" hx-get="admin/notifyListeners" hx-trigger="every 1s"></div>
 <script async defer>
     const toggleNotifyListenerBtn = document.querySelector('button[hx-get="/admin/toggleNotifyListener"]');
     const noNotifyListeners = document.getElementById('noNotifyListeners');

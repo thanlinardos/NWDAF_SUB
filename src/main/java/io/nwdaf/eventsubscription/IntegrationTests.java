@@ -2,6 +2,7 @@ package io.nwdaf.eventsubscription;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nwdaf.eventsubscription.config.NwdafSubProperties;
+import io.nwdaf.eventsubscription.config.WebClientConfig;
 import io.nwdaf.eventsubscription.customModel.WakeUpMessage;
 import io.nwdaf.eventsubscription.kafka.KafkaConsumer;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
@@ -11,6 +12,7 @@ import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
 import io.nwdaf.eventsubscription.model.NwdafEvent;
 import io.nwdaf.eventsubscription.model.UeCommunication;
 import io.nwdaf.eventsubscription.model.UeMobility;
+import io.nwdaf.eventsubscription.notify.NotificationUtil;
 import io.nwdaf.eventsubscription.notify.NotifyListener;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.repository.eventmetrics.entities.NfLoadLevelInformationTable;
@@ -28,10 +30,12 @@ import io.nwdaf.eventsubscription.utilities.DummyDataGenerator;
 import io.nwdaf.eventsubscription.utilities.ParserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,8 +45,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.nwdaf.eventsubscription.notify.NotificationUtil.waitForDataProducer;
-import static io.nwdaf.eventsubscription.notify.NotificationUtil.wakeUpDataProducer;
+import static io.nwdaf.eventsubscription.notify.NotificationUtil.*;
 import static io.nwdaf.eventsubscription.utilities.ParserUtil.safeParseInteger;
 
 @Component
@@ -58,6 +61,7 @@ public class IntegrationTests {
     private final ObjectMapper objectMapper;
     private final NotifyPublisher notifyPublisher;
     private final NwdafSubProperties nwdafSubProperties;
+    private final WebClient webClient;
 
     public IntegrationTests(SubscriptionsService subscriptionsService,
                             MetricsService metricsService,
@@ -67,7 +71,7 @@ public class IntegrationTests {
                             RedisNotificationRepository redisNotificationRepository,
                             KafkaProducer kafkaProducer,
                             ObjectMapper objectMapper,
-                            NotifyPublisher notifyPublisher, NwdafSubProperties nwdafSubProperties) {
+                            @Autowired(required = false) NotifyPublisher notifyPublisher, NwdafSubProperties nwdafSubProperties) {
         this.subscriptionsService = subscriptionsService;
         this.metricsService = metricsService;
         this.notificationService = notificationService;
@@ -78,26 +82,10 @@ public class IntegrationTests {
         this.objectMapper = objectMapper;
         this.notifyPublisher = notifyPublisher;
         this.nwdafSubProperties = nwdafSubProperties;
-    }
-
-    @Bean
-    @ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.resetsubdb", havingValue = "true")
-    public CommandLineRunner resetSubDb() {
-        return args -> {
-            if (!subscriptionsService.truncate()) {
-                log.error("Truncate subscription table failed!");
-            }
-        };
-    }
-
-    @Bean
-    @ConditionalOnProperty(name = "nnwdaf-eventsubscription.integration.resetmetricsdb", havingValue = "true")
-    public CommandLineRunner resetMetricsDb() {
-        return args -> {
-            if (!metricsService.truncate()) {
-                log.error("Truncate nf_load & ue_mobility tables failed!");
-            }
-        };
+        this.webClient = WebClient
+                .builder()
+                .clientConnector(Objects.requireNonNull(WebClientConfig.createWebClientFactory(false)))
+                .build();
     }
 
     @Bean
@@ -141,12 +129,15 @@ public class IntegrationTests {
                     log.error("Truncate subscription table failed!");
                     return;
                 }
-
                 saveSubscriptions();
 
                 for (NwdafEvent.NwdafEventEnum e : Constants.supportedEvents) {
                     WakeUpMessage wakeUpMessage = wakeUpDataProducer(kafkaProducer, e, null);
-                    waitForDataProducer(e, wakeUpMessage);
+                    if(nwdafSubProperties.consume()) {
+                        waitForDataProducer(wakeUpMessage);
+                    } else {
+                        sendWaitForDataProducerRequest(wakeUpMessage, webClient, nwdafSubProperties.consumerUrl());
+                    }
                 }
 
                 Thread.sleep(2000);

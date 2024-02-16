@@ -8,6 +8,8 @@ import io.nwdaf.eventsubscription.repository.eventmetrics.CustomEventMetricsRepo
 import io.nwdaf.eventsubscription.repository.eventmetrics.CustomUeMobilityRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.transaction.annotation.Transactional;
 
 public class CustomUeMobilityRepositoryImpl implements CustomEventMetricsRepository<UeMobilityTable>, CustomUeMobilityRepository {
 

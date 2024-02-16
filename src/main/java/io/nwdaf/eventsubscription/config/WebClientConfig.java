@@ -31,7 +31,9 @@ public class WebClientConfig {
                     .build();
 
             KeyStore trustStoreObject = KeyStore.getInstance("PKCS12");
-            trustStoreObject.load(trustStore.getInputStream(), trustStorePassword.toCharArray());
+            if(trustStore != null && trustStorePassword != null) {
+                trustStoreObject.load(trustStore.getInputStream(), trustStorePassword.toCharArray());
+            }
 
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(trustStoreObject);

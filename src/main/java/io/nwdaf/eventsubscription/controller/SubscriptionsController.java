@@ -3,15 +3,19 @@ package io.nwdaf.eventsubscription.controller;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
+import io.nwdaf.eventsubscription.config.NwdafSubProperties;
+import io.nwdaf.eventsubscription.config.WebClientConfig;
 import io.nwdaf.eventsubscription.controller.http.HttpServletRequestAdapter;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -38,11 +42,13 @@ import io.nwdaf.eventsubscription.service.MetricsService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import static io.nwdaf.eventsubscription.controller.http.ValidateSubscriptionRequest.validateRequest;
 import static io.nwdaf.eventsubscription.notify.NotificationUtil.*;
 import static io.nwdaf.eventsubscription.utilities.ParserUtil.safeParseLong;
 
+@ConditionalOnProperty(name = "nnwdaf-eventsubscription.notifier", havingValue = "true")
 @RestController
 @CrossOrigin
 public class SubscriptionsController implements SubscriptionsApi {
@@ -54,14 +60,21 @@ public class SubscriptionsController implements SubscriptionsApi {
     private final KafkaProducer kafkaProducer;
     private final MetricsCacheService metricsCacheService;
     private final Logger logger = LoggerFactory.getLogger(SubscriptionsController.class);
+    private final NwdafSubProperties nwdafSubProperties;
+    private final WebClient webClient;
 
-    public SubscriptionsController(Environment env, NotifyPublisher notifyPublisher, SubscriptionsService subscriptionService, MetricsService metricsService, KafkaProducer kafkaProducer, ObjectMapper objectMapper, MetricsCacheService metricsCacheService) {
+    public SubscriptionsController(Environment env, NotifyPublisher notifyPublisher, SubscriptionsService subscriptionService, MetricsService metricsService, KafkaProducer kafkaProducer, ObjectMapper objectMapper, MetricsCacheService metricsCacheService, NwdafSubProperties nwdafSubProperties) {
         this.env = env;
         this.notifyPublisher = notifyPublisher;
         this.subscriptionService = subscriptionService;
         this.metricsService = metricsService;
         this.kafkaProducer = kafkaProducer;
         this.metricsCacheService = metricsCacheService;
+        this.nwdafSubProperties = nwdafSubProperties;
+        this.webClient = WebClient
+                .builder()
+                .clientConnector(Objects.requireNonNull(WebClientConfig.createWebClientFactory(false)))
+                .build();
     }
 
 
@@ -93,7 +106,11 @@ public class SubscriptionsController implements SubscriptionsApi {
         List<Boolean> canServeSubscription = checkCanServeSubscriptions(getResponse.getNo_valid_events(), body,
                 getResponse.getEventIndexToNotifMethodMap(), getResponse.getEventIndexToRepPeriodMap(),
                 kafkaProducer, metricsService, metricsCacheService,
-                globalResponse.getImmRep(), 0L);
+                globalResponse.getImmRep(), 0L,
+                nwdafSubProperties.consume(),
+                webClient,
+                nwdafSubProperties.consumerUrl()
+                );
 
         // check the amount of subscriptions that need to be notified
         for (int i = 0; i < canServeSubscription.size(); i++) {
@@ -171,7 +188,11 @@ public class SubscriptionsController implements SubscriptionsApi {
         List<Boolean> canServeSubscription = checkCanServeSubscriptions(getResponse.getNo_valid_events(), body,
                 getResponse.getEventIndexToNotifMethodMap(), getResponse.getEventIndexToRepPeriodMap(),
                 kafkaProducer, metricsService, metricsCacheService,
-                globalResponse.getImmRep(), 0L);
+                globalResponse.getImmRep(), 0L,
+                nwdafSubProperties.consume(),
+                webClient,
+                nwdafSubProperties.consumerUrl()
+                );
         // check the amount of subscriptions that need to be notified
         for (int i = 0; i < canServeSubscription.size(); i++) {
             if (canServeSubscription.get(i)) {

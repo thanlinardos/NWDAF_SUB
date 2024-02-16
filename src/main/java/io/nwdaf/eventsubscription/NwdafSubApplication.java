@@ -9,11 +9,13 @@ import io.nwdaf.eventsubscription.model.NetworkAreaInfo;
 import io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.service.MetricsService;
+import io.nwdaf.eventsubscription.service.NotificationService;
 import io.nwdaf.eventsubscription.service.SubscriptionsService;
 import io.nwdaf.eventsubscription.utilities.Constants;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.metrics.JvmMetricsAutoConfiguration;
@@ -55,16 +57,17 @@ public class NwdafSubApplication {
     private final NotifyPublisher notifyPublisher;
     @Getter
     private final ApplicationContext applicationContext;
-    final MetricsService metricsService;
-    final SubscriptionsService subscriptionsService;
-    final ObjectMapper objectMapper;
-    final KafkaProducer kafkaProducer;
+    private final MetricsService metricsService;
+    private final SubscriptionsService subscriptionsService;
+    private final NotificationService notificationService;
+    private final ObjectMapper objectMapper;
+    private final KafkaProducer kafkaProducer;
     private final NwdafSubProperties nwdafSubProperties;
 
-    public NwdafSubApplication(NotifyPublisher notifyPublisher,
+    public NwdafSubApplication(@Autowired(required = false) NotifyPublisher notifyPublisher,
                                ApplicationContext applicationContext,
                                MetricsService metricsService,
-                               SubscriptionsService subscriptionsService,
+                               SubscriptionsService subscriptionsService, NotificationService notificationService,
                                ObjectMapper objectMapper,
                                KafkaProducer kafkaProducer,
                                NwdafSubProperties nwdafSubProperties) {
@@ -73,6 +76,7 @@ public class NwdafSubApplication {
         this.applicationContext = applicationContext;
         this.metricsService = metricsService;
         this.subscriptionsService = subscriptionsService;
+        this.notificationService = notificationService;
         this.objectMapper = objectMapper;
         this.kafkaProducer = kafkaProducer;
         this.nwdafSubProperties = nwdafSubProperties;
@@ -86,6 +90,7 @@ public class NwdafSubApplication {
         SpringApplication.run(NwdafSubApplication.class, args);
     }
 
+    @ConditionalOnProperty(name = "nnwdaf-eventsubscription.periodicWakeUp", havingValue = "true")
     @Scheduled(fixedDelay = 5000)
     public void wakeUpSupportedEvents() {
         for (NwdafEventEnum e : Constants.supportedEvents) {
@@ -98,15 +103,29 @@ public class NwdafSubApplication {
     public CommandLineRunner start() {
         return args -> {
             System.out.println("noClients: " + nwdafSubProperties.integration().noClients());
-            saveSubscriptions();
-
-            for (NwdafEventEnum event : Constants.supportedEvents) {
-                System.out.println("oldest concurrent timestamp for " + event + ": " + metricsService.findOldestConcurrentMetricsTimeStamp(event));
-                System.out.println("oldest historic timestamp for " + event + ": " + metricsService.findOldestHistoricMetricsTimeStamp(event));
-                WakeUpMessage wakeUpMessage = wakeUpDataProducer(kafkaProducer, event, null);
-                waitForDataProducer(event, wakeUpMessage);
+            if (nwdafSubProperties.consume()) {
+                if (nwdafSubProperties.integration().resetmetricsdb() && !metricsService.truncate()) {
+                    log.error("Truncate metrics tables failed!");
+                }
+                for (NwdafEventEnum event : Constants.supportedEvents) {
+                    System.out.println("oldest concurrent timestamp for " + event + ": " + metricsService.findOldestConcurrentMetricsTimeStamp(event));
+                    System.out.println("oldest historic timestamp for " + event + ": " + metricsService.findOldestHistoricMetricsTimeStamp(event));
+                    WakeUpMessage wakeUpMessage = wakeUpDataProducer(kafkaProducer, event, null);
+                    waitForDataProducer(wakeUpMessage);
+                }
             }
-            notifyPublisher.publishNotification("wakeupMethod: kafka, normal startup", 0L);
+            if (nwdafSubProperties.notifier()) {
+                if (nwdafSubProperties.integration().resetsubdb() && !subscriptionsService.truncate()) {
+                    log.error("Truncate subscription table failed!");
+                }
+                if (nwdafSubProperties.integration().resetnotifdb() && !notificationService.truncate()) {
+                    log.error("Truncate notification table failed!");
+                }
+                if(nwdafSubProperties.initSubscriptions()) {
+                    saveSubscriptions();
+                }
+                notifyPublisher.publishNotification("wakeupMethod: kafka, normal startup", 0L);
+            }
         };
     }
 

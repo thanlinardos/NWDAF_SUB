@@ -34,6 +34,11 @@ import io.nwdaf.eventsubscription.utilities.OtherUtil;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import static io.nwdaf.eventsubscription.NwdafSubApplication.*;
 import static io.nwdaf.eventsubscription.kafka.KafkaConsumer.latestWakeUpMessageEventMap;
@@ -317,10 +322,11 @@ public class NotificationUtil {
         return notification;
     }
 
-    public static Long[] waitForDataProducer(NwdafEventEnum requestedEvent, WakeUpMessage wakeUpMessage) throws InterruptedException, IOException {
+    public static Long[] waitForDataProducer(WakeUpMessage wakeUpMessage) throws InterruptedException, IOException {
 
         KafkaConsumer.startListening();
         Thread.sleep(0, 1_000);
+        NwdafEventEnum requestedEvent = wakeUpMessage.getRequestedEvent();
 
         // check if there is data already available
 
@@ -574,7 +580,10 @@ public class NotificationUtil {
                                                            MetricsService metricsService,
                                                            MetricsCacheService metricsCacheService,
                                                            Boolean immediateReporting,
-                                                           Long id) throws NwdafFailureException {
+                                                           Long id,
+                                                           Boolean isConsumer,
+                                                           WebClient webClient,
+                                                           String consumerUrl) throws NwdafFailureException {
         List<Boolean> canServeSubscription = new ArrayList<>(Collections.nCopies(noValidEvents, false));
         for (int i = 0; i < noValidEvents; i++) {
             EventSubscription eventSubscription = body.getEventSubscriptions().get(i);
@@ -696,7 +705,12 @@ public class NotificationUtil {
             boolean isDataAvailable = false;
             Long expectedWaitTime = null;
             try {
-                Long[] wakeUpResult = waitForDataProducer(eType, wakeUpMessage);
+                Long[] wakeUpResult;
+                if (isConsumer) {
+                    wakeUpResult = waitForDataProducer(wakeUpMessage);
+                } else {
+                    wakeUpResult = sendWaitForDataProducerRequest(wakeUpMessage, webClient, consumerUrl);
+                }
                 isDataAvailable = wakeUpResult[0] == 1;
                 expectedWaitTime = wakeUpResult[1];
             } catch (IOException e) {
@@ -744,6 +758,24 @@ public class NotificationUtil {
             }
         }
         return canServeSubscription;
+    }
+
+    public static Long[] sendWaitForDataProducerRequest(WakeUpMessage wakeUpMessage, WebClient webClient, String consumerUrl) {
+        try {
+            return webClient.post()
+                    .uri(consumerUrl + "/consumer/waitForDataProducer")
+                    .bodyValue(wakeUpMessage)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, clientResponse ->
+                            Mono.error(new RuntimeException("Client Error! Status code: " + clientResponse.statusCode())))
+                    .onStatus(HttpStatusCode::is5xxServerError, clientResponse ->
+                            Mono.error(new RuntimeException("Server Error! Status code: " + clientResponse.statusCode())))
+                    .bodyToMono(Long[].class)
+                    .block();
+        } catch (RuntimeException e) {
+            logger.error("Couldn't connect to consumer/waitForDataProducer.", e);
+            return new Long[]{0L, null};
+        }
     }
 
     public static WakeUpMessage wakeUpDataProducer(KafkaProducer kafkaProducer, NwdafEventEnum eType, Long no_secs) {

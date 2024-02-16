@@ -8,6 +8,8 @@ import io.nwdaf.eventsubscription.repository.eventmetrics.CustomEventMetricsRepo
 import io.nwdaf.eventsubscription.repository.eventmetrics.CustomUeCommunicationRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.transaction.annotation.Transactional;
 
 public class CustomUeCommunicationRepositoryImpl implements CustomEventMetricsRepository<UeCommunicationTable>, CustomUeCommunicationRepository {
 

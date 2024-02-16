@@ -8,6 +8,7 @@ import io.nwdaf.eventsubscription.notify.NotifyListener;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.repository.eventnotification.NotificationRepository;
 import io.nwdaf.eventsubscription.repository.eventnotification.entities.NnwdafNotificationTable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatusCode;
@@ -43,7 +44,8 @@ public class NotificationService {
     private final NotifyPublisher notifyPublisher;
     private Future<?> scheduledTask;
 
-    public NotificationService(NotificationRepository repository, ObjectMapper objectMapper, NotifyPublisher notifyPublisher) {
+    public NotificationService(NotificationRepository repository, ObjectMapper objectMapper,
+                               @Autowired(required = false) NotifyPublisher notifyPublisher) {
         this.repository = repository;
         this.objectMapper = objectMapper;
         this.notifyPublisher = notifyPublisher;

@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpEntity;
@@ -124,7 +125,7 @@ public class NotifyListener {
         return Long.valueOf(combinedKey & 0x7F).intValue();
     }
 
-
+    @ConditionalOnProperty(name = "nnwdaf-eventsubscription.notifier", havingValue = "true")
     @Async
     @EventListener
     public void sendNotifications(NotificationEvent notificationEvent) {
@@ -493,26 +494,26 @@ public class NotifyListener {
 
     private static boolean[] mapIsThresholdBooleans(List<ThresholdLevel> thresholdLevels,
                                                     int i, NfLoadLevelInformation nfLoadLevelInformation) {
-        return new boolean[]{(thresholdLevels.get(i).getNfCpuUsage() != null
-                && nfLoadLevelInformation.getNfCpuUsage() >= thresholdLevels.get(i).getNfCpuUsage()),
-                (thresholdLevels.get(i).getNfMemoryUsage() != null && nfLoadLevelInformation
-                        .getNfMemoryUsage() >= thresholdLevels.get(i).getNfMemoryUsage()),
-                (thresholdLevels.get(i).getNfStorageUsage() != null && nfLoadLevelInformation
-                        .getNfStorageUsage() >= thresholdLevels.get(i).getNfStorageUsage()),
-                (thresholdLevels.get(i).getNfLoadLevel() != null && nfLoadLevelInformation
-                        .getNfLoadLevelAverage() >= thresholdLevels.get(i).getNfLoadLevel())};
+        return new boolean[]{
+                thresholdLevels.get(i).getNfCpuUsage() != null &&
+                        nfLoadLevelInformation.getNfCpuUsage() >= thresholdLevels.get(i).getNfCpuUsage(),
+                thresholdLevels.get(i).getNfMemoryUsage() != null &&
+                        nfLoadLevelInformation.getNfMemoryUsage() >= thresholdLevels.get(i).getNfMemoryUsage(),
+                thresholdLevels.get(i).getNfStorageUsage() != null &&
+                        nfLoadLevelInformation.getNfStorageUsage() >= thresholdLevels.get(i).getNfStorageUsage(),
+                thresholdLevels.get(i).getNfLoadLevel() != null &&
+                        nfLoadLevelInformation.getNfLoadLevelAverage() >= thresholdLevels.get(i).getNfLoadLevel()
+        };
     }
 
     private static int[] mapPropertyValues(NnwdafEventsSubscriptionNotification notification, int index) {
+        NfLoadLevelInformation nfLoadLevelInformation = notification.getEventNotifications().getFirst().getNfLoadLevelInfos().get(index);
         return new int[]{
-                notification.getEventNotifications().getFirst().getNfLoadLevelInfos().get(index)
-                        .getNfCpuUsage(),
-                notification.getEventNotifications().getFirst().getNfLoadLevelInfos().get(index)
-                        .getNfMemoryUsage(),
-                notification.getEventNotifications().getFirst().getNfLoadLevelInfos().get(index)
-                        .getNfStorageUsage(),
-                notification.getEventNotifications().getFirst().getNfLoadLevelInfos().get(index)
-                        .getNfLoadLevelAverage()};
+                nfLoadLevelInformation.getNfCpuUsage(),
+                nfLoadLevelInformation.getNfMemoryUsage(),
+                nfLoadLevelInformation.getNfStorageUsage(),
+                nfLoadLevelInformation.getNfLoadLevelAverage()
+        };
     }
 
     public static void stop() {

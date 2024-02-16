@@ -7,7 +7,17 @@ import java.util.UUID;
 
 @ConfigurationProperties(prefix = "nnwdaf-eventsubscription")
 @RefreshScope
-public record NwdafSubProperties(OpenAPIProperties openapi, ClientProperties client, Boolean init, Integration integration, Log log, Boolean secureWithTrustStore) {
+public record NwdafSubProperties(OpenAPIProperties openapi,
+								 ClientProperties client,
+								 Boolean init,
+								 Integration integration,
+								 Log log,
+								 Boolean secureWithTrustStore,
+								 Boolean notifier, Boolean consume,
+								 Boolean periodicWakeUp,
+								 Boolean initSubscriptions,
+								 String consumerUrl,
+								 Integer partition) {
 	public record OpenAPIProperties(String dev_url,String prod_url) {
 			
 	}

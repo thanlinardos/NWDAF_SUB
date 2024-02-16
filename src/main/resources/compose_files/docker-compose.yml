@@ -24,13 +24,7 @@ services:
       nnwdaf-eventsubscription.prometheus_url: http://localhost:${prom_port}/api/v1/query
       nnwdaf-eventsubscription.allow_dummy_data: false
       nnwdaf-eventsubscription.allow_prom_data: true
-      nnwdaf-eventsubscription.allow_nef_data: true
-      nnwdaf-eventsubscription.no_dummy_nfload: 10
-      nnwdaf-eventsubscription.no_dummy_uemob: 10
-      nnwdaf-eventsubscription.no_dummy_uecomm: 10
-      nnwdaf-eventsubscription.nef_url: https://${nef_host}:${nef_port}/api/v1/
-      nnwdaf-eventsubscription.nef_state_ues: ue_movement/state-ues
-      nnwdaf-eventsubscription.nef_token: ${nef_token}
+      nnwdaf-eventsubscription.allow_nef_data: false
     entrypoint: /bin/sh -c
     command: [ "java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:$${DEBUG_PORT} -jar /app.jar",
               "bash -c '/tmp/setTimeZone.sh'" ]
@@ -58,20 +52,209 @@ services:
       nnwdaf-eventsubscription.no_dummy_nfload: 100
       nnwdaf-eventsubscription.no_dummy_uemob: 100
       nnwdaf-eventsubscription.no_dummy_uecomm: 100
+    entrypoint: /bin/sh -c
+    command: [ "java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:$${DEBUG_PORT} -jar /app.jar",
+               "bash -c '/tmp/setTimeZone.sh'" ]
+  nwdafSubCollector3:
+    container_name: nwdafSubCollector3
+    image: thanlinardos/nwdaf_sub_collector:0.0.1-SNAPSHOT
+    volumes:
+      - ./scripts/setTimeZone.sh:/tmp/setTimeZone.sh
+    # restart: always
+    ports:
+      - "${collector_port3}:${collector_port3}"
+      - "5014:5014"
+    network_mode: host
+    environment:
+      TIMEZONE: "${TIMEZONE}"
+      server.port: ${collector_port3}
+      DEBUG_PORT: 5014
+      spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
+      spring.kafka.consumer.group-id: events
+      logging.level.org.apache.kafka: false
+      nnwdaf-eventsubscription.prometheus_url: http://localhost:${prom_port}/api/v1/query
+      nnwdaf-eventsubscription.allow_dummy_data: false
+      nnwdaf-eventsubscription.allow_prom_data: false
+      nnwdaf-eventsubscription.allow_nef_data: true
       nnwdaf-eventsubscription.nef_url: https://${nef_host}:${nef_port}/api/v1/
       nnwdaf-eventsubscription.nef_state_ues: ue_movement/state-ues
       nnwdaf-eventsubscription.nef_token: ${nef_token}
     entrypoint: /bin/sh -c
     command: [ "java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:$${DEBUG_PORT} -jar /app.jar",
                "bash -c '/tmp/setTimeZone.sh'" ]
-  nwdafSub:
-    container_name: nwdafSub
+  nwdafSubConsume:
+    container_name: nwdafSubConsume
     image: thanlinardos/nwdaf_sub:0.0.2-SNAPSHOT
     restart: always
     tty: true
     volumes:
       - ./scripts/setTimeZone.sh:/tmp/setTimeZone.sh
-    command: "bash -c '/tmp/setTimeZone.sh'"
+    entrypoint: /bin/sh -c
+    command: ["java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5013 -jar /app.jar",
+              "bash -c '/tmp/setTimeZone.sh'"]
+    ports:
+      - "${server_consume_port}:${server_consume_port}"
+      - "5013:5013"
+    networks:
+      - monitor-net
+    environment:
+      TIMEZONE: "${TIMEZONE}"
+      SPRING.PROFILES.ACTIVE: production
+      nnwdaf-eventsubscription.notifier: false
+      nnwdaf-eventsubscription.initSubscriptions: false
+      nnwdaf-eventsubscription.consumerUrl: "https://${server_consume_host}:${server_consume_port}"
+      nnwdaf-eventsubscription.openapi.dev_url: "https://${server_host}:${server_port}"
+      nnwdaf-eventsubscription.openapi.prod_url: "https://${server_host}:${server_port}"
+      nnwdaf-eventsubscription.client.dev_url: "https://${client_host}:${client_port}/client"
+      nnwdaf-eventsubscription.client.prod_url: "https://${client_host}:${client_port}/client"
+      nnwdaf-eventsubscription.init: false
+      SPRING.DATASOURCE.NAME: eventsubscription
+      SPRING.DATASOURCE.URL: jdbc:postgresql://db:5434/postgres?currentSchema=public
+      SPRING.DATASOURCE.USERNAME: "${POSTGRES_USER}"
+      SPRING.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
+      EVENTNOTIFICATION.DATASOURCE.NAME: eventnotification
+      EVENTNOTIFICATION.DATASOURCE.URL: jdbc:postgresql://db:5434/test?currentSchema=public
+      EVENTNOTIFICATION.DATASOURCE.USERNAME: "${POSTGRES_USER}"
+      EVENTNOTIFICATION.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
+      EVENTMETRICS.DATASOURCE.NAME: eventmetrics
+      EVENTMETRICS.DATASOURCE.URL: jdbc:postgresql://timescaledb:5433/metrics?currentSchema=public
+      EVENTMETRICS.DATASOURCE.USERNAME: "${POSTGRES_USER}"
+      EVENTMETRICS.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
+      SERVER.PORT: "${server_consume_port}"
+      management.endpoint.health.show-details: always
+      spring.task.scheduling.pool.size: 16
+      spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
+      spring.kafka.consumer.group-id: events
+      logging.level.org.apache.kafka: false
+      spring.data.redis.host: redis
+      spring.data.redis.port: 6379
+      nnwdaf-eventsubscription.log.kb: false
+      nnwdaf-eventsubscription.log.simple: false
+      nnwdaf-eventsubscription.log.sections: false
+      nnwdaf-eventsubscription.log.consumer: false
+      nnwdaf-eventsubscription.integration.startup: false
+      nnwdaf-eventsubscription.integration.resetmetricsdb: false
+      nnwdaf-eventsubscription.secureWithTrustStore: false
+  nwdafSubConsume2:
+    container_name: nwdafSubConsume2
+    image: thanlinardos/nwdaf_sub:0.0.2-SNAPSHOT
+    restart: always
+    tty: true
+    volumes:
+      - ./scripts/setTimeZone.sh:/tmp/setTimeZone.sh
+    entrypoint: /bin/sh -c
+    command: [ "java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5015 -jar /app.jar",
+               "bash -c '/tmp/setTimeZone.sh'" ]
+    ports:
+      - "8083:8083"
+      - "5015:5015"
+    networks:
+      - monitor-net
+    environment:
+      TIMEZONE: "${TIMEZONE}"
+      SPRING.PROFILES.ACTIVE: production
+      nnwdaf-eventsubscription.notifier: false
+      nnwdaf-eventsubscription.initSubscriptions: false
+      nnwdaf-eventsubscription.partition: 1
+      nnwdaf-eventsubscription.consumerUrl: "https://nwdafSubConsume2:8083"
+      nnwdaf-eventsubscription.openapi.dev_url: "https://${server_host}:${server_port}"
+      nnwdaf-eventsubscription.openapi.prod_url: "https://${server_host}:${server_port}"
+      nnwdaf-eventsubscription.client.dev_url: "https://${client_host}:${client_port}/client"
+      nnwdaf-eventsubscription.client.prod_url: "https://${client_host}:${client_port}/client"
+      nnwdaf-eventsubscription.init: false
+      SPRING.DATASOURCE.NAME: eventsubscription
+      SPRING.DATASOURCE.URL: jdbc:postgresql://db:5434/postgres?currentSchema=public
+      SPRING.DATASOURCE.USERNAME: "${POSTGRES_USER}"
+      SPRING.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
+      EVENTNOTIFICATION.DATASOURCE.NAME: eventnotification
+      EVENTNOTIFICATION.DATASOURCE.URL: jdbc:postgresql://db:5434/test?currentSchema=public
+      EVENTNOTIFICATION.DATASOURCE.USERNAME: "${POSTGRES_USER}"
+      EVENTNOTIFICATION.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
+      EVENTMETRICS.DATASOURCE.NAME: eventmetrics
+      EVENTMETRICS.DATASOURCE.URL: jdbc:postgresql://timescaledb:5433/metrics?currentSchema=public
+      EVENTMETRICS.DATASOURCE.USERNAME: "${POSTGRES_USER}"
+      EVENTMETRICS.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
+      SERVER.PORT: "8083"
+      management.endpoint.health.show-details: always
+      spring.task.scheduling.pool.size: 16
+      spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
+      spring.kafka.consumer.group-id: events
+      logging.level.org.apache.kafka: false
+      spring.data.redis.host: redis
+      spring.data.redis.port: 6379
+      nnwdaf-eventsubscription.log.kb: false
+      nnwdaf-eventsubscription.log.simple: false
+      nnwdaf-eventsubscription.log.sections: false
+      nnwdaf-eventsubscription.log.consumer: false
+      nnwdaf-eventsubscription.integration.startup: false
+      nnwdaf-eventsubscription.integration.resetmetricsdb: false
+      nnwdaf-eventsubscription.secureWithTrustStore: false
+
+  nwdafSubConsume3:
+    container_name: nwdafSubConsume3
+    image: thanlinardos/nwdaf_sub:0.0.2-SNAPSHOT
+    restart: always
+    tty: true
+    volumes:
+      - ./scripts/setTimeZone.sh:/tmp/setTimeZone.sh
+    entrypoint: /bin/sh -c
+    command: [ "java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5016 -jar /app.jar",
+               "bash -c '/tmp/setTimeZone.sh'" ]
+    ports:
+      - "8085:8085"
+      - "5016:5016"
+    networks:
+      - monitor-net
+    environment:
+      TIMEZONE: "${TIMEZONE}"
+      SPRING.PROFILES.ACTIVE: production
+      nnwdaf-eventsubscription.notifier: false
+      nnwdaf-eventsubscription.initSubscriptions: false
+      nnwdaf-eventsubscription.partition: 2
+      nnwdaf-eventsubscription.consumerUrl: "https://nwdafSubConsume3:8085"
+      nnwdaf-eventsubscription.openapi.dev_url: "https://${server_host}:${server_port}"
+      nnwdaf-eventsubscription.openapi.prod_url: "https://${server_host}:${server_port}"
+      nnwdaf-eventsubscription.client.dev_url: "https://${client_host}:${client_port}/client"
+      nnwdaf-eventsubscription.client.prod_url: "https://${client_host}:${client_port}/client"
+      nnwdaf-eventsubscription.init: false
+      SPRING.DATASOURCE.NAME: eventsubscription
+      SPRING.DATASOURCE.URL: jdbc:postgresql://db:5434/postgres?currentSchema=public
+      SPRING.DATASOURCE.USERNAME: "${POSTGRES_USER}"
+      SPRING.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
+      EVENTNOTIFICATION.DATASOURCE.NAME: eventnotification
+      EVENTNOTIFICATION.DATASOURCE.URL: jdbc:postgresql://db:5434/test?currentSchema=public
+      EVENTNOTIFICATION.DATASOURCE.USERNAME: "${POSTGRES_USER}"
+      EVENTNOTIFICATION.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
+      EVENTMETRICS.DATASOURCE.NAME: eventmetrics
+      EVENTMETRICS.DATASOURCE.URL: jdbc:postgresql://timescaledb:5433/metrics?currentSchema=public
+      EVENTMETRICS.DATASOURCE.USERNAME: "${POSTGRES_USER}"
+      EVENTMETRICS.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
+      SERVER.PORT: "8085"
+      management.endpoint.health.show-details: always
+      spring.task.scheduling.pool.size: 16
+      spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
+      spring.kafka.consumer.group-id: events
+      logging.level.org.apache.kafka: false
+      spring.data.redis.host: redis
+      spring.data.redis.port: 6379
+      nnwdaf-eventsubscription.log.kb: false
+      nnwdaf-eventsubscription.log.simple: false
+      nnwdaf-eventsubscription.log.sections: false
+      nnwdaf-eventsubscription.log.consumer: false
+      nnwdaf-eventsubscription.integration.startup: false
+      nnwdaf-eventsubscription.integration.resetmetricsdb: false
+      nnwdaf-eventsubscription.secureWithTrustStore: false
+
+  nwdafSub:
+    container_name: nwdafSubNotifier
+    image: thanlinardos/nwdaf_sub:0.0.2-SNAPSHOT
+    restart: always
+    tty: true
+    volumes:
+      - ./scripts/setTimeZone.sh:/tmp/setTimeZone.sh
+    entrypoint: /bin/sh -c
+    command: [ "java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar /app.jar",
+               "bash -c '/tmp/setTimeZone.sh'" ]
     ports:
       - "${server_port}:${server_port}"
       - "5005:5005"
@@ -80,32 +263,28 @@ services:
     environment:
       TIMEZONE: "${TIMEZONE}"
       SPRING.PROFILES.ACTIVE: production
+      nnwdaf-eventsubscription.periodicWakeUp: false
+      nnwdaf-eventsubscription.consume: false
+      nnwdaf-eventsubscription.consumerUrl: "https://${server_consume_host}:${server_consume_port}"
       nnwdaf-eventsubscription.openapi.dev_url: "https://${server_host}:${server_port}"
       nnwdaf-eventsubscription.openapi.prod_url: "https://${server_host}:${server_port}"
       nnwdaf-eventsubscription.client.dev_url: "https://${client_host}:${client_port}/client"
       nnwdaf-eventsubscription.client.prod_url: "https://${client_host}:${client_port}/client"
       nnwdaf-eventsubscription.init: false
-      nnwdaf-eventsubscription.prometheus_url: http://${prom_host}:${prom_port}/api/v1/query
-      nnwdaf-eventsubscription.containerNames: pg_container,pgadmin4_container,nwdafSub
       SPRING.DATASOURCE.NAME: eventsubscription
       SPRING.DATASOURCE.URL: jdbc:postgresql://db:5434/postgres?currentSchema=public
       SPRING.DATASOURCE.USERNAME: "${POSTGRES_USER}"
       SPRING.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
-      SPRING.DATASOURCE.DRIVERCLASSNAME: org.postgresql.Driver
       EVENTNOTIFICATION.DATASOURCE.NAME: eventnotification
       EVENTNOTIFICATION.DATASOURCE.URL: jdbc:postgresql://db:5434/test?currentSchema=public
       EVENTNOTIFICATION.DATASOURCE.USERNAME: "${POSTGRES_USER}"
       EVENTNOTIFICATION.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
-      EVENTNOTIFICATION.DATASOURCE.DRIVERCLASSNAME: org.postgresql.Driver
       EVENTMETRICS.DATASOURCE.NAME: eventmetrics
       EVENTMETRICS.DATASOURCE.URL: jdbc:postgresql://timescaledb:5433/metrics?currentSchema=public
       EVENTMETRICS.DATASOURCE.USERNAME: "${POSTGRES_USER}"
       EVENTMETRICS.DATASOURCE.PASSWORD: "${POSTGRES_PASSWORD}"
-      EVENTMETRICS.DATASOURCE.DRIVERCLASSNAME: org.postgresql.Driver
       SERVER.PORT: "${server_port}"
       management.endpoint.health.show-details: always
-      # logging.level.org.hibernate.SQL: DEBUG
-      # logging.level.org.hibernate.type.descriptor.sql.BasicBinder: TRACE
       spring.task.scheduling.pool.size: 16
       spring.kafka.bootstrap-servers: ${kafka1_host}:${kafka1_port}
       spring.kafka.consumer.group-id: events
@@ -120,7 +299,6 @@ services:
       nnwdaf-eventsubscription.integration.noSubs: 20
       nnwdaf-eventsubscription.integration.noClients: 5
       nnwdaf-eventsubscription.integration.resetsubdb: true
-      nnwdaf-eventsubscription.integration.resetmetricsdb: false
       nnwdaf-eventsubscription.integration.resetnotifdb: true
       nnwdaf-eventsubscription.integration.cycleSeconds: 100
       nnwdaf-eventsubscription.integration.max_no_cycles: 1

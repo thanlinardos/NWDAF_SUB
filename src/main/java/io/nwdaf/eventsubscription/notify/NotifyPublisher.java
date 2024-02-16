@@ -1,9 +1,11 @@
 package io.nwdaf.eventsubscription.notify;
 
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+@ConditionalOnProperty(name = "nnwdaf-eventsubscription.notifier", havingValue = "true")
 @Component
 public class NotifyPublisher {
 

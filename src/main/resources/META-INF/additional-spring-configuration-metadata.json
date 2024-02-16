@@ -204,5 +204,35 @@
       "name": "nnwdaf-eventsubscription.secureWithTrustStore",
       "type": "java.lang.Boolean",
       "description": "Description for nnwdaf-eventsubscription.secureWithTrustStore."
+    },
+    {
+      "name": "nnwdaf-eventsubscription.consume",
+      "type": "java.lang.Boolean",
+      "description": "Description for nnwdaf-eventsubscription.consume."
+    },
+    {
+      "name": "nnwdaf-eventsubscription.notifier",
+      "type": "java.lang.Boolean",
+      "description": "Description for nnwdaf-eventsubscription.notifier."
+    },
+    {
+      "name": "nnwdaf-eventsubscription.periodicWakeUp",
+      "type": "java.lang.Boolean",
+      "description": "Description for nnwdaf-eventsubscription.periodicWakeUp."
+    },
+    {
+      "name": "nnwdaf-eventsubscription.initSubscriptions",
+      "type": "java.lang.Boolean",
+      "description": "Description for nnwdaf-eventsubscription.initSubscriptions."
+    },
+    {
+      "name": "nnwdaf-eventsubscription.consumerUrl",
+      "type": "java.lang.String",
+      "description": "Description for nnwdaf-eventsubscription.consumerUrl."
+    },
+    {
+      "name": "nnwdaf-eventsubscription.partition",
+      "type": "java.lang.Integer",
+      "description": "Description for nnwdaf-eventsubscription.partition."
     }
   ]}

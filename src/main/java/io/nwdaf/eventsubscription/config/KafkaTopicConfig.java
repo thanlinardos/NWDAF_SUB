@@ -32,14 +32,14 @@ public class KafkaTopicConfig {
     }
     @Bean
     public NewTopic NF_LOAD() {
-         return new NewTopic("NF_LOAD", 1, (short) 1);
+         return new NewTopic("NF_LOAD", 3, (short) 2);
     }
     @Bean
     public NewTopic UE_MOBILITY() {
-         return new NewTopic("UE_MOBILITY", 1, (short) 1);
+         return new NewTopic("UE_MOBILITY", 3, (short) 2);
     }
     @Bean
     public NewTopic UE_COMM() {
-        return new NewTopic("UE_COMM", 1, (short) 1);
+        return new NewTopic("UE_COMM", 3, (short) 2);
     }
 }

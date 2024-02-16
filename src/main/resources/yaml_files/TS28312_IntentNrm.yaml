@@ -1,0 +1,205 @@
+openapi: 3.0.1
+info:
+  title: Intent NRM
+  version: 17.5.0
+  description: >-
+    OAS 3.0.1 definition of the Intent NRM
+    © 2023, 3GPP Organizational Partners (ARIB, ATIS, CCSA, ETSI, TSDSI, TTA, TTC).
+    All rights reserved.
+externalDocs:
+  description: 3GPP TS 28.312; Intent driven management services for mobile networks
+  url: http://www.3gpp.org/ftp/Specs/archive/28_series/28.312/
+paths: {}
+components:
+  schemas:
+       
+   #-------Definition of generic IOCs ----------#  
+
+    SubNetwork-Single:
+      allOf:
+      - $ref: 'TS28623_GenericNrm.yaml#/components/schemas/Top'
+      - type: object
+        properties:
+          attributes:
+            $ref: 'TS28623_GenericNrm.yaml#/components/schemas/SubNetwork-Attr'
+      - $ref: 'TS28623_GenericNrm.yaml#/components/schemas/SubNetwork-ncO'
+      - type: object
+        properties:
+          SubNetwork:
+            $ref: '#/components/schemas/SubNetwork-Multiple'
+          Intent:
+            $ref: '#/components/schemas/Intent-Multiple'
+
+    Intent-Single:
+      allOf:
+      - $ref: 'TS28623_GenericNrm.yaml#/components/schemas/Top'    
+      - type: object
+        properties:
+          userLabel:
+            type: string
+          intentExpectations:
+            type: array
+            items:
+              type: object
+              oneOf:
+                - $ref: "#/components/schemas/IntentExpectation"
+                - $ref: "TS28312_IntentExpectations.yaml#/components/schemas/RadioNetworkExpectation"
+                - $ref: "TS28312_IntentExpectations.yaml#/components/schemas/EdgeServiceSupportExpectation"                
+          intentContexts:
+            type: array
+            items:
+              $ref: "#/components/schemas/Context"
+          intentFulfilmentInfo:
+            $ref: "#/components/schemas/FulfilmentInfo"
+   #-------Definition of generic IOCs ----------#  
+
+   #-------Definition of the generic IntentExpectation dataType ----------#    
+    IntentExpectation:
+      description: >-
+        This data type is the "IntentExpectation" data type without specialisations
+      type: object
+      properties:
+        expectationId:
+          type: string
+        expectationVerb:
+           $ref: "#/components/schemas/ExpectationVerb"
+        expectationObject:
+          $ref: "#/components/schemas/ExpectationObject"
+        expectationTargets:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExpectationTarget"
+        expectationContexts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Context"
+        expectationfulfilmentInfo:
+            $ref: "#/components/schemas/FulfilmentInfo" 
+      required:
+        - expectationId
+   #-------Definition of the generic IntentExpectation dataType ----------#    
+
+   #-------Definition of the generic ExpectationObject dataType ----------#    
+    ExpectationObject:
+      description: >-
+        This data type is the "ExpectationObject" data type without specialisations
+      type: object
+      properties:
+        objectType:
+          type: string
+          enum:
+            - RAN_SubNetwork  #value for Radio Network Expectation--#
+            - EdgeService_Support  #value for Service Support Expectation--#
+        objectInstance:
+          $ref: "TS28623_ComDefs.yaml#/components/schemas/Dn"
+        objectContexts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Context"           
+
+   #-------Definition of the generic ExpectationObject dataType ----------#    
+
+   #-------Definition of the generic dataType --------------#    
+    Condition:
+      type: string
+      enum:
+        - IS_EQUAL_TO
+        - IS_LESS_THAN
+        - IS_GREATER_THAN
+        - IS_WITHIN_RANGE
+        - IS_OUTSIDE_RANGE
+        - IS_ONE_OF
+        - IS_NOT_ONE_OF
+        - IS_EQUAL_TO_OR_LESS_THAN
+        - IS_EQUAL_TO_OR_GREATER_THAN
+        - IS_ALL_OF        
+    FulfilStatus:
+      type: string
+      readOnly: true      
+      enum:
+          - FULFILLED
+          - NOT_FULFILLED
+    NotFulfilledState:
+      type: string
+      readOnly: true      
+      enum:
+          - ACKNOWLEDGED
+          - COMPLIANT
+          - DEGRADED
+          - SUSPENDED
+          - TERMINATED
+          - FULFILMENTFAILED
+    FulfilmentInfo:
+      type: object
+      properties:
+        fulfilStatus:
+          $ref: "#/components/schemas/FulfilStatus"
+        notFullfilledState:
+          description: ->
+            An attribute which is used when FulfilmentInfo is implemented for IntentFulfilmentInfo
+          $ref: "#/components/schemas/NotFulfilledState"
+        notFulfilledReasons:
+          description: ->
+            An attribute which is used when FulfilmentInfo is implemented for IntentFulfilmentInfo
+          type: string
+          readOnly: true          
+    ExpectationVerb:
+      type: string
+      enum:
+          - DELIVER
+          - ENSURE
+   #-------Definition of the generic dataType --------------#    
+
+   #-------Definition of the generic Context dataType --------------#    
+    Context:
+      description: >-
+        This data type is the "Context" data type without specialisations
+      type: object
+      properties:
+        contextAttribute:
+          type: string
+        contextCondition:
+          $ref: "#/components/schemas/Condition"
+        contextValueRange:
+          type: array
+          items:
+            type: number 
+   #-------Definition of the generic Context dataType --------------#   
+   
+   #-------Definition of the generic ExpectationTarget dataType----------#     
+    ExpectationTarget:
+      description: >-
+        This data type is the "ExpectationTarget" data type without specialisations
+      type: object
+      properties:
+        targetName:
+          type: string
+        targetCondition:
+          $ref: "#/components/schemas/Condition"
+        targetValueRange:
+          type: number
+        targetContexts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Context"
+   #-------Definition of the generic ExpectationTarget  dataType----------#  
+
+   #------Definition of JSON arrays for name-contained IOCs ---------------#
+
+    SubNetwork-Multiple:
+      type: array
+      items:
+        $ref: '#/components/schemas/SubNetwork-Single'
+                                
+    Intent-Multiple:
+      type: array
+      items:
+        $ref: '#/components/schemas/Intent-Single'              
+   #------Definition of JSON arrays for name-contained IOCs ---------------#
+   
+   #----- Definitions in TS 28.312 for TS 28.532 --------------------------#
+    resources-intentNrm:
+      oneOf:
+       - $ref: '#/components/schemas/SubNetwork-Single'
+       - $ref: '#/components/schemas/Intent-Single'
+   #----- Definitions in TS 28.312 for TS 28.532 --------------------------#

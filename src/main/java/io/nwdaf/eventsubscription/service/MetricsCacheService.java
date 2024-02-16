@@ -29,7 +29,7 @@ public class MetricsCacheService {
 		this.metricsService = metricsService;
 	}
 
-	public NfLoadLevelInformationHash create(NfLoadLevelInformation body) {
+	public NfLoadLevelInformationHash create(NfLoadLevelInformation body) throws Exception {
 		NfLoadLevelInformationHash bodyHash = new NfLoadLevelInformationHash(body);
 		metricsService.asyncCreate(body);
 		return repository.save(bodyHash);
