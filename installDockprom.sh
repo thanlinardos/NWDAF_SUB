@@ -1,3 +1,4 @@
+rm -rf dockprom
 git clone https://github.com/stefanprodan/dockprom &&
 cd dockprom &&
 patch -p1 < ../scripts/customize_grafana_and_prom_label.patch &&
