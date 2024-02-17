@@ -16,6 +16,12 @@ public class KafkaTopicConfig {
     @Value(value = "${spring.kafka.bootstrap-servers}")
     private String bootstrapAddress;
 
+    private final NwdafSubProperties nwdafSubProperties;
+
+    public KafkaTopicConfig(NwdafSubProperties nwdafSubProperties) {
+        this.nwdafSubProperties = nwdafSubProperties;
+    }
+
     @Bean
     public KafkaAdmin kafkaAdmin() {
         Map<String, Object> configs = new HashMap<>();
@@ -32,14 +38,14 @@ public class KafkaTopicConfig {
     }
     @Bean
     public NewTopic NF_LOAD() {
-         return new NewTopic("NF_LOAD", 3, (short) 2);
+         return new NewTopic("NF_LOAD", nwdafSubProperties.numberOfPartitions(), nwdafSubProperties.numberOfReplicas());
     }
     @Bean
     public NewTopic UE_MOBILITY() {
-         return new NewTopic("UE_MOBILITY", 3, (short) 2);
+         return new NewTopic("UE_MOBILITY", nwdafSubProperties.numberOfPartitions(), nwdafSubProperties.numberOfReplicas());
     }
     @Bean
     public NewTopic UE_COMM() {
-        return new NewTopic("UE_COMM", 3, (short) 2);
+        return new NewTopic("UE_COMM", nwdafSubProperties.numberOfPartitions(), nwdafSubProperties.numberOfReplicas());
     }
 }

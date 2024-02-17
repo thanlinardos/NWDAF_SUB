@@ -17,7 +17,9 @@ public record NwdafSubProperties(OpenAPIProperties openapi,
 								 Boolean periodicWakeUp,
 								 Boolean initSubscriptions,
 								 String consumerUrl,
-								 Integer partition) {
+								 Integer partition,
+								 Integer numberOfPartitions,
+								 Short numberOfReplicas) {
 	public record OpenAPIProperties(String dev_url,String prod_url) {
 			
 	}

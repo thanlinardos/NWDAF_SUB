@@ -2,6 +2,7 @@ package io.nwdaf.eventsubscription;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nwdaf.eventsubscription.config.NwdafSubProperties;
+import io.nwdaf.eventsubscription.customModel.DiscoverMessage;
 import io.nwdaf.eventsubscription.customModel.WakeUpMessage;
 import io.nwdaf.eventsubscription.kafka.KafkaProducer;
 import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
@@ -35,6 +36,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -96,6 +98,8 @@ public class NwdafSubApplication {
         for (NwdafEventEnum e : Constants.supportedEvents) {
             wakeUpDataProducer(kafkaProducer, e, null);
         }
+        List<DiscoverMessage> discoverMessages = new ArrayList<>();
+        handleDiscoverMessageQueue(discoverMessages, false, false);
     }
 
     @Bean

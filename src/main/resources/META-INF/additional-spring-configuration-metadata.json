@@ -234,5 +234,15 @@
       "name": "nnwdaf-eventsubscription.partition",
       "type": "java.lang.Integer",
       "description": "Description for nnwdaf-eventsubscription.partition."
+    },
+    {
+      "name": "nnwdaf-eventsubscription.numberOfPartitions",
+      "type": "java.lang.Integer",
+      "description": "Description for nnwdaf-eventsubscription.numberOfPartitions."
+    },
+    {
+      "name": "nnwdaf-eventsubscription.numberOfReplicas",
+      "type": "java.lang.Short",
+      "description": "Description for nnwdaf-eventsubscription.numberOfReplicas."
     }
   ]}

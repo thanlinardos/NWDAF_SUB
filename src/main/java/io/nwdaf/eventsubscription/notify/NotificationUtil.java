@@ -322,6 +322,37 @@ public class NotificationUtil {
         return notification;
     }
 
+    public static boolean[] handleDiscoverMessageQueue(List<DiscoverMessage> discoverMessages, boolean hasData, boolean responded) {
+        while (!discoverMessageQueue.isEmpty()) {
+            String msg = discoverMessageQueue.poll();
+            if (msg == null) {
+                logger.error("InterruptedException: Couldn't take msg from discover queue");
+                break;
+            }
+            DiscoverMessage discoverMessage = DiscoverMessage.fromString(msg);
+            if (discoverMessage.getAvailableOffset() == null) {
+                discoverMessage.setAvailableOffset(0L);
+            }
+            if (discoverMessage.getHasData() == null) {
+                discoverMessage.setHasData(false);
+            }
+            long diff = Instant.now().getNano() - discoverMessage.getTimestamp().getNano();
+            boolean tooOldMsg = diff > 500_000_000L && diff > discoverMessage.getAvailableOffset() * 1_000_000_000L;
+            if (!tooOldMsg) {
+                discoverMessages.add(discoverMessage);
+                if (discoverMessage.getRequestedEvent() != null) {
+                    latestDiscoverMessageEventMap.put(discoverMessage.getRequestedEvent(), discoverMessage);
+                }
+                if (discoverMessage.getCollectorInstanceId() != null) {
+                    KafkaConsumer.eventCollectorIdSet.add(discoverMessage.getCollectorInstanceId());
+                }
+            }
+            hasData = discoverMessage.getHasData() && (!tooOldMsg);
+            responded = true;
+        }
+        return new boolean[]{hasData, responded};
+    }
+
     public static Long[] waitForDataProducer(WakeUpMessage wakeUpMessage) throws InterruptedException, IOException {
 
         KafkaConsumer.startListening();
@@ -348,34 +379,10 @@ public class NotificationUtil {
         boolean hasData = false;
         long start = System.nanoTime();
         while (System.nanoTime() <= start + maxWait * 1_000_000L) {
-            while (!discoverMessageQueue.isEmpty()) {
-                String msg = discoverMessageQueue.poll();
-                if (msg == null) {
-                    logger.error("InterruptedException: Couldn't take msg from discover queue");
-                    break;
-                }
-                DiscoverMessage discoverMessage = DiscoverMessage.fromString(msg);
-                if (discoverMessage.getAvailableOffset() == null) {
-                    discoverMessage.setAvailableOffset(0L);
-                }
-                if (discoverMessage.getHasData() == null) {
-                    discoverMessage.setHasData(false);
-                }
-                long diff = Instant.now().getNano() - discoverMessage.getTimestamp().getNano();
-                boolean tooOldMsg = diff > 500_000_000L && diff > discoverMessage.getAvailableOffset() * 1_000_000_000L;
-                if (!tooOldMsg) {
-                    discoverMessages.add(discoverMessage);
-                    if (discoverMessage.getRequestedEvent() != null) {
-                        latestDiscoverMessageEventMap.put(discoverMessage.getRequestedEvent(), discoverMessage);
-                    }
-                    if (discoverMessage.getCollectorInstanceId() != null) {
-                        KafkaConsumer.eventCollectorIdSet.add(discoverMessage.getCollectorInstanceId());
-                    }
-                }
-                hasData = discoverMessage.getHasData() && (!tooOldMsg);
-                responded = true;
-            }
-            if (responded && hasData) {
+            boolean[] result = handleDiscoverMessageQueue(discoverMessages, hasData, responded);
+            hasData = result[0];
+            responded = result[1];
+            if (hasData && responded) {
                 discoverMessages = discoverMessages.stream().distinct().toList();
                 break;
             }
@@ -386,21 +393,21 @@ public class NotificationUtil {
         long expectedWaitTime = 0L;
         for (DiscoverMessage msg : discoverMessages) {
             System.out.println("discover msg: " + msg);
-            if (msg.getHasData() != null && msg.getHasData()) {
+            long availableOffset = msg.getAvailableOffset() != null ? msg.getAvailableOffset() : 0L;
+            boolean messageHasData = msg.getHasData() != null && msg.getHasData();
+            if (messageHasData) {
                 if (msg.getRequestedOffset() == null
                         || msg.getRequestedOffset() <= Constants.MIN_PERIOD_SECONDS) {
                     isDataAvailable = 1;
                     break;
-                } else if (msg.getAvailableOffset() != null
-                        && msg.getAvailableOffset() >= msg.getRequestedOffset()) {
+                } else if (availableOffset >= msg.getRequestedOffset()) {
                     isDataAvailable = 1;
                     break;
                 } else {
-                    expectedWaitTime = msg.getRequestedOffset() - msg.getAvailableOffset();
+                    expectedWaitTime = msg.getRequestedOffset() - availableOffset;
                 }
             }
-            if ((msg.getHasData() == null || !msg.getHasData()) &&
-                    msg.getAvailableOffset() != null &&
+            if (!messageHasData &&
                     msg.getRequestedOffset() != null &&
                     msg.getExpectedWaitTime() != null) {
                 expectedWaitTime = msg.getExpectedWaitTime() + msg.getRequestedOffset();

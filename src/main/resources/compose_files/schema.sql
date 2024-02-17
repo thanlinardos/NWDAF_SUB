@@ -31,6 +31,18 @@ create table if not exists public."nnwdaf_notification"
 
 SELECT create_hypertable('nnwdaf_notification', 'time');
 -- CREATE INDEX IF NOT EXISTS ix_data_time ON public.nnwdaf_notification (notif, time DESC, id);
-SELECT add_retention_policy('nnwdaf_notification', INTERVAL '3 hour');
+SELECT add_retention_policy('nnwdaf_notification', INTERVAL '30 minute');
 
--- insert into test.."nnwdaf_notification" (notif) values ('{"eventNotifications":[{"event":null, "start":null, "expiry":null, "timeStampGen":null, "failNotifyCode":null, "rvWaitTime":null, "anaMetaInfo":null, "nfLoadLevelInfos":[{"nfType":null, "nfInstanceId":null, "nfSetId":null, "nfStatus":null, "nfCpuUsage":100, "nfMemoryUsage":null, "nfStorageUsage":null, "nfLoadLevelAverage":null, "nfLoadLevelpeak":null, "nfLoadAvgInAoi":null, "snssai":null, "confidence":null}], "nsiLoadLevelInfos":null, "sliceLoadLevelInfo":null, "svcExps":null, "qosSustainInfos":null, "ueComms":null, "ueMobs":null, "userDataCongInfos":null, "abnorBehavrs":null, "nwPerfs":null, "dnPerfInfos":null, "disperInfos":null, "redTransInfos":null, "wlanInfos":null, "smccExps":null}], "subscriptionId":205, "notifCorrId":null, "oldSubscriptionId":null}');
+CREATE OR REPLACE PROCEDURE metrics.public.delete_old_notifications(job_id INT,
+                                                                           config JSONB DEFAULT '{"pastOffset":"30 minute"}')
+    LANGUAGE plpgsql AS
+$$
+BEGIN
+    RAISE NOTICE 'Executing delete_old_notifications job % with config %', job_id, config;
+    DELETE FROM public."nnwdaf_notification" WHERE time < NOW() - cast(config ->> 'pastOffset' as interval);
+END
+$$;
+
+-- CALL delete_old_notifications('30 minute');
+SELECT add_job('delete_old_notifications', '10 minute',
+               config => '{"pastOffset":"30 minute"}');

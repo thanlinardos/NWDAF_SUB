@@ -43,15 +43,18 @@ public class MetricsService {
         nfLoadRepository.save(bodyTable);
     }
 
-    public NfLoadLevelInformationTable createNfload(NfLoadLevelInformation body) throws Exception {
+    public void createNfload(NfLoadLevelInformation body) throws Exception {
         NfLoadLevelInformationTable bodyTable = new NfLoadLevelInformationTable(body);
-        return nfLoadRepository.save(bodyTable);
+        Example<NfLoadLevelInformationTable> example = Example.of(bodyTable);
+        if (!nfLoadRepository.exists(example)) {
+            nfLoadRepository.save(bodyTable);
+        }
     }
 
     public void createAllNfload(List<NfLoadLevelInformation> body) throws Exception {
         body.stream().map(NfLoadLevelInformationTable::new).forEach(metric -> {
             Example<NfLoadLevelInformationTable> example = Example.of(metric);
-            if(!nfLoadRepository.exists(example)) {
+            if (!nfLoadRepository.exists(example)) {
                 nfLoadRepository.save(metric);
             }
         });
@@ -103,7 +106,7 @@ public class MetricsService {
         if (end == null) {
             end = 0L;
         }
-        if(no_secs < 3600 * 24) {
+        if (no_secs < 3600 * 24) {
             tables = nfLoadRepository.
                     findAllInLastIntervalByFilterAndOffset(params, no_secs + " second", end + " second", offset + " second", columns, false);
         } else {
@@ -130,15 +133,18 @@ public class MetricsService {
     }
 
     // UE_MOBILITY
-    public UeMobilityTable createUeMob(UeMobility body) {
+    public void createUeMob(UeMobility body) {
         UeMobilityTable bodyTable = new UeMobilityTable(body);
-        return ueMobilityRepository.save(bodyTable);
+        Example<UeMobilityTable> example = Example.of(bodyTable);
+        if (!ueMobilityRepository.exists(example)) {
+            ueMobilityRepository.save(bodyTable);
+        }
     }
 
     public void createAllUeMobs(List<UeMobility> body) {
         body.stream().map(UeMobilityTable::new).forEach(metric -> {
             Example<UeMobilityTable> example = Example.of(metric);
-            if(!ueMobilityRepository.exists(example)) {
+            if (!ueMobilityRepository.exists(example)) {
                 ueMobilityRepository.save(metric);
             }
         });
@@ -156,7 +162,7 @@ public class MetricsService {
         if (end == null) {
             end = 0L;
         }
-        if(no_secs < 3600 * 24) {
+        if (no_secs < 3600 * 24) {
             tables = ueMobilityRepository.findAllInLastIntervalByFilterAndOffset(params, no_secs + " second",
                     end + " second", offset + " second", columns, false);
         } else {
@@ -177,15 +183,18 @@ public class MetricsService {
     }
 
     // UE_COMM
-    public UeCommunicationTable createUeComm(UeCommunication body) {
+    public void createUeComm(UeCommunication body) {
         UeCommunicationTable bodyTable = new UeCommunicationTable(body);
-        return ueCommunicationMetricsRepository.save(bodyTable);
+        Example<UeCommunicationTable> example = Example.of(bodyTable);
+        if (!ueCommunicationMetricsRepository.exists(example)) {
+            ueCommunicationMetricsRepository.save(bodyTable);
+        }
     }
 
     public void createAllUeCommms(List<UeCommunication> body) {
         body.stream().map(UeCommunicationTable::new).forEach(metric -> {
             Example<UeCommunicationTable> example = Example.of(metric);
-            if(!ueCommunicationMetricsRepository.exists(example)) {
+            if (!ueCommunicationMetricsRepository.exists(example)) {
                 ueCommunicationMetricsRepository.save(metric);
             }
         });
@@ -200,10 +209,10 @@ public class MetricsService {
         if (offset == 0) {
             offset = Constants.MIN_PERIOD_SECONDS;
         }
-        if(end == null) {
+        if (end == null) {
             end = 0L;
         }
-        if(no_secs < 3600 * 24) {
+        if (no_secs < 3600 * 24) {
             tables = ueCommunicationMetricsRepository.findAllInLastIntervalByFilterAndOffset(params, no_secs + " second",
                     end + " second", offset + " second", columns, false);
         } else {
@@ -238,12 +247,14 @@ public class MetricsService {
         String startInterval = start != null ? start + " second" : "1 second";
         String endInterval = end != null ? end + " second" : "0 second";
         try {
-        return switch (event) {
-            case NF_LOAD -> nfLoadRepository.findAvailableHistoricMetricsTimeStamps(startInterval, endInterval);
-            case UE_MOBILITY -> ueMobilityRepository.findAvailableHistoricMetricsTimeStamps(startInterval, endInterval);
-            case UE_COMM -> ueCommunicationMetricsRepository.findAvailableHistoricMetricsTimeStamps(startInterval, endInterval);
-            default -> new ArrayList<>();
-        };
+            return switch (event) {
+                case NF_LOAD -> nfLoadRepository.findAvailableHistoricMetricsTimeStamps(startInterval, endInterval);
+                case UE_MOBILITY ->
+                        ueMobilityRepository.findAvailableHistoricMetricsTimeStamps(startInterval, endInterval);
+                case UE_COMM ->
+                        ueCommunicationMetricsRepository.findAvailableHistoricMetricsTimeStamps(startInterval, endInterval);
+                default -> new ArrayList<>();
+            };
         } catch (Exception e) {
             NwdafSubApplication.getLogger().error("Error finding available metrics timestamps", e);
             return new ArrayList<>();
@@ -273,7 +284,8 @@ public class MetricsService {
         try {
             return switch (event) {
                 case NF_LOAD -> nfLoadRepository.findAvailableMetricsTimeStamps(startInterval, endInterval, offset);
-                case UE_MOBILITY -> ueMobilityRepository.findAvailableMetricsTimeStamps(startInterval, endInterval, offset);
+                case UE_MOBILITY ->
+                        ueMobilityRepository.findAvailableMetricsTimeStamps(startInterval, endInterval, offset);
                 case UE_COMM ->
                         ueCommunicationMetricsRepository.findAvailableMetricsTimeStamps(startInterval, endInterval, offset);
                 default -> new ArrayList<>();
@@ -305,7 +317,7 @@ public class MetricsService {
         if (offset == 0) {
             offset = Constants.MIN_PERIOD_SECONDS;
         }
-        if(end == null) {
+        if (end == null) {
             end = 0;
         }
         try {
