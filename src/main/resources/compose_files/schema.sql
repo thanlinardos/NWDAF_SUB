@@ -16,6 +16,8 @@ ALTER SYSTEM SET work_mem = '19MB';
 ALTER SYSTEM SET temp_buffers = '1MB';
 ALTER SYSTEM SET max_connections = 100;
 
+DROP PROCEDURE IF EXISTS public.delete_old_notifications;
+
 drop index if exists ix_data_time;
 drop table if exists public."nnwdaf_notification";
 
@@ -33,7 +35,7 @@ SELECT create_hypertable('nnwdaf_notification', 'time');
 -- CREATE INDEX IF NOT EXISTS ix_data_time ON public.nnwdaf_notification (notif, time DESC, id);
 SELECT add_retention_policy('nnwdaf_notification', INTERVAL '30 minute');
 
-CREATE OR REPLACE PROCEDURE metrics.public.delete_old_notifications(job_id INT,
+CREATE OR REPLACE PROCEDURE public.delete_old_notifications(job_id INT,
                                                                            config JSONB DEFAULT '{"pastOffset":"30 minute"}')
     LANGUAGE plpgsql AS
 $$
