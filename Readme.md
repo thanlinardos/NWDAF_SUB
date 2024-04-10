@@ -2,8 +2,26 @@
 
 ## Description
 
-This project is an implementation of the NWDAF event_subscription service operation according to the 3GPP Standards.
+This project is an implementation of the NWDAF event_subscription service operation according to the 3GPP Standards 
+along with a distributed system for collecting and coordinating event-based data in real time that surrounds the base NWDAF service.
+![NWDAF System Diagram](./nwdaf_distributed.drawio.png)
 
+The above diagram shows the system architecture of the NWDAF_SUB project. The project is split into 4 main components:
+- **NWDAF_SUB**              # The main server that handles the event_subscription service operation and the notifications to the clients, 
+as well as the data collection from the collectors. An /admin panel is also server with real-time debug information.
+<br>It has been split into 2 logical components:
+    1) **NWDAF_SUB_NOTIFIER**    # The notifier that sends notifications to the clients and handles subscriptions.
+    2) **NWDAF_SUB_CONSUMER**    # The consumer that consumes data from the collectors.
+<br>The notifier instances are scaled using a master notifier that assigns the subscriptions evenly to the notifier instances 
+using the ASSIGN_SUBS and REGISTER_NOTIFIER kafka topics.
+<br>The consumer instances are scaled using a master consumer that scales up/down
+and assigns the data event topic partitions evenly to the consumer instances using the ASSIGN_PARTITIONS and REGISTER_CONSUMER kafka topics.
+- **NWDAF_SUB_CLIENT**       # The client that can create/update/delete subscriptions and receive notifications from the NWDAF_SUB server.
+- **nwdaf_sub_collector**    # The collector that collects data from the network functions and sends it to the NWDAF_SUB server through kafka.
+- **nwdaf_library**          # The library that contains the dependencies for all the other components.
+- **dockprom**               # The dockerized project for collecting prometheus metrics from containers + graphana (more info [here](https://github.com/stefanprodan/dockprom)).
+- **nef_emulator**           # The simulator for the NEF (Network Exposure Function) that can be used to simulate a network function that sends data to the NWDAF_SUB server.
+- **kafka**                  # The kafka cluster that is used for the communication between the NWDAF_SUB server and the collectors.
 ## Usage
 
 ### Installing
@@ -151,21 +169,33 @@ which will run in port 10000 and above.
 - make a topic:
 
     ```sh
-    docker exec -ti kafka1 /usr/bin/kafka-topics --create  --bootstrap-server kafka1:19092 --replication-factor 1 --partitions 4 --topic test_topic
+    docker exec -ti kafka1 /usr/bin/kafka-topics --create  --bootstrap-server kafka1:19092 --replication-factor 1 --partitions 4 --topic NF_LOAD
     ```
 
 - send data:
 
     ```sh
-    docker exec -ti kafka1 /usr/bin/kafka-console-producer --bootstrap-server kafka1:19092 --topic test_topic
+    docker exec -ti kafka1 /usr/bin/kafka-console-producer --bootstrap-server kafka1:19092 --topic NF_LOAD
     ```
 
 - consume data:
 
     ```sh
-    docker exec -ti kafka1 /usr/bin/kafka-console-consumer --bootstrap-server kafka1:19092 --topic test_topic --from-beginning
+    docker exec -ti kafka1 /usr/bin/kafka-console-consumer --bootstrap-server kafka1:19092 --topic NF_LOAD --from-beginning
     ```
 
+- alter number of partitions:
+
+    ```sh
+    docker exec -t kafka1 kafka-topics --bootstrap-server kafka1:19092 --alter --topic NF_LOAD --partitions 3
+    ```
+
+- describe topic:
+
+    ```sh
+    docker exec -t kafka1 kafka-topics --bootstrap-server kafka1:19092 --describe --topic NF_LOAD
+    ```
+  
 ## References
 
 - [Pandoc](http://pandoc.org/)
