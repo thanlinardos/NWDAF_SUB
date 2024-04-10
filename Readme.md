@@ -8,20 +8,24 @@ along with a distributed system for collecting and coordinating event-based data
 
 The above diagram shows the system architecture of the NWDAF_SUB project. The project is split into 4 main components:
 - **NWDAF_SUB**              # The main server that handles the event_subscription service operation and the notifications to the clients, 
-as well as the data collection from the collectors. An /admin panel is also server with real-time debug information.
+as well as the data collection from the collectors. An /admin panel is also served with real-time debug information.
 <br>It has been split into 2 logical components:
     1) **NWDAF_SUB_NOTIFIER**    # The notifier that sends notifications to the clients and handles subscriptions.
     2) **NWDAF_SUB_CONSUMER**    # The consumer that consumes data from the collectors.
 <br>The notifier instances are scaled using a master notifier that assigns the subscriptions evenly to the notifier instances 
 using the ASSIGN_SUBS and REGISTER_NOTIFIER kafka topics.
 <br>The consumer instances are scaled using a master consumer that scales up/down
-and assigns the data event topic partitions evenly to the consumer instances using the ASSIGN_PARTITIONS and REGISTER_CONSUMER kafka topics.
+and assigns the topic partitions evenly to the consumer instances using the ASSIGN_PARTITIONS and REGISTER_CONSUMER kafka topics.
 - **NWDAF_SUB_CLIENT**       # The client that can create/update/delete subscriptions and receive notifications from the NWDAF_SUB server.
 - **nwdaf_sub_collector**    # The collector that collects data from the network functions and sends it to the NWDAF_SUB server through kafka.
 - **nwdaf_library**          # The library that contains the dependencies for all the other components.
 - **dockprom**               # The dockerized project for collecting prometheus metrics from containers + graphana (more info [here](https://github.com/stefanprodan/dockprom)).
 - **nef_emulator**           # The simulator for the NEF (Network Exposure Function) that can be used to simulate a network function that sends data to the NWDAF_SUB server.
 - **kafka**                  # The kafka cluster that is used for the communication between the NWDAF_SUB server and the collectors.
+- **grafana**                # The grafana instance that is used to visualize the prometheus metrics collected by the dockprom project 
+along with the NF_lOAD & UE_MOBILITY metrics collected by the system.
+- **metrics**                # A timescale postgres database that is used to store the NF_LOAD, UE_MOBILITY & UE_COMM metrics collected by the system.
+- **sub_notif**              # A timescale postgres database that is used to store the subscriptions and notifications of NWDAF.
 ## Usage
 
 ### Installing
