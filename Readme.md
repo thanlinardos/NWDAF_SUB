@@ -26,6 +26,21 @@ and assigns the topic partitions evenly to the consumer instances using the ASSI
 along with the NF_lOAD & UE_MOBILITY metrics collected by the system.
 - **metrics**                # A timescale postgres database that is used to store the NF_LOAD, UE_MOBILITY & UE_COMM metrics collected by the system.
 - **sub_notif**              # A timescale postgres database that is used to store the subscriptions and notifications of NWDAF.
+
+Below is a simple example of a client creating a subscription to the NF_LOAD event using the NWDAF_SUB_CLIENT form page:
+<br><br>
+![NWDAF Data flow](./data_flow_nfload.drawio.png)
+<br><br>
+1) After creating the subscription form, the sub is sent to the NWDAF_SUB's POST /subscriptions endpoint
+2) SubscriptionController receives and validates the subscription
+3) SubscriptionController checks if the metrics database has data for the requested NFLOAD event parameters
+4) If it has data, the sub is saved to the sub_notif db and the controller responds with 201 CREATED and the sub URI in the Location header
+5) If it doesn't have data, a POST /waitForDataProducer request is sent to the NWDAF_SUB_CONSUMER
+6) ConsumerController waits for kafka to start collecting data from the collectors by listening to the DISCOVER topic
+7) If data is available from kafka, then the controller responds accordingly and then the SubscriptionController does the same as step 4)
+8) If data is not available, the SubscriptionController adds a failure report to the sub body and does the same as step 4)
+9) In any case that data is available, the notify listener is triggered to start notifying the client using the active subscriptions that are in the sub_notif db
+<br><br>If the notifier and consumer are ran in the same app/container, then step 5 is skipped and steps 6,7 are executed from the SubscriptionController.
 ## Usage
 
 ### Installing
