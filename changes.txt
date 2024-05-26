@@ -183,6 +183,17 @@ recalculateContainedAoIsInSubs to recalculate AoIs for all subscriptions
 assigned Partition logic in kafka consumer
 simplify compose files, moved db JPA params to db.env
 fixed wait for data producer and kafka consumer bugs
+removed prod url
+added initSubscriptionRequest for client controller
+cleaned up request builder
+fixed mnc regex pattern in form
+replace env variables in data listeners with @Value
+changeUeMobilitiesTimeDependentProperties has offsetSeconds parameter
+location infos file added for example visited areas to be used for generating ue mob metrics
+add getNefAccessToken, getDefaultScenario, stopUEsAndReplaceDefaultScenario and updateNefScenario functions for full NEF automation
+added static variables for selected and default scenarios
+nefScenarios file to select scenario to import on startup to NEF using the index in the selected_scenario variable
+added NEF credentials instead of token
 
 
 TODO:
