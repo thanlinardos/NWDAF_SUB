@@ -8,14 +8,13 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import io.nwdaf.eventsubscription.config.NwdafSubProperties;
-import io.nwdaf.eventsubscription.customModel.DiscoverMessage;
-import io.nwdaf.eventsubscription.customModel.WakeUpMessage;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.nwdaf.eventsubscription.customModel.*;
 import io.nwdaf.eventsubscription.model.NwdafEvent;
 import io.nwdaf.eventsubscription.model.UeCommunication;
+import io.nwdaf.eventsubscription.service.SubscriptionsService;
 import io.nwdaf.eventsubscription.utilities.Constants;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -43,8 +42,12 @@ import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
 import org.springframework.transaction.TransactionSystemException;
 
+import static io.nwdaf.eventsubscription.NwdafSubApplication.NWDAF_INSTANCE_ID;
+import static io.nwdaf.eventsubscription.kafka.KafkaNotifierLoadBalanceConsumer.setupAoIs;
+import static io.nwdaf.eventsubscription.service.StartUpService.getAssignedPartition;
 import static io.nwdaf.eventsubscription.model.NwdafEvent.NwdafEventEnum.NF_LOAD;
-import static io.nwdaf.eventsubscription.utilities.Constants.supportedEvents;
+import static io.nwdaf.eventsubscription.service.StartUpService.refreshRegisteredAOIs;
+import static io.nwdaf.eventsubscription.utilities.Constants.*;
 
 @ConditionalOnProperty(name = "nnwdaf-eventsubscription.consume", havingValue = "true")
 @Component
@@ -54,9 +57,13 @@ public class KafkaConsumer {
     final MetricsCacheService metricsCacheService;
     final MetricsService metricsService;
     final ObjectMapper objectMapper;
+    private final KafkaProducer kafkaProducer;
 
     private final Consumer<String, String> kafkaConsumerDiscover;
     private final ThreadLocal<Consumer<String, String>> kafkaConsumerEventThreadLocal;
+    private final Consumer<String, String> kafkaConsumerRegisterConsumer;
+    private final Consumer<String, String> kafkaConsumerAssignPartitions;
+    private final SubscriptionsService subscriptionsService;
 
     public static final AtomicBoolean isListening = new AtomicBoolean(true);
     public static final AtomicBoolean isDiscovering = new AtomicBoolean(true);
@@ -69,28 +76,40 @@ public class KafkaConsumer {
     public static final ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Boolean> eventConsumerStartedReceiving = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<NwdafEvent.NwdafEventEnum, Boolean> eventConsumerIsSyncing = new ConcurrentHashMap<>();
     public static final Set<UUID> eventCollectorIdSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    public static ConcurrentHashMap<UUID, RegisterConsumerMessage> consumerInstances = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<UUID, AssignPartitionsMessage> assignedPartitions = new ConcurrentHashMap<>();
 
     public static OffsetDateTime startTime;
     public static OffsetDateTime endTime;
 
     @Value("${nnwdaf-eventsubscription.log.consumer}")
     private Boolean logConsumer;
+    @Value("${nnwdaf-eventsubscription.leader}")
+    private boolean leader;
     private Future<?> scheduledTask;
-    private final NwdafSubProperties nwdafSubProperties;
+    @Value("${nnwdaf-eventsubscription.notifier}")
+    private boolean notifier;
+    @Value("${nnwdaf-eventsubscription.nef_group_id}")
+    private String nefGroupId;
 
     public KafkaConsumer(MetricsCacheService metricsCacheService,
                          MetricsService metricsService,
                          ObjectMapper objectMapper,
                          @Qualifier("consumerDiscover") Consumer<String, String> kafkaConsumerDiscover,
                          @Qualifier("consumerFactoryEvent") ConsumerFactory<String, String> consumerFactory,
-                         NwdafSubProperties nwdafSubProperties) {
+                         @Qualifier("consumerRegisterConsumer") Consumer<String, String> kafkaConsumerRegisterConsumer,
+                         @Qualifier("consumerAssignPartitions") Consumer<String, String> kafkaConsumerAssignPartitions,
+                         KafkaProducer kafkaProducer, SubscriptionsService subscriptionsService) {
 
         this.metricsCacheService = metricsCacheService;
         this.metricsService = metricsService;
         this.objectMapper = objectMapper;
         this.kafkaConsumerDiscover = kafkaConsumerDiscover;
         this.kafkaConsumerEventThreadLocal = ThreadLocal.withInitial(consumerFactory::createConsumer);
-        this.nwdafSubProperties = nwdafSubProperties;
+        this.kafkaConsumerRegisterConsumer = kafkaConsumerRegisterConsumer;
+        this.kafkaConsumerAssignPartitions = kafkaConsumerAssignPartitions;
+        this.kafkaProducer = kafkaProducer;
+        this.subscriptionsService = subscriptionsService;
 
         for (NwdafEvent.NwdafEventEnum e : supportedEvents) {
             eventConsumerCounters.put(e, 0L);
@@ -107,30 +126,33 @@ public class KafkaConsumer {
     public String dataListener(ConsumerRecord<String, String> record) {
         NwdafEvent.NwdafEventEnum eventTopic = NwdafEvent.NwdafEventEnum.valueOf(record.topic());
         String in = record.value();
-        long timeDiff = System.currentTimeMillis() - record.timestamp() - Constants.MIN_PERIOD_SECONDS * 1_000L;
+        long timeDiff = System.currentTimeMillis() - record.timestamp() - MIN_PERIOD_MILLIS;
+        if (getAssignedPartition() == -1) {
+            return "";
+        }
         if (!isListening.get() || timeDiff <= 0) {
-            if (timeDiff < -Constants.MIN_PERIOD_SECONDS * 1_000L && eventConsumerIsSyncing.get(eventTopic)) {
-                logger.warn("Stopped syncing for event: " + eventTopic + " (" + timeDiff / 1_000L + " seconds behind)");
+            if (timeDiff < -MIN_PERIOD_MILLIS && eventConsumerIsSyncing.get(eventTopic)) {
+                logger.warn("Stopped syncing for event: {} ({} seconds behind)", eventTopic, timeDiff / 1_000L);
                 stopSyncing(eventTopic);
             }
             return "";
         }
-        if (!eventConsumerIsSyncing.get(eventTopic) && timeDiff > Constants.MIN_PERIOD_SECONDS * 1_000L) {
-            logger.warn("Started syncing for event: " + eventTopic + " (" + timeDiff / 1_000L + " seconds behind)");
+        if (!eventConsumerIsSyncing.get(eventTopic) && timeDiff > MIN_PERIOD_MILLIS) {
+            logger.warn("Started syncing for event: {} ({} seconds behind)", eventTopic, timeDiff / 1_000L);
         }
         startedSyncing(eventTopic);
         try {
             consumeMetric(eventTopic, in, record.timestamp(), false);
         } catch (JpaSystemException | TransactionSystemException | SQLException e) {
-            logger.warn("JpaSystemException for event:" + eventTopic + ". Sync-Consumer going to sleep mode for 1 minute.");
+            logger.warn("JpaSystemException for event:{}. Sync-Consumer going to sleep mode for 1 minute.", eventTopic);
             stopListening();
             scheduleStartListeningTask(60_000);
             return "";
         } catch (IOException e) {
-            logger.warn("data not matching " + eventTopic + " model: " + in);
+            logger.warn("data not matching {} model: {}", eventTopic, in);
             return "";
         } catch (Exception e) {
-            logger.info("failed to save " + eventTopic + " info to timescaleDB");
+            logger.info("failed to save {} info to timescaleDB", eventTopic);
             logger.error("", e);
             stopListening();
             return "";
@@ -139,41 +161,20 @@ public class KafkaConsumer {
         return in;
     }
 
-    @Scheduled(fixedDelay = 1)
+    @Scheduled(fixedDelay = 230)
     public void discoverListener() {
         if (!isDiscovering.get()) {
             return;
         }
-        String topic = "DISCOVER";
-        List<PartitionInfo> partitions = kafkaConsumerDiscover.partitionsFor(topic);
-
-        // Get the beginning offset for each partition and convert it to a timestamp
-        long earliestTimestamp = Long.MAX_VALUE;
-        List<TopicPartition> topicPartitions = new ArrayList<>();
-        earliestTimestamp = assignTopicPartitions(kafkaConsumerDiscover, partitions, topic, topicPartitions, earliestTimestamp);
-
-        if (earliestTimestamp == Long.MAX_VALUE) {
-            return;
-        }
-
+        String topic = KafkaTopic.DISCOVER.name();
         long endTimestamp = Instant.parse(OffsetDateTime.now().toString()).toEpochMilli();
-        long startTimestamp = Instant.parse(OffsetDateTime.now().minusNanos(100_000_000).toString()).toEpochMilli();
+        long startTimestamp = Instant.parse(OffsetDateTime.now().minusNanos(oldest_discovery_age_nanos).toString()).toEpochMilli();
 
-        for (TopicPartition partition : topicPartitions) {
-            OffsetAndTimestamp offsetAndTimestamp = kafkaConsumerDiscover.offsetsForTimes(Collections.singletonMap(partition, startTimestamp)).get(partition);
-            if (offsetAndTimestamp != null) {
-                kafkaConsumerDiscover.seek(partition, offsetAndTimestamp.offset());
-            }
-        }
+        if (setUpConsumer(topic, startTimestamp, kafkaConsumerDiscover)) return;
 
-        // consume messages inside the desired range
-        ConsumerRecords<String, String> records = kafkaConsumerDiscover.poll(Duration.ofMillis(1));
-
-        // Process the received messages here
+        ConsumerRecords<String, String> records = kafkaConsumerDiscover.poll(Duration.ofMillis(250));
         records.forEach(record -> {
-            // Check if the message timestamp is within the desired range
             if (record.timestamp() <= endTimestamp && record.timestamp() >= startTimestamp) {
-//                System.out.println("Received message: " + record.value());
                 if (!discoverMessageQueue.offer(record.value())) {
                     System.out.println("InterruptedException while writing to DISCOVER message queue.");
                     stopDiscovering();
@@ -184,50 +185,103 @@ public class KafkaConsumer {
         });
     }
 
-    // Consumer for metrics only within period
-//    @KafkaListener(topics = {"NF_LOAD", "UE_MOBILITY", "UE_COMM"}, groupId = "latestEvent", containerFactory = "kafkaListenerContainerFactoryEvent",
-//            autoStartup = "true")
-//    public String concurrentDataListener(ConsumerRecord<String, String> record) {
-//        NwdafEvent.NwdafEventEnum eventTopic = NwdafEvent.NwdafEventEnum.valueOf(record.topic());
-//        String in = record.value();
-//        if (!isListening.get() || record.timestamp() < eventConsumerLastSaves.get(eventTopic) || System.currentTimeMillis() - record.timestamp() > Constants.MIN_PERIOD_SECONDS * 1_000L) {
-//            return "";
-//        }
-//        startedReceiving(eventTopic);
-//
-//        try {
-//            consumeMetric(eventTopic, in, record.timestamp(), true);
-//        } catch (IOException e) {
-//            logger.info("data not matching " + eventTopic + " model: " + in);
-//            return "";
-//        } catch (JpaSystemException | TransactionSystemException | SQLException e) {
-//            logger.warn("JpaSystemException for event:" + eventTopic + ". Consumer going to sleep mode for 1 minute.");
-//            stopListening();
-//            scheduleStartListeningTask(60_000);
-//            return "";
-//        } catch (Exception e) {
-//            logger.info("failed to save " + eventTopic + " info to timescaleDB");
-//            logger.error("", e);
-//            stopListening();
-//            return "";
-//        }
-//        startedSaving(eventTopic);
-//        return in;
-//    }
-
     @Scheduled(fixedRate = 230)
     public void scheduledConcurrentNfLoadListener() {
+        if (getAssignedPartition() == -1) {
+            return;
+        }
         concurrentDataListener(NF_LOAD, kafkaConsumerEventThreadLocal.get());
     }
 
     @Scheduled(fixedRate = 230)
     public void scheduledConcurrentUeMobilityListener() {
+        if (getAssignedPartition() == -1) {
+            return;
+        }
         concurrentDataListener(NwdafEvent.NwdafEventEnum.UE_MOBILITY, kafkaConsumerEventThreadLocal.get());
     }
 
     @Scheduled(fixedRate = 230)
     public void scheduledConcurrentUeCommunicationListener() {
+        if (getAssignedPartition() == -1) {
+            return;
+        }
         concurrentDataListener(NwdafEvent.NwdafEventEnum.UE_COMM, kafkaConsumerEventThreadLocal.get());
+    }
+
+    @Scheduled(fixedDelay = 230)
+    public void registerConsumerListener() {
+        if (consumerInstances.isEmpty() && leader) {
+            consumerInstances.put(NWDAF_INSTANCE_ID, RegisterConsumerMessage.builder().consumerId(NWDAF_INSTANCE_ID).leader(true).build());
+        }
+        String topic = KafkaTopic.REGISTER_CONSUMER.name();
+        long endTimestamp = Instant.parse(OffsetDateTime.now().toString()).toEpochMilli();
+        long startTimestamp = Instant.parse(OffsetDateTime.now().minusNanos(oldest_register_consumer_age_nanos).toString()).toEpochMilli();
+
+        if (setUpConsumer(topic, startTimestamp, kafkaConsumerRegisterConsumer)) return;
+
+        ConsumerRecords<String, String> records = kafkaConsumerRegisterConsumer.poll(Duration.ofMillis(250));
+        records.forEach(record -> {
+            if (record.timestamp() <= endTimestamp && record.timestamp() >= startTimestamp) {
+                try {
+                    RegisterConsumerMessage msg = RegisterConsumerMessage.fromString(record.value());
+                    if (msg.getConsumerId() == NWDAF_INSTANCE_ID || msg.getTimestamp().isBefore(OffsetDateTime.now().minusSeconds(oldest_register_consumer_msg_age_seconds))) {
+                        return;
+                    }
+                    if (msg.getLeader()) {
+                        RegisterConsumerMessage selfRegisterMessage = RegisterConsumerMessage.builder()
+                                .consumerId(NWDAF_INSTANCE_ID)
+                                .build();
+                        kafkaProducer.sendMessage(selfRegisterMessage.toString(), KafkaTopic.REGISTER_NOTIFIER.name());
+                    }
+                    consumerInstances.put(msg.getConsumerId(), msg);
+                } catch (Exception e) {
+                    logger.error("Error while parsing message from {} message queue: {}", topic, e.getMessage());
+                }
+            }
+        });
+    }
+
+    @Scheduled(fixedDelay = 230)
+    public void assignPartitionsListener() {
+        String topic = KafkaTopic.ASSIGN_PARTITIONS.name();
+        long endTimestamp = Instant.parse(OffsetDateTime.now().toString()).toEpochMilli();
+        long startTimestamp = Instant.parse(OffsetDateTime.now().minusSeconds(oldest_assign_partitions_msg_age_seconds).toString()).toEpochMilli();
+
+        if (setUpConsumer(topic, startTimestamp, kafkaConsumerAssignPartitions)) return;
+
+        ConsumerRecords<String, String> records = kafkaConsumerAssignPartitions.poll(Duration.ofMillis(250));
+        records.forEach(record -> {
+            if (record.timestamp() <= endTimestamp && record.timestamp() >= startTimestamp) {
+                try {
+                    AssignPartitionsMessage msg = AssignPartitionsMessage.fromString(record.value());
+                    assignedPartitions.put(msg.getConsumerId(), msg);
+                } catch (Exception e) {
+                    logger.error("Error while parsing message from {} message queue: {}", topic, e.getMessage());
+                }
+            }
+        });
+    }
+
+    @KafkaListener(topics = {"NEF_SCENARIO"},
+            containerFactory = "kafkaListenerContainerFactoryNefScenario2",
+            autoStartup = "true")
+    public String nefScenarioListener(ConsumerRecord<String, String> record) {
+        if (notifier) {
+            return "";
+        }
+        String in = record.value();
+        try {
+            KafkaNotifierLoadBalanceConsumer.setNefScenario(objectMapper.readValue(in, NefScenario.class));
+            if (setupAoIs(false, false, metricsService, nefGroupId)) {
+                refreshRegisteredAOIs(metricsService);
+            }
+        } catch (JsonProcessingException e) {
+            logger.error("Error while parsing message from NEF_SCENARIO message queue: {}", e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error while updating AoIs: {}", e.getMessage());
+        }
+        return in;
     }
 
     public void concurrentDataListener(NwdafEvent.NwdafEventEnum eventEnum, Consumer<String, String> kafkaConsumer) {
@@ -236,7 +290,13 @@ public class KafkaConsumer {
         }
         startedReceiving(eventEnum);
         List<PartitionInfo> partitions = kafkaConsumer.partitionsFor(eventEnum.toString());
+        int assignedPartition = getAssignedPartition();
+        if (partitions.isEmpty() || assignedPartition > partitions.size() - 1 || assignedPartition < 0) {
+            return;
+        }
         String topic = eventEnum.toString();
+        long endTimestamp = Instant.parse(OffsetDateTime.now().toString()).toEpochMilli();
+        long startTimestamp = Instant.parse(OffsetDateTime.now().minusNanos(Constants.MIN_PERIOD_NANOS / 4).toString()).toEpochMilli();
 
         List<TopicPartition> topicPartitions = new ArrayList<>();
         for (PartitionInfo partition : partitions) {
@@ -244,9 +304,7 @@ public class KafkaConsumer {
             topicPartitions.add(topicPartition);
         }
 
-        long endTimestamp = Instant.parse(OffsetDateTime.now().toString()).toEpochMilli();
-        long startTimestamp = Instant.parse(OffsetDateTime.now().minusNanos(Constants.MIN_PERIOD_SECONDS * 250_000_000).toString()).toEpochMilli();
-        TopicPartition partition = topicPartitions.get(nwdafSubProperties.partition());
+        TopicPartition partition = topicPartitions.get(assignedPartition);
         kafkaConsumer.assign(List.of(partition));
 
         OffsetAndTimestamp offsetAndTimestamp = kafkaConsumer.offsetsForTimes(Collections.singletonMap(partition, startTimestamp)).get(partition);
@@ -254,7 +312,7 @@ public class KafkaConsumer {
             kafkaConsumer.seek(partition, offsetAndTimestamp.offset());
         }
 
-        ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(Constants.MIN_PERIOD_SECONDS * 250));
+        ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofNanos(Constants.MIN_PERIOD_NANOS / 4));
 
         List<String> values = new ArrayList<>();
         AtomicLong earliestRecordTimeStamp = new AtomicLong(Long.MAX_VALUE);
@@ -276,23 +334,44 @@ public class KafkaConsumer {
 
         try {
             consumeMetrics(eventEnum, values, latestRecordTimeStamp.get(), true);
-            System.out.println("Saved " + eventEnum + " x " + values.size() + " to database from "
-                    + Instant.ofEpochMilli(earliestRecordTimeStamp.get()) + " to " + Instant.ofEpochMilli(latestRecordTimeStamp.get()));
+//            System.out.println("Saved " + eventEnum + " x " + values.size() + " to database from "
+//                    + Instant.ofEpochMilli(earliestRecordTimeStamp.get()) + " to " + Instant.ofEpochMilli(latestRecordTimeStamp.get()));
             startedSaving(eventEnum);
         } catch (IOException e) {
-            logger.info("data not matching " + eventEnum + " model: " + values);
+            logger.info("data not matching {} model: {}", eventEnum, values);
         } catch (JpaSystemException | TransactionSystemException | SQLException e) {
-            logger.warn("JpaSystemException for event:" + eventEnum + ". Consumer going to sleep mode for 1 minute.");
+            logger.warn("JpaSystemException for event:{}. Consumer going to sleep mode for 1 minute.", eventEnum);
             stopListening();
             scheduleStartListeningTask(60_000);
         } catch (Exception e) {
-            logger.info("failed to save " + eventEnum + " infos to timescaleDB");
+            logger.info("failed to save {} infos to timescaleDB", eventEnum);
             logger.error("", e);
             stopListening();
         }
     }
 
-    private static long assignTopicPartitions(Consumer<String, String> kafkaConsumer, List<PartitionInfo> partitions, String topic, List<TopicPartition> topicPartitions, long earliestTimestamp) {
+    private boolean setUpConsumer(String topic, long startTimestamp, Consumer<String, String> consumer) {
+        List<PartitionInfo> partitions = consumer.partitionsFor(topic);
+
+        long earliestTimestamp = Long.MAX_VALUE;
+        List<TopicPartition> topicPartitions = new ArrayList<>();
+        earliestTimestamp = assignTopicPartitions(consumer, partitions, topic, topicPartitions, earliestTimestamp);
+
+        if (earliestTimestamp == Long.MAX_VALUE) {
+            return true;
+        }
+
+        for (TopicPartition partition : topicPartitions) {
+            OffsetAndTimestamp offsetAndTimestamp = consumer.offsetsForTimes(Collections.singletonMap(partition, startTimestamp)).get(partition);
+            if (offsetAndTimestamp != null) {
+                consumer.seek(partition, offsetAndTimestamp.offset());
+            }
+        }
+        return false;
+    }
+
+
+    public static long assignTopicPartitions(Consumer<String, String> kafkaConsumer, List<PartitionInfo> partitions, String topic, List<TopicPartition> topicPartitions, long earliestTimestamp) {
         int i = 1;
         for (PartitionInfo partition : partitions) {
             TopicPartition topicPartition = new TopicPartition(topic, partition.partition());
@@ -342,7 +421,7 @@ public class KafkaConsumer {
                     try {
                         return objectMapper.reader().readValue(s, NfLoadLevelInformation.class);
                     } catch (IOException e) {
-                        logger.warn("data not matching " + eventTopic + " model: " + in);
+                        logger.warn("data not matching {} model: {}", eventTopic, in);
                     }
                     return null;
                 }).toList();
@@ -354,7 +433,7 @@ public class KafkaConsumer {
                     try {
                         return objectMapper.reader().readValue(s, UeMobility.class);
                     } catch (IOException e) {
-                        logger.warn("data not matching " + eventTopic + " model: " + in);
+                        logger.warn("data not matching {} model: {}", eventTopic, in);
                     }
                     return null;
                 }).toList();
@@ -365,7 +444,7 @@ public class KafkaConsumer {
                     try {
                         return objectMapper.reader().readValue(s, UeCommunication.class);
                     } catch (IOException e) {
-                        logger.warn("data not matching " + eventTopic + " model: " + in);
+                        logger.warn("data not matching {} model: {}", eventTopic, in);
                     }
                     return null;
                 }).toList();
@@ -383,7 +462,7 @@ public class KafkaConsumer {
             eventConsumerCounters.compute(eventTopic, (k, v) -> (v == null || v < 0) ? 0 : v + length);
             if (logConsumer) {
                 if (eventConsumerCounters.get(eventTopic) % 100 == 0) {
-                    logger.info("Saved " + eventTopic + "(x100) to database.");
+                    logger.info("Saved {}(x100) to database.", eventTopic);
                 }
             }
         }

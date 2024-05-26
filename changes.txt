@@ -164,6 +164,26 @@ Create LICENSE
 timescale pg16 (configs inside schemas)
 notification save optimization (found -> notif_ref instead of body)
 NWDAF has its own nfInstanceId and areaOfInterestId
+----26/5/24----
+filled in readme
+split notifier and consumer and added scaling using new kafka topics
+added notifier & consumer instanced to admin panel
+fixed filters for AoI and visited areas, added list of AoI ids for visited areas in UeMobility
+added areaOfInterestId to ue_mobility table
+added AoI to ue_mobility filters
+added area_of_interest table for registered AoIs and made notifier leader init AoIs from ExampleAoIs and NEF
+replaced usage of example AoIs with registered AoIs map
+added nef scenario topic that collector produces when the NEF scenario changes and NWDAF listens to
+consumer builds mobility metrics matching NEF cells to AoI ids
+clean up subscription controller
+findAllIdsByActive to find all active subscription ids
+findAllAssignedSubscriptions to find all assigned subscriptions by their ids
+isDataBeingSaved to check if data is being saved to the db (optimization)
+recalculateContainedAoIsInSubs to recalculate AoIs for all subscriptions
+assigned Partition logic in kafka consumer
+simplify compose files, moved db JPA params to db.env
+fixed wait for data producer and kafka consumer bugs
+
 
 TODO:
 

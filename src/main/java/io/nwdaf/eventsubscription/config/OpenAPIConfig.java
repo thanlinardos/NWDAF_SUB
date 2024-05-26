@@ -30,10 +30,6 @@ public class OpenAPIConfig {
 		devServer.setUrl(nwdafSubProperties.openapi().dev_url());
 		devServer.setDescription("Server URL in Development environment");
 
-	    Server prodServer = new Server();
-	    prodServer.setUrl(nwdafSubProperties.openapi().prod_url());
-  	    prodServer.setDescription("Server URL in Production environment");
-
 		Contact contact = new Contact();
 		contact.setEmail("");
 	    contact.setName("");
@@ -51,6 +47,6 @@ public class OpenAPIConfig {
                     """)
 	        .termsOfService("")
 	        .license(license);
-	    return new OpenAPI().info(info).servers(List.of(devServer, prodServer));
+	    return new OpenAPI().info(info).servers(List.of(devServer));
 	}
 }

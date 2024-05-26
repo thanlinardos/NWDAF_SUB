@@ -6,19 +6,9 @@
       "description": "A description for 'nnwdaf-eventsubscription.openapi.dev_url'."
     },
     {
-      "name": "nnwdaf-eventsubscription.openapi.prod_url",
-      "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.openapi.prod_url'."
-    },
-    {
       "name": "nnwdaf-eventsubscription.client.dev_url",
       "type": "java.lang.String",
       "description": "A description for 'nnwdaf-eventsubscription.client.dev_url'."
-    },
-    {
-      "name": "nnwdaf-eventsubscription.client.prod_url",
-      "type": "java.lang.String",
-      "description": "A description for 'nnwdaf-eventsubscription.client.prod_url'."
     },
     {
       "name": "nnwdaf-eventsubscription.init",
@@ -127,7 +117,7 @@
     },
     {
       "name": "nnwdaf-eventsubscription.client.port",
-      "type": "java.lang.String",
+      "type": "java.lang.Integer",
       "description": "A description for 'nnwdaf-eventsubscription.client.port'."
     },
     {
@@ -231,11 +221,6 @@
       "description": "Description for nnwdaf-eventsubscription.consumerUrl."
     },
     {
-      "name": "nnwdaf-eventsubscription.partition",
-      "type": "java.lang.Integer",
-      "description": "Description for nnwdaf-eventsubscription.partition."
-    },
-    {
       "name": "nnwdaf-eventsubscription.numberOfPartitions",
       "type": "java.lang.Integer",
       "description": "Description for nnwdaf-eventsubscription.numberOfPartitions."
@@ -244,5 +229,20 @@
       "name": "nnwdaf-eventsubscription.numberOfReplicas",
       "type": "java.lang.Short",
       "description": "Description for nnwdaf-eventsubscription.numberOfReplicas."
+    },
+    {
+      "name": "nnwdaf-eventsubscription.leader",
+      "type": "java.lang.Boolean",
+      "description": "Description for nnwdaf-eventsubscription.leader."
+    },
+    {
+      "name": "nnwdaf-eventsubscription.autoNotify",
+      "type": "java.lang.Boolean",
+      "description": "Description for nnwdaf-eventsubscription.autoNotify."
+    },
+    {
+      "name": "nnwdaf-eventsubscription.nef_group_id",
+      "type": "java.lang.String",
+      "description": "Description for nnwdaf-eventsubscription.nef_group_id."
     }
   ]}

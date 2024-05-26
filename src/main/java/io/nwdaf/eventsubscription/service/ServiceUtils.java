@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceUtils {
-    public static <T extends TableEntity, S extends Identifiable> List<S> parseTables(List<T> tables, Class<S> type, ObjectMapper objectMapper) throws JsonProcessingException {
+    public static <T extends TableEntity, S extends Identifiable> List<S> parseTables(
+            List<T> tables, Class<S> type,
+            ObjectMapper objectMapper) throws JsonProcessingException {
         List<S> res = new ArrayList<>();
         for (T table : tables) {
             S sub = objectMapper.readValue(objectMapper.writeValueAsString(table.getData()), type);

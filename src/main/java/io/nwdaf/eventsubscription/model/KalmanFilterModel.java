@@ -23,27 +23,38 @@ public class KalmanFilterModel {
     private RealMatrix R; // Measurement noise covariance matrix
     private RealMatrix B; // Control input matrix
     private RealMatrix P0; // Initial Measurement noise covariance matrix
+    private final double dt = 1.0d; // discrete time interval between measurements (1 second)
     @Getter
     @Setter
     private KalmanFilter kalmanFilter;
-    private List<Double> referencePointGeodetic;
+    private final List<Double> referencePointGeodetic;
+    private final double[] referencePointENU;
 
     public KalmanFilterModel(double initialLongitude, double initialLatitude, double initialUncertainty, double initialAltitude) {
         // Initialize Kalman Filter parameters
         int stateDimension = 4; // Assuming 4D state space (x, y, v_x, v_y)
         int measurementDimension = 2; // Latitude and longitude are observed
-        referencePointGeodetic = List.of(initialLatitude, initialLongitude, initialAltitude);
+        referencePointGeodetic = List.of(initialLongitude, initialLatitude, initialAltitude);
+        referencePointENU = new double[] {0d, 0d, 0d, 0d};
 
         // Initial state [x, y, v_x, v_y]
-        x = new ArrayRealVector(new double[]{initialLongitude, initialLatitude, 0, 0});
+        x = new ArrayRealVector(referencePointENU);
 
         // State transition matrix
-        A = new Array2DRowRealMatrix(new double[][]{
-                {1, 0, 1, 0},
-                {0, 1, 0, 1},
-                {0, 0, 1, 0},
-                {0, 0, 0, 1}
+        A = new Array2DRowRealMatrix(new double[][] {
+                { 1d, 0d, dt, 0d },
+                { 0d, 1d, 0d, dt },
+                { 0d, 0d, 1d, 0d },
+                { 0d, 0d, 0d, 1d }
         });
+
+        // control input matrix
+//        B = new Array2DRowRealMatrix(new double[][] {
+//                { Math.pow(dt, 2d) / 2d },
+//                { Math.pow(dt, 2d) / 2d },
+//                { dt },
+//                { dt }
+//        });
 
         // Measurement matrix
         H = new Array2DRowRealMatrix(new double[][]{
@@ -75,11 +86,11 @@ public class KalmanFilterModel {
 
     public RealVector predictAndCorrect(double longitude, double latitude, double altitude) {
         double[] result = new double[3];
-        result = llaToENU(latitude, longitude, altitude, referencePointGeodetic.get(1), referencePointGeodetic.get(0), referencePointGeodetic.get(2), result);
+        result = llaToENU(longitude, latitude, altitude, referencePointGeodetic.get(0), referencePointGeodetic.get(1), referencePointGeodetic.get(2), result);
 
         kalmanFilter.predict();
         kalmanFilter.correct(new ArrayRealVector(new double[]{result[0], result[1]}));
-        RealVector currentEstimate = kalmanFilter.getStateEstimationVector().getSubVector(0, 2);
+        RealVector currentEstimate = kalmanFilter.getStateEstimationVector().getSubVector(0, 3);
         double[] prediction = new double[3];
         prediction = enuToLLA(currentEstimate.getEntry(0), currentEstimate.getEntry(1), currentEstimate.getEntry(2), referencePointGeodetic.get(1), referencePointGeodetic.get(0), referencePointGeodetic.get(2), prediction);
         return new ArrayRealVector(new double[]{prediction[1], prediction[0]});

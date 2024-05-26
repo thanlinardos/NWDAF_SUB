@@ -14,7 +14,7 @@ create table if not exists public.nnwdaf_events_subscription
 ALTER SYSTEM SET shared_buffers = '2048MB';
 ALTER SYSTEM SET work_mem = '19MB';
 ALTER SYSTEM SET temp_buffers = '1MB';
-ALTER SYSTEM SET max_connections = 100;
+ALTER SYSTEM SET max_connections = 1000;
 
 DROP PROCEDURE IF EXISTS public.delete_old_notifications;
 

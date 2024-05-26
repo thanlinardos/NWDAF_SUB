@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Admin</title>
@@ -17,11 +17,31 @@
 </head>
 <body>
 <div class="container">
-    <h3>Nwdaf Instance</h3>
+    <h2>NWDAF INSTANCE</h2>
     <div class="row mt-3">
         <div class="col big-text">
-            Nwdaf Instance ID:
+            NF Instance ID:
             <span id="NWDAF_INSTANCE_ID" class="text-dark" th:text="${NWDAF_INSTANCE_ID}"></span>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div th:if="${isConsumer}" class="col big-text">
+            Assigned Topic Partition: <span id="assignedTopicPartition" class="text-dark" th:text="${partition}"></span>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div th:if="${isNotifier}" class="col big-text">
+            Assigned
+            <span id="assignedSubsLength" class="text-dark" th:text="${assignedSubsLength}"></span>
+            Subscriptions:
+            <span id="assignedSubscriptions" class="text-dark" th:text="${assignedSubs}"></span>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col big-text">
+            <span th:if="${isNotifier}">Supported events</span>
+            <span th:if="${isConsumer}">For consuming events</span>:
+            <span id="supportedEvents" class="text-dark" th:text="${supportedEvents}"></span>
         </div>
     </div>
     <div class="row mt-3">
@@ -35,17 +55,36 @@
                         </svg>
                     </button>
                 </h3>
-
             </div>
             <div class="collapse" id="collapseTable">
                 <div hx-get="/admin/fragments/areaOfInterestTable" hx-trigger="every 1s"></div>
             </div>
+        </tr>
+    </div>
+    <br>
+    <h3>List of Registered AOIs</h3>
+    <div class="row mt-3" th:each="value,i : ${areaOfInterestIds}">
+        <tr class="col">
+            <div>
+                <h4> <span th:text="${value}"></span>
+                    <button type="button" data-bs-toggle="collapse" th:data-bs-target="'#collapseTable-'+${i.index}"
+                            aria-expanded="false" aria-controls="collapseTable">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down ml-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" th:id="'collapseIcon-' + ${i.index}">
+                            <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.793l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </button>
+                </h4>
+            </div>
+            <div class="collapse" th:id="'collapseTable-' + ${i.index}">
+                <div th:hx-get="@{/admin/fragments/areaOfInterestTable/__${value}__}" hx-trigger="load"></div>
+            </div>
+        </tr>
     </div>
 </div>
 <br>
-<div th:if="${isConsumer}" hx-get="admin/kafkaConsumers" hx-trigger="every 1s"></div>
-<div th:if="${isConsumer}" hx-get="admin/kafkaCollectors" hx-trigger="every 1s"></div>
-<div th:if="${isNotifier}" hx-get="admin/notifyListeners" hx-trigger="every 1s"></div>
+<div id="kafkaConsumers" th:if="${isConsumer}" hx-get="admin/kafkaConsumers" hx-trigger="every 1s"></div>
+<div id="kafkaCollectors" th:if="${isConsumer}" hx-get="admin/kafkaCollectors" hx-trigger="every 1s"></div>
+<div id="notifyListeners" th:if="${isNotifier}" hx-get="admin/notifyListeners" hx-trigger="every 1s"></div>
 <script async defer>
     const toggleNotifyListenerBtn = document.querySelector('button[hx-get="/admin/toggleNotifyListener"]');
     const noNotifyListeners = document.getElementById('noNotifyListeners');
@@ -54,14 +93,19 @@
 
         noNotifyListeners.innerText = event.detail.xhr.response;
     });
+
+    $('#collapseTable').on('show.bs.collapse hide.bs.collapse', function () {
+        $('#collapseIcon').toggleClass('rotate-icon');
+    });
+
+    $('[id^=collapseTable]').on('show.bs.collapse hide.bs.collapse', function () {
+        var index = this.id.split('-')[1];
+        $('#collapseIcon-' + index).toggleClass('rotate-icon');
+    });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-<script>
-    $('#collapseTable').on('show.bs.collapse hide.bs.collapse', function () {
-        $('#collapseIcon').toggleClass('rotate-icon');
-    });</script>
 </body>
 </html>

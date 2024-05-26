@@ -57,7 +57,7 @@ public class NotifyListener {
     private final MetricsCacheService metricsCacheService;
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.###");
     @Getter
-    private static int no_served_subs;
+    private static int noServedSubs;
     @Getter
     private static Map<Long, Integer> repPeriods;
     @Getter
@@ -103,14 +103,18 @@ public class NotifyListener {
     private final NwdafSubProperties.Log log;
     private final NwdafSubProperties.Integration integration;
 
-    public NotifyListener(SubscriptionsService subscriptionService, NotificationService notificationService, MetricsService metricsService, MetricsCacheService metricsCacheService, NwdafSubProperties nwdafSubProperties) {
+    public NotifyListener(SubscriptionsService subscriptionService,
+                          NotificationService notificationService,
+                          MetricsService metricsService,
+                          MetricsCacheService metricsCacheService,
+                          NwdafSubProperties nwdafSubProperties) {
         this.subscriptionService = subscriptionService;
         this.notificationService = notificationService;
         this.metricsService = metricsService;
         this.metricsCacheService = metricsCacheService;
         this.nwdafSubProperties = nwdafSubProperties;
         this.log = nwdafSubProperties.log();
-        this.integration  = nwdafSubProperties.integration();
+        this.integration = nwdafSubProperties.integration();
     }
 
     static Long encodeKey(Long i, Integer j) {
@@ -129,7 +133,10 @@ public class NotifyListener {
     @Async
     @EventListener
     public void sendNotifications(NotificationEvent notificationEvent) {
-        System.out.println("trying to enter with current number of notify listeners: " + no_notifEventListeners.get());
+        if (!nwdafSubProperties.autoNotify()) {
+            System.out.println("trying to enter with current number of notify listeners: "
+                    + no_notifEventListeners.get());
+        }
         if (no_notifEventListeners.get() < max_no_notifEventListeners) {
             no_notifEventListeners.getAndIncrement();
         } else {
@@ -138,14 +145,17 @@ public class NotifyListener {
 
         List<NnwdafEventsSubscription> subs = new ArrayList<>();
         try {
-            subs = subscriptionService.findAllByActive(NotificationFlag.NotificationFlagEnum.DEACTIVATE);
+            subs = subscriptionService.findAllAssignedSubscriptions();
         } catch (Exception e) {
             logger.error("Error with find subs in subscriptionService", e);
             stop();
         }
         int listenerId = no_notifEventListeners.get() - 1;
-        logger.info("Started NotifyListener(" + listenerId + ") with message: " + notificationEvent.getMessage() +
-                " and caller id: " + notificationEvent.getCallerId());
+        if (!nwdafSubProperties.autoNotify()) {
+            logger.info("Started NotifyListener({}) with message: {} and caller id: {}", listenerId,
+                    notificationEvent.getMessage(),
+                    notificationEvent.getCallerId());
+        }
 
         // map with key each served event (pair of sub id,event index)
         // and value being the last time a notification was sent for this event to the
@@ -159,9 +169,10 @@ public class NotifyListener {
 
         NotificationBuilder notificationBuilder = new NotificationBuilder();
         mapRepopulate(subs);
-
-        System.out.println("no_subs=" + subs.size());
-        System.out.println("no_Ssubs=" + no_served_subs);
+        if (!nwdafSubProperties.autoNotify()) {
+            System.out.println("no_subs=" + subs.size());
+            System.out.println("no_Ssubs=" + noServedSubs);
+        }
         long start;
 
         initGlobalLogs();
@@ -169,7 +180,7 @@ public class NotifyListener {
         setupWebClient();
 //        setupRestTemplate();
 
-        while (no_served_subs > 0 && no_notifEventListeners.get() > 0) {
+        while (noServedSubs > 0 && no_notifEventListeners.get() > 0) {
             long st;
             initLogs();
             long loop_section;
@@ -190,7 +201,7 @@ public class NotifyListener {
                 long key = entry.getKey();
                 long id = decodeKeyI(key);
                 int eventIndex = decodeKeyJ(key);
-                NnwdafEventsSubscription sub = subs.get(subIndexes.get(id));    // TODO: BOTTLENECK #1 -> offload to redis query
+                NnwdafEventsSubscription sub = subs.get(subIndexes.get(id)); // TODO: BOTTLENECK #1 -> offload to redis query
 
                 // match the event index to the event subscription
                 EventSubscription event = sub.getEventSubscriptions().get(eventIndex);
@@ -218,7 +229,7 @@ public class NotifyListener {
 
                 NnwdafEventsSubscriptionNotification foundNotification = null;
                 if (i != -1) {
-                    foundNotification = mapEventToNotification.get(i).getSecond();      // TODO: Bottleneck #2 -> found notification map too slow
+                    foundNotification = mapEventToNotification.get(i).getSecond(); // TODO: Bottleneck #2 -> found notification map too slow
                 }
 
                 try {
@@ -274,11 +285,11 @@ public class NotifyListener {
             }
 
             loop_section = (System.nanoTime() - st2);
-            printPerfA(loop_section, section_a, section_b, section_c, no_served_subs);
+            printPerfA(loop_section, section_a, section_b, section_c, noServedSubs);
             long st_sub = System.nanoTime();
 
             try {
-                subs = subscriptionService.findAllByActive(NotificationFlag.NotificationFlagEnum.DEACTIVATE);
+                subs = subscriptionService.findAllAssignedSubscriptions();
             } catch (Exception e) {
                 logger.error("Error with find subs in subscriptionService", e);
                 stop();
@@ -319,16 +330,18 @@ public class NotifyListener {
                 }
             }
         }
-
-        System.out.println("no of found notifications = " + no_found_notifs);
-        System.out.println("==NotifyListener(" + listenerId + ") finished===");
-
+        if(!nwdafSubProperties.autoNotify()) {
+            System.out.println("no of found notifications = " + no_found_notifs);
+            System.out.println("==NotifyListener(" + listenerId + ") finished===");
+        }
         if (no_notifEventListeners.get() > 0) {
             no_notifEventListeners.getAndDecrement();
         } else {
             System.out.println("==(NotifyListener manually stopped)");
         }
-        System.out.println("Number of listeners after stop: " + no_notifEventListeners.get());
+        if(!nwdafSubProperties.autoNotify()) {
+            System.out.println("Number of listeners after stop: " + no_notifEventListeners.get());
+        }
         if (counter == 0) {
             return;
         }
@@ -362,7 +375,7 @@ public class NotifyListener {
     }
 
     private static void mapRepopulate(List<NnwdafEventsSubscription> subs) {
-        no_served_subs = 0;
+        noServedSubs = 0;
         for (int i = 0; i < subs.size(); i++) {
 
             Long id = subs.get(i).getId();
@@ -372,7 +385,7 @@ public class NotifyListener {
 
                 if (period != null) {
 
-                    no_served_subs++;
+                    noServedSubs++;
                     repPeriods.put(key, period);
 
                     if (oldNotifTimes.get(key) == null) {
@@ -414,7 +427,8 @@ public class NotifyListener {
         long st_if = System.nanoTime();
 
         OffsetDateTime now = OffsetDateTime.now();
-        if ((repPeriod > 0 && now.isAfter(entry.getValue().plusSeconds(repPeriod))) || (repPeriod == 0 && thresholdReached(event, notification))) {
+        if ((repPeriod > 0 && now.isAfter(entry.getValue().plusSeconds(repPeriod))) ||
+                (repPeriod == 0 && thresholdReached(event, notification.getEventNotifications().getFirst()))) {
 
             long st = System.nanoTime();
 
@@ -443,23 +457,25 @@ public class NotifyListener {
         return new SectionBLogs(section_b, section_c, kb_time);
     }
 
-    private boolean thresholdReached(EventSubscription event, NnwdafEventsSubscriptionNotification notification) {
+    private boolean thresholdReached(EventSubscription event, EventNotification notification) {
         NwdafEventEnum eType = event.getEvent().getEvent();
+        List<ThresholdLevel> thresholdLevels;
 
         switch (eType) {
             case NF_LOAD:
-                List<ThresholdLevel> thresholdLevels = event.getNfLoadLvlThds();
+                thresholdLevels = event.getNfLoadLvlThds();
                 if (thresholdLevels == null || thresholdLevels.isEmpty()) {
                     return false;
                 }
 
-                int size = Math.min(notification.getEventNotifications().getFirst().getNfLoadLevelInfos().size(),
+                int size = Math.min(notification.getNfLoadLevelInfos().size(),
                         thresholdLevels.size());
-                List<NfLoadLevelInformation> presentNfLevelInformation = parsePresentNfLoadLevelInformations(notification.getEventNotifications().getFirst().getNfLoadLevelInfos());
+                List<NfLoadLevelInformation> presentNfLevelInfos = parsePresentNfLoadLevelInformations(
+                        notification.getNfLoadLevelInfos());
                 int index;
 
                 for (int i = 0; i < size; i++) {
-                    NfLoadLevelInformation nfLoadLevelInformation = presentNfLevelInformation.get(i);
+                    NfLoadLevelInformation nfLoadLevelInformation = presentNfLevelInfos.get(i);
                     if (thresholdLevels.get(i) == null) {
                         continue;
                     }
@@ -474,14 +490,14 @@ public class NotifyListener {
                     }
 
                     if (booleanIndex != -1) {
-                        index = notification.getEventNotifications().getFirst().getNfLoadLevelInfos()
-                                .indexOf(nfLoadLevelInformation);
-                        int[] propertyValues = mapPropertyValues(notification, index);
+                        List<NfLoadLevelInformation> nfLoadLevelInfos = notification.getNfLoadLevelInfos();
+                        index = nfLoadLevelInfos.indexOf(nfLoadLevelInformation);
+                        int[] loadLevelValues = mapLoadLevelValues(nfLoadLevelInfos.get(index));
 
-                        notification.getEventNotifications().getFirst().getNfLoadLevelInfos().get(index)
+                        notification.getNfLoadLevelInfos().get(index)
                                 .setThresholdProperty(Constants.nfLoadThresholdProps[booleanIndex]);
-                        notification.getEventNotifications().getFirst().getNfLoadLevelInfos().get(index)
-                                .setThresholdValue(propertyValues[booleanIndex]);
+                        notification.getNfLoadLevelInfos().get(index)
+                                .setThresholdValue(loadLevelValues[booleanIndex]);
                         return true;
                     }
                 }
@@ -506,8 +522,7 @@ public class NotifyListener {
         };
     }
 
-    private static int[] mapPropertyValues(NnwdafEventsSubscriptionNotification notification, int index) {
-        NfLoadLevelInformation nfLoadLevelInformation = notification.getEventNotifications().getFirst().getNfLoadLevelInfos().get(index);
+    private static int[] mapLoadLevelValues(NfLoadLevelInformation nfLoadLevelInformation) {
         return new int[]{
                 nfLoadLevelInformation.getNfCpuUsage(),
                 nfLoadLevelInformation.getNfMemoryUsage(),
@@ -558,12 +573,17 @@ public class NotifyListener {
         WebClientConfig.setTrustStorePassword(trustStorePassword);
         webClient = WebClient
                 .builder()
-                .exchangeStrategies(WebClientConfig.createExchangeStrategies(5 * 1024 * 1024))  //5MB
+                .exchangeStrategies(WebClientConfig.createExchangeStrategies(Constants.max_bytes_per_webclient_request))  //5MB
                 .clientConnector(Objects.requireNonNull(WebClientConfig.createWebClientFactory(nwdafSubProperties.secureWithTrustStore())))
                 .build();
     }
 
-    private void setupRestTemplate() throws CertificateException, IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
-        restTemplate = new RestTemplate(Objects.requireNonNull(RestTemplateFactory.createRestTemplateFactory(trustStore, trustStorePassword)));
+    private void setupRestTemplate() throws CertificateException,
+            IOException,
+            NoSuchAlgorithmException,
+            KeyStoreException,
+            KeyManagementException {
+        restTemplate = new RestTemplate(Objects.requireNonNull(
+                RestTemplateFactory.createRestTemplateFactory(trustStore, trustStorePassword)));
     }
 }

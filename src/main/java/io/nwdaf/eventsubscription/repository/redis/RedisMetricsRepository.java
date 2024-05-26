@@ -12,12 +12,14 @@ import java.util.UUID;
 import java.time.OffsetDateTime;
 
 
-
 @Repository("redis")
 @EntityScan("io.nwdaf.eventsubscription.repository.redis")
-public interface RedisMetricsRepository extends JpaRepository<NfLoadLevelInformationHash,String>{
+public interface RedisMetricsRepository extends JpaRepository<NfLoadLevelInformationHash, String> {
     List<NfLoadLevelInformationHash> findByAreaOfInterestId(UUID areaOfInterestId);
+
     Optional<NfLoadLevelInformationHash> findById(String id);
+
     List<NfLoadLevelInformationHash> findByNfInstanceId(UUID nfInstanceId);
+
     List<NfLoadLevelInformationHash> findByTime(OffsetDateTime time);
 }

@@ -9,6 +9,30 @@
     <h3 class="display-6">Kafka Consumers</h3>
     <hr>
     <br>
+    <div th:if="${isLeader}" class="row mt-3 fs-3">
+        <h3>Leader</h3>
+    </div>
+    <br>
+    <div class="row mt-3">
+        <h3>Kafka Consumer Instances</h3>
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Consumer Id</th>
+                <th>Register Message</th>
+                <th>Assigned Partition Message</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="entry : ${consumerInstances}">
+                <td th:text="${entry.key}"></td>
+                <td th:text="${entry.value}"></td>
+                <td th:text="${assignedPartitions.get(entry.key)}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <br>
     <div class="row mt-3 fs-3">
         <div class="col">
             Is kafka consumer listening:

@@ -12,7 +12,6 @@ import io.nwdaf.eventsubscription.model.NnwdafEventsSubscriptionNotification;
 import io.nwdaf.eventsubscription.model.NwdafEvent;
 import io.nwdaf.eventsubscription.model.UeCommunication;
 import io.nwdaf.eventsubscription.model.UeMobility;
-import io.nwdaf.eventsubscription.notify.NotificationUtil;
 import io.nwdaf.eventsubscription.notify.NotifyListener;
 import io.nwdaf.eventsubscription.notify.NotifyPublisher;
 import io.nwdaf.eventsubscription.repository.eventmetrics.entities.NfLoadLevelInformationTable;
@@ -46,7 +45,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static io.nwdaf.eventsubscription.notify.NotificationUtil.*;
-import static io.nwdaf.eventsubscription.utilities.ParserUtil.safeParseInteger;
 
 @Component
 public class IntegrationTests {
@@ -105,7 +103,7 @@ public class IntegrationTests {
             metricsService.createNfload(nfLoadLevelInformation);
             assert (metricsService.findAllInLastIntervalByFilterAndOffset(null, 1L, 0L, 1, "").getFirst().getNfInstanceId() == nfLoadLevelInformation.getNfInstanceId());
 
-            UeMobility ueMobility = DummyDataGenerator.generateDummyUeMobilities(1).getFirst();
+            UeMobility ueMobility = DummyDataGenerator.generateDummyUeMobilities(1, null).getFirst();
             metricsService.createUeMob(ueMobility);
             assert (Objects.equals(metricsService.findAllUeMobilityInLastIntervalByFilterAndOffset(null, 1L, 0L, 1, "").getFirst().getSupi(), ueMobility.getSupi()));
 
@@ -226,7 +224,7 @@ public class IntegrationTests {
                 nf_load_test,
                 ue_mobility_test,
                 ue_communication_test,
-                nwdafSubProperties.client().prod_url(),
+                nwdafSubProperties.client().dev_url(),
                 nwdafSubProperties.integration().noClients(),
                 nwdafSubProperties.integration().noSubs(),
                 nwdafSubProperties.client().port(),
@@ -242,7 +240,7 @@ public class IntegrationTests {
                                                                         String uri,
                                                                         Integer noClients,
                                                                         Integer noSubs,
-                                                                        String defaultPort,
+                                                                        Integer defaultPort,
                                                                         ObjectMapper objectMapper) throws IOException {
         if (uri == null || noClients == null || noSubs == null || noClients == 0 || noSubs == 0) {
             System.out.println("Invalid parameters, cannot save subscriptions.");
@@ -251,8 +249,8 @@ public class IntegrationTests {
         List<NnwdafEventsSubscription> subs = new ArrayList<>();
         for (int i = 0; i < noSubs / noClients; i++) {
             for (int j = 0; j < noClients; j++) {
-                int current_port = safeParseInteger(defaultPort) + j;
-                String parsedUri = uri.replace(defaultPort, Integer.toString(current_port));
+                int current_port = defaultPort + j;
+                String parsedUri = uri.replace(Integer.toString(defaultPort), Integer.toString(current_port));
                 if (j > 0 && !uri.contains("localhost")) {
                     parsedUri = parsedUri.replace(":" + current_port,
                             ParserUtil.safeParseString(j + 1) + ":" + current_port);

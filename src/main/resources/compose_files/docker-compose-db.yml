@@ -14,7 +14,7 @@ services:
         reservations:
           memory: 1024M
     build: .
-    restart: always
+    restart: unless-stopped
     environment:
       TIMEZONE: "${TIMEZONE}"
       POSTGRES_USER: "${POSTGRES_USER}"
@@ -34,22 +34,24 @@ services:
 #      - /media/thanlinardos/hdd2/project-db-files/postgres-data:/var/lib/postgresql/data
       - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
-#  gadmin:
-#    container_name: pgadmin4_container
-#    image: dpage/pgadmin4
-#    user: root
-#    restart: always
-#    environment:
-#      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-#      PGADMIN_DEFAULT_PASSWORD: "${POSTGRES_PASSWORD}"
-#    ports:
-#      - "5050:80"
-#    networks:
-#      - services_default
-#    volumes:
-#      # - ../../../../../project-db-files/pgadmin-data:/var/lib/pgadmin
-#      - ../../../../../project-db-files/pgadmin-data:/var/lib/pgadmin
-#      - /media/thanlinardos/hdd2/project-db-files/pgadmin-data:/var/lib/pgadmin
+  gadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    user: root
+    restart: unless-stopped
+    deploy:
+      replicas: 0
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: "${POSTGRES_PASSWORD}"
+    ports:
+      - "5050:80"
+    networks:
+      - monitor-net
+    volumes:
+      # - ../../../../../project-db-files/pgadmin-data:/var/lib/pgadmin
+      - ../../../../../project-db-files/pgadmin-data:/var/lib/pgadmin
+      - /media/thanlinardos/hdd2/project-db-files/pgadmin-data:/var/lib/pgadmin
 
   timescaledb:
     container_name: metrics
@@ -61,7 +63,7 @@ services:
         reservations:
           memory: 2048M
     build: .
-    restart: always
+    restart: unless-stopped
     ports:
       - "5433:5433"
     environment:
@@ -83,7 +85,7 @@ services:
   redis:
     container_name: redis
     image: redis/redis-stack:latest
-    restart: always
+    restart: unless-stopped
     networks:
       - monitor-net
     ports:

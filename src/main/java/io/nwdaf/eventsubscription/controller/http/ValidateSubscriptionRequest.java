@@ -19,7 +19,7 @@ public class ValidateSubscriptionRequest {
             throw new HttpMessageNotReadableException("Invalid body for subscription", request);
         }
 
-        if (body.getEventSubscriptions().size() > Constants.max_subs_per_process) {
+        if (body.getEventSubscriptions().size() > Constants.MAX_SUBS_PER_PROCCESS) {
             throw new HttpMessageNotReadableException("Too many subscriptions in one request", request);
         }
     }

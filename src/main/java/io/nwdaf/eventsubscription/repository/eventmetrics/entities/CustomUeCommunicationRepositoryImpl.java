@@ -2,14 +2,11 @@ package io.nwdaf.eventsubscription.repository.eventmetrics.entities;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import io.nwdaf.eventsubscription.repository.eventmetrics.CustomEventMetricsRepository;
 import io.nwdaf.eventsubscription.repository.eventmetrics.CustomUeCommunicationRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.transaction.annotation.Transactional;
 
 public class CustomUeCommunicationRepositoryImpl implements CustomEventMetricsRepository<UeCommunicationTable>, CustomUeCommunicationRepository {
 
@@ -21,7 +18,7 @@ public class CustomUeCommunicationRepositoryImpl implements CustomEventMetricsRe
     public List<UeCommunicationTable> findAllInLastIntervalByFilterAndOffset(String params, String no_secs,
                                                                              String end, String offset, String columns, Boolean historic) {
         if (params != null) {
-            params += " and " + params;
+            params = " and " + params;
         } else {
             params = "";
         }
@@ -31,7 +28,7 @@ public class CustomUeCommunicationRepositoryImpl implements CustomEventMetricsRe
                 select distinct on (time_bucket(cast(:offset as interval), time), supi, intGroupId) 
                 time_bucket(cast(:offset as interval), time) AS time , data, supi, intGroupId, 
                  """ + columns + """
-                 areaOfInterestId from """ + table + """
+                areaOfInterestId from """ + table + """
                  where time >= NOW() - cast(:no_secs as interval) 
                  and time <= NOW() - cast(:end as interval) 
                 """ + params + """
@@ -100,5 +97,25 @@ public class CustomUeCommunicationRepositoryImpl implements CustomEventMetricsRe
                 select distinct time from compressed_ue_communication_metrics order by time limit 1;
                 """;
         return (OffsetDateTime) entityManager.createNativeQuery(query, OffsetDateTime.class).getSingleResult();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<String> getSupis() {
+        String query = """
+                select distinct supi from ue_communication_metrics;
+                """;
+        return entityManager.createNativeQuery(query).getResultList();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<String> getSupis(String groupId) {
+        if (groupId == null) return List.of();
+        String query = """
+                select distinct supi from ue_communication_metrics where intGroupId =
+                """ + " '" + groupId + "';";
+        return entityManager.createNativeQuery(query)
+                .getResultList();
     }
 }

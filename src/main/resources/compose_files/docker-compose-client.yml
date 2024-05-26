@@ -18,9 +18,7 @@ services:
         springdoc.swagger-ui.path: /swagger-ui
         server.port: "${client_port}"
         nnwdaf-eventsubscription.openapi.dev_url: "${server_host}:${server_port}"
-        nnwdaf-eventsubscription.openapi.prod_url: "${server_host}:${server_port}"
         nnwdaf-eventsubscription.client.dev_url: "${client_host}:${client_port}/client"
-        nnwdaf-eventsubscription.client.prod_url: "${client_host}:${client_port}/client"
         nnwdaf-eventsubscription.init: false
         #spring configuration:
         spring.datasource.generate-unique-name: false

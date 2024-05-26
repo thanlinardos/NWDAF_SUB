@@ -45,3 +45,6 @@ src/main/resources/certificates/client-certificate.pem
 src/main/resources/certificates/privatekey.pem
 src/main/resources/certificates/client-privatekey.pem
 src/main/resources/compose_files/clusterID/clusterID
+src/main/resources/compose_files/.env
+src/main/resources/compose_files/db.env
+src/main/resources/compose_files/ips.env

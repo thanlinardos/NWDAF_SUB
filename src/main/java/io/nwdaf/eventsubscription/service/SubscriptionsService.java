@@ -18,6 +18,7 @@ import io.nwdaf.eventsubscription.model.NnwdafEventsSubscription;
 import io.nwdaf.eventsubscription.repository.eventsubscription.SubscriptionRepository;
 import io.nwdaf.eventsubscription.repository.eventsubscription.entities.NnwdafEventsSubscriptionTable;
 
+import static io.nwdaf.eventsubscription.service.StartUpService.getAssignedSubscriptions;
 import static io.nwdaf.eventsubscription.service.ServiceUtils.parseTables;
 
 @Service
@@ -106,5 +107,15 @@ public class SubscriptionsService {
             }
         }
         return subscription;
+    }
+
+    public List<Long> findAllIdsByActive(NotificationFlag.NotificationFlagEnum notifFlag) throws Exception {
+        final String filter = "'{\"evtReq\": {\"notifFlag\": {\"notifFlag\": \"" + notifFlag + "\"}}}'";
+        return customRepository.findAllIdsInLastFilter(filter, true);
+    }
+
+    public List<NnwdafEventsSubscription> findAllAssignedSubscriptions() throws Exception {
+        List<NnwdafEventsSubscriptionTable> tables = repository.findAllById(getAssignedSubscriptions());
+        return parseTables(tables, NnwdafEventsSubscription.class, objectMapper);
     }
 }

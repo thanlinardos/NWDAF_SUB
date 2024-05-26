@@ -1,26 +1,34 @@
 package io.nwdaf.eventsubscription.service;
 
+import java.lang.Exception;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-import io.nwdaf.eventsubscription.NwdafSubApplication;
-import io.nwdaf.eventsubscription.model.NwdafEvent;
-import io.nwdaf.eventsubscription.model.UeCommunication;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.nwdaf.eventsubscription.customModel.*;
+import io.nwdaf.eventsubscription.model.*;
+import io.nwdaf.eventsubscription.repository.eventmetrics.AreaOfInterestRepository;
 import io.nwdaf.eventsubscription.repository.eventmetrics.UeCommunicationMetricsRepository;
-import io.nwdaf.eventsubscription.repository.eventmetrics.entities.PointUncertaintyCircleResult;
+import io.nwdaf.eventsubscription.repository.eventmetrics.entities.AreaOfInterestTable;
 import io.nwdaf.eventsubscription.repository.eventmetrics.entities.UeCommunicationTable;
 import org.springframework.data.domain.Example;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import io.nwdaf.eventsubscription.utilities.Constants;
-import io.nwdaf.eventsubscription.model.NfLoadLevelInformation;
-import io.nwdaf.eventsubscription.model.UeMobility;
 import io.nwdaf.eventsubscription.repository.eventmetrics.NfLoadMetricsRepository;
 import io.nwdaf.eventsubscription.repository.eventmetrics.UeMobilityMetricsRepository;
 import io.nwdaf.eventsubscription.repository.eventmetrics.entities.NfLoadLevelInformationTable;
 import io.nwdaf.eventsubscription.repository.eventmetrics.entities.UeMobilityTable;
+
+import static io.nwdaf.eventsubscription.NwdafSubApplication.getLogger;
+import static io.nwdaf.eventsubscription.service.StartUpService.registeredUUIDsToAOIs;
+import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckListEmpty;
+import static io.nwdaf.eventsubscription.utilities.ConvertUtil.mapUeMobilityToAOI;
+import static io.nwdaf.eventsubscription.utilities.OtherUtil.*;
 
 @Service
 public class MetricsService {
@@ -28,13 +36,19 @@ public class MetricsService {
     private final NfLoadMetricsRepository nfLoadRepository;
     private final UeMobilityMetricsRepository ueMobilityRepository;
     private final UeCommunicationMetricsRepository ueCommunicationMetricsRepository;
+    private final AreaOfInterestRepository areaOfInterestRepository;
+    private final ObjectMapper objectMapper;
 
     public MetricsService(NfLoadMetricsRepository nfLoadRepository,
                           UeMobilityMetricsRepository ueMobilityMetricsRepository,
-                          UeCommunicationMetricsRepository ueCommunicationMetricsRepository) {
+                          UeCommunicationMetricsRepository ueCommunicationMetricsRepository,
+                          AreaOfInterestRepository areaOfInterestRepository,
+                          ObjectMapper objectMapper) {
         this.nfLoadRepository = nfLoadRepository;
         this.ueMobilityRepository = ueMobilityMetricsRepository;
         this.ueCommunicationMetricsRepository = ueCommunicationMetricsRepository;
+        this.areaOfInterestRepository = areaOfInterestRepository;
+        this.objectMapper = objectMapper;
     }
 
     @Async
@@ -132,8 +146,79 @@ public class MetricsService {
         return res;
     }
 
+    // AOI
+    public void createAoI(NetworkAreaInfo body, String intGroupId) {
+        AreaOfInterestTable bodyTable = new AreaOfInterestTable(body, intGroupId);
+        Example<AreaOfInterestTable> example = Example.of(bodyTable);
+        if (!areaOfInterestRepository.exists(example)) {
+            areaOfInterestRepository.save(bodyTable);
+        }
+    }
+
+    public void createAllAoI(List<NetworkAreaInfo> body, String intGroupId) {
+        for (int i = 0; i < body.size(); i++) {
+            AreaOfInterestTable bodyTable = new AreaOfInterestTable(body.get(i), intGroupId);
+            Example<AreaOfInterestTable> example = Example.of(bodyTable);
+            if (!areaOfInterestRepository.exists(example)) {
+                areaOfInterestRepository.save(bodyTable);
+            }
+        }
+    }
+
+    public void updateAoI(NetworkAreaInfo body, String intGroupId) {
+        if (body == null || body.getId() == null) {
+            getLogger().error("Non null Area of Interest with an ID is required");
+            return;
+        }
+        Optional<AreaOfInterestTable> table = areaOfInterestRepository.findByUuid(body.getId());
+        if (table.isPresent()) {
+            AreaOfInterestTable updatedTable = new AreaOfInterestTable(body, intGroupId);
+            updatedTable.setId(table.get().getId());
+            areaOfInterestRepository.save(updatedTable);
+        }
+    }
+
+    public void deleteAoI(UUID id) {
+        if (id != null && areaOfInterestRepository.findByUuid(id).isPresent()) {
+            areaOfInterestRepository.deleteByUuid(id);
+        }
+    }
+
+    public List<NetworkAreaInfo> findAllAoI() {
+        List<AreaOfInterestTable> tables = areaOfInterestRepository.findAll();
+        return parseAoIsFromTables(tables);
+    }
+
+    public List<NetworkAreaInfo> findAllNefAoI(String groupId) {
+        List<AreaOfInterestTable> tables = areaOfInterestRepository.findAllByIntGroupId(groupId);
+        return parseAoIsFromTables(tables);
+    }
+
+    private List<NetworkAreaInfo> parseAoIsFromTables(List<AreaOfInterestTable> tables) {
+        List<NetworkAreaInfo> res = new ArrayList<>();
+        for (AreaOfInterestTable table : tables) {
+            if (table != null) {
+                NetworkAreaInfo info = NetworkAreaInfo.fromMap(table.getData());
+                res.add(info);
+            }
+        }
+        return res;
+    }
+
+    public NetworkAreaInfo findAoI(UUID id) {
+        Optional<AreaOfInterestTable> table = areaOfInterestRepository.findByUuid(id);
+        return table.map(value -> NetworkAreaInfo.fromMap(value.getData())).orElse(null);
+    }
+
     // UE_MOBILITY
     public void createUeMob(UeMobility body) {
+        if (body.getAreaOfInterestId() == null) {
+            UUID id = registeredUUIDsToAOIs.get(mapUeMobilityToAOI(body));
+            body.setAreaOfInterestId(id);
+            if (id != null && safeCheckListEmpty(body.getAreaOfInterestIds())) {
+                body.addAreaOfInterestIdsItem(id);
+            }
+        }
         UeMobilityTable bodyTable = new UeMobilityTable(body);
         Example<UeMobilityTable> example = Example.of(bodyTable);
         if (!ueMobilityRepository.exists(example)) {
@@ -142,6 +227,14 @@ public class MetricsService {
     }
 
     public void createAllUeMobs(List<UeMobility> body) {
+        body.stream().filter(metric -> metric.getAreaOfInterestId() == null).forEach(metric -> {
+            UUID id = registeredUUIDsToAOIs.get(mapUeMobilityToAOI(metric));
+            metric.setAreaOfInterestId(id);
+            if (id != null && safeCheckListEmpty(metric.getAreaOfInterestIds())) {
+                metric.addAreaOfInterestIdsItem(id);
+            }
+        });
+
         body.stream().map(UeMobilityTable::new).forEach(metric -> {
             Example<UeMobilityTable> example = Example.of(metric);
             if (!ueMobilityRepository.exists(example)) {
@@ -154,7 +247,7 @@ public class MetricsService {
                                                                              Long end, Integer offset, String columns) throws Exception {
         List<UeMobilityTable> tables;
         if (no_secs == null) {
-            no_secs = Long.valueOf(Constants.MIN_PERIOD_SECONDS);
+            no_secs = (long) Constants.MIN_PERIOD_SECONDS;
         }
         if (offset == 0) {
             offset = Constants.MIN_PERIOD_SECONDS;
@@ -238,7 +331,7 @@ public class MetricsService {
             ueMobilityRepository.truncate();
             return true;
         } catch (Exception e) {
-            NwdafSubApplication.getLogger().error("Error truncating metrics tables", e);
+            getLogger().error("Error truncating metrics tables", e);
             return false;
         }
     }
@@ -256,7 +349,7 @@ public class MetricsService {
                 default -> new ArrayList<>();
             };
         } catch (Exception e) {
-            NwdafSubApplication.getLogger().error("Error finding available metrics timestamps", e);
+            getLogger().error("Error finding available metrics timestamps", e);
             return new ArrayList<>();
         }
     }
@@ -273,7 +366,7 @@ public class MetricsService {
                 default -> new ArrayList<>();
             };
         } catch (Exception e) {
-            NwdafSubApplication.getLogger().error("Error finding available metrics timestamps", e);
+            getLogger().error("Error finding available metrics timestamps", e);
             return new ArrayList<>();
         }
     }
@@ -291,7 +384,7 @@ public class MetricsService {
                 default -> new ArrayList<>();
             };
         } catch (Exception e) {
-            NwdafSubApplication.getLogger().error("Error finding available metrics timestamps", e);
+            getLogger().error("Error finding available metrics timestamps", e);
             return new ArrayList<>();
         }
     }
@@ -309,7 +402,7 @@ public class MetricsService {
     }
 
     public List<PointUncertaintyCircleResult> getUeLocationInLastIntervalByFilterAndOffset(String params, Integer no_secs,
-                                                                                           Integer end, Integer offset) {
+                                                                                           Integer end, Integer offset, boolean returnSupi) {
         List<PointUncertaintyCircleResult> result;
         if (no_secs == null) {
             no_secs = Constants.MIN_PERIOD_SECONDS;
@@ -322,9 +415,9 @@ public class MetricsService {
         }
         try {
             result = ueMobilityRepository.findAllUeLocationInLastIntervalByFilterAndOffset(params, no_secs + " second",
-                    end + " second", offset + " second");
+                    end + " second", offset + " second", returnSupi);
         } catch (Exception e) {
-            NwdafSubApplication.getLogger().error("Error finding UE location in last interval by filter and offset", e);
+            getLogger().error("Error finding UE location in last interval by filter and offset", e);
             return new ArrayList<>();
         }
         return result;
@@ -339,7 +432,7 @@ public class MetricsService {
                 default -> null;
             };
         } catch (Exception e) {
-            NwdafSubApplication.getLogger().error("Error finding oldest metrics timestamp", e);
+            getLogger().error("Error finding oldest metrics timestamp: {}", e.getMessage());
             return null;
         }
     }
@@ -353,8 +446,72 @@ public class MetricsService {
                 default -> null;
             };
         } catch (Exception e) {
-            NwdafSubApplication.getLogger().error("Error finding oldest historic metrics timestamp", e);
+            getLogger().error("Error finding oldest historic metrics timestamp: {}", e.getMessage());
             return null;
         }
+    }
+
+    public List<String> getMobilitySupis(Optional<String> groupId) {
+        try {
+            if (groupId.isPresent()) {
+                return ueMobilityRepository.getSupis(groupId.get());
+            } else {
+                return ueMobilityRepository.getSupis();
+            }
+        } catch (Exception e) {
+            getLogger().error("Error getting supis with groupId = {}", groupId, e);
+            return new ArrayList<>();
+        }
+    }
+
+    public List<String> getCommunicationSupis(Optional<String> groupId) {
+        try {
+            if (groupId.isPresent()) {
+                return ueCommunicationMetricsRepository.getSupis(groupId.get());
+            } else {
+                return ueCommunicationMetricsRepository.getSupis();
+            }
+        } catch (Exception e) {
+            getLogger().error("Error getting supis with groupId = {}", groupId, e);
+            return new ArrayList<>();
+        }
+    }
+
+    public List<LocationInfo> getLocationInfos(Optional<String> groupId, CellLocationType cellType) {
+        try {
+            if (groupId.isPresent()) {
+                return ueMobilityRepository.getLocationInfos(groupId.get(), cellType, objectMapper);
+            } else {
+                return ueMobilityRepository.getLocationInfos(cellType, objectMapper);
+            }
+        } catch (Exception e) {
+            getLogger().error("Error getting cells with groupId = {}", groupId, e);
+            return null;
+        }
+    }
+
+    public List<LocationInfoWithSupi> getLocationInfosWithSupi(Optional<String> groupId, Optional<String> supi, CellLocationType cellType) {
+        try {
+            return ueMobilityRepository.getLocationInfosWithSupi(groupId.orElse(null), supi, cellType, objectMapper);
+        } catch (Exception e) {
+            getLogger().error("Error getting cells with groupId = {}", groupId, e);
+            return null;
+        }
+    }
+
+    public List<CellBasedUELocation> getCellBasedLocations(Optional<String> groupId, Optional<String> supi, CellLocationType cellType) {
+        List<LocationInfoWithSupi> locationInfos = getLocationInfosWithSupi(groupId, supi, cellType);
+        if (locationInfos == null) {
+            return new ArrayList<>();
+        }
+        return parseCellBasedUELocationFromLocationInfos(cellType, locationInfos);
+    }
+
+    public List<CellLocation> getCellLocations(Optional<String> groupId, CellLocationType cellType) {
+        List<LocationInfo> locationInfos = getLocationInfos(groupId, cellType);
+        if (locationInfos == null) {
+            return new ArrayList<>();
+        }
+        return parseCellLocationFromLocationInfos(cellType, locationInfos);
     }
 }

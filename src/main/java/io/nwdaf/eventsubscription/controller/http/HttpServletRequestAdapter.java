@@ -23,9 +23,7 @@ public class HttpServletRequestAdapter implements HttpInputMessage {
 
     @Override
     public HttpHeaders getHeaders() {
-        // Map HttpServletRequest headers to HttpHeaders if needed
         HttpHeaders headers = new HttpHeaders();
-        // Populate headers from HttpServletRequest
         Enumeration<String> headerNames = servletRequest.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();

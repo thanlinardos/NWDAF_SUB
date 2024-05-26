@@ -17,7 +17,7 @@ public class GetNotifMethodAndRepPeriodsResponse {
     @Builder.Default
     private Map<Integer,Integer> eventIndexToRepPeriodMap = new HashMap<>();
     @Builder.Default
-    private Integer no_valid_events = 0;
+    private Integer noValidEvents = 0;
     @Builder.Default
-    private List<Integer> invalid_events = new ArrayList<>();
+    private List<Integer> invalidEvents = new ArrayList<>();
 }

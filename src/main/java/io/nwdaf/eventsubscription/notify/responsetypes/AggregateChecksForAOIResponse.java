@@ -16,4 +16,6 @@ public class AggregateChecksForAOIResponse {
     private Boolean failed_notif = false;
     @Builder.Default
     private NwdafFailureCodeEnum failCode = null;
+    @Builder.Default
+    private String logMessage = null;
 }

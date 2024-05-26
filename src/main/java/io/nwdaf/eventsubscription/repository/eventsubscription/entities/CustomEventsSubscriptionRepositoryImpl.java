@@ -21,4 +21,12 @@ public class CustomEventsSubscriptionRepositoryImpl implements CustomEventSubscr
         return (List<NnwdafEventsSubscriptionTable>) entityManager.createNativeQuery(query, NnwdafEventsSubscriptionTable.class).getResultList();
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Long> findAllIdsInLastFilter(String filter, Boolean not) {
+        String reverse = not ? " not" : "";
+        String query = "select id from nnwdaf_events_subscription where" + reverse + " sub @> " + filter + ";";
+        return (List<Long>) entityManager.createNativeQuery(query, Long.class).getResultList();
+    }
+
 }

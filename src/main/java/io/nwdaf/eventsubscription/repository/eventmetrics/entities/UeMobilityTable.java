@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -39,6 +40,10 @@ public class UeMobilityTable{
 
 	@Column(name="intGroupId")
 	private String intGroupId;
+
+	@JdbcTypeCode(SqlTypes.UUID)
+	@Column(name="areaOfInterestId", columnDefinition = "UUID")
+	private UUID areaOfInterestId;
 	
 	public UeMobilityTable(UeMobility data) {
 		fillUeMobilityWithGeographicalInfo(data);
@@ -46,7 +51,7 @@ public class UeMobilityTable{
 		this.setTime(data.getTs());
 		this.setSupi(data.getSupi());
 		this.intGroupId = data.getIntGroupId();
-		// this.areaOfInterestIds = data.getAreaOfInterestIds();
+		this.areaOfInterestId = data.getAreaOfInterestId();
 	}
 
 	public OffsetDateTime getTime() {

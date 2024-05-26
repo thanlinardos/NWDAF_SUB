@@ -5,10 +5,10 @@
     <title>Admin</title>
 </head>
 <body>
-<table class="table table-bordered">
+<table class="table table-bordered" th:if="${areaOfInterest != null}">
     <tbody>
     <tr>
-        <th>Serving Area Of Interest ID</th>
+        <th>Area Of Interest ID</th>
         <td th:text="${areaOfInterest.id}"></td>
     </tr>
     <tr>

@@ -7,6 +7,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 
 import io.nwdaf.eventsubscription.controller.http.NwdafFailureException;
+import io.nwdaf.eventsubscription.customModel.KafkaTopic;
 import io.nwdaf.eventsubscription.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,6 @@ import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
 import io.nwdaf.eventsubscription.notify.responsetypes.AggregateChecksForAOIResponse;
 import io.nwdaf.eventsubscription.notify.responsetypes.GetGlobalNotifMethodAndRepPeriodResponse;
 import io.nwdaf.eventsubscription.notify.responsetypes.GetNotifMethodAndRepPeriodsResponse;
-import io.nwdaf.eventsubscription.utilities.ParserUtil;
 import io.nwdaf.eventsubscription.utilities.CheckUtil;
 import io.nwdaf.eventsubscription.utilities.Constants;
 import io.nwdaf.eventsubscription.utilities.ConvertUtil;
@@ -34,19 +34,17 @@ import io.nwdaf.eventsubscription.utilities.OtherUtil;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import static io.nwdaf.eventsubscription.NwdafSubApplication.*;
-import static io.nwdaf.eventsubscription.kafka.KafkaConsumer.latestWakeUpMessageEventMap;
-import static io.nwdaf.eventsubscription.kafka.KafkaConsumer.latestDiscoverMessageEventMap;
-import static io.nwdaf.eventsubscription.kafka.KafkaConsumer.discoverMessageQueue;
-import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckListNotEmpty;
-import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckObjectsEquals;
+import static io.nwdaf.eventsubscription.kafka.KafkaConsumer.*;
+import static io.nwdaf.eventsubscription.service.StartUpService.registeredAOIs;
+import static io.nwdaf.eventsubscription.service.StartUpService.registeredUUIDsToAOIs;
+import static io.nwdaf.eventsubscription.utilities.CheckUtil.*;
 import static io.nwdaf.eventsubscription.utilities.Constants.*;
+import static io.nwdaf.eventsubscription.utilities.ConvertUtil.convertObjectWriterList;
 import static io.nwdaf.eventsubscription.utilities.OtherUtil.*;
 import static io.nwdaf.eventsubscription.utilities.ParserUtil.*;
 
@@ -122,7 +120,7 @@ public class NotificationUtil {
             else {
                 if (eventSub.getExtraReportReq().getOffsetPeriod() != null) {
                     if (eventSub.getExtraReportReq().getOffsetPeriod() < 0) {
-                        no_secs = (-1) * eventSub.getExtraReportReq().getOffsetPeriod();
+                        no_secs = (-1L) * eventSub.getExtraReportReq().getOffsetPeriod();
                     }
                     // future data
                     else if (eventSub.getExtraReportReq().getOffsetPeriod() > 0) {
@@ -136,8 +134,10 @@ public class NotificationUtil {
     }
 
     // get the notification for the event subscription by querying the given service
-    public static NnwdafEventsSubscriptionNotification getNotification(NnwdafEventsSubscription sub, Integer index,
-                                                                       NnwdafEventsSubscriptionNotification notification, MetricsService metricsService,
+    public static NnwdafEventsSubscriptionNotification getNotification(NnwdafEventsSubscription sub,
+                                                                       Integer index,
+                                                                       NnwdafEventsSubscriptionNotification notification,
+                                                                       MetricsService metricsService,
                                                                        MetricsCacheService metricsCacheService) {
         OffsetDateTime now = OffsetDateTime.now();
         EventSubscription eventSub = sub.getEventSubscriptions().get(index);
@@ -178,10 +178,8 @@ public class NotificationUtil {
                     filterTypes.add("nfSetId");
                 } else if (networkArea != null
                         && safeCheckListNotEmpty(networkArea.getContainedAreaIds())
-                        && (safeCheckListNotEmpty(networkArea.getEcgis()) ||
-                        safeCheckListNotEmpty(networkArea.getNcgis()) ||
-                        safeCheckListNotEmpty(networkArea.getGRanNodeIds()) ||
-                        safeCheckListNotEmpty(networkArea.getTais()))) {
+                        && safeCheckOneOfListsNotEmpty(networkArea.getEcgis(),
+                        networkArea.getTais(), networkArea.getNcgis(), networkArea.getGRanNodeIds())) {
                     // aggregate container areas for the aoi inside the sub object as valid filters
                     params = parseQuerryFilter(parseListToFilterList(
                             networkArea.getContainedAreaIds(), "areaOfInterestId"));
@@ -191,8 +189,8 @@ public class NotificationUtil {
                 else if (safeCheckListNotEmpty(eventSub.getSnssaia())) {
                     params = parseQuerryFilter(
                             parseListToFilterList(
-                                    ParserUtil.parseObjectListToFilterList(
-                                            ConvertUtil.convertObjectWriterList(eventSub.getSnssaia(), ow)),
+                                    parseObjectListToFilterList(
+                                            convertObjectWriterList(eventSub.getSnssaia(), ow)),
                                     "snssai"));
                     filterTypes.add("snssai");
                 }
@@ -200,8 +198,8 @@ public class NotificationUtil {
                 else if (safeCheckListNotEmpty(eventSub.getNfTypes())) {
                     params = parseQuerryFilter(
                             parseListToFilterList(
-                                    ParserUtil.parseObjectListToFilterList(
-                                            ConvertUtil.convertObjectWriterList(eventSub.getNfTypes(), ow)),
+                                    parseObjectListToFilterList(
+                                            convertObjectWriterList(eventSub.getNfTypes(), ow)),
                                     "nfType"));
                     filterTypes.add("nfType");
                 }
@@ -221,7 +219,7 @@ public class NotificationUtil {
                     // filterTypes, params, no_secs, repPeriod, columns);
                 } catch (Exception e) {
                     NwdafSubApplication.getLogger()
-                            .error("Service error for eventType: " + eType + " and subId: " + sub.getId(), e);
+                            .error("Service error for eventType: {} and subId: {}", eType, sub.getId(), e);
                     return null;
                 }
                 if (nfloadlevels == null || nfloadlevels.isEmpty()) {
@@ -235,7 +233,8 @@ public class NotificationUtil {
                         NwdafEventEnum.NF_LOAD,
                         now.minusSeconds(no_secs),
                         findOffset[2] > 0 ? now.minusSeconds(findOffset[2]) : null,
-                        now, null,
+                        now,
+                        null,
                         null,
                         null,
                         nfloadlevels);
@@ -255,23 +254,34 @@ public class NotificationUtil {
                     List<String> validVisitedAreas = new ArrayList<>();
                     for (NetworkAreaInfo aoi : eventSub.getVisitedAreas()) {
                         if (aoi != null && safeCheckListNotEmpty(aoi.getContainedAreaIds()) &&
-                                (safeCheckListNotEmpty(aoi.getEcgis()) ||
-                                        safeCheckListNotEmpty(aoi.getNcgis()) ||
-                                        safeCheckListNotEmpty(aoi.getGRanNodeIds()) ||
-                                        safeCheckListNotEmpty(aoi.getTais()))) {
-                            List<String> areaOfInterestIds = safeParseListString(Collections.singletonList(aoi.getContainedAreaIds()));
+                                safeCheckOneOfListsNotEmpty(aoi.getEcgis(),
+                                        aoi.getNcgis(),
+                                        aoi.getGRanNodeIds(),
+                                        aoi.getTais())) {
+                            List<String> areaOfInterestIds = safeParseListString(
+                                    Collections.singletonList(aoi.getContainedAreaIds()));
                             validVisitedAreas.addAll(areaOfInterestIds);
                         }
                     }
                     validVisitedAreas = validVisitedAreas.stream().distinct().toList();
-                    params = parseQuerryFilterContains(parseListToFilterList(validVisitedAreas, "areaOfInterestId"), "areaOfInterestIds");
+                    params = parseQuerryFilterContains(validVisitedAreas, "areaOfInterestIds");
+                } else if (networkArea != null
+                        && safeCheckListNotEmpty(networkArea.getContainedAreaIds())
+                        && safeCheckOneOfListsNotEmpty(networkArea.getEcgis(),
+                        networkArea.getTais(), networkArea.getNcgis(), networkArea.getGRanNodeIds())) {
+                    // aggregate container areas for the aoi inside the sub object as valid filters
+                    params = parseQuerryFilter(parseListToFilterList(
+                            networkArea.getContainedAreaIds(), "areaOfInterestId"));
+                } else if (safeCheckListNotEmpty(eventSub.getLadnDnns())) {
+                    params = parseQuerryFilter(
+                            parseListToFilterList(eventSub.getLadnDnns(), "ladnDnn"));
                 }
                 try {
                     ueMobilities = metricsService.findAllUeMobilityInLastIntervalByFilterAndOffset(params, no_secs,
                             findOffset[2], repPeriod, columns);
                 } catch (Exception e) {
                     NwdafSubApplication.getLogger()
-                            .error("Service error for eventType: " + eType + " and subId: " + sub.getId(), e);
+                            .error("Service error for eventType: {} and subId: {}", eType, sub.getId(), e);
                     return null;
                 }
                 if (ueMobilities == null || ueMobilities.isEmpty()) {
@@ -290,10 +300,8 @@ public class NotificationUtil {
                             parseListToFilterList(tgtUe.getIntGroupIds(), "intGroupId"));
                 } else if (networkArea != null
                         && safeCheckListNotEmpty(networkArea.getContainedAreaIds())
-                        && (safeCheckListNotEmpty(networkArea.getEcgis()) ||
-                        safeCheckListNotEmpty(networkArea.getNcgis()) ||
-                        safeCheckListNotEmpty(networkArea.getGRanNodeIds()) ||
-                        safeCheckListNotEmpty(networkArea.getTais()))) {
+                        && safeCheckOneOfListsNotEmpty(networkArea.getEcgis(),
+                        networkArea.getTais(), networkArea.getNcgis(), networkArea.getGRanNodeIds())) {
                     // aggregate container areas for the aoi inside the sub object as valid filters
                     params = parseQuerryFilter(parseListToFilterList(
                             networkArea.getContainedAreaIds(), "areaOfInterestId"));
@@ -303,10 +311,10 @@ public class NotificationUtil {
                             findOffset[2], repPeriod, columns);
                 } catch (Exception e) {
                     NwdafSubApplication.getLogger()
-                            .error("Service error for eventType: " + eType + " and subId: " + sub.getId(), e);
+                            .error("Service error for eventType: {} and subId: {}", eType, sub.getId(), e);
                     return null;
                 }
-                if (ueCommunications == null || ueCommunications.isEmpty()) {
+                if (safeCheckListNotEmpty(ueCommunications)) {
                     return null;
                 }
                 notification = notifBuilder.addEvent(notification, NwdafEventEnum.UE_COMM, null, null, now, null,
@@ -360,13 +368,10 @@ public class NotificationUtil {
         NwdafEventEnum requestedEvent = wakeUpMessage.getRequestedEvent();
 
         // check if there is data already available
-
         long maxWait = 4_000L;
         OffsetDateTime latestWakeUpMessageTimestamp = latestWakeUpMessageEventMap.get(requestedEvent) != null ?
                 latestWakeUpMessageEventMap.get(requestedEvent).getTimestamp() : null;
-        if (wakeUpMessage != null) {
-            latestWakeUpMessageEventMap.put(wakeUpMessage.getRequestedEvent(), wakeUpMessage);
-        }
+        latestWakeUpMessageEventMap.put(wakeUpMessage.getRequestedEvent(), wakeUpMessage);
         DiscoverMessage lastDiscoverMessage = latestDiscoverMessageEventMap.get(requestedEvent);
         if (lastDiscoverMessage != null && !lastDiscoverMessage.getHasData() && latestWakeUpMessageTimestamp != null &&
                 latestWakeUpMessageTimestamp.isAfter(OffsetDateTime.now().minusSeconds(60))) {
@@ -432,27 +437,29 @@ public class NotificationUtil {
         boolean insideServiceArea = false;
         boolean failed_notif = false;
         NwdafFailureCodeEnum failCode = null;
+        String logMessage = null;
+
         if (requestNetworkArea != null && requestNetworkArea.getId() != null) {
-            matchingArea = ExampleAOIsMap.get(requestNetworkArea.getId());
-            insideServiceArea = Constants.ServingAreaOfInterest.containsArea(matchingArea);
+            matchingArea = registeredAOIs.get(requestNetworkArea.getId());
+            insideServiceArea = ServingAreaOfInterest.containsArea(matchingArea);
         }
         if (requestNetworkArea != null
-                && (CheckUtil.safeCheckNetworkAreaNotEmpty(requestNetworkArea) || requestNetworkArea.getId() != null)) {
-            if (!(CheckUtil.safeCheckNetworkAreaNotEmpty(requestNetworkArea)
-                    && Constants.ServingAreaOfInterest.containsArea(requestNetworkArea))
+                && (safeCheckNetworkAreaNotEmpty(requestNetworkArea) || requestNetworkArea.getId() != null)) {
+            if (!(safeCheckNetworkAreaNotEmpty(requestNetworkArea)
+                    && ServingAreaOfInterest.containsArea(requestNetworkArea))
                     && (matchingArea == null || !insideServiceArea)) {
                 failed_notif = true;
                 failCode = NwdafFailureCodeEnum.UNAVAILABLE_DATA;
-                System.out.println("not inside serving aoi");
+                logMessage = "not inside serving aoi";
             } else {
-                if (ExampleAOIsToUUIDsMap.containsKey(requestNetworkArea)) {
+                if (registeredUUIDsToAOIs.containsKey(requestNetworkArea)) {
                     // check if its lists equal one of the known AOIs -> set the id
-                    requestNetworkArea.id(ExampleAOIsToUUIDsMap.get(requestNetworkArea));
-                    System.out.println("same as aoi with id: " + requestNetworkArea.getId());
+                    requestNetworkArea.id(registeredUUIDsToAOIs.get(requestNetworkArea));
+                    logMessage = "same as aoi with id: " + requestNetworkArea.getId();
                 } else if (requestNetworkArea.getId() != null
-                        && ExampleAOIsMap.containsKey(requestNetworkArea.getId())) {
+                        && registeredAOIs.containsKey(requestNetworkArea.getId())) {
                     // check if id equals to a known AOI -> set the area lists
-                    NetworkAreaInfo matchingAOI = ExampleAOIsMap.get(requestNetworkArea.getId());
+                    NetworkAreaInfo matchingAOI = registeredAOIs.get(requestNetworkArea.getId());
                     requestNetworkArea.ecgis(matchingAOI.getEcgis()).ncgis(matchingAOI.getNcgis())
                             .gRanNodeIds(matchingAOI.getGRanNodeIds()).tais(matchingAOI.getTais());
                 } else {
@@ -460,19 +467,9 @@ public class NotificationUtil {
                     if (requestNetworkArea.getId() == null) {
                         requestNetworkArea.id(UUID.randomUUID());
                     }
-                    ExampleAOIsMap.put(requestNetworkArea.getId(), requestNetworkArea);
-                    ExampleAOIsToUUIDsMap.put(requestNetworkArea, requestNetworkArea.getId());
+                    registeredAOIs.put(requestNetworkArea.getId(), requestNetworkArea);
+                    registeredUUIDsToAOIs.put(requestNetworkArea, requestNetworkArea.getId());
                 }
-                // aggregate known areas that are inside of this area of interest
-                for (Map.Entry<UUID, NetworkAreaInfo> entry : ExampleAOIsMap.entrySet()) {
-                    UUID key = entry.getKey();
-                    NetworkAreaInfo aoi = entry.getValue();
-                    if (requestNetworkArea.containsArea(aoi) || key.equals(requestNetworkArea.getId())) {
-                        requestNetworkArea.addContainedAreaIdsItem(key);
-                    }
-                }
-                requestNetworkArea
-                        .setContainedAreaIds(ParserUtil.removeDuplicates(requestNetworkArea.getContainedAreaIds()));
             }
         }
         return AggregateChecksForAOIResponse.builder()
@@ -480,6 +477,7 @@ public class NotificationUtil {
                 .failed_notif(failed_notif)
                 .insideServiceArea(insideServiceArea)
                 .matchingArea(matchingArea)
+                .logMessage(logMessage)
                 .build();
     }
 
@@ -573,25 +571,26 @@ public class NotificationUtil {
         return GetNotifMethodAndRepPeriodsResponse.builder()
                 .eventIndexToNotifMethodMap(eventIndexToNotifMethodMap)
                 .eventIndexToRepPeriodMap(eventIndexToRepPeriodMap)
-                .invalid_events(invalid_events)
-                .no_valid_events(noValidEvents)
+                .invalidEvents(invalid_events)
+                .noValidEvents(noValidEvents)
                 .build();
     }
 
     // check which subscriptions can be served
-    public static List<Boolean> checkCanServeSubscriptions(Integer noValidEvents,
+    public static List<Boolean> checkCanServeSubscriptions(GetNotifMethodAndRepPeriodsResponse globalResponse,
                                                            NnwdafEventsSubscription body,
-                                                           Map<Integer, NotificationMethodEnum> eventIndexToNotifMethodMap,
-                                                           Map<Integer, Integer> eventIndexToRepPeriodMap,
                                                            KafkaProducer kafkaProducer,
                                                            MetricsService metricsService,
                                                            MetricsCacheService metricsCacheService,
                                                            Boolean immediateReporting,
-                                                           Long id,
                                                            Boolean isConsumer,
                                                            WebClient webClient,
                                                            String consumerUrl) throws NwdafFailureException {
+        Map<Integer, NotificationMethodEnum> eventIndexToNotifMethodMap = globalResponse.getEventIndexToNotifMethodMap();
+        Map<Integer, Integer> eventIndexToRepPeriodMap = globalResponse.getEventIndexToRepPeriodMap();
+        int noValidEvents = globalResponse.getNoValidEvents();
         List<Boolean> canServeSubscription = new ArrayList<>(Collections.nCopies(noValidEvents, false));
+
         for (int i = 0; i < noValidEvents; i++) {
             EventSubscription eventSubscription = body.getEventSubscriptions().get(i);
             NwdafEventEnum eType = eventSubscription.getEvent().getEvent();
@@ -621,10 +620,14 @@ public class NotificationUtil {
                 continue;
             }
             // area of interest checks against the AOI of the serving NWDAF_SUB instance (this)
-            AggregateChecksForAOIResponse aggregateChecksForAOIResponse = NotificationUtil
-                    .aggregateChecksForAOI(eventSubscription.getNetworkArea());
+            AggregateChecksForAOIResponse aggregateChecksForAOIResponse =
+                    aggregateChecksForAOI(eventSubscription.getNetworkArea());
             failed_notif = aggregateChecksForAOIResponse.getFailed_notif();
             failCode = aggregateChecksForAOIResponse.getFailCode();
+            String logMessage = aggregateChecksForAOIResponse.getLogMessage();
+            if (logMessage != null) {
+                logger.info(logMessage);
+            }
             if (failed_notif) {
                 body.addFailEventReportsItem(new FailureEventInfo()
                         .event(eventSubscription.getEvent())
@@ -633,6 +636,7 @@ public class NotificationUtil {
                 continue;
             }
 
+            // findOffset [0]: start [1]: 0={past,1=future,2=past&future(error)} [2]: end
             long[] findOffset = findRequestedDataOffset(eventSubscription);
             Long no_secs = findOffset[0] != Integer.MIN_VALUE ? findOffset[0] : null;
 
@@ -657,26 +661,15 @@ public class NotificationUtil {
             // check whether data is already being gathered
             long start = no_secs == null ? MIN_PERIOD_SECONDS : no_secs;
             Integer period = eventIndexToRepPeriodMap.get(i);
+            boolean hasData = isDataBeingSaved(metricsService, start, eType, findOffset[2], period);
             List<OffsetDateTime> metricsTimeStamps;
-            boolean hasData;
-            if (start > 3600 * 24) {
-                metricsTimeStamps = metricsService.findAvailableHistoricMetricsTimeStamps(eType, start + 1, findOffset[2]);
-                if (findOffset[2] < 5L * 60L) {
-                    List<OffsetDateTime> concurrentTimeStamps = metricsService.findAvailableConcurrentMetricsTimeStampsWithOffset(eType, 5L * 60L + 1, findOffset[2], 60);
-                    metricsTimeStamps.addAll(concurrentTimeStamps);
-                }
-                hasData = checkOffsetInsideAvailableData(start, findOffset[2] + 60, period, metricsTimeStamps, true);
-            } else {
-                metricsTimeStamps = metricsService.findAvailableConcurrentMetricsTimeStamps(eType, start + 1, findOffset[2]);
-                hasData = checkOffsetInsideAvailableData(start, findOffset[2] + 1, period, metricsTimeStamps, false);
-            }
 
             if ((!hasData && start > period)) {
                 body.addFailEventReportsItem(new FailureEventInfo()
                         .event(eventSubscription.getEvent())
                         .failureCode(new NwdafFailureCode()
                                 .failureCode(NwdafFailureCodeEnum.UNAVAILABLE_DATA)));
-                throw new NwdafFailureException("No data available for event: " + eType + " and subId: " + id, null,
+                throw new NwdafFailureException("No data available for event: " + eType, null,
                         NwdafFailureCodeEnum.UNAVAILABLE_DATA.toString());
             }
             if (findOffset[2] > 0) {
@@ -687,34 +680,40 @@ public class NotificationUtil {
                 canServeSubscription.set(i, true);
 
                 if (immediateReporting) {
-                    NnwdafEventsSubscriptionNotification notificationBeforeKafka = new NotificationBuilder().build(id).time(Instant.now());
+                    NnwdafEventsSubscriptionNotification notificationBeforeKafka = new NotificationBuilder().build(0L).time(Instant.now());
 
                     try {
                         notificationBeforeKafka = getNotification(body, i, notificationBeforeKafka, metricsService,
                                 metricsCacheService);
                     } catch (Exception e) {
-                        logger.error("getNotification error for event: " + eType + " and subId: " + id, e);
+                        logger.error("getNotification error for event: {}", eType, e);
                     }
                     if (notificationBeforeKafka == null) {
-                        logger.error("Notification is NULL for event: " + eType + " and subId: " + id);
+                        logger.error("Notification is NULL for event: {}", eType);
                     } else {
                         body.addEventNotificationsItem(notificationBeforeKafka.getEventNotifications().getFirst()
                                 .rvWaitTime(0L));
                     }
                 }
-                logger.info("notifMethod=" + eventIndexToNotifMethodMap.get(i) + ", repPeriod="
-                        + eventIndexToRepPeriodMap.get(i));
+                logger.info("notifMethod={}, repPeriod={}", eventIndexToNotifMethodMap.get(i), eventIndexToRepPeriodMap.get(i));
                 continue;
             }
 
             // check whether data is available to be gathered from kafka
-            NnwdafEventsSubscriptionNotification notification = new NotificationBuilder().build(id).time(Instant.now());
+            NnwdafEventsSubscriptionNotification notification = new NotificationBuilder().build(0L).time(Instant.now());
             boolean isDataAvailable = false;
             Long expectedWaitTime = null;
             try {
                 Long[] wakeUpResult;
+
                 if (isConsumer) {
-                    wakeUpResult = waitForDataProducer(wakeUpMessage);
+                    if (System.currentTimeMillis() - eventConsumerLastSaves.get(eType) <MIN_PERIOD_SECONDS * 2000L &&
+                            latestDiscoverMessageEventMap.get(eType) != null &&
+                            latestDiscoverMessageEventMap.get(eType).getHasData()) {
+                        wakeUpResult = new Long[]{1L, 0L};
+                    } else {
+                        wakeUpResult = waitForDataProducer(wakeUpMessage);
+                    }
                 } else {
                     wakeUpResult = sendWaitForDataProducerRequest(wakeUpMessage, webClient, consumerUrl);
                 }
@@ -725,7 +724,7 @@ public class NotificationUtil {
                 logger.error("Couldn't connect to kafka topic WAKE_UP.", e);
             } catch (InterruptedException e) {
                 failed_notif = true;
-                logger.error("Thread failed to wait for datacollection to start for event: " + eType, e);
+                logger.error("Thread failed to wait for data collection to start for event: {}", eType, e);
             }
             if (!isDataAvailable) {
                 failed_notif = true;
@@ -733,8 +732,15 @@ public class NotificationUtil {
             }
 
             if (!failed_notif) {
-                metricsTimeStamps = metricsService.findAvailableConcurrentMetricsTimeStamps(eType, no_secs, findOffset[2]);
-                hasData = no_secs != null && checkOffsetInsideAvailableData(no_secs, findOffset[2] - 1, eventIndexToRepPeriodMap.get(i), metricsTimeStamps, false);
+                metricsTimeStamps = metricsService
+                        .findAvailableConcurrentMetricsTimeStamps(eType, no_secs, findOffset[2]);
+                hasData = no_secs != null &&
+                        checkOffsetInsideAvailableData(
+                                no_secs,
+                                findOffset[2] - 1,
+                                eventIndexToRepPeriodMap.get(i),
+                                metricsTimeStamps,
+                                false);
                 if (immediateReporting) {
                     try {
                         notification = NotificationUtil.getNotification(body, i, notification, metricsService,
@@ -743,10 +749,10 @@ public class NotificationUtil {
                             body.addEventNotificationsItem(notification.getEventNotifications().get(i));
                         }
                     } catch (Exception e) {
-                        logger.error("getNotification error for event: " + eType + " and subId: " + id, e);
+                        logger.error("getNotification error for event: {}", eType, e);
                     }
                     if (notification == null) {
-                        logger.error("Notification is NULL for event: " + eType + " and subId: " + id);
+                        logger.error("Notification is NULL for event: {}", eType);
                     } else {
                         body.addEventNotificationsItem(notification.getEventNotifications().getFirst()
                                 .rvWaitTime(expectedWaitTime));
@@ -754,8 +760,7 @@ public class NotificationUtil {
                 }
                 if (hasData) {
                     canServeSubscription.set(i, true);
-                    logger.info("notifMethod=" + eventIndexToNotifMethodMap.get(i) + ", repPeriod="
-                            + eventIndexToRepPeriodMap.get(i));
+                    logger.info("notifMethod={}, repPeriod={}", eventIndexToNotifMethodMap.get(i), eventIndexToRepPeriodMap.get(i));
                 } else {
                     body.addFailEventReportsItem(new FailureEventInfo()
                             .event(eventSubscription.getEvent())
@@ -767,7 +772,32 @@ public class NotificationUtil {
         return canServeSubscription;
     }
 
-    public static Long[] sendWaitForDataProducerRequest(WakeUpMessage wakeUpMessage, WebClient webClient, String consumerUrl) {
+    public static boolean isDataBeingSaved(MetricsService metricsService,
+                                           long start,
+                                           NwdafEventEnum eType,
+                                           long end,
+                                           Integer period) {
+        boolean hasData;
+        List<OffsetDateTime> metricsTimeStamps;
+        if (start > 3600 * 24) {
+            metricsTimeStamps = metricsService
+                    .findAvailableHistoricMetricsTimeStamps(eType, start + 1, end);
+            if (end < 5L * 60L) {
+                List<OffsetDateTime> concurrentTimeStamps = metricsService
+                        .findAvailableConcurrentMetricsTimeStampsWithOffset(eType, 5L * 60L + 1, end, 60);
+                metricsTimeStamps.addAll(concurrentTimeStamps);
+            }
+            hasData = checkOffsetInsideAvailableData(start, end + 60, period, metricsTimeStamps, true);
+        } else {
+            metricsTimeStamps = metricsService.findAvailableConcurrentMetricsTimeStamps(eType, start + 1, end);
+            hasData = checkOffsetInsideAvailableData(start, end + 1, period, metricsTimeStamps, false);
+        }
+        return hasData;
+    }
+
+    public static Long[] sendWaitForDataProducerRequest(WakeUpMessage wakeUpMessage,
+                                                        WebClient webClient,
+                                                        String consumerUrl) {
         try {
             return webClient.post()
                     .uri(consumerUrl + "/consumer/waitForDataProducer")
@@ -792,7 +822,8 @@ public class NotificationUtil {
                     .requestedEvent(eType)
                     .nfInstancedId(NWDAF_INSTANCE_ID)
                     .requestedOffset(no_secs).build();
-            kafkaProducer.sendMessage(wakeUpMessage.toString(), "WAKE_UP");
+            kafkaProducer.sendMessage(wakeUpMessage.toString(), KafkaTopic.WAKE_UP.name());
+            latestWakeUpMessageEventMap.put(eType, wakeUpMessage);
         } catch (IOException e) {
             logger.error("Couldn't connect to kafka topic WAKE_UP.", e);
         }
