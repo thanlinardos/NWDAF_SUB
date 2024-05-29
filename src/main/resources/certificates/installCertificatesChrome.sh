@@ -29,7 +29,7 @@ else
     sudo chmod +777 local-cert.crt &&
     sudo chmod +777 local-client-cert.crt &&
     cd /usr/local/share/ca-certificates/ &&
-    rm local-client-cert.crt local-cert.crt -y
+    rm local-client-cert.crt local-cert.crt
     cd - &&
     sudo cp local-client-cert.crt local-cert.crt /usr/local/share/ca-certificates/ && 
     sudo update-ca-certificates && 

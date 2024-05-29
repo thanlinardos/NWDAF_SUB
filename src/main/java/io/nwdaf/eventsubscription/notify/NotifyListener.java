@@ -39,6 +39,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckEqualsEvent;
 import static io.nwdaf.eventsubscription.utilities.CheckUtil.safeCheckEventNotificationWithinMilli;
+import static io.nwdaf.eventsubscription.utilities.OtherUtil.setPastOffsetCutoff;
 import static io.nwdaf.eventsubscription.utilities.ParserUtil.parsePresentNfLoadLevelInformations;
 
 @Component
@@ -244,6 +245,7 @@ public class NotifyListener {
                         found = true;
                     } else {
                         st = System.nanoTime();
+                        setPastOffsetCutoff(event, repPeriod);
                         notification = NotificationUtil.getNotification(sub, eventIndex, notification, metricsService,
                                 metricsCacheService);
                         tsdb_req_delay += (double) (System.nanoTime() - st) / 1_000L;

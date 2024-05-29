@@ -1,0 +1,278 @@
+{
+	"info": {
+		"_postman_id": "1e0895fa-3627-4f51-b514-f39370367bb2",
+		"name": "Prometheus",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27681376"
+	},
+	"item": [
+		{
+			"name": "Query :up",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "query",
+							"value": "max by (name,id,nfType,nfSetId) (rate(container_cpu_usage_seconds_total{image!=\"\",container_label_org_label_schema_group=\"\",nfType!=\"\",nfSetId!=\"\"}[1m])) * 100",
+							"type": "text"
+						},
+						{
+							"key": "time",
+							"value": "2023-07-24T21:19:59.783343+03:00",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://admin:admin@localhost:9090/api/v1/query",
+					"protocol": "http",
+					"auth": {
+						"user": "admin",
+						"password": "admin"
+					},
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"v1",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Query :up Copy",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "query",
+							"value": "node_cpu_seconds_total",
+							"type": "text"
+						},
+						{
+							"key": "time",
+							"value": "2023-07-24T18:28:29.783343+03:00",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:9090/api/v1/query",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"v1",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cpu load",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Get current date and time in ISO format\r",
+							"const currentDate = new Date().toISOString();\r",
+							"\r",
+							"// Set the environment variable with the current date\r",
+							"pm.environment.set(\"currentDate\", currentDate);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "query",
+							"value": "sum by (name,id,nfType,nfSetId) (rate(container_cpu_usage_seconds_total{image!=\"\",container_label_org_label_schema_group=\"\",nfType!=\"\",nfSetId!=\"\"}[1m])) / scalar(count(node_cpu_seconds_total{mode=\"user\"})) * 100",
+							"type": "text"
+						},
+						{
+							"key": "time",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:9090/api/v1/query",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"v1",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Memory Load",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "query",
+							"value": "sum by (name,id,nfType,nfSetId)(container_memory_usage_bytes{image!=\"\",container_label_org_label_schema_group=\"\",nfType!=\"\",nfSetId!=\"\"}) / scalar(sum(node_memory_MemTotal_bytes)) * 100",
+							"type": "text"
+						},
+						{
+							"key": "time",
+							"value": "2023-07-24T21:33:30.783343+03:00",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:9090/api/v1/query",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"v1",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Storage",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "query",
+							"value": "sum by (name,id,nfType,nfSetId)(container_fs_usage_bytes{image!=\"\",container_label_org_label_schema_group=\"\",nfType!=\"\",nfSetId!=\"\"}) / scalar(sum(node_filesystem_size_bytes{fstype=\"tmpfs\"})) * 100",
+							"type": "text"
+						},
+						{
+							"key": "time",
+							"value": "2023-07-24T21:19:59.783343+03:00",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:9090/api/v1/query",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"v1",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://admin:admin@localhost:9090/api/v1/query?query=container_cpu_usage_seconds_total&time=",
+					"protocol": "http",
+					"auth": {
+						"user": "admin",
+						"password": "admin"
+					},
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"v1",
+						"query"
+					],
+					"query": [
+						{
+							"key": "query",
+							"value": "container_cpu_usage_seconds_total"
+						},
+						{
+							"key": "time",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -146,10 +146,11 @@ public class NotificationUtil {
         ObjectWriter ow = new ObjectMapper().writer();
         String params = null;
         String columns = "";
+
+        Integer repPeriod = needsServing(sub, index, true);
         long[] findOffset = findRequestedDataOffset(eventSub);
         Long no_secs = findOffset[0] != Integer.MIN_VALUE ? findOffset[0] : Constants.MIN_PERIOD_SECONDS;
         long isFuture = findOffset[1];
-        Integer repPeriod = needsServing(sub, index, true);
         // future data not implemented | subscription doesn't need serving:
         if (isFuture == 1 || repPeriod == null) {
             return null;
@@ -323,7 +324,6 @@ public class NotificationUtil {
             default:
                 break;
         }
-        setPastOffsetCutoff(eventSub, repPeriod);
         // notifCorrId field is used as the eventSubscription index, so that the client
         // can group the notifications it receives
         notification.setNotifCorrId(index.toString());

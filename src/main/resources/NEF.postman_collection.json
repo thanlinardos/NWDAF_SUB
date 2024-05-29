@@ -1,0 +1,866 @@
+{
+	"info": {
+		"_postman_id": "1371b9e0-6e03-4325-8e45-6a928c2d65e4",
+		"name": "NEF",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27681376"
+	},
+	"item": [
+		{
+			"name": "QosSubscribe",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "accessTokenUrl",
+							"value": "https://localhost:4443/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "clientId",
+							"value": "NEF_Emulator",
+							"type": "string"
+						},
+						{
+							"key": "clientSecret",
+							"value": "2D47CF2958CEC7CC86C988E9F9684",
+							"type": "string"
+						},
+						{
+							"key": "scope",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "client_authentication",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "grant_type",
+							"value": "password_credentials",
+							"type": "string"
+						},
+						{
+							"key": "refreshTokenUrl",
+							"value": "https://localhost:4443/nef/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "tokenName",
+							"value": "apitoken",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin@my-email.com",
+							"type": "string"
+						},
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"ipv4Addr\": \"10.0.0.4\",\n  \"notificationDestination\": \"http://192.168.1.75:8091/nefeventexposure/notify\",\n  \"snssai\": {\n    \"sst\": 1,\n    \"sd\": \"000001\"\n  },\n  \"dnn\": \"province1.mnc01.mcc202.gprs\",\n  \"qosReference\": 9,\n  \"altQoSReferences\": [\n    0\n  ],\n  \"usageThreshold\": {\n    \"duration\": 0,\n    \"totalVolume\": 0,\n    \"downlinkVolume\": 0,\n    \"uplinkVolume\": 0\n  },\n  \"qosMonInfo\": {\n    \"reqQosMonParams\": [\n      \"DOWNLINK\"\n    ],\n    \"repFreqs\": [\n      \"EVENT_TRIGGERED\"\n    ],\n    \"latThreshDl\": 0,\n    \"latThreshUl\": 0,\n    \"latThreshRp\": 0,\n    \"waitTime\": 0,\n    \"repPeriod\": 0\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://3gppnef:4443/nef/api/v1/3gpp-as-session-with-qos/v1/myNetapp/subscriptions",
+					"protocol": "https",
+					"host": [
+						"3gppnef"
+					],
+					"port": "4443",
+					"path": [
+						"nef",
+						"api",
+						"v1",
+						"3gpp-as-session-with-qos",
+						"v1",
+						"myNetapp",
+						"subscriptions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "admin@my-email.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://3gppnef:4443/api/v1/login/access-token",
+					"protocol": "https",
+					"host": [
+						"3gppnef"
+					],
+					"port": "4443",
+					"path": [
+						"api",
+						"v1",
+						"login",
+						"access-token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MonitoringEvent Subscribe",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "accessTokenUrl",
+							"value": "https://localhost:4443/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "clientId",
+							"value": "NEF_Emulator",
+							"type": "string"
+						},
+						{
+							"key": "clientSecret",
+							"value": "2D47CF2958CEC7CC86C988E9F9684",
+							"type": "string"
+						},
+						{
+							"key": "scope",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "client_authentication",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "grant_type",
+							"value": "password_credentials",
+							"type": "string"
+						},
+						{
+							"key": "refreshTokenUrl",
+							"value": "https://localhost:4443/nef/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "tokenName",
+							"value": "apitoken",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin@my-email.com",
+							"type": "string"
+						},
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"externalId\": \"10001@domain.com\",\n  \"notificationDestination\": \"http://192.168.1.75:8091/nefeventexposure/notify\",\n  \"monitoringType\": \"LOCATION_REPORTING\",\n  \"maximumNumberOfReports\": 1,\n  \"monitorExpireTime\": \"2024-02-13T17:50:54.535Z\",\n  \"maximumDetectionTime\": 1,\n  \"reachabilityType\": \"DATA\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://3gppnef:4443/nef/api/v1/3gpp-monitoring-event/v1/myNetapp/subscriptions",
+					"protocol": "https",
+					"host": [
+						"3gppnef"
+					],
+					"port": "4443",
+					"path": [
+						"nef",
+						"api",
+						"v1",
+						"3gpp-monitoring-event",
+						"v1",
+						"myNetapp",
+						"subscriptions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start Ue Movement Loop",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "clientId",
+							"value": "NEF_Emulator",
+							"type": "string"
+						},
+						{
+							"key": "clientSecret",
+							"value": "2D47CF2958CEC7CC86C988E9F9684",
+							"type": "string"
+						},
+						{
+							"key": "scope",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "https://localhost:4443/nef/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "client_authentication",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "grant_type",
+							"value": "password_credentials",
+							"type": "string"
+						},
+						{
+							"key": "refreshTokenUrl",
+							"value": "https://localhost:4443/nef/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "tokenName",
+							"value": "apitoken",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin@my-email.com",
+							"type": "string"
+						},
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"supi\": \"202010000000001\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:4443/api/v1/ue_movement/start-loop",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "4443",
+					"path": [
+						"api",
+						"v1",
+						"ue_movement",
+						"start-loop"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Stop Ue Movement Loop",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "clientId",
+							"value": "NEF_Emulator",
+							"type": "string"
+						},
+						{
+							"key": "clientSecret",
+							"value": "2D47CF2958CEC7CC86C988E9F9684",
+							"type": "string"
+						},
+						{
+							"key": "scope",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "https://localhost:4443/nef/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "client_authentication",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "grant_type",
+							"value": "password_credentials",
+							"type": "string"
+						},
+						{
+							"key": "refreshTokenUrl",
+							"value": "https://localhost:4443/nef/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "tokenName",
+							"value": "apitoken",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin@my-email.com",
+							"type": "string"
+						},
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"supi\": \"202010000000003\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:4443/api/v1/ue_movement/stop-loop",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "4443",
+					"path": [
+						"api",
+						"v1",
+						"ue_movement",
+						"stop-loop"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UeMovementState",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "clientId",
+							"value": "basic",
+							"type": "string"
+						},
+						{
+							"key": "clientSecret",
+							"value": "2D47CF2958CEC7CC86C988E9F9684",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "string"
+						},
+						{
+							"key": "client_authentication",
+							"value": "body",
+							"type": "string"
+						},
+						{
+							"key": "grant_type",
+							"value": "password_credentials",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "http://localhost:8090/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "scope",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "refreshTokenUrl",
+							"value": "https://localhost:4443/nef/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "tokenName",
+							"value": "apitoken",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin@my-email.com",
+							"type": "string"
+						},
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://3gppnef:4443/api/v1/ue_movement/state-ues",
+					"protocol": "https",
+					"host": [
+						"3gppnef"
+					],
+					"port": "4443",
+					"path": [
+						"api",
+						"v1",
+						"ue_movement",
+						"state-ues"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get UEs",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "clientId",
+							"value": "basic",
+							"type": "string"
+						},
+						{
+							"key": "clientSecret",
+							"value": "2D47CF2958CEC7CC86C988E9F9684",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "string"
+						},
+						{
+							"key": "client_authentication",
+							"value": "body",
+							"type": "string"
+						},
+						{
+							"key": "grant_type",
+							"value": "password_credentials",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "http://localhost:8090/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "scope",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "refreshTokenUrl",
+							"value": "https://localhost:4443/nef/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "tokenName",
+							"value": "apitoken",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin@my-email.com",
+							"type": "string"
+						},
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://3gppnef:4443/api/v1/UEs",
+					"protocol": "https",
+					"host": [
+						"3gppnef"
+					],
+					"port": "4443",
+					"path": [
+						"api",
+						"v1",
+						"UEs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Scenario",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "clientId",
+							"value": "basic",
+							"type": "string"
+						},
+						{
+							"key": "clientSecret",
+							"value": "2D47CF2958CEC7CC86C988E9F9684",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "string"
+						},
+						{
+							"key": "client_authentication",
+							"value": "body",
+							"type": "string"
+						},
+						{
+							"key": "grant_type",
+							"value": "password_credentials",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "http://localhost:8090/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "scope",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "refreshTokenUrl",
+							"value": "https://localhost:4443/nef/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "tokenName",
+							"value": "apitoken",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin@my-email.com",
+							"type": "string"
+						},
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://3gppnef:4443/api/v1/utils/export/scenario",
+					"protocol": "https",
+					"host": [
+						"3gppnef"
+					],
+					"port": "4443",
+					"path": [
+						"api",
+						"v1",
+						"utils",
+						"export",
+						"scenario"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Import Scenario",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "clientId",
+							"value": "basic",
+							"type": "string"
+						},
+						{
+							"key": "clientSecret",
+							"value": "2D47CF2958CEC7CC86C988E9F9684",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "string"
+						},
+						{
+							"key": "client_authentication",
+							"value": "body",
+							"type": "string"
+						},
+						{
+							"key": "grant_type",
+							"value": "password_credentials",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "http://localhost:8090/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "scope",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "refreshTokenUrl",
+							"value": "https://localhost:4443/nef/api/v1/login/access-token",
+							"type": "string"
+						},
+						{
+							"key": "tokenName",
+							"value": "apitoken",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin@my-email.com",
+							"type": "string"
+						},
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"gNBs\": [\n    {\n      \"gNB_id\": \"AAAAA1\",\n      \"name\": \"gNB1\",\n      \"description\": \"This is a base station\",\n      \"location\": \"unknown\"\n    }\n  ],\n  \"cells\": [\n    {\n      \"cell_id\": \"AAAAA1001\",\n      \"name\": \"cell1\",\n      \"description\": \"Administration Building\",\n      \"gNB_id\": 1,\n      \"latitude\": 37.999239,\n      \"longitude\": 23.819069,\n      \"radius\": 100\n    },\n    {\n      \"cell_id\": \"AAAAA1002\",\n      \"name\": \"cell2\",\n      \"description\": \"Institute of Radioisotopes and Radiodiagnostic Products\",\n      \"gNB_id\": 1,\n      \"latitude\": 37.998194,\n      \"longitude\": 23.820883,\n      \"radius\": 150\n    },\n    {\n      \"cell_id\": \"AAAAA1003\",\n      \"name\": \"cell3\",\n      \"description\": \"Institute of Informatics and Telecommunications\",\n      \"gNB_id\": 1,\n      \"latitude\": 37.996136,\n      \"longitude\": 23.818535,\n      \"radius\": 100\n    },\n    {\n      \"cell_id\": \"AAAAA1004\",\n      \"name\": \"cell4\",\n      \"description\": \"Faculty Building\",\n      \"gNB_id\": 1,\n      \"latitude\": 37.997708,\n      \"longitude\": 23.818464,\n      \"radius\": 85\n    }\n  ],\n  \"UEs\": [\n    {\n      \"name\": \"UE1\",\n      \"description\": \"This is a UE\",\n      \"ip_address_v4\": \"10.0.0.1\",\n      \"ip_address_v6\": \"::1\",\n      \"mac_address\": \"22-00-00-00-00-01\",\n      \"dnn\": \"province1.mnc01.mcc202.gprs\",\n      \"mcc\": 202,\n      \"mnc\": 1,\n      \"external_identifier\": \"10001@domain.com\",\n      \"speed\": \"LOW\",\n      \"supi\": \"202010000000001\"\n    },\n    {\n      \"name\": \"UE2\",\n      \"description\": \"This is a UE\",\n      \"ip_address_v4\": \"10.0.0.2\",\n      \"ip_address_v6\": \"::2\",\n      \"mac_address\": \"22-00-00-00-00-02\",\n      \"dnn\": \"province1.mnc01.mcc202.gprs\",\n      \"mcc\": 202,\n      \"mnc\": 1,\n      \"external_identifier\": \"10002@domain.com\",\n      \"speed\": \"LOW\",\n      \"supi\": \"202010000000002\"\n    },\n    {\n      \"name\": \"UE3\",\n      \"description\": \"This is a UE\",\n      \"ip_address_v4\": \"10.0.0.3\",\n      \"ip_address_v6\": \"::3\",\n      \"mac_address\": \"22-00-00-00-00-03\",\n      \"dnn\": \"province1.mnc01.mcc202.gprs\",\n      \"mcc\": 202,\n      \"mnc\": 1,\n      \"external_identifier\": \"10003@domain.com\",\n      \"speed\": \"HIGH\",\n      \"supi\": \"202010000000003\"\n    },\n    {\n      \"name\": \"UE4\",\n      \"description\": \"This is a UE4\",\n      \"ip_address_v4\": \"10.0.0.4\",\n      \"ip_address_v6\": \"::4\",\n      \"mac_address\": \"22-00-00-00-00-04\",\n      \"dnn\": \"province1.mnc01.mcc202.gprs\",\n      \"mcc\": 202,\n      \"mnc\": 1,\n      \"external_identifier\": \"10004@domain.com\",\n      \"speed\": \"HIGH\",\n      \"supi\": \"202010000000004\"\n    }\n  ],\n  \"paths\": [\n    {\n      \"description\": \"NCSRD Library\",\n      \"start_point\": {\n        \"latitude\": 37.998119,\n        \"longitude\": 23.819444\n      },\n      \"end_point\": {\n        \"latitude\": 37.998098,\n        \"longitude\": 23.81944\n      },\n      \"color\": \"#00a3cc\",\n      \"id\": 1,\n      \"points\": [\n        {\n          \"latitude\": 37.998119,\n          \"longitude\": 23.819444\n        },\n        {\n          \"latitude\": 37.998125,\n          \"longitude\": 23.819436\n        },\n        {\n          \"latitude\": 37.998132,\n          \"longitude\": 23.819428\n        },\n        {\n          \"latitude\": 37.998138,\n          \"longitude\": 23.81942\n        },\n        {\n          \"latitude\": 37.998144,\n          \"longitude\": 23.819412\n        },\n        {\n          \"latitude\": 37.998151,\n          \"longitude\": 23.819404\n        },\n        {\n          \"latitude\": 37.998157,\n          \"longitude\": 23.819396\n        },\n        {\n          \"latitude\": 37.998164,\n          \"longitude\": 23.819388\n        },\n        {\n          \"latitude\": 37.99817,\n          \"longitude\": 23.81938\n        },\n        {\n          \"latitude\": 37.998176,\n          \"longitude\": 23.819372\n        },\n        {\n          \"latitude\": 37.998183,\n          \"longitude\": 23.819364\n        },\n        {\n          \"latitude\": 37.998189,\n          \"longitude\": 23.819356\n        },\n        {\n          \"latitude\": 37.998195,\n          \"longitude\": 23.819348\n        },\n        {\n          \"latitude\": 37.998202,\n          \"longitude\": 23.81934\n        },\n        {\n          \"latitude\": 37.998208,\n          \"longitude\": 23.819332\n        },\n        {\n          \"latitude\": 37.998215,\n          \"longitude\": 23.819324\n        },\n        {\n          \"latitude\": 37.998221,\n          \"longitude\": 23.819316\n        },\n        {\n          \"latitude\": 37.998227,\n          \"longitude\": 23.819308\n        },\n        {\n          \"latitude\": 37.998234,\n          \"longitude\": 23.8193\n        },\n        {\n          \"latitude\": 37.99824,\n          \"longitude\": 23.819291\n        },\n        {\n          \"latitude\": 37.998247,\n          \"longitude\": 23.819283\n        },\n        {\n          \"latitude\": 37.998253,\n          \"longitude\": 23.819275\n        },\n        {\n          \"latitude\": 37.998259,\n          \"longitude\": 23.819267\n        },\n        {\n          \"latitude\": 37.998266,\n          \"longitude\": 23.819259\n        },\n        {\n          \"latitude\": 37.998272,\n          \"longitude\": 23.819251\n        },\n        {\n          \"latitude\": 37.998278,\n          \"longitude\": 23.819243\n        },\n        {\n          \"latitude\": 37.998285,\n          \"longitude\": 23.819235\n        },\n        {\n          \"latitude\": 37.998283,\n          \"longitude\": 23.819222\n        },\n        {\n          \"latitude\": 37.998276,\n          \"longitude\": 23.819214\n        },\n        {\n          \"latitude\": 37.998269,\n          \"longitude\": 23.819206\n        },\n        {\n          \"latitude\": 37.998263,\n          \"longitude\": 23.819198\n        },\n        {\n          \"latitude\": 37.998256,\n          \"longitude\": 23.819191\n        },\n        {\n          \"latitude\": 37.99825,\n          \"longitude\": 23.819183\n        },\n        {\n          \"latitude\": 37.998243,\n          \"longitude\": 23.819175\n        },\n        {\n          \"latitude\": 37.998237,\n          \"longitude\": 23.819167\n        },\n        {\n          \"latitude\": 37.99823,\n          \"longitude\": 23.819159\n        },\n        {\n          \"latitude\": 37.998224,\n          \"longitude\": 23.819151\n        },\n        {\n          \"latitude\": 37.998217,\n          \"longitude\": 23.819143\n        },\n        {\n          \"latitude\": 37.998211,\n          \"longitude\": 23.819136\n        },\n        {\n          \"latitude\": 37.998204,\n          \"longitude\": 23.819128\n        },\n        {\n          \"latitude\": 37.998198,\n          \"longitude\": 23.81912\n        },\n        {\n          \"latitude\": 37.998191,\n          \"longitude\": 23.819112\n        },\n        {\n          \"latitude\": 37.998185,\n          \"longitude\": 23.819104\n        },\n        {\n          \"latitude\": 37.998178,\n          \"longitude\": 23.819096\n        },\n        {\n          \"latitude\": 37.998171,\n          \"longitude\": 23.819089\n        },\n        {\n          \"latitude\": 37.998165,\n          \"longitude\": 23.819081\n        },\n        {\n          \"latitude\": 37.998158,\n          \"longitude\": 23.819073\n        },\n        {\n          \"latitude\": 37.998152,\n          \"longitude\": 23.819065\n        },\n        {\n          \"latitude\": 37.998145,\n          \"longitude\": 23.819057\n        },\n        {\n          \"latitude\": 37.998139,\n          \"longitude\": 23.819049\n        },\n        {\n          \"latitude\": 37.998132,\n          \"longitude\": 23.819042\n        },\n        {\n          \"latitude\": 37.998126,\n          \"longitude\": 23.819034\n        },\n        {\n          \"latitude\": 37.998119,\n          \"longitude\": 23.819026\n        },\n        {\n          \"latitude\": 37.998113,\n          \"longitude\": 23.819018\n        },\n        {\n          \"latitude\": 37.998106,\n          \"longitude\": 23.81901\n        },\n        {\n          \"latitude\": 37.9981,\n          \"longitude\": 23.819002\n        },\n        {\n          \"latitude\": 37.998093,\n          \"longitude\": 23.818994\n        },\n        {\n          \"latitude\": 37.998087,\n          \"longitude\": 23.818987\n        },\n        {\n          \"latitude\": 37.99808,\n          \"longitude\": 23.818979\n        },\n        {\n          \"latitude\": 37.998073,\n          \"longitude\": 23.818971\n        },\n        {\n          \"latitude\": 37.998067,\n          \"longitude\": 23.818963\n        },\n        {\n          \"latitude\": 37.99806,\n          \"longitude\": 23.818955\n        },\n        {\n          \"latitude\": 37.998054,\n          \"longitude\": 23.818947\n        },\n        {\n          \"latitude\": 37.998047,\n          \"longitude\": 23.81894\n        },\n        {\n          \"latitude\": 37.998041,\n          \"longitude\": 23.818932\n        },\n        {\n          \"latitude\": 37.998034,\n          \"longitude\": 23.818924\n        },\n        {\n          \"latitude\": 37.998028,\n          \"longitude\": 23.818916\n        },\n        {\n          \"latitude\": 37.998019,\n          \"longitude\": 23.818921\n        },\n        {\n          \"latitude\": 37.998012,\n          \"longitude\": 23.818929\n        },\n        {\n          \"latitude\": 37.998006,\n          \"longitude\": 23.818937\n        },\n        {\n          \"latitude\": 37.998,\n          \"longitude\": 23.818945\n        },\n        {\n          \"latitude\": 37.997994,\n          \"longitude\": 23.818954\n        },\n        {\n          \"latitude\": 37.997987,\n          \"longitude\": 23.818962\n        },\n        {\n          \"latitude\": 37.997981,\n          \"longitude\": 23.81897\n        },\n        {\n          \"latitude\": 37.997975,\n          \"longitude\": 23.818978\n        },\n        {\n          \"latitude\": 37.997969,\n          \"longitude\": 23.818986\n        },\n        {\n          \"latitude\": 37.997962,\n          \"longitude\": 23.818995\n        },\n        {\n          \"latitude\": 37.997956,\n          \"longitude\": 23.819003\n        },\n        {\n          \"latitude\": 37.99795,\n          \"longitude\": 23.819011\n        },\n        {\n          \"latitude\": 37.997944,\n          \"longitude\": 23.819019\n        },\n        {\n          \"latitude\": 37.997937,\n          \"longitude\": 23.819027\n        },\n        {\n          \"latitude\": 37.997931,\n          \"longitude\": 23.819036\n        },\n        {\n          \"latitude\": 37.997925,\n          \"longitude\": 23.819044\n        },\n        {\n          \"latitude\": 37.997919,\n          \"longitude\": 23.819052\n        },\n        {\n          \"latitude\": 37.997912,\n          \"longitude\": 23.81906\n        },\n        {\n          \"latitude\": 37.997906,\n          \"longitude\": 23.819068\n        },\n        {\n          \"latitude\": 37.9979,\n          \"longitude\": 23.819077\n        },\n        {\n          \"latitude\": 37.997894,\n          \"longitude\": 23.819085\n        },\n        {\n          \"latitude\": 37.997887,\n          \"longitude\": 23.819093\n        },\n        {\n          \"latitude\": 37.997881,\n          \"longitude\": 23.819101\n        },\n        {\n          \"latitude\": 37.997875,\n          \"longitude\": 23.819109\n        },\n        {\n          \"latitude\": 37.997869,\n          \"longitude\": 23.819118\n        },\n        {\n          \"latitude\": 37.997862,\n          \"longitude\": 23.819126\n        },\n        {\n          \"latitude\": 37.997856,\n          \"longitude\": 23.819134\n        },\n        {\n          \"latitude\": 37.997862,\n          \"longitude\": 23.819143\n        },\n        {\n          \"latitude\": 37.997868,\n          \"longitude\": 23.819151\n        },\n        {\n          \"latitude\": 37.997874,\n          \"longitude\": 23.819159\n        },\n        {\n          \"latitude\": 37.997881,\n          \"longitude\": 23.819167\n        },\n        {\n          \"latitude\": 37.997887,\n          \"longitude\": 23.819175\n        },\n        {\n          \"latitude\": 37.997894,\n          \"longitude\": 23.819183\n        },\n        {\n          \"latitude\": 37.9979,\n          \"longitude\": 23.819191\n        },\n        {\n          \"latitude\": 37.997906,\n          \"longitude\": 23.819199\n        },\n        {\n          \"latitude\": 37.997913,\n          \"longitude\": 23.819207\n        },\n        {\n          \"latitude\": 37.997919,\n          \"longitude\": 23.819215\n        },\n        {\n          \"latitude\": 37.997926,\n          \"longitude\": 23.819223\n        },\n        {\n          \"latitude\": 37.997932,\n          \"longitude\": 23.819231\n        },\n        {\n          \"latitude\": 37.997938,\n          \"longitude\": 23.819239\n        },\n        {\n          \"latitude\": 37.997945,\n          \"longitude\": 23.819247\n        },\n        {\n          \"latitude\": 37.997951,\n          \"longitude\": 23.819255\n        },\n        {\n          \"latitude\": 37.997958,\n          \"longitude\": 23.819263\n        },\n        {\n          \"latitude\": 37.997964,\n          \"longitude\": 23.819272\n        },\n        {\n          \"latitude\": 37.99797,\n          \"longitude\": 23.81928\n        },\n        {\n          \"latitude\": 37.997977,\n          \"longitude\": 23.819288\n        },\n        {\n          \"latitude\": 37.997983,\n          \"longitude\": 23.819296\n        },\n        {\n          \"latitude\": 37.99799,\n          \"longitude\": 23.819304\n        },\n        {\n          \"latitude\": 37.997996,\n          \"longitude\": 23.819312\n        },\n        {\n          \"latitude\": 37.998002,\n          \"longitude\": 23.81932\n        },\n        {\n          \"latitude\": 37.998009,\n          \"longitude\": 23.819328\n        },\n        {\n          \"latitude\": 37.998015,\n          \"longitude\": 23.819336\n        },\n        {\n          \"latitude\": 37.998022,\n          \"longitude\": 23.819344\n        },\n        {\n          \"latitude\": 37.998028,\n          \"longitude\": 23.819352\n        },\n        {\n          \"latitude\": 37.998034,\n          \"longitude\": 23.81936\n        },\n        {\n          \"latitude\": 37.998041,\n          \"longitude\": 23.819368\n        },\n        {\n          \"latitude\": 37.998047,\n          \"longitude\": 23.819376\n        },\n        {\n          \"latitude\": 37.998054,\n          \"longitude\": 23.819384\n        },\n        {\n          \"latitude\": 37.99806,\n          \"longitude\": 23.819392\n        },\n        {\n          \"latitude\": 37.998066,\n          \"longitude\": 23.8194\n        },\n        {\n          \"latitude\": 37.998073,\n          \"longitude\": 23.819408\n        },\n        {\n          \"latitude\": 37.998079,\n          \"longitude\": 23.819416\n        },\n        {\n          \"latitude\": 37.998086,\n          \"longitude\": 23.819424\n        },\n        {\n          \"latitude\": 37.998092,\n          \"longitude\": 23.819432\n        },\n        {\n          \"latitude\": 37.998098,\n          \"longitude\": 23.81944\n        }\n      ]\n    },\n    {\n      \"description\": \"NCSRD Gate-IIT\",\n      \"start_point\": {\n        \"latitude\": 37.996095,\n        \"longitude\": 23.818562\n      },\n      \"end_point\": {\n        \"latitude\": 37.99611,\n        \"longitude\": 23.818563\n      },\n      \"color\": \"#00a3cc\",\n      \"id\": 2,\n      \"points\": [\n        {\n          \"latitude\": 37.996095,\n          \"longitude\": 23.818562\n        },\n        {\n          \"latitude\": 37.996086,\n          \"longitude\": 23.818565\n        },\n        {\n          \"latitude\": 37.996078,\n          \"longitude\": 23.818569\n        },\n        {\n          \"latitude\": 37.996069,\n          \"longitude\": 23.818572\n        },\n        {\n          \"latitude\": 37.996061,\n          \"longitude\": 23.818576\n        },\n        {\n          \"latitude\": 37.996052,\n          \"longitude\": 23.81858\n        },\n        {\n          \"latitude\": 37.996044,\n          \"longitude\": 23.818583\n        },\n        {\n          \"latitude\": 37.996035,\n          \"longitude\": 23.818587\n        },\n        {\n          \"latitude\": 37.996027,\n          \"longitude\": 23.818591\n        },\n        {\n          \"latitude\": 37.996018,\n          \"longitude\": 23.818594\n        },\n        {\n          \"latitude\": 37.99601,\n          \"longitude\": 23.818598\n        },\n        {\n          \"latitude\": 37.996001,\n          \"longitude\": 23.818602\n        },\n        {\n          \"latitude\": 37.995993,\n          \"longitude\": 23.818605\n        },\n        {\n          \"latitude\": 37.995984,\n          \"longitude\": 23.818609\n        },\n        {\n          \"latitude\": 37.995976,\n          \"longitude\": 23.818613\n        },\n        {\n          \"latitude\": 37.995967,\n          \"longitude\": 23.818616\n        },\n        {\n          \"latitude\": 37.995969,\n          \"longitude\": 23.818627\n        },\n        {\n          \"latitude\": 37.995973,\n          \"longitude\": 23.818638\n        },\n        {\n          \"latitude\": 37.995976,\n          \"longitude\": 23.818649\n        },\n        {\n          \"latitude\": 37.99598,\n          \"longitude\": 23.818659\n        },\n        {\n          \"latitude\": 37.995983,\n          \"longitude\": 23.81867\n        },\n        {\n          \"latitude\": 37.995986,\n          \"longitude\": 23.81868\n        },\n        {\n          \"latitude\": 37.99599,\n          \"longitude\": 23.818691\n        },\n        {\n          \"latitude\": 37.995993,\n          \"longitude\": 23.818702\n        },\n        {\n          \"latitude\": 37.995996,\n          \"longitude\": 23.818712\n        },\n        {\n          \"latitude\": 37.996,\n          \"longitude\": 23.818723\n        },\n        {\n          \"latitude\": 37.996003,\n          \"longitude\": 23.818733\n        },\n        {\n          \"latitude\": 37.996006,\n          \"longitude\": 23.818744\n        },\n        {\n          \"latitude\": 37.99601,\n          \"longitude\": 23.818754\n        },\n        {\n          \"latitude\": 37.996013,\n          \"longitude\": 23.818765\n        },\n        {\n          \"latitude\": 37.996017,\n          \"longitude\": 23.818776\n        },\n        {\n          \"latitude\": 37.99602,\n          \"longitude\": 23.818786\n        },\n        {\n          \"latitude\": 37.996023,\n          \"longitude\": 23.818797\n        },\n        {\n          \"latitude\": 37.996027,\n          \"longitude\": 23.818807\n        },\n        {\n          \"latitude\": 37.99603,\n          \"longitude\": 23.818818\n        },\n        {\n          \"latitude\": 37.996033,\n          \"longitude\": 23.818829\n        },\n        {\n          \"latitude\": 37.996037,\n          \"longitude\": 23.818839\n        },\n        {\n          \"latitude\": 37.99604,\n          \"longitude\": 23.81885\n        },\n        {\n          \"latitude\": 37.996044,\n          \"longitude\": 23.81886\n        },\n        {\n          \"latitude\": 37.996047,\n          \"longitude\": 23.818871\n        },\n        {\n          \"latitude\": 37.99605,\n          \"longitude\": 23.818881\n        },\n        {\n          \"latitude\": 37.996054,\n          \"longitude\": 23.818892\n        },\n        {\n          \"latitude\": 37.996057,\n          \"longitude\": 23.818903\n        },\n        {\n          \"latitude\": 37.99606,\n          \"longitude\": 23.818913\n        },\n        {\n          \"latitude\": 37.996064,\n          \"longitude\": 23.818924\n        },\n        {\n          \"latitude\": 37.996067,\n          \"longitude\": 23.818934\n        },\n        {\n          \"latitude\": 37.99607,\n          \"longitude\": 23.818945\n        },\n        {\n          \"latitude\": 37.996074,\n          \"longitude\": 23.818956\n        },\n        {\n          \"latitude\": 37.996077,\n          \"longitude\": 23.818966\n        },\n        {\n          \"latitude\": 37.996081,\n          \"longitude\": 23.818977\n        },\n        {\n          \"latitude\": 37.996084,\n          \"longitude\": 23.818987\n        },\n        {\n          \"latitude\": 37.996087,\n          \"longitude\": 23.818998\n        },\n        {\n          \"latitude\": 37.996091,\n          \"longitude\": 23.819008\n        },\n        {\n          \"latitude\": 37.996094,\n          \"longitude\": 23.819019\n        },\n        {\n          \"latitude\": 37.996097,\n          \"longitude\": 23.81903\n        },\n        {\n          \"latitude\": 37.996101,\n          \"longitude\": 23.81904\n        },\n        {\n          \"latitude\": 37.996104,\n          \"longitude\": 23.819051\n        },\n        {\n          \"latitude\": 37.996107,\n          \"longitude\": 23.819061\n        },\n        {\n          \"latitude\": 37.996116,\n          \"longitude\": 23.819057\n        },\n        {\n          \"latitude\": 37.996124,\n          \"longitude\": 23.819052\n        },\n        {\n          \"latitude\": 37.996132,\n          \"longitude\": 23.819047\n        },\n        {\n          \"latitude\": 37.99614,\n          \"longitude\": 23.819041\n        },\n        {\n          \"latitude\": 37.996148,\n          \"longitude\": 23.819036\n        },\n        {\n          \"latitude\": 37.996156,\n          \"longitude\": 23.819031\n        },\n        {\n          \"latitude\": 37.996164,\n          \"longitude\": 23.819026\n        },\n        {\n          \"latitude\": 37.996172,\n          \"longitude\": 23.819021\n        },\n        {\n          \"latitude\": 37.99618,\n          \"longitude\": 23.819016\n        },\n        {\n          \"latitude\": 37.996188,\n          \"longitude\": 23.81901\n        },\n        {\n          \"latitude\": 37.996196,\n          \"longitude\": 23.819005\n        },\n        {\n          \"latitude\": 37.996204,\n          \"longitude\": 23.819\n        },\n        {\n          \"latitude\": 37.996212,\n          \"longitude\": 23.818995\n        },\n        {\n          \"latitude\": 37.99622,\n          \"longitude\": 23.81899\n        },\n        {\n          \"latitude\": 37.996228,\n          \"longitude\": 23.818985\n        },\n        {\n          \"latitude\": 37.996236,\n          \"longitude\": 23.81898\n        },\n        {\n          \"latitude\": 37.996244,\n          \"longitude\": 23.818974\n        },\n        {\n          \"latitude\": 37.996252,\n          \"longitude\": 23.818969\n        },\n        {\n          \"latitude\": 37.99626,\n          \"longitude\": 23.818964\n        },\n        {\n          \"latitude\": 37.996268,\n          \"longitude\": 23.818959\n        },\n        {\n          \"latitude\": 37.996276,\n          \"longitude\": 23.818954\n        },\n        {\n          \"latitude\": 37.996284,\n          \"longitude\": 23.818949\n        },\n        {\n          \"latitude\": 37.996292,\n          \"longitude\": 23.818943\n        },\n        {\n          \"latitude\": 37.9963,\n          \"longitude\": 23.818938\n        },\n        {\n          \"latitude\": 37.996308,\n          \"longitude\": 23.818933\n        },\n        {\n          \"latitude\": 37.996316,\n          \"longitude\": 23.818928\n        },\n        {\n          \"latitude\": 37.996324,\n          \"longitude\": 23.818923\n        },\n        {\n          \"latitude\": 37.996332,\n          \"longitude\": 23.818918\n        },\n        {\n          \"latitude\": 37.99634,\n          \"longitude\": 23.818912\n        },\n        {\n          \"latitude\": 37.996348,\n          \"longitude\": 23.818907\n        },\n        {\n          \"latitude\": 37.996356,\n          \"longitude\": 23.818902\n        },\n        {\n          \"latitude\": 37.996364,\n          \"longitude\": 23.818897\n        },\n        {\n          \"latitude\": 37.996372,\n          \"longitude\": 23.818892\n        },\n        {\n          \"latitude\": 37.99638,\n          \"longitude\": 23.818887\n        },\n        {\n          \"latitude\": 37.996388,\n          \"longitude\": 23.818881\n        },\n        {\n          \"latitude\": 37.996396,\n          \"longitude\": 23.818876\n        },\n        {\n          \"latitude\": 37.996404,\n          \"longitude\": 23.818871\n        },\n        {\n          \"latitude\": 37.996413,\n          \"longitude\": 23.818866\n        },\n        {\n          \"latitude\": 37.996421,\n          \"longitude\": 23.818861\n        },\n        {\n          \"latitude\": 37.996429,\n          \"longitude\": 23.818856\n        },\n        {\n          \"latitude\": 37.996437,\n          \"longitude\": 23.81885\n        },\n        {\n          \"latitude\": 37.996445,\n          \"longitude\": 23.818845\n        },\n        {\n          \"latitude\": 37.996453,\n          \"longitude\": 23.81884\n        },\n        {\n          \"latitude\": 37.996461,\n          \"longitude\": 23.818835\n        },\n        {\n          \"latitude\": 37.996469,\n          \"longitude\": 23.81883\n        },\n        {\n          \"latitude\": 37.996477,\n          \"longitude\": 23.818825\n        },\n        {\n          \"latitude\": 37.996485,\n          \"longitude\": 23.81882\n        },\n        {\n          \"latitude\": 37.996493,\n          \"longitude\": 23.818814\n        },\n        {\n          \"latitude\": 37.996501,\n          \"longitude\": 23.818809\n        },\n        {\n          \"latitude\": 37.996509,\n          \"longitude\": 23.818804\n        },\n        {\n          \"latitude\": 37.996517,\n          \"longitude\": 23.818799\n        },\n        {\n          \"latitude\": 37.996525,\n          \"longitude\": 23.818794\n        },\n        {\n          \"latitude\": 37.996533,\n          \"longitude\": 23.818789\n        },\n        {\n          \"latitude\": 37.996541,\n          \"longitude\": 23.818783\n        },\n        {\n          \"latitude\": 37.996549,\n          \"longitude\": 23.818778\n        },\n        {\n          \"latitude\": 37.996557,\n          \"longitude\": 23.818773\n        },\n        {\n          \"latitude\": 37.996565,\n          \"longitude\": 23.818768\n        },\n        {\n          \"latitude\": 37.996573,\n          \"longitude\": 23.818763\n        },\n        {\n          \"latitude\": 37.996581,\n          \"longitude\": 23.818758\n        },\n        {\n          \"latitude\": 37.996589,\n          \"longitude\": 23.818752\n        },\n        {\n          \"latitude\": 37.996597,\n          \"longitude\": 23.818747\n        },\n        {\n          \"latitude\": 37.996605,\n          \"longitude\": 23.818742\n        },\n        {\n          \"latitude\": 37.996613,\n          \"longitude\": 23.818737\n        },\n        {\n          \"latitude\": 37.996621,\n          \"longitude\": 23.818732\n        },\n        {\n          \"latitude\": 37.996629,\n          \"longitude\": 23.818727\n        },\n        {\n          \"latitude\": 37.996637,\n          \"longitude\": 23.818721\n        },\n        {\n          \"latitude\": 37.996645,\n          \"longitude\": 23.818716\n        },\n        {\n          \"latitude\": 37.996653,\n          \"longitude\": 23.818711\n        },\n        {\n          \"latitude\": 37.996661,\n          \"longitude\": 23.818706\n        },\n        {\n          \"latitude\": 37.996669,\n          \"longitude\": 23.818701\n        },\n        {\n          \"latitude\": 37.996677,\n          \"longitude\": 23.818696\n        },\n        {\n          \"latitude\": 37.996685,\n          \"longitude\": 23.81869\n        },\n        {\n          \"latitude\": 37.996693,\n          \"longitude\": 23.818685\n        },\n        {\n          \"latitude\": 37.996701,\n          \"longitude\": 23.81868\n        },\n        {\n          \"latitude\": 37.996709,\n          \"longitude\": 23.818675\n        },\n        {\n          \"latitude\": 37.996717,\n          \"longitude\": 23.81867\n        },\n        {\n          \"latitude\": 37.996725,\n          \"longitude\": 23.818665\n        },\n        {\n          \"latitude\": 37.996733,\n          \"longitude\": 23.81866\n        },\n        {\n          \"latitude\": 37.996741,\n          \"longitude\": 23.818654\n        },\n        {\n          \"latitude\": 37.996749,\n          \"longitude\": 23.818649\n        },\n        {\n          \"latitude\": 37.996757,\n          \"longitude\": 23.818644\n        },\n        {\n          \"latitude\": 37.996765,\n          \"longitude\": 23.818639\n        },\n        {\n          \"latitude\": 37.996773,\n          \"longitude\": 23.818634\n        },\n        {\n          \"latitude\": 37.996781,\n          \"longitude\": 23.818629\n        },\n        {\n          \"latitude\": 37.996789,\n          \"longitude\": 23.818623\n        },\n        {\n          \"latitude\": 37.996798,\n          \"longitude\": 23.818618\n        },\n        {\n          \"latitude\": 37.996806,\n          \"longitude\": 23.818613\n        },\n        {\n          \"latitude\": 37.996814,\n          \"longitude\": 23.818608\n        },\n        {\n          \"latitude\": 37.996822,\n          \"longitude\": 23.818603\n        },\n        {\n          \"latitude\": 37.99683,\n          \"longitude\": 23.818598\n        },\n        {\n          \"latitude\": 37.996838,\n          \"longitude\": 23.818592\n        },\n        {\n          \"latitude\": 37.996846,\n          \"longitude\": 23.818587\n        },\n        {\n          \"latitude\": 37.996854,\n          \"longitude\": 23.818582\n        },\n        {\n          \"latitude\": 37.996862,\n          \"longitude\": 23.818577\n        },\n        {\n          \"latitude\": 37.99687,\n          \"longitude\": 23.818572\n        },\n        {\n          \"latitude\": 37.996878,\n          \"longitude\": 23.818567\n        },\n        {\n          \"latitude\": 37.996886,\n          \"longitude\": 23.818561\n        },\n        {\n          \"latitude\": 37.996894,\n          \"longitude\": 23.818556\n        },\n        {\n          \"latitude\": 37.996902,\n          \"longitude\": 23.818551\n        },\n        {\n          \"latitude\": 37.99691,\n          \"longitude\": 23.818546\n        },\n        {\n          \"latitude\": 37.996918,\n          \"longitude\": 23.818541\n        },\n        {\n          \"latitude\": 37.996926,\n          \"longitude\": 23.818536\n        },\n        {\n          \"latitude\": 37.996934,\n          \"longitude\": 23.81853\n        },\n        {\n          \"latitude\": 37.996942,\n          \"longitude\": 23.818525\n        },\n        {\n          \"latitude\": 37.99695,\n          \"longitude\": 23.81852\n        },\n        {\n          \"latitude\": 37.996958,\n          \"longitude\": 23.818515\n        },\n        {\n          \"latitude\": 37.996966,\n          \"longitude\": 23.81851\n        },\n        {\n          \"latitude\": 37.996974,\n          \"longitude\": 23.818505\n        },\n        {\n          \"latitude\": 37.996982,\n          \"longitude\": 23.8185\n        },\n        {\n          \"latitude\": 37.99699,\n          \"longitude\": 23.818494\n        },\n        {\n          \"latitude\": 37.996998,\n          \"longitude\": 23.818489\n        },\n        {\n          \"latitude\": 37.997006,\n          \"longitude\": 23.818484\n        },\n        {\n          \"latitude\": 37.997014,\n          \"longitude\": 23.818479\n        },\n        {\n          \"latitude\": 37.997022,\n          \"longitude\": 23.818474\n        },\n        {\n          \"latitude\": 37.99703,\n          \"longitude\": 23.818469\n        },\n        {\n          \"latitude\": 37.997038,\n          \"longitude\": 23.818463\n        },\n        {\n          \"latitude\": 37.997046,\n          \"longitude\": 23.818458\n        },\n        {\n          \"latitude\": 37.997054,\n          \"longitude\": 23.818453\n        },\n        {\n          \"latitude\": 37.997062,\n          \"longitude\": 23.818448\n        },\n        {\n          \"latitude\": 37.99707,\n          \"longitude\": 23.818443\n        },\n        {\n          \"latitude\": 37.997078,\n          \"longitude\": 23.818438\n        },\n        {\n          \"latitude\": 37.997086,\n          \"longitude\": 23.818432\n        },\n        {\n          \"latitude\": 37.997094,\n          \"longitude\": 23.818427\n        },\n        {\n          \"latitude\": 37.997102,\n          \"longitude\": 23.818422\n        },\n        {\n          \"latitude\": 37.99711,\n          \"longitude\": 23.818417\n        },\n        {\n          \"latitude\": 37.997118,\n          \"longitude\": 23.818412\n        },\n        {\n          \"latitude\": 37.997126,\n          \"longitude\": 23.818407\n        },\n        {\n          \"latitude\": 37.997134,\n          \"longitude\": 23.818401\n        },\n        {\n          \"latitude\": 37.997142,\n          \"longitude\": 23.818396\n        },\n        {\n          \"latitude\": 37.997152,\n          \"longitude\": 23.818402\n        },\n        {\n          \"latitude\": 37.997159,\n          \"longitude\": 23.81841\n        },\n        {\n          \"latitude\": 37.997165,\n          \"longitude\": 23.818418\n        },\n        {\n          \"latitude\": 37.997171,\n          \"longitude\": 23.818426\n        },\n        {\n          \"latitude\": 37.997178,\n          \"longitude\": 23.818434\n        },\n        {\n          \"latitude\": 37.997184,\n          \"longitude\": 23.818442\n        },\n        {\n          \"latitude\": 37.997191,\n          \"longitude\": 23.81845\n        },\n        {\n          \"latitude\": 37.997197,\n          \"longitude\": 23.818458\n        },\n        {\n          \"latitude\": 37.997204,\n          \"longitude\": 23.818466\n        },\n        {\n          \"latitude\": 37.99721,\n          \"longitude\": 23.818473\n        },\n        {\n          \"latitude\": 37.997217,\n          \"longitude\": 23.818481\n        },\n        {\n          \"latitude\": 37.997223,\n          \"longitude\": 23.818489\n        },\n        {\n          \"latitude\": 37.99723,\n          \"longitude\": 23.818497\n        },\n        {\n          \"latitude\": 37.997236,\n          \"longitude\": 23.818505\n        },\n        {\n          \"latitude\": 37.997243,\n          \"longitude\": 23.818513\n        },\n        {\n          \"latitude\": 37.997249,\n          \"longitude\": 23.818521\n        },\n        {\n          \"latitude\": 37.997256,\n          \"longitude\": 23.818529\n        },\n        {\n          \"latitude\": 37.997262,\n          \"longitude\": 23.818537\n        },\n        {\n          \"latitude\": 37.997269,\n          \"longitude\": 23.818545\n        },\n        {\n          \"latitude\": 37.997275,\n          \"longitude\": 23.818553\n        },\n        {\n          \"latitude\": 37.997282,\n          \"longitude\": 23.818561\n        },\n        {\n          \"latitude\": 37.997288,\n          \"longitude\": 23.818569\n        },\n        {\n          \"latitude\": 37.997294,\n          \"longitude\": 23.818576\n        },\n        {\n          \"latitude\": 37.997301,\n          \"longitude\": 23.818584\n        },\n        {\n          \"latitude\": 37.997307,\n          \"longitude\": 23.818592\n        },\n        {\n          \"latitude\": 37.997314,\n          \"longitude\": 23.8186\n        },\n        {\n          \"latitude\": 37.99732,\n          \"longitude\": 23.818608\n        },\n        {\n          \"latitude\": 37.997327,\n          \"longitude\": 23.818616\n        },\n        {\n          \"latitude\": 37.997333,\n          \"longitude\": 23.818624\n        },\n        {\n          \"latitude\": 37.99734,\n          \"longitude\": 23.818632\n        },\n        {\n          \"latitude\": 37.997346,\n          \"longitude\": 23.81864\n        },\n        {\n          \"latitude\": 37.997353,\n          \"longitude\": 23.818648\n        },\n        {\n          \"latitude\": 37.997359,\n          \"longitude\": 23.818656\n        },\n        {\n          \"latitude\": 37.997366,\n          \"longitude\": 23.818664\n        },\n        {\n          \"latitude\": 37.997372,\n          \"longitude\": 23.818671\n        },\n        {\n          \"latitude\": 37.997379,\n          \"longitude\": 23.818679\n        },\n        {\n          \"latitude\": 37.997385,\n          \"longitude\": 23.818687\n        },\n        {\n          \"latitude\": 37.997392,\n          \"longitude\": 23.818695\n        },\n        {\n          \"latitude\": 37.997398,\n          \"longitude\": 23.818703\n        },\n        {\n          \"latitude\": 37.997405,\n          \"longitude\": 23.818711\n        },\n        {\n          \"latitude\": 37.997411,\n          \"longitude\": 23.818719\n        },\n        {\n          \"latitude\": 37.997417,\n          \"longitude\": 23.818727\n        },\n        {\n          \"latitude\": 37.997424,\n          \"longitude\": 23.818735\n        },\n        {\n          \"latitude\": 37.99743,\n          \"longitude\": 23.818743\n        },\n        {\n          \"latitude\": 37.997437,\n          \"longitude\": 23.818751\n        },\n        {\n          \"latitude\": 37.997443,\n          \"longitude\": 23.818759\n        },\n        {\n          \"latitude\": 37.99745,\n          \"longitude\": 23.818767\n        },\n        {\n          \"latitude\": 37.997456,\n          \"longitude\": 23.818774\n        },\n        {\n          \"latitude\": 37.997463,\n          \"longitude\": 23.818782\n        },\n        {\n          \"latitude\": 37.997469,\n          \"longitude\": 23.81879\n        },\n        {\n          \"latitude\": 37.997476,\n          \"longitude\": 23.818798\n        },\n        {\n          \"latitude\": 37.997482,\n          \"longitude\": 23.818806\n        },\n        {\n          \"latitude\": 37.997489,\n          \"longitude\": 23.818814\n        },\n        {\n          \"latitude\": 37.997495,\n          \"longitude\": 23.818822\n        },\n        {\n          \"latitude\": 37.997502,\n          \"longitude\": 23.81883\n        },\n        {\n          \"latitude\": 37.997508,\n          \"longitude\": 23.818838\n        },\n        {\n          \"latitude\": 37.997515,\n          \"longitude\": 23.818846\n        },\n        {\n          \"latitude\": 37.997521,\n          \"longitude\": 23.818854\n        },\n        {\n          \"latitude\": 37.997528,\n          \"longitude\": 23.818862\n        },\n        {\n          \"latitude\": 37.997534,\n          \"longitude\": 23.81887\n        },\n        {\n          \"latitude\": 37.99754,\n          \"longitude\": 23.818877\n        },\n        {\n          \"latitude\": 37.997547,\n          \"longitude\": 23.818885\n        },\n        {\n          \"latitude\": 37.997553,\n          \"longitude\": 23.818893\n        },\n        {\n          \"latitude\": 37.99756,\n          \"longitude\": 23.818901\n        },\n        {\n          \"latitude\": 37.997566,\n          \"longitude\": 23.818909\n        },\n        {\n          \"latitude\": 37.997573,\n          \"longitude\": 23.818917\n        },\n        {\n          \"latitude\": 37.997579,\n          \"longitude\": 23.818925\n        },\n        {\n          \"latitude\": 37.997586,\n          \"longitude\": 23.818933\n        },\n        {\n          \"latitude\": 37.997592,\n          \"longitude\": 23.818941\n        },\n        {\n          \"latitude\": 37.997599,\n          \"longitude\": 23.818949\n        },\n        {\n          \"latitude\": 37.997605,\n          \"longitude\": 23.818957\n        },\n        {\n          \"latitude\": 37.997612,\n          \"longitude\": 23.818965\n        },\n        {\n          \"latitude\": 37.997618,\n          \"longitude\": 23.818973\n        },\n        {\n          \"latitude\": 37.997625,\n          \"longitude\": 23.81898\n        },\n        {\n          \"latitude\": 37.997631,\n          \"longitude\": 23.818988\n        },\n        {\n          \"latitude\": 37.997638,\n          \"longitude\": 23.818996\n        },\n        {\n          \"latitude\": 37.997644,\n          \"longitude\": 23.819004\n        },\n        {\n          \"latitude\": 37.997651,\n          \"longitude\": 23.819012\n        },\n        {\n          \"latitude\": 37.997657,\n          \"longitude\": 23.81902\n        },\n        {\n          \"latitude\": 37.997663,\n          \"longitude\": 23.819028\n        },\n        {\n          \"latitude\": 37.99767,\n          \"longitude\": 23.819036\n        },\n        {\n          \"latitude\": 37.997676,\n          \"longitude\": 23.819044\n        },\n        {\n          \"latitude\": 37.997683,\n          \"longitude\": 23.819052\n        },\n        {\n          \"latitude\": 37.997689,\n          \"longitude\": 23.81906\n        },\n        {\n          \"latitude\": 37.997696,\n          \"longitude\": 23.819068\n        },\n        {\n          \"latitude\": 37.997702,\n          \"longitude\": 23.819075\n        },\n        {\n          \"latitude\": 37.997709,\n          \"longitude\": 23.819083\n        },\n        {\n          \"latitude\": 37.997715,\n          \"longitude\": 23.819091\n        },\n        {\n          \"latitude\": 37.997722,\n          \"longitude\": 23.819099\n        },\n        {\n          \"latitude\": 37.997728,\n          \"longitude\": 23.819107\n        },\n        {\n          \"latitude\": 37.997735,\n          \"longitude\": 23.819115\n        },\n        {\n          \"latitude\": 37.997741,\n          \"longitude\": 23.819123\n        },\n        {\n          \"latitude\": 37.997748,\n          \"longitude\": 23.819131\n        },\n        {\n          \"latitude\": 37.997754,\n          \"longitude\": 23.819139\n        },\n        {\n          \"latitude\": 37.997761,\n          \"longitude\": 23.819147\n        },\n        {\n          \"latitude\": 37.997767,\n          \"longitude\": 23.819155\n        },\n        {\n          \"latitude\": 37.997774,\n          \"longitude\": 23.819163\n        },\n        {\n          \"latitude\": 37.99778,\n          \"longitude\": 23.819171\n        },\n        {\n          \"latitude\": 37.997786,\n          \"longitude\": 23.819178\n        },\n        {\n          \"latitude\": 37.997793,\n          \"longitude\": 23.819186\n        },\n        {\n          \"latitude\": 37.997799,\n          \"longitude\": 23.819194\n        },\n        {\n          \"latitude\": 37.997806,\n          \"longitude\": 23.819202\n        },\n        {\n          \"latitude\": 37.997812,\n          \"longitude\": 23.81921\n        },\n        {\n          \"latitude\": 37.997819,\n          \"longitude\": 23.819218\n        },\n        {\n          \"latitude\": 37.997825,\n          \"longitude\": 23.819226\n        },\n        {\n          \"latitude\": 37.997832,\n          \"longitude\": 23.819234\n        },\n        {\n          \"latitude\": 37.997838,\n          \"longitude\": 23.819242\n        },\n        {\n          \"latitude\": 37.997845,\n          \"longitude\": 23.81925\n        },\n        {\n          \"latitude\": 37.997851,\n          \"longitude\": 23.819258\n        },\n        {\n          \"latitude\": 37.997858,\n          \"longitude\": 23.819266\n        },\n        {\n          \"latitude\": 37.997864,\n          \"longitude\": 23.819274\n        },\n        {\n          \"latitude\": 37.997871,\n          \"longitude\": 23.819281\n        },\n        {\n          \"latitude\": 37.997877,\n          \"longitude\": 23.819289\n        },\n        {\n          \"latitude\": 37.997884,\n          \"longitude\": 23.819297\n        },\n        {\n          \"latitude\": 37.99789,\n          \"longitude\": 23.819305\n        },\n        {\n          \"latitude\": 37.997897,\n          \"longitude\": 23.819313\n        },\n        {\n          \"latitude\": 37.997903,\n          \"longitude\": 23.819321\n        },\n        {\n          \"latitude\": 37.997909,\n          \"longitude\": 23.819329\n        },\n        {\n          \"latitude\": 37.997916,\n          \"longitude\": 23.819337\n        },\n        {\n          \"latitude\": 37.997922,\n          \"longitude\": 23.819345\n        },\n        {\n          \"latitude\": 37.997929,\n          \"longitude\": 23.819353\n        },\n        {\n          \"latitude\": 37.997935,\n          \"longitude\": 23.819361\n        },\n        {\n          \"latitude\": 37.997942,\n          \"longitude\": 23.819369\n        },\n        {\n          \"latitude\": 37.997948,\n          \"longitude\": 23.819377\n        },\n        {\n          \"latitude\": 37.997955,\n          \"longitude\": 23.819384\n        },\n        {\n          \"latitude\": 37.997961,\n          \"longitude\": 23.819392\n        },\n        {\n          \"latitude\": 37.997968,\n          \"longitude\": 23.8194\n        },\n        {\n          \"latitude\": 37.997974,\n          \"longitude\": 23.819408\n        },\n        {\n          \"latitude\": 37.997981,\n          \"longitude\": 23.819416\n        },\n        {\n          \"latitude\": 37.997987,\n          \"longitude\": 23.819424\n        },\n        {\n          \"latitude\": 37.997994,\n          \"longitude\": 23.819432\n        },\n        {\n          \"latitude\": 37.998,\n          \"longitude\": 23.81944\n        },\n        {\n          \"latitude\": 37.998007,\n          \"longitude\": 23.819448\n        },\n        {\n          \"latitude\": 37.998013,\n          \"longitude\": 23.819456\n        },\n        {\n          \"latitude\": 37.99802,\n          \"longitude\": 23.819464\n        },\n        {\n          \"latitude\": 37.998026,\n          \"longitude\": 23.819472\n        },\n        {\n          \"latitude\": 37.998032,\n          \"longitude\": 23.81948\n        },\n        {\n          \"latitude\": 37.998039,\n          \"longitude\": 23.819487\n        },\n        {\n          \"latitude\": 37.998045,\n          \"longitude\": 23.819495\n        },\n        {\n          \"latitude\": 37.998052,\n          \"longitude\": 23.819503\n        },\n        {\n          \"latitude\": 37.998058,\n          \"longitude\": 23.819511\n        },\n        {\n          \"latitude\": 37.998065,\n          \"longitude\": 23.819519\n        },\n        {\n          \"latitude\": 37.998071,\n          \"longitude\": 23.819527\n        },\n        {\n          \"latitude\": 37.998078,\n          \"longitude\": 23.819535\n        },\n        {\n          \"latitude\": 37.998084,\n          \"longitude\": 23.819543\n        },\n        {\n          \"latitude\": 37.998091,\n          \"longitude\": 23.819551\n        },\n        {\n          \"latitude\": 37.998097,\n          \"longitude\": 23.819559\n        },\n        {\n          \"latitude\": 37.998104,\n          \"longitude\": 23.819567\n        },\n        {\n          \"latitude\": 37.99811,\n          \"longitude\": 23.819575\n        },\n        {\n          \"latitude\": 37.998117,\n          \"longitude\": 23.819582\n        },\n        {\n          \"latitude\": 37.998123,\n          \"longitude\": 23.81959\n        },\n        {\n          \"latitude\": 37.99813,\n          \"longitude\": 23.819598\n        },\n        {\n          \"latitude\": 37.998136,\n          \"longitude\": 23.819606\n        },\n        {\n          \"latitude\": 37.998143,\n          \"longitude\": 23.819614\n        },\n        {\n          \"latitude\": 37.998149,\n          \"longitude\": 23.819622\n        },\n        {\n          \"latitude\": 37.99816,\n          \"longitude\": 23.819629\n        },\n        {\n          \"latitude\": 37.998169,\n          \"longitude\": 23.819633\n        },\n        {\n          \"latitude\": 37.998177,\n          \"longitude\": 23.819637\n        },\n        {\n          \"latitude\": 37.998186,\n          \"longitude\": 23.819641\n        },\n        {\n          \"latitude\": 37.998194,\n          \"longitude\": 23.819645\n        },\n        {\n          \"latitude\": 37.998202,\n          \"longitude\": 23.819648\n        },\n        {\n          \"latitude\": 37.998211,\n          \"longitude\": 23.819652\n        },\n        {\n          \"latitude\": 37.998219,\n          \"longitude\": 23.819656\n        },\n        {\n          \"latitude\": 37.998228,\n          \"longitude\": 23.81966\n        },\n        {\n          \"latitude\": 37.998236,\n          \"longitude\": 23.819664\n        },\n        {\n          \"latitude\": 37.998245,\n          \"longitude\": 23.819668\n        },\n        {\n          \"latitude\": 37.998253,\n          \"longitude\": 23.819672\n        },\n        {\n          \"latitude\": 37.998262,\n          \"longitude\": 23.819675\n        },\n        {\n          \"latitude\": 37.99827,\n          \"longitude\": 23.819679\n        },\n        {\n          \"latitude\": 37.998279,\n          \"longitude\": 23.819683\n        },\n        {\n          \"latitude\": 37.998287,\n          \"longitude\": 23.819687\n        },\n        {\n          \"latitude\": 37.998296,\n          \"longitude\": 23.819691\n        },\n        {\n          \"latitude\": 37.998304,\n          \"longitude\": 23.819695\n        },\n        {\n          \"latitude\": 37.998313,\n          \"longitude\": 23.819699\n        },\n        {\n          \"latitude\": 37.998321,\n          \"longitude\": 23.819702\n        },\n        {\n          \"latitude\": 37.998329,\n          \"longitude\": 23.819706\n        },\n        {\n          \"latitude\": 37.998338,\n          \"longitude\": 23.81971\n        },\n        {\n          \"latitude\": 37.998346,\n          \"longitude\": 23.819714\n        },\n        {\n          \"latitude\": 37.998355,\n          \"longitude\": 23.819718\n        },\n        {\n          \"latitude\": 37.998363,\n          \"longitude\": 23.819722\n        },\n        {\n          \"latitude\": 37.998372,\n          \"longitude\": 23.819725\n        },\n        {\n          \"latitude\": 37.99838,\n          \"longitude\": 23.819729\n        },\n        {\n          \"latitude\": 37.998389,\n          \"longitude\": 23.819733\n        },\n        {\n          \"latitude\": 37.998397,\n          \"longitude\": 23.819737\n        },\n        {\n          \"latitude\": 37.99841,\n          \"longitude\": 23.819731\n        },\n        {\n          \"latitude\": 37.998414,\n          \"longitude\": 23.819721\n        },\n        {\n          \"latitude\": 37.998418,\n          \"longitude\": 23.81971\n        },\n        {\n          \"latitude\": 37.998422,\n          \"longitude\": 23.8197\n        },\n        {\n          \"latitude\": 37.998426,\n          \"longitude\": 23.81969\n        },\n        {\n          \"latitude\": 37.998431,\n          \"longitude\": 23.81968\n        },\n        {\n          \"latitude\": 37.998435,\n          \"longitude\": 23.81967\n        },\n        {\n          \"latitude\": 37.998439,\n          \"longitude\": 23.81966\n        },\n        {\n          \"latitude\": 37.998443,\n          \"longitude\": 23.81965\n        },\n        {\n          \"latitude\": 37.998447,\n          \"longitude\": 23.81964\n        },\n        {\n          \"latitude\": 37.998452,\n          \"longitude\": 23.81963\n        },\n        {\n          \"latitude\": 37.998456,\n          \"longitude\": 23.81962\n        },\n        {\n          \"latitude\": 37.99846,\n          \"longitude\": 23.81961\n        },\n        {\n          \"latitude\": 37.998464,\n          \"longitude\": 23.8196\n        },\n        {\n          \"latitude\": 37.998469,\n          \"longitude\": 23.819589\n        },\n        {\n          \"latitude\": 37.998473,\n          \"longitude\": 23.819579\n        },\n        {\n          \"latitude\": 37.998477,\n          \"longitude\": 23.819569\n        },\n        {\n          \"latitude\": 37.998481,\n          \"longitude\": 23.819559\n        },\n        {\n          \"latitude\": 37.998485,\n          \"longitude\": 23.819549\n        },\n        {\n          \"latitude\": 37.99849,\n          \"longitude\": 23.819539\n        },\n        {\n          \"latitude\": 37.998494,\n          \"longitude\": 23.819529\n        },\n        {\n          \"latitude\": 37.998498,\n          \"longitude\": 23.819519\n        },\n        {\n          \"latitude\": 37.998502,\n          \"longitude\": 23.819509\n        },\n        {\n          \"latitude\": 37.998506,\n          \"longitude\": 23.819499\n        },\n        {\n          \"latitude\": 37.998511,\n          \"longitude\": 23.819489\n        },\n        {\n          \"latitude\": 37.998515,\n          \"longitude\": 23.819479\n        },\n        {\n          \"latitude\": 37.998519,\n          \"longitude\": 23.819469\n        },\n        {\n          \"latitude\": 37.998523,\n          \"longitude\": 23.819458\n        },\n        {\n          \"latitude\": 37.998528,\n          \"longitude\": 23.819448\n        },\n        {\n          \"latitude\": 37.998532,\n          \"longitude\": 23.819438\n        },\n        {\n          \"latitude\": 37.998536,\n          \"longitude\": 23.819428\n        },\n        {\n          \"latitude\": 37.99854,\n          \"longitude\": 23.819418\n        },\n        {\n          \"latitude\": 37.998544,\n          \"longitude\": 23.819408\n        },\n        {\n          \"latitude\": 37.998549,\n          \"longitude\": 23.819398\n        },\n        {\n          \"latitude\": 37.998553,\n          \"longitude\": 23.819388\n        },\n        {\n          \"latitude\": 37.998557,\n          \"longitude\": 23.819378\n        },\n        {\n          \"latitude\": 37.998561,\n          \"longitude\": 23.819368\n        },\n        {\n          \"latitude\": 37.998565,\n          \"longitude\": 23.819358\n        },\n        {\n          \"latitude\": 37.99857,\n          \"longitude\": 23.819348\n        },\n        {\n          \"latitude\": 37.998574,\n          \"longitude\": 23.819337\n        },\n        {\n          \"latitude\": 37.998578,\n          \"longitude\": 23.819327\n        },\n        {\n          \"latitude\": 37.998582,\n          \"longitude\": 23.819317\n        },\n        {\n          \"latitude\": 37.998587,\n          \"longitude\": 23.819307\n        },\n        {\n          \"latitude\": 37.998591,\n          \"longitude\": 23.819297\n        },\n        {\n          \"latitude\": 37.998595,\n          \"longitude\": 23.819287\n        },\n        {\n          \"latitude\": 37.998599,\n          \"longitude\": 23.819277\n        },\n        {\n          \"latitude\": 37.998603,\n          \"longitude\": 23.819267\n        },\n        {\n          \"latitude\": 37.998608,\n          \"longitude\": 23.819257\n        },\n        {\n          \"latitude\": 37.998612,\n          \"longitude\": 23.819247\n        },\n        {\n          \"latitude\": 37.998616,\n          \"longitude\": 23.819237\n        },\n        {\n          \"latitude\": 37.99862,\n          \"longitude\": 23.819227\n        },\n        {\n          \"latitude\": 37.998624,\n          \"longitude\": 23.819216\n        },\n        {\n          \"latitude\": 37.998629,\n          \"longitude\": 23.819206\n        },\n        {\n          \"latitude\": 37.998633,\n          \"longitude\": 23.819196\n        },\n        {\n          \"latitude\": 37.998637,\n          \"longitude\": 23.819186\n        },\n        {\n          \"latitude\": 37.998641,\n          \"longitude\": 23.819176\n        },\n        {\n          \"latitude\": 37.998646,\n          \"longitude\": 23.819166\n        },\n        {\n          \"latitude\": 37.99865,\n          \"longitude\": 23.819156\n        },\n        {\n          \"latitude\": 37.998654,\n          \"longitude\": 23.819146\n        },\n        {\n          \"latitude\": 37.998658,\n          \"longitude\": 23.819136\n        },\n        {\n          \"latitude\": 37.998662,\n          \"longitude\": 23.819126\n        },\n        {\n          \"latitude\": 37.998667,\n          \"longitude\": 23.819116\n        },\n        {\n          \"latitude\": 37.998671,\n          \"longitude\": 23.819106\n        },\n        {\n          \"latitude\": 37.998675,\n          \"longitude\": 23.819095\n        },\n        {\n          \"latitude\": 37.998679,\n          \"longitude\": 23.819085\n        },\n        {\n          \"latitude\": 37.998683,\n          \"longitude\": 23.819075\n        },\n        {\n          \"latitude\": 37.998688,\n          \"longitude\": 23.819065\n        },\n        {\n          \"latitude\": 37.998692,\n          \"longitude\": 23.819055\n        },\n        {\n          \"latitude\": 37.998696,\n          \"longitude\": 23.819045\n        },\n        {\n          \"latitude\": 37.9987,\n          \"longitude\": 23.819035\n        },\n        {\n          \"latitude\": 37.998704,\n          \"longitude\": 23.819025\n        },\n        {\n          \"latitude\": 37.998709,\n          \"longitude\": 23.819015\n        },\n        {\n          \"latitude\": 37.998713,\n          \"longitude\": 23.819005\n        },\n        {\n          \"latitude\": 37.998717,\n          \"longitude\": 23.818995\n        },\n        {\n          \"latitude\": 37.998721,\n          \"longitude\": 23.818985\n        },\n        {\n          \"latitude\": 37.998726,\n          \"longitude\": 23.818974\n        },\n        {\n          \"latitude\": 37.99873,\n          \"longitude\": 23.818964\n        },\n        {\n          \"latitude\": 37.998734,\n          \"longitude\": 23.818954\n        },\n        {\n          \"latitude\": 37.998738,\n          \"longitude\": 23.818944\n        },\n        {\n          \"latitude\": 37.998742,\n          \"longitude\": 23.818934\n        },\n        {\n          \"latitude\": 37.998747,\n          \"longitude\": 23.818924\n        },\n        {\n          \"latitude\": 37.998751,\n          \"longitude\": 23.818914\n        },\n        {\n          \"latitude\": 37.998755,\n          \"longitude\": 23.818904\n        },\n        {\n          \"latitude\": 37.998759,\n          \"longitude\": 23.818894\n        },\n        {\n          \"latitude\": 37.998763,\n          \"longitude\": 23.818884\n        },\n        {\n          \"latitude\": 37.998768,\n          \"longitude\": 23.818874\n        },\n        {\n          \"latitude\": 37.998772,\n          \"longitude\": 23.818864\n        },\n        {\n          \"latitude\": 37.998776,\n          \"longitude\": 23.818854\n        },\n        {\n          \"latitude\": 37.99878,\n          \"longitude\": 23.818843\n        },\n        {\n          \"latitude\": 37.998785,\n          \"longitude\": 23.818833\n        },\n        {\n          \"latitude\": 37.998789,\n          \"longitude\": 23.818823\n        },\n        {\n          \"latitude\": 37.998793,\n          \"longitude\": 23.818813\n        },\n        {\n          \"latitude\": 37.998797,\n          \"longitude\": 23.818803\n        },\n        {\n          \"latitude\": 37.998801,\n          \"longitude\": 23.818793\n        },\n        {\n          \"latitude\": 37.998806,\n          \"longitude\": 23.818783\n        },\n        {\n          \"latitude\": 37.99881,\n          \"longitude\": 23.818773\n        },\n        {\n          \"latitude\": 37.998814,\n          \"longitude\": 23.818763\n        },\n        {\n          \"latitude\": 37.998818,\n          \"longitude\": 23.818753\n        },\n        {\n          \"latitude\": 37.998822,\n          \"longitude\": 23.818743\n        },\n        {\n          \"latitude\": 37.998827,\n          \"longitude\": 23.818733\n        },\n        {\n          \"latitude\": 37.998831,\n          \"longitude\": 23.818722\n        },\n        {\n          \"latitude\": 37.998835,\n          \"longitude\": 23.818712\n        },\n        {\n          \"latitude\": 37.998839,\n          \"longitude\": 23.818702\n        },\n        {\n          \"latitude\": 37.998844,\n          \"longitude\": 23.818692\n        },\n        {\n          \"latitude\": 37.998848,\n          \"longitude\": 23.818682\n        },\n        {\n          \"latitude\": 37.998852,\n          \"longitude\": 23.818672\n        },\n        {\n          \"latitude\": 37.998856,\n          \"longitude\": 23.818662\n        },\n        {\n          \"latitude\": 37.99886,\n          \"longitude\": 23.818652\n        },\n        {\n          \"latitude\": 37.998865,\n          \"longitude\": 23.818642\n        },\n        {\n          \"latitude\": 37.998869,\n          \"longitude\": 23.818632\n        },\n        {\n          \"latitude\": 37.998873,\n          \"longitude\": 23.818622\n        },\n        {\n          \"latitude\": 37.998877,\n          \"longitude\": 23.818612\n        },\n        {\n          \"latitude\": 37.998881,\n          \"longitude\": 23.818601\n        },\n        {\n          \"latitude\": 37.998886,\n          \"longitude\": 23.818591\n        },\n        {\n          \"latitude\": 37.99889,\n          \"longitude\": 23.818581\n        },\n        {\n          \"latitude\": 37.998894,\n          \"longitude\": 23.818571\n        },\n        {\n          \"latitude\": 37.998898,\n          \"longitude\": 23.818561\n        },\n        {\n          \"latitude\": 37.998903,\n          \"longitude\": 23.818551\n        },\n        {\n          \"latitude\": 37.998907,\n          \"longitude\": 23.818541\n        },\n        {\n          \"latitude\": 37.998911,\n          \"longitude\": 23.818531\n        },\n        {\n          \"latitude\": 37.998915,\n          \"longitude\": 23.818521\n        },\n        {\n          \"latitude\": 37.998919,\n          \"longitude\": 23.818511\n        },\n        {\n          \"latitude\": 37.998924,\n          \"longitude\": 23.818501\n        },\n        {\n          \"latitude\": 37.998928,\n          \"longitude\": 23.818491\n        },\n        {\n          \"latitude\": 37.998932,\n          \"longitude\": 23.81848\n        },\n        {\n          \"latitude\": 37.998936,\n          \"longitude\": 23.81847\n        },\n        {\n          \"latitude\": 37.99894,\n          \"longitude\": 23.81846\n        },\n        {\n          \"latitude\": 37.998945,\n          \"longitude\": 23.81845\n        },\n        {\n          \"latitude\": 37.998949,\n          \"longitude\": 23.81844\n        },\n        {\n          \"latitude\": 37.998953,\n          \"longitude\": 23.81843\n        },\n        {\n          \"latitude\": 37.998957,\n          \"longitude\": 23.81842\n        },\n        {\n          \"latitude\": 37.998962,\n          \"longitude\": 23.81841\n        },\n        {\n          \"latitude\": 37.998966,\n          \"longitude\": 23.8184\n        },\n        {\n          \"latitude\": 37.99897,\n          \"longitude\": 23.81839\n        },\n        {\n          \"latitude\": 37.998974,\n          \"longitude\": 23.81838\n        },\n        {\n          \"latitude\": 37.998978,\n          \"longitude\": 23.81837\n        },\n        {\n          \"latitude\": 37.998983,\n          \"longitude\": 23.818359\n        },\n        {\n          \"latitude\": 37.998987,\n          \"longitude\": 23.818349\n        },\n        {\n          \"latitude\": 37.998991,\n          \"longitude\": 23.818339\n        },\n        {\n          \"latitude\": 37.998995,\n          \"longitude\": 23.818329\n        },\n        {\n          \"latitude\": 37.998999,\n          \"longitude\": 23.818319\n        },\n        {\n          \"latitude\": 37.999004,\n          \"longitude\": 23.818309\n        },\n        {\n          \"latitude\": 37.999008,\n          \"longitude\": 23.818299\n        },\n        {\n          \"latitude\": 37.999012,\n          \"longitude\": 23.818289\n        },\n        {\n          \"latitude\": 37.999016,\n          \"longitude\": 23.818279\n        },\n        {\n          \"latitude\": 37.999021,\n          \"longitude\": 23.818269\n        },\n        {\n          \"latitude\": 37.999025,\n          \"longitude\": 23.818259\n        },\n        {\n          \"latitude\": 37.999029,\n          \"longitude\": 23.818249\n        },\n        {\n          \"latitude\": 37.999033,\n          \"longitude\": 23.818239\n        },\n        {\n          \"latitude\": 37.999037,\n          \"longitude\": 23.818228\n        },\n        {\n          \"latitude\": 37.999042,\n          \"longitude\": 23.818218\n        },\n        {\n          \"latitude\": 37.999046,\n          \"longitude\": 23.818208\n        },\n        {\n          \"latitude\": 37.99905,\n          \"longitude\": 23.818198\n        },\n        {\n          \"latitude\": 37.999054,\n          \"longitude\": 23.818188\n        },\n        {\n          \"latitude\": 37.999058,\n          \"longitude\": 23.818178\n        },\n        {\n          \"latitude\": 37.999063,\n          \"longitude\": 23.818168\n        },\n        {\n          \"latitude\": 37.999067,\n          \"longitude\": 23.818158\n        },\n        {\n          \"latitude\": 37.999071,\n          \"longitude\": 23.818148\n        },\n        {\n          \"latitude\": 37.999075,\n          \"longitude\": 23.818138\n        },\n        {\n          \"latitude\": 37.99908,\n          \"longitude\": 23.818128\n        },\n        {\n          \"latitude\": 37.999084,\n          \"longitude\": 23.818118\n        },\n        {\n          \"latitude\": 37.999088,\n          \"longitude\": 23.818107\n        },\n        {\n          \"latitude\": 37.999092,\n          \"longitude\": 23.818097\n        },\n        {\n          \"latitude\": 37.999096,\n          \"longitude\": 23.818087\n        },\n        {\n          \"latitude\": 37.999101,\n          \"longitude\": 23.818077\n        },\n        {\n          \"latitude\": 37.999105,\n          \"longitude\": 23.818067\n        },\n        {\n          \"latitude\": 37.999109,\n          \"longitude\": 23.818057\n        },\n        {\n          \"latitude\": 37.999113,\n          \"longitude\": 23.818047\n        },\n        {\n          \"latitude\": 37.999117,\n          \"longitude\": 23.818037\n        },\n        {\n          \"latitude\": 37.999122,\n          \"longitude\": 23.818027\n        },\n        {\n          \"latitude\": 37.999126,\n          \"longitude\": 23.818017\n        },\n        {\n          \"latitude\": 37.99913,\n          \"longitude\": 23.818007\n        },\n        {\n          \"latitude\": 37.999134,\n          \"longitude\": 23.817997\n        },\n        {\n          \"latitude\": 37.999139,\n          \"longitude\": 23.817986\n        },\n        {\n          \"latitude\": 37.999143,\n          \"longitude\": 23.817976\n        },\n        {\n          \"latitude\": 37.999147,\n          \"longitude\": 23.817966\n        },\n        {\n          \"latitude\": 37.999151,\n          \"longitude\": 23.817956\n        },\n        {\n          \"latitude\": 37.999155,\n          \"longitude\": 23.817946\n        },\n        {\n          \"latitude\": 37.99916,\n          \"longitude\": 23.817936\n        },\n        {\n          \"latitude\": 37.999164,\n          \"longitude\": 23.817926\n        },\n        {\n          \"latitude\": 37.999168,\n          \"longitude\": 23.817916\n        },\n        {\n          \"latitude\": 37.999172,\n          \"longitude\": 23.817906\n        },\n        {\n          \"latitude\": 37.999176,\n          \"longitude\": 23.817896\n        },\n        {\n          \"latitude\": 37.999181,\n          \"longitude\": 23.817886\n        },\n        {\n          \"latitude\": 37.999185,\n          \"longitude\": 23.817876\n        },\n        {\n          \"latitude\": 37.999189,\n          \"longitude\": 23.817865\n        },\n        {\n          \"latitude\": 37.999193,\n          \"longitude\": 23.817855\n        },\n        {\n          \"latitude\": 37.999198,\n          \"longitude\": 23.817845\n        },\n        {\n          \"latitude\": 37.999202,\n          \"longitude\": 23.817835\n        },\n        {\n          \"latitude\": 37.999206,\n          \"longitude\": 23.817825\n        },\n        {\n          \"latitude\": 37.99921,\n          \"longitude\": 23.817815\n        },\n        {\n          \"latitude\": 37.999214,\n          \"longitude\": 23.817805\n        },\n        {\n          \"latitude\": 37.999219,\n          \"longitude\": 23.817795\n        },\n        {\n          \"latitude\": 37.999223,\n          \"longitude\": 23.817785\n        },\n        {\n          \"latitude\": 37.999227,\n          \"longitude\": 23.817775\n        },\n        {\n          \"latitude\": 37.999231,\n          \"longitude\": 23.817765\n        },\n        {\n          \"latitude\": 37.999235,\n          \"longitude\": 23.817755\n        },\n        {\n          \"latitude\": 37.99924,\n          \"longitude\": 23.817744\n        },\n        {\n          \"latitude\": 37.999244,\n          \"longitude\": 23.817734\n        },\n        {\n          \"latitude\": 37.999248,\n          \"longitude\": 23.817724\n        },\n        {\n          \"latitude\": 37.999252,\n          \"longitude\": 23.817714\n        },\n        {\n          \"latitude\": 37.999257,\n          \"longitude\": 23.817704\n        },\n        {\n          \"latitude\": 37.999261,\n          \"longitude\": 23.817694\n        },\n        {\n          \"latitude\": 37.999265,\n          \"longitude\": 23.817684\n        },\n        {\n          \"latitude\": 37.999269,\n          \"longitude\": 23.817674\n        },\n        {\n          \"latitude\": 37.999267,\n          \"longitude\": 23.817658\n        },\n        {\n          \"latitude\": 37.999262,\n          \"longitude\": 23.817648\n        },\n        {\n          \"latitude\": 37.999257,\n          \"longitude\": 23.817639\n        },\n        {\n          \"latitude\": 37.999249,\n          \"longitude\": 23.81764\n        },\n        {\n          \"latitude\": 37.999244,\n          \"longitude\": 23.81765\n        },\n        {\n          \"latitude\": 37.99924,\n          \"longitude\": 23.81766\n        },\n        {\n          \"latitude\": 37.999236,\n          \"longitude\": 23.81767\n        },\n        {\n          \"latitude\": 37.999232,\n          \"longitude\": 23.81768\n        },\n        {\n          \"latitude\": 37.999228,\n          \"longitude\": 23.81769\n        },\n        {\n          \"latitude\": 37.999223,\n          \"longitude\": 23.8177\n        },\n        {\n          \"latitude\": 37.999219,\n          \"longitude\": 23.81771\n        },\n        {\n          \"latitude\": 37.999215,\n          \"longitude\": 23.81772\n        },\n        {\n          \"latitude\": 37.999211,\n          \"longitude\": 23.817731\n        },\n        {\n          \"latitude\": 37.999206,\n          \"longitude\": 23.817741\n        },\n        {\n          \"latitude\": 37.999202,\n          \"longitude\": 23.817751\n        },\n        {\n          \"latitude\": 37.999198,\n          \"longitude\": 23.817761\n        },\n        {\n          \"latitude\": 37.999194,\n          \"longitude\": 23.817771\n        },\n        {\n          \"latitude\": 37.999189,\n          \"longitude\": 23.817781\n        },\n        {\n          \"latitude\": 37.999185,\n          \"longitude\": 23.817791\n        },\n        {\n          \"latitude\": 37.999181,\n          \"longitude\": 23.817801\n        },\n        {\n          \"latitude\": 37.999177,\n          \"longitude\": 23.817811\n        },\n        {\n          \"latitude\": 37.999173,\n          \"longitude\": 23.817821\n        },\n        {\n          \"latitude\": 37.999168,\n          \"longitude\": 23.817831\n        },\n        {\n          \"latitude\": 37.999164,\n          \"longitude\": 23.817841\n        },\n        {\n          \"latitude\": 37.99916,\n          \"longitude\": 23.817851\n        },\n        {\n          \"latitude\": 37.999156,\n          \"longitude\": 23.817862\n        },\n        {\n          \"latitude\": 37.999151,\n          \"longitude\": 23.817872\n        },\n        {\n          \"latitude\": 37.999147,\n          \"longitude\": 23.817882\n        },\n        {\n          \"latitude\": 37.999143,\n          \"longitude\": 23.817892\n        },\n        {\n          \"latitude\": 37.999139,\n          \"longitude\": 23.817902\n        },\n        {\n          \"latitude\": 37.999135,\n          \"longitude\": 23.817912\n        },\n        {\n          \"latitude\": 37.99913,\n          \"longitude\": 23.817922\n        },\n        {\n          \"latitude\": 37.999126,\n          \"longitude\": 23.817932\n        },\n        {\n          \"latitude\": 37.999122,\n          \"longitude\": 23.817942\n        },\n        {\n          \"latitude\": 37.999118,\n          \"longitude\": 23.817952\n        },\n        {\n          \"latitude\": 37.999113,\n          \"longitude\": 23.817962\n        },\n        {\n          \"latitude\": 37.999109,\n          \"longitude\": 23.817972\n        },\n        {\n          \"latitude\": 37.999105,\n          \"longitude\": 23.817982\n        },\n        {\n          \"latitude\": 37.999101,\n          \"longitude\": 23.817992\n        },\n        {\n          \"latitude\": 37.999097,\n          \"longitude\": 23.818003\n        },\n        {\n          \"latitude\": 37.999092,\n          \"longitude\": 23.818013\n        },\n        {\n          \"latitude\": 37.999088,\n          \"longitude\": 23.818023\n        },\n        {\n          \"latitude\": 37.999084,\n          \"longitude\": 23.818033\n        },\n        {\n          \"latitude\": 37.99908,\n          \"longitude\": 23.818043\n        },\n        {\n          \"latitude\": 37.999075,\n          \"longitude\": 23.818053\n        },\n        {\n          \"latitude\": 37.999071,\n          \"longitude\": 23.818063\n        },\n        {\n          \"latitude\": 37.999067,\n          \"longitude\": 23.818073\n        },\n        {\n          \"latitude\": 37.999063,\n          \"longitude\": 23.818083\n        },\n        {\n          \"latitude\": 37.999059,\n          \"longitude\": 23.818093\n        },\n        {\n          \"latitude\": 37.999054,\n          \"longitude\": 23.818103\n        },\n        {\n          \"latitude\": 37.99905,\n          \"longitude\": 23.818113\n        },\n        {\n          \"latitude\": 37.999046,\n          \"longitude\": 23.818123\n        },\n        {\n          \"latitude\": 37.999042,\n          \"longitude\": 23.818134\n        },\n        {\n          \"latitude\": 37.999037,\n          \"longitude\": 23.818144\n        },\n        {\n          \"latitude\": 37.999033,\n          \"longitude\": 23.818154\n        },\n        {\n          \"latitude\": 37.999029,\n          \"longitude\": 23.818164\n        },\n        {\n          \"latitude\": 37.999025,\n          \"longitude\": 23.818174\n        },\n        {\n          \"latitude\": 37.99902,\n          \"longitude\": 23.818184\n        },\n        {\n          \"latitude\": 37.999016,\n          \"longitude\": 23.818194\n        },\n        {\n          \"latitude\": 37.999012,\n          \"longitude\": 23.818204\n        },\n        {\n          \"latitude\": 37.999008,\n          \"longitude\": 23.818214\n        },\n        {\n          \"latitude\": 37.999004,\n          \"longitude\": 23.818224\n        },\n        {\n          \"latitude\": 37.998999,\n          \"longitude\": 23.818234\n        },\n        {\n          \"latitude\": 37.998995,\n          \"longitude\": 23.818244\n        },\n        {\n          \"latitude\": 37.998991,\n          \"longitude\": 23.818254\n        },\n        {\n          \"latitude\": 37.998987,\n          \"longitude\": 23.818265\n        },\n        {\n          \"latitude\": 37.998982,\n          \"longitude\": 23.818275\n        },\n        {\n          \"latitude\": 37.998978,\n          \"longitude\": 23.818285\n        },\n        {\n          \"latitude\": 37.998974,\n          \"longitude\": 23.818295\n        },\n        {\n          \"latitude\": 37.99897,\n          \"longitude\": 23.818305\n        },\n        {\n          \"latitude\": 37.998966,\n          \"longitude\": 23.818315\n        },\n        {\n          \"latitude\": 37.998961,\n          \"longitude\": 23.818325\n        },\n        {\n          \"latitude\": 37.998957,\n          \"longitude\": 23.818335\n        },\n        {\n          \"latitude\": 37.998953,\n          \"longitude\": 23.818345\n        },\n        {\n          \"latitude\": 37.998949,\n          \"longitude\": 23.818355\n        },\n        {\n          \"latitude\": 37.998944,\n          \"longitude\": 23.818365\n        },\n        {\n          \"latitude\": 37.99894,\n          \"longitude\": 23.818375\n        },\n        {\n          \"latitude\": 37.998936,\n          \"longitude\": 23.818385\n        },\n        {\n          \"latitude\": 37.998932,\n          \"longitude\": 23.818395\n        },\n        {\n          \"latitude\": 37.998928,\n          \"longitude\": 23.818406\n        },\n        {\n          \"latitude\": 37.998923,\n          \"longitude\": 23.818416\n        },\n        {\n          \"latitude\": 37.998919,\n          \"longitude\": 23.818426\n        },\n        {\n          \"latitude\": 37.998915,\n          \"longitude\": 23.818436\n        },\n        {\n          \"latitude\": 37.998911,\n          \"longitude\": 23.818446\n        },\n        {\n          \"latitude\": 37.998906,\n          \"longitude\": 23.818456\n        },\n        {\n          \"latitude\": 37.998902,\n          \"longitude\": 23.818466\n        },\n        {\n          \"latitude\": 37.998898,\n          \"longitude\": 23.818476\n        },\n        {\n          \"latitude\": 37.998894,\n          \"longitude\": 23.818486\n        },\n        {\n          \"latitude\": 37.99889,\n          \"longitude\": 23.818496\n        },\n        {\n          \"latitude\": 37.998885,\n          \"longitude\": 23.818506\n        },\n        {\n          \"latitude\": 37.998881,\n          \"longitude\": 23.818516\n        },\n        {\n          \"latitude\": 37.998877,\n          \"longitude\": 23.818526\n        },\n        {\n          \"latitude\": 37.998873,\n          \"longitude\": 23.818537\n        },\n        {\n          \"latitude\": 37.998868,\n          \"longitude\": 23.818547\n        },\n        {\n          \"latitude\": 37.998864,\n          \"longitude\": 23.818557\n        },\n        {\n          \"latitude\": 37.99886,\n          \"longitude\": 23.818567\n        },\n        {\n          \"latitude\": 37.998856,\n          \"longitude\": 23.818577\n        },\n        {\n          \"latitude\": 37.998851,\n          \"longitude\": 23.818587\n        },\n        {\n          \"latitude\": 37.998847,\n          \"longitude\": 23.818597\n        },\n        {\n          \"latitude\": 37.998843,\n          \"longitude\": 23.818607\n        },\n        {\n          \"latitude\": 37.998839,\n          \"longitude\": 23.818617\n        },\n        {\n          \"latitude\": 37.998835,\n          \"longitude\": 23.818627\n        },\n        {\n          \"latitude\": 37.99883,\n          \"longitude\": 23.818637\n        },\n        {\n          \"latitude\": 37.998826,\n          \"longitude\": 23.818647\n        },\n        {\n          \"latitude\": 37.998822,\n          \"longitude\": 23.818657\n        },\n        {\n          \"latitude\": 37.998818,\n          \"longitude\": 23.818667\n        },\n        {\n          \"latitude\": 37.998813,\n          \"longitude\": 23.818678\n        },\n        {\n          \"latitude\": 37.998809,\n          \"longitude\": 23.818688\n        },\n        {\n          \"latitude\": 37.998805,\n          \"longitude\": 23.818698\n        },\n        {\n          \"latitude\": 37.998801,\n          \"longitude\": 23.818708\n        },\n        {\n          \"latitude\": 37.998797,\n          \"longitude\": 23.818718\n        },\n        {\n          \"latitude\": 37.998792,\n          \"longitude\": 23.818728\n        },\n        {\n          \"latitude\": 37.998788,\n          \"longitude\": 23.818738\n        },\n        {\n          \"latitude\": 37.998784,\n          \"longitude\": 23.818748\n        },\n        {\n          \"latitude\": 37.99878,\n          \"longitude\": 23.818758\n        },\n        {\n          \"latitude\": 37.998775,\n          \"longitude\": 23.818768\n        },\n        {\n          \"latitude\": 37.998771,\n          \"longitude\": 23.818778\n        },\n        {\n          \"latitude\": 37.998767,\n          \"longitude\": 23.818788\n        },\n        {\n          \"latitude\": 37.998763,\n          \"longitude\": 23.818798\n        },\n        {\n          \"latitude\": 37.998759,\n          \"longitude\": 23.818809\n        },\n        {\n          \"latitude\": 37.998754,\n          \"longitude\": 23.818819\n        },\n        {\n          \"latitude\": 37.99875,\n          \"longitude\": 23.818829\n        },\n        {\n          \"latitude\": 37.998746,\n          \"longitude\": 23.818839\n        },\n        {\n          \"latitude\": 37.998742,\n          \"longitude\": 23.818849\n        },\n        {\n          \"latitude\": 37.998737,\n          \"longitude\": 23.818859\n        },\n        {\n          \"latitude\": 37.998733,\n          \"longitude\": 23.818869\n        },\n        {\n          \"latitude\": 37.998729,\n          \"longitude\": 23.818879\n        },\n        {\n          \"latitude\": 37.998725,\n          \"longitude\": 23.818889\n        },\n        {\n          \"latitude\": 37.998721,\n          \"longitude\": 23.818899\n        },\n        {\n          \"latitude\": 37.998716,\n          \"longitude\": 23.818909\n        },\n        {\n          \"latitude\": 37.998712,\n          \"longitude\": 23.818919\n        },\n        {\n          \"latitude\": 37.998708,\n          \"longitude\": 23.818929\n        },\n        {\n          \"latitude\": 37.998704,\n          \"longitude\": 23.818939\n        },\n        {\n          \"latitude\": 37.998699,\n          \"longitude\": 23.81895\n        },\n        {\n          \"latitude\": 37.998695,\n          \"longitude\": 23.81896\n        },\n        {\n          \"latitude\": 37.998691,\n          \"longitude\": 23.81897\n        },\n        {\n          \"latitude\": 37.998687,\n          \"longitude\": 23.81898\n        },\n        {\n          \"latitude\": 37.998682,\n          \"longitude\": 23.81899\n        },\n        {\n          \"latitude\": 37.998678,\n          \"longitude\": 23.819\n        },\n        {\n          \"latitude\": 37.998674,\n          \"longitude\": 23.81901\n        },\n        {\n          \"latitude\": 37.99867,\n          \"longitude\": 23.81902\n        },\n        {\n          \"latitude\": 37.998666,\n          \"longitude\": 23.81903\n        },\n        {\n          \"latitude\": 37.998661,\n          \"longitude\": 23.81904\n        },\n        {\n          \"latitude\": 37.998657,\n          \"longitude\": 23.81905\n        },\n        {\n          \"latitude\": 37.998653,\n          \"longitude\": 23.81906\n        },\n        {\n          \"latitude\": 37.998649,\n          \"longitude\": 23.81907\n        },\n        {\n          \"latitude\": 37.998644,\n          \"longitude\": 23.819081\n        },\n        {\n          \"latitude\": 37.99864,\n          \"longitude\": 23.819091\n        },\n        {\n          \"latitude\": 37.998636,\n          \"longitude\": 23.819101\n        },\n        {\n          \"latitude\": 37.998632,\n          \"longitude\": 23.819111\n        },\n        {\n          \"latitude\": 37.998628,\n          \"longitude\": 23.819121\n        },\n        {\n          \"latitude\": 37.998623,\n          \"longitude\": 23.819131\n        },\n        {\n          \"latitude\": 37.998619,\n          \"longitude\": 23.819141\n        },\n        {\n          \"latitude\": 37.998615,\n          \"longitude\": 23.819151\n        },\n        {\n          \"latitude\": 37.998611,\n          \"longitude\": 23.819161\n        },\n        {\n          \"latitude\": 37.998606,\n          \"longitude\": 23.819171\n        },\n        {\n          \"latitude\": 37.998602,\n          \"longitude\": 23.819181\n        },\n        {\n          \"latitude\": 37.998598,\n          \"longitude\": 23.819191\n        },\n        {\n          \"latitude\": 37.998594,\n          \"longitude\": 23.819201\n        },\n        {\n          \"latitude\": 37.99859,\n          \"longitude\": 23.819212\n        },\n        {\n          \"latitude\": 37.998585,\n          \"longitude\": 23.819222\n        },\n        {\n          \"latitude\": 37.998581,\n          \"longitude\": 23.819232\n        },\n        {\n          \"latitude\": 37.998577,\n          \"longitude\": 23.819242\n        },\n        {\n          \"latitude\": 37.998573,\n          \"longitude\": 23.819252\n        },\n        {\n          \"latitude\": 37.998568,\n          \"longitude\": 23.819262\n        },\n        {\n          \"latitude\": 37.998564,\n          \"longitude\": 23.819272\n        },\n        {\n          \"latitude\": 37.99856,\n          \"longitude\": 23.819282\n        },\n        {\n          \"latitude\": 37.998556,\n          \"longitude\": 23.819292\n        },\n        {\n          \"latitude\": 37.998551,\n          \"longitude\": 23.819302\n        },\n        {\n          \"latitude\": 37.998547,\n          \"longitude\": 23.819312\n        },\n        {\n          \"latitude\": 37.998543,\n          \"longitude\": 23.819322\n        },\n        {\n          \"latitude\": 37.998539,\n          \"longitude\": 23.819332\n        },\n        {\n          \"latitude\": 37.998535,\n          \"longitude\": 23.819342\n        },\n        {\n          \"latitude\": 37.99853,\n          \"longitude\": 23.819353\n        },\n        {\n          \"latitude\": 37.998526,\n          \"longitude\": 23.819363\n        },\n        {\n          \"latitude\": 37.998522,\n          \"longitude\": 23.819373\n        },\n        {\n          \"latitude\": 37.998518,\n          \"longitude\": 23.819383\n        },\n        {\n          \"latitude\": 37.998513,\n          \"longitude\": 23.819393\n        },\n        {\n          \"latitude\": 37.998509,\n          \"longitude\": 23.819403\n        },\n        {\n          \"latitude\": 37.998505,\n          \"longitude\": 23.819413\n        },\n        {\n          \"latitude\": 37.998501,\n          \"longitude\": 23.819423\n        },\n        {\n          \"latitude\": 37.998497,\n          \"longitude\": 23.819433\n        },\n        {\n          \"latitude\": 37.998492,\n          \"longitude\": 23.819443\n        },\n        {\n          \"latitude\": 37.998488,\n          \"longitude\": 23.819453\n        },\n        {\n          \"latitude\": 37.998484,\n          \"longitude\": 23.819463\n        },\n        {\n          \"latitude\": 37.99848,\n          \"longitude\": 23.819473\n        },\n        {\n          \"latitude\": 37.998475,\n          \"longitude\": 23.819484\n        },\n        {\n          \"latitude\": 37.998471,\n          \"longitude\": 23.819494\n        },\n        {\n          \"latitude\": 37.998467,\n          \"longitude\": 23.819504\n        },\n        {\n          \"latitude\": 37.998463,\n          \"longitude\": 23.819514\n        },\n        {\n          \"latitude\": 37.998459,\n          \"longitude\": 23.819524\n        },\n        {\n          \"latitude\": 37.998454,\n          \"longitude\": 23.819534\n        },\n        {\n          \"latitude\": 37.99845,\n          \"longitude\": 23.819544\n        },\n        {\n          \"latitude\": 37.998446,\n          \"longitude\": 23.819554\n        },\n        {\n          \"latitude\": 37.998442,\n          \"longitude\": 23.819564\n        },\n        {\n          \"latitude\": 37.998437,\n          \"longitude\": 23.819574\n        },\n        {\n          \"latitude\": 37.998433,\n          \"longitude\": 23.819584\n        },\n        {\n          \"latitude\": 37.998429,\n          \"longitude\": 23.819594\n        },\n        {\n          \"latitude\": 37.998425,\n          \"longitude\": 23.819604\n        },\n        {\n          \"latitude\": 37.998421,\n          \"longitude\": 23.819614\n        },\n        {\n          \"latitude\": 37.998416,\n          \"longitude\": 23.819625\n        },\n        {\n          \"latitude\": 37.998412,\n          \"longitude\": 23.819635\n        },\n        {\n          \"latitude\": 37.998408,\n          \"longitude\": 23.819645\n        },\n        {\n          \"latitude\": 37.998404,\n          \"longitude\": 23.819655\n        },\n        {\n          \"latitude\": 37.998399,\n          \"longitude\": 23.819665\n        },\n        {\n          \"latitude\": 37.998395,\n          \"longitude\": 23.819675\n        },\n        {\n          \"latitude\": 37.998391,\n          \"longitude\": 23.819685\n        },\n        {\n          \"latitude\": 37.998387,\n          \"longitude\": 23.819695\n        },\n        {\n          \"latitude\": 37.998382,\n          \"longitude\": 23.819705\n        },\n        {\n          \"latitude\": 37.998371,\n          \"longitude\": 23.819707\n        },\n        {\n          \"latitude\": 37.998363,\n          \"longitude\": 23.819704\n        },\n        {\n          \"latitude\": 37.998355,\n          \"longitude\": 23.8197\n        },\n        {\n          \"latitude\": 37.998346,\n          \"longitude\": 23.819696\n        },\n        {\n          \"latitude\": 37.998338,\n          \"longitude\": 23.819692\n        },\n        {\n          \"latitude\": 37.998329,\n          \"longitude\": 23.819688\n        },\n        {\n          \"latitude\": 37.998321,\n          \"longitude\": 23.819684\n        },\n        {\n          \"latitude\": 37.998312,\n          \"longitude\": 23.81968\n        },\n        {\n          \"latitude\": 37.998304,\n          \"longitude\": 23.819677\n        },\n        {\n          \"latitude\": 37.998295,\n          \"longitude\": 23.819673\n        },\n        {\n          \"latitude\": 37.998287,\n          \"longitude\": 23.819669\n        },\n        {\n          \"latitude\": 37.998278,\n          \"longitude\": 23.819665\n        },\n        {\n          \"latitude\": 37.99827,\n          \"longitude\": 23.819661\n        },\n        {\n          \"latitude\": 37.998261,\n          \"longitude\": 23.819657\n        },\n        {\n          \"latitude\": 37.998253,\n          \"longitude\": 23.819653\n        },\n        {\n          \"latitude\": 37.998244,\n          \"longitude\": 23.81965\n        },\n        {\n          \"latitude\": 37.998236,\n          \"longitude\": 23.819646\n        },\n        {\n          \"latitude\": 37.998228,\n          \"longitude\": 23.819642\n        },\n        {\n          \"latitude\": 37.998219,\n          \"longitude\": 23.819638\n        },\n        {\n          \"latitude\": 37.998211,\n          \"longitude\": 23.819634\n        },\n        {\n          \"latitude\": 37.998202,\n          \"longitude\": 23.81963\n        },\n        {\n          \"latitude\": 37.998194,\n          \"longitude\": 23.819626\n        },\n        {\n          \"latitude\": 37.998185,\n          \"longitude\": 23.819623\n        },\n        {\n          \"latitude\": 37.998177,\n          \"longitude\": 23.819619\n        },\n        {\n          \"latitude\": 37.998168,\n          \"longitude\": 23.819615\n        },\n        {\n          \"latitude\": 37.99816,\n          \"longitude\": 23.819611\n        },\n        {\n          \"latitude\": 37.99815,\n          \"longitude\": 23.819601\n        },\n        {\n          \"latitude\": 37.998143,\n          \"longitude\": 23.819593\n        },\n        {\n          \"latitude\": 37.998137,\n          \"longitude\": 23.819585\n        },\n        {\n          \"latitude\": 37.998131,\n          \"longitude\": 23.819577\n        },\n        {\n          \"latitude\": 37.998124,\n          \"longitude\": 23.819569\n        },\n        {\n          \"latitude\": 37.998118,\n          \"longitude\": 23.819561\n        },\n        {\n          \"latitude\": 37.998112,\n          \"longitude\": 23.819553\n        },\n        {\n          \"latitude\": 37.998105,\n          \"longitude\": 23.819545\n        },\n        {\n          \"latitude\": 37.998099,\n          \"longitude\": 23.819536\n        },\n        {\n          \"latitude\": 37.998093,\n          \"longitude\": 23.819528\n        },\n        {\n          \"latitude\": 37.998086,\n          \"longitude\": 23.81952\n        },\n        {\n          \"latitude\": 37.99808,\n          \"longitude\": 23.819512\n        },\n        {\n          \"latitude\": 37.998073,\n          \"longitude\": 23.819504\n        },\n        {\n          \"latitude\": 37.998067,\n          \"longitude\": 23.819496\n        },\n        {\n          \"latitude\": 37.998061,\n          \"longitude\": 23.819488\n        },\n        {\n          \"latitude\": 37.998054,\n          \"longitude\": 23.81948\n        },\n        {\n          \"latitude\": 37.998048,\n          \"longitude\": 23.819472\n        },\n        {\n          \"latitude\": 37.998042,\n          \"longitude\": 23.819464\n        },\n        {\n          \"latitude\": 37.998035,\n          \"longitude\": 23.819455\n        },\n        {\n          \"latitude\": 37.998029,\n          \"longitude\": 23.819447\n        },\n        {\n          \"latitude\": 37.998023,\n          \"longitude\": 23.819439\n        },\n        {\n          \"latitude\": 37.998016,\n          \"longitude\": 23.819431\n        },\n        {\n          \"latitude\": 37.99801,\n          \"longitude\": 23.819423\n        },\n        {\n          \"latitude\": 37.998004,\n          \"longitude\": 23.819415\n        },\n        {\n          \"latitude\": 37.997997,\n          \"longitude\": 23.819407\n        },\n        {\n          \"latitude\": 37.997991,\n          \"longitude\": 23.819399\n        },\n        {\n          \"latitude\": 37.997985,\n          \"longitude\": 23.819391\n        },\n        {\n          \"latitude\": 37.997978,\n          \"longitude\": 23.819383\n        },\n        {\n          \"latitude\": 37.997972,\n          \"longitude\": 23.819375\n        },\n        {\n          \"latitude\": 37.997966,\n          \"longitude\": 23.819366\n        },\n        {\n          \"latitude\": 37.997959,\n          \"longitude\": 23.819358\n        },\n        {\n          \"latitude\": 37.997953,\n          \"longitude\": 23.81935\n        },\n        {\n          \"latitude\": 37.997947,\n          \"longitude\": 23.819342\n        },\n        {\n          \"latitude\": 37.99794,\n          \"longitude\": 23.819334\n        },\n        {\n          \"latitude\": 37.997934,\n          \"longitude\": 23.819326\n        },\n        {\n          \"latitude\": 37.997928,\n          \"longitude\": 23.819318\n        },\n        {\n          \"latitude\": 37.997921,\n          \"longitude\": 23.81931\n        },\n        {\n          \"latitude\": 37.997915,\n          \"longitude\": 23.819302\n        },\n        {\n          \"latitude\": 37.997909,\n          \"longitude\": 23.819294\n        },\n        {\n          \"latitude\": 37.997902,\n          \"longitude\": 23.819285\n        },\n        {\n          \"latitude\": 37.997896,\n          \"longitude\": 23.819277\n        },\n        {\n          \"latitude\": 37.99789,\n          \"longitude\": 23.819269\n        },\n        {\n          \"latitude\": 37.997883,\n          \"longitude\": 23.819261\n        },\n        {\n          \"latitude\": 37.997877,\n          \"longitude\": 23.819253\n        },\n        {\n          \"latitude\": 37.997871,\n          \"longitude\": 23.819245\n        },\n        {\n          \"latitude\": 37.997864,\n          \"longitude\": 23.819237\n        },\n        {\n          \"latitude\": 37.997858,\n          \"longitude\": 23.819229\n        },\n        {\n          \"latitude\": 37.997852,\n          \"longitude\": 23.819221\n        },\n        {\n          \"latitude\": 37.997845,\n          \"longitude\": 23.819213\n        },\n        {\n          \"latitude\": 37.997839,\n          \"longitude\": 23.819204\n        },\n        {\n          \"latitude\": 37.997833,\n          \"longitude\": 23.819196\n        },\n        {\n          \"latitude\": 37.997826,\n          \"longitude\": 23.819188\n        },\n        {\n          \"latitude\": 37.99782,\n          \"longitude\": 23.81918\n        },\n        {\n          \"latitude\": 37.997814,\n          \"longitude\": 23.819172\n        },\n        {\n          \"latitude\": 37.997807,\n          \"longitude\": 23.819164\n        },\n        {\n          \"latitude\": 37.997801,\n          \"longitude\": 23.819156\n        },\n        {\n          \"latitude\": 37.997795,\n          \"longitude\": 23.819148\n        },\n        {\n          \"latitude\": 37.997788,\n          \"longitude\": 23.81914\n        },\n        {\n          \"latitude\": 37.997782,\n          \"longitude\": 23.819132\n        },\n        {\n          \"latitude\": 37.997776,\n          \"longitude\": 23.819124\n        },\n        {\n          \"latitude\": 37.997769,\n          \"longitude\": 23.819115\n        },\n        {\n          \"latitude\": 37.997763,\n          \"longitude\": 23.819107\n        },\n        {\n          \"latitude\": 37.997757,\n          \"longitude\": 23.819099\n        },\n        {\n          \"latitude\": 37.99775,\n          \"longitude\": 23.819091\n        },\n        {\n          \"latitude\": 37.997744,\n          \"longitude\": 23.819083\n        },\n        {\n          \"latitude\": 37.997738,\n          \"longitude\": 23.819075\n        },\n        {\n          \"latitude\": 37.997731,\n          \"longitude\": 23.819067\n        },\n        {\n          \"latitude\": 37.997725,\n          \"longitude\": 23.819059\n        },\n        {\n          \"latitude\": 37.997719,\n          \"longitude\": 23.819051\n        },\n        {\n          \"latitude\": 37.997712,\n          \"longitude\": 23.819043\n        },\n        {\n          \"latitude\": 37.997706,\n          \"longitude\": 23.819034\n        },\n        {\n          \"latitude\": 37.9977,\n          \"longitude\": 23.819026\n        },\n        {\n          \"latitude\": 37.997693,\n          \"longitude\": 23.819018\n        },\n        {\n          \"latitude\": 37.997687,\n          \"longitude\": 23.81901\n        },\n        {\n          \"latitude\": 37.997681,\n          \"longitude\": 23.819002\n        },\n        {\n          \"latitude\": 37.997674,\n          \"longitude\": 23.818994\n        },\n        {\n          \"latitude\": 37.997668,\n          \"longitude\": 23.818986\n        },\n        {\n          \"latitude\": 37.997661,\n          \"longitude\": 23.818978\n        },\n        {\n          \"latitude\": 37.997655,\n          \"longitude\": 23.81897\n        },\n        {\n          \"latitude\": 37.997649,\n          \"longitude\": 23.818962\n        },\n        {\n          \"latitude\": 37.997642,\n          \"longitude\": 23.818954\n        },\n        {\n          \"latitude\": 37.997636,\n          \"longitude\": 23.818945\n        },\n        {\n          \"latitude\": 37.99763,\n          \"longitude\": 23.818937\n        },\n        {\n          \"latitude\": 37.997623,\n          \"longitude\": 23.818929\n        },\n        {\n          \"latitude\": 37.997617,\n          \"longitude\": 23.818921\n        },\n        {\n          \"latitude\": 37.997611,\n          \"longitude\": 23.818913\n        },\n        {\n          \"latitude\": 37.997604,\n          \"longitude\": 23.818905\n        },\n        {\n          \"latitude\": 37.997598,\n          \"longitude\": 23.818897\n        },\n        {\n          \"latitude\": 37.997592,\n          \"longitude\": 23.818889\n        },\n        {\n          \"latitude\": 37.997585,\n          \"longitude\": 23.818881\n        },\n        {\n          \"latitude\": 37.997579,\n          \"longitude\": 23.818873\n        },\n        {\n          \"latitude\": 37.997573,\n          \"longitude\": 23.818864\n        },\n        {\n          \"latitude\": 37.997566,\n          \"longitude\": 23.818856\n        },\n        {\n          \"latitude\": 37.99756,\n          \"longitude\": 23.818848\n        },\n        {\n          \"latitude\": 37.997554,\n          \"longitude\": 23.81884\n        },\n        {\n          \"latitude\": 37.997547,\n          \"longitude\": 23.818832\n        },\n        {\n          \"latitude\": 37.997541,\n          \"longitude\": 23.818824\n        },\n        {\n          \"latitude\": 37.997535,\n          \"longitude\": 23.818816\n        },\n        {\n          \"latitude\": 37.997528,\n          \"longitude\": 23.818808\n        },\n        {\n          \"latitude\": 37.997522,\n          \"longitude\": 23.8188\n        },\n        {\n          \"latitude\": 37.997516,\n          \"longitude\": 23.818792\n        },\n        {\n          \"latitude\": 37.997509,\n          \"longitude\": 23.818784\n        },\n        {\n          \"latitude\": 37.997503,\n          \"longitude\": 23.818775\n        },\n        {\n          \"latitude\": 37.997497,\n          \"longitude\": 23.818767\n        },\n        {\n          \"latitude\": 37.99749,\n          \"longitude\": 23.818759\n        },\n        {\n          \"latitude\": 37.997484,\n          \"longitude\": 23.818751\n        },\n        {\n          \"latitude\": 37.997478,\n          \"longitude\": 23.818743\n        },\n        {\n          \"latitude\": 37.997471,\n          \"longitude\": 23.818735\n        },\n        {\n          \"latitude\": 37.997465,\n          \"longitude\": 23.818727\n        },\n        {\n          \"latitude\": 37.997459,\n          \"longitude\": 23.818719\n        },\n        {\n          \"latitude\": 37.997452,\n          \"longitude\": 23.818711\n        },\n        {\n          \"latitude\": 37.997446,\n          \"longitude\": 23.818703\n        },\n        {\n          \"latitude\": 37.99744,\n          \"longitude\": 23.818694\n        },\n        {\n          \"latitude\": 37.997433,\n          \"longitude\": 23.818686\n        },\n        {\n          \"latitude\": 37.997427,\n          \"longitude\": 23.818678\n        },\n        {\n          \"latitude\": 37.997421,\n          \"longitude\": 23.81867\n        },\n        {\n          \"latitude\": 37.997414,\n          \"longitude\": 23.818662\n        },\n        {\n          \"latitude\": 37.997408,\n          \"longitude\": 23.818654\n        },\n        {\n          \"latitude\": 37.997402,\n          \"longitude\": 23.818646\n        },\n        {\n          \"latitude\": 37.997395,\n          \"longitude\": 23.818638\n        },\n        {\n          \"latitude\": 37.997389,\n          \"longitude\": 23.81863\n        },\n        {\n          \"latitude\": 37.997383,\n          \"longitude\": 23.818622\n        },\n        {\n          \"latitude\": 37.997376,\n          \"longitude\": 23.818614\n        },\n        {\n          \"latitude\": 37.99737,\n          \"longitude\": 23.818605\n        },\n        {\n          \"latitude\": 37.997364,\n          \"longitude\": 23.818597\n        },\n        {\n          \"latitude\": 37.997357,\n          \"longitude\": 23.818589\n        },\n        {\n          \"latitude\": 37.997351,\n          \"longitude\": 23.818581\n        },\n        {\n          \"latitude\": 37.997345,\n          \"longitude\": 23.818573\n        },\n        {\n          \"latitude\": 37.997338,\n          \"longitude\": 23.818565\n        },\n        {\n          \"latitude\": 37.997332,\n          \"longitude\": 23.818557\n        },\n        {\n          \"latitude\": 37.997326,\n          \"longitude\": 23.818549\n        },\n        {\n          \"latitude\": 37.997319,\n          \"longitude\": 23.818541\n        },\n        {\n          \"latitude\": 37.997313,\n          \"longitude\": 23.818533\n        },\n        {\n          \"latitude\": 37.997307,\n          \"longitude\": 23.818524\n        },\n        {\n          \"latitude\": 37.9973,\n          \"longitude\": 23.818516\n        },\n        {\n          \"latitude\": 37.997294,\n          \"longitude\": 23.818508\n        },\n        {\n          \"latitude\": 37.997288,\n          \"longitude\": 23.8185\n        },\n        {\n          \"latitude\": 37.997281,\n          \"longitude\": 23.818492\n        },\n        {\n          \"latitude\": 37.997275,\n          \"longitude\": 23.818484\n        },\n        {\n          \"latitude\": 37.997269,\n          \"longitude\": 23.818476\n        },\n        {\n          \"latitude\": 37.997262,\n          \"longitude\": 23.818468\n        },\n        {\n          \"latitude\": 37.997256,\n          \"longitude\": 23.81846\n        },\n        {\n          \"latitude\": 37.997249,\n          \"longitude\": 23.818452\n        },\n        {\n          \"latitude\": 37.997243,\n          \"longitude\": 23.818443\n        },\n        {\n          \"latitude\": 37.997237,\n          \"longitude\": 23.818435\n        },\n        {\n          \"latitude\": 37.99723,\n          \"longitude\": 23.818427\n        },\n        {\n          \"latitude\": 37.997224,\n          \"longitude\": 23.818419\n        },\n        {\n          \"latitude\": 37.997218,\n          \"longitude\": 23.818411\n        },\n        {\n          \"latitude\": 37.997211,\n          \"longitude\": 23.818403\n        },\n        {\n          \"latitude\": 37.997205,\n          \"longitude\": 23.818395\n        },\n        {\n          \"latitude\": 37.997199,\n          \"longitude\": 23.818387\n        },\n        {\n          \"latitude\": 37.997192,\n          \"longitude\": 23.818379\n        },\n        {\n          \"latitude\": 37.997186,\n          \"longitude\": 23.818371\n        },\n        {\n          \"latitude\": 37.997173,\n          \"longitude\": 23.81837\n        },\n        {\n          \"latitude\": 37.997165,\n          \"longitude\": 23.818375\n        },\n        {\n          \"latitude\": 37.997157,\n          \"longitude\": 23.81838\n        },\n        {\n          \"latitude\": 37.997149,\n          \"longitude\": 23.818385\n        },\n        {\n          \"latitude\": 37.997141,\n          \"longitude\": 23.81839\n        },\n        {\n          \"latitude\": 37.997133,\n          \"longitude\": 23.818395\n        },\n        {\n          \"latitude\": 37.997125,\n          \"longitude\": 23.8184\n        },\n        {\n          \"latitude\": 37.997117,\n          \"longitude\": 23.818405\n        },\n        {\n          \"latitude\": 37.997109,\n          \"longitude\": 23.81841\n        },\n        {\n          \"latitude\": 37.997101,\n          \"longitude\": 23.818415\n        },\n        {\n          \"latitude\": 37.997093,\n          \"longitude\": 23.81842\n        },\n        {\n          \"latitude\": 37.997085,\n          \"longitude\": 23.818425\n        },\n        {\n          \"latitude\": 37.997077,\n          \"longitude\": 23.81843\n        },\n        {\n          \"latitude\": 37.997069,\n          \"longitude\": 23.818436\n        },\n        {\n          \"latitude\": 37.997061,\n          \"longitude\": 23.818441\n        },\n        {\n          \"latitude\": 37.997052,\n          \"longitude\": 23.818446\n        },\n        {\n          \"latitude\": 37.997044,\n          \"longitude\": 23.818451\n        },\n        {\n          \"latitude\": 37.997036,\n          \"longitude\": 23.818456\n        },\n        {\n          \"latitude\": 37.997028,\n          \"longitude\": 23.818461\n        },\n        {\n          \"latitude\": 37.99702,\n          \"longitude\": 23.818466\n        },\n        {\n          \"latitude\": 37.997012,\n          \"longitude\": 23.818471\n        },\n        {\n          \"latitude\": 37.997004,\n          \"longitude\": 23.818476\n        },\n        {\n          \"latitude\": 37.996996,\n          \"longitude\": 23.818481\n        },\n        {\n          \"latitude\": 37.996988,\n          \"longitude\": 23.818486\n        },\n        {\n          \"latitude\": 37.99698,\n          \"longitude\": 23.818491\n        },\n        {\n          \"latitude\": 37.996972,\n          \"longitude\": 23.818496\n        },\n        {\n          \"latitude\": 37.996964,\n          \"longitude\": 23.818501\n        },\n        {\n          \"latitude\": 37.996956,\n          \"longitude\": 23.818506\n        },\n        {\n          \"latitude\": 37.996948,\n          \"longitude\": 23.818511\n        },\n        {\n          \"latitude\": 37.99694,\n          \"longitude\": 23.818516\n        },\n        {\n          \"latitude\": 37.996932,\n          \"longitude\": 23.818521\n        },\n        {\n          \"latitude\": 37.996923,\n          \"longitude\": 23.818526\n        },\n        {\n          \"latitude\": 37.996915,\n          \"longitude\": 23.818532\n        },\n        {\n          \"latitude\": 37.996907,\n          \"longitude\": 23.818537\n        },\n        {\n          \"latitude\": 37.996899,\n          \"longitude\": 23.818542\n        },\n        {\n          \"latitude\": 37.996891,\n          \"longitude\": 23.818547\n        },\n        {\n          \"latitude\": 37.996883,\n          \"longitude\": 23.818552\n        },\n        {\n          \"latitude\": 37.996875,\n          \"longitude\": 23.818557\n        },\n        {\n          \"latitude\": 37.996867,\n          \"longitude\": 23.818562\n        },\n        {\n          \"latitude\": 37.996859,\n          \"longitude\": 23.818567\n        },\n        {\n          \"latitude\": 37.996851,\n          \"longitude\": 23.818572\n        },\n        {\n          \"latitude\": 37.996843,\n          \"longitude\": 23.818577\n        },\n        {\n          \"latitude\": 37.996835,\n          \"longitude\": 23.818582\n        },\n        {\n          \"latitude\": 37.996827,\n          \"longitude\": 23.818587\n        },\n        {\n          \"latitude\": 37.996819,\n          \"longitude\": 23.818592\n        },\n        {\n          \"latitude\": 37.996811,\n          \"longitude\": 23.818597\n        },\n        {\n          \"latitude\": 37.996803,\n          \"longitude\": 23.818602\n        },\n        {\n          \"latitude\": 37.996794,\n          \"longitude\": 23.818607\n        },\n        {\n          \"latitude\": 37.996786,\n          \"longitude\": 23.818612\n        },\n        {\n          \"latitude\": 37.996778,\n          \"longitude\": 23.818617\n        },\n        {\n          \"latitude\": 37.99677,\n          \"longitude\": 23.818623\n        },\n        {\n          \"latitude\": 37.996762,\n          \"longitude\": 23.818628\n        },\n        {\n          \"latitude\": 37.996754,\n          \"longitude\": 23.818633\n        },\n        {\n          \"latitude\": 37.996746,\n          \"longitude\": 23.818638\n        },\n        {\n          \"latitude\": 37.996738,\n          \"longitude\": 23.818643\n        },\n        {\n          \"latitude\": 37.99673,\n          \"longitude\": 23.818648\n        },\n        {\n          \"latitude\": 37.996722,\n          \"longitude\": 23.818653\n        },\n        {\n          \"latitude\": 37.996714,\n          \"longitude\": 23.818658\n        },\n        {\n          \"latitude\": 37.996706,\n          \"longitude\": 23.818663\n        },\n        {\n          \"latitude\": 37.996698,\n          \"longitude\": 23.818668\n        },\n        {\n          \"latitude\": 37.99669,\n          \"longitude\": 23.818673\n        },\n        {\n          \"latitude\": 37.996682,\n          \"longitude\": 23.818678\n        },\n        {\n          \"latitude\": 37.996674,\n          \"longitude\": 23.818683\n        },\n        {\n          \"latitude\": 37.996665,\n          \"longitude\": 23.818688\n        },\n        {\n          \"latitude\": 37.996657,\n          \"longitude\": 23.818693\n        },\n        {\n          \"latitude\": 37.996649,\n          \"longitude\": 23.818698\n        },\n        {\n          \"latitude\": 37.996641,\n          \"longitude\": 23.818703\n        },\n        {\n          \"latitude\": 37.996633,\n          \"longitude\": 23.818708\n        },\n        {\n          \"latitude\": 37.996625,\n          \"longitude\": 23.818714\n        },\n        {\n          \"latitude\": 37.996617,\n          \"longitude\": 23.818719\n        },\n        {\n          \"latitude\": 37.996609,\n          \"longitude\": 23.818724\n        },\n        {\n          \"latitude\": 37.996601,\n          \"longitude\": 23.818729\n        },\n        {\n          \"latitude\": 37.996593,\n          \"longitude\": 23.818734\n        },\n        {\n          \"latitude\": 37.996585,\n          \"longitude\": 23.818739\n        },\n        {\n          \"latitude\": 37.996577,\n          \"longitude\": 23.818744\n        },\n        {\n          \"latitude\": 37.996569,\n          \"longitude\": 23.818749\n        },\n        {\n          \"latitude\": 37.996561,\n          \"longitude\": 23.818754\n        },\n        {\n          \"latitude\": 37.996553,\n          \"longitude\": 23.818759\n        },\n        {\n          \"latitude\": 37.996545,\n          \"longitude\": 23.818764\n        },\n        {\n          \"latitude\": 37.996536,\n          \"longitude\": 23.818769\n        },\n        {\n          \"latitude\": 37.996528,\n          \"longitude\": 23.818774\n        },\n        {\n          \"latitude\": 37.99652,\n          \"longitude\": 23.818779\n        },\n        {\n          \"latitude\": 37.996512,\n          \"longitude\": 23.818784\n        },\n        {\n          \"latitude\": 37.996504,\n          \"longitude\": 23.818789\n        },\n        {\n          \"latitude\": 37.996496,\n          \"longitude\": 23.818794\n        },\n        {\n          \"latitude\": 37.996488,\n          \"longitude\": 23.818799\n        },\n        {\n          \"latitude\": 37.99648,\n          \"longitude\": 23.818805\n        },\n        {\n          \"latitude\": 37.996472,\n          \"longitude\": 23.81881\n        },\n        {\n          \"latitude\": 37.996464,\n          \"longitude\": 23.818815\n        },\n        {\n          \"latitude\": 37.996456,\n          \"longitude\": 23.81882\n        },\n        {\n          \"latitude\": 37.996448,\n          \"longitude\": 23.818825\n        },\n        {\n          \"latitude\": 37.99644,\n          \"longitude\": 23.81883\n        },\n        {\n          \"latitude\": 37.996432,\n          \"longitude\": 23.818835\n        },\n        {\n          \"latitude\": 37.996424,\n          \"longitude\": 23.81884\n        },\n        {\n          \"latitude\": 37.996416,\n          \"longitude\": 23.818845\n        },\n        {\n          \"latitude\": 37.996407,\n          \"longitude\": 23.81885\n        },\n        {\n          \"latitude\": 37.996399,\n          \"longitude\": 23.818855\n        },\n        {\n          \"latitude\": 37.996391,\n          \"longitude\": 23.81886\n        },\n        {\n          \"latitude\": 37.996383,\n          \"longitude\": 23.818865\n        },\n        {\n          \"latitude\": 37.996375,\n          \"longitude\": 23.81887\n        },\n        {\n          \"latitude\": 37.996367,\n          \"longitude\": 23.818875\n        },\n        {\n          \"latitude\": 37.996359,\n          \"longitude\": 23.81888\n        },\n        {\n          \"latitude\": 37.996351,\n          \"longitude\": 23.818885\n        },\n        {\n          \"latitude\": 37.996343,\n          \"longitude\": 23.81889\n        },\n        {\n          \"latitude\": 37.996335,\n          \"longitude\": 23.818895\n        },\n        {\n          \"latitude\": 37.996327,\n          \"longitude\": 23.818901\n        },\n        {\n          \"latitude\": 37.996319,\n          \"longitude\": 23.818906\n        },\n        {\n          \"latitude\": 37.996311,\n          \"longitude\": 23.818911\n        },\n        {\n          \"latitude\": 37.996303,\n          \"longitude\": 23.818916\n        },\n        {\n          \"latitude\": 37.996295,\n          \"longitude\": 23.818921\n        },\n        {\n          \"latitude\": 37.996287,\n          \"longitude\": 23.818926\n        },\n        {\n          \"latitude\": 37.996278,\n          \"longitude\": 23.818931\n        },\n        {\n          \"latitude\": 37.99627,\n          \"longitude\": 23.818936\n        },\n        {\n          \"latitude\": 37.996262,\n          \"longitude\": 23.818941\n        },\n        {\n          \"latitude\": 37.996254,\n          \"longitude\": 23.818946\n        },\n        {\n          \"latitude\": 37.996246,\n          \"longitude\": 23.818951\n        },\n        {\n          \"latitude\": 37.996238,\n          \"longitude\": 23.818956\n        },\n        {\n          \"latitude\": 37.99623,\n          \"longitude\": 23.818961\n        },\n        {\n          \"latitude\": 37.996222,\n          \"longitude\": 23.818966\n        },\n        {\n          \"latitude\": 37.996214,\n          \"longitude\": 23.818971\n        },\n        {\n          \"latitude\": 37.996206,\n          \"longitude\": 23.818976\n        },\n        {\n          \"latitude\": 37.996198,\n          \"longitude\": 23.818981\n        },\n        {\n          \"latitude\": 37.99619,\n          \"longitude\": 23.818986\n        },\n        {\n          \"latitude\": 37.996182,\n          \"longitude\": 23.818992\n        },\n        {\n          \"latitude\": 37.996174,\n          \"longitude\": 23.818997\n        },\n        {\n          \"latitude\": 37.996166,\n          \"longitude\": 23.819002\n        },\n        {\n          \"latitude\": 37.996157,\n          \"longitude\": 23.819007\n        },\n        {\n          \"latitude\": 37.996149,\n          \"longitude\": 23.819012\n        },\n        {\n          \"latitude\": 37.996141,\n          \"longitude\": 23.819017\n        },\n        {\n          \"latitude\": 37.996133,\n          \"longitude\": 23.819022\n        },\n        {\n          \"latitude\": 37.996125,\n          \"longitude\": 23.819027\n        },\n        {\n          \"latitude\": 37.996117,\n          \"longitude\": 23.819032\n        },\n        {\n          \"latitude\": 37.996113,\n          \"longitude\": 23.819022\n        },\n        {\n          \"latitude\": 37.996109,\n          \"longitude\": 23.819011\n        },\n        {\n          \"latitude\": 37.996106,\n          \"longitude\": 23.819001\n        },\n        {\n          \"latitude\": 37.996103,\n          \"longitude\": 23.81899\n        },\n        {\n          \"latitude\": 37.996099,\n          \"longitude\": 23.81898\n        },\n        {\n          \"latitude\": 37.996096,\n          \"longitude\": 23.818969\n        },\n        {\n          \"latitude\": 37.996092,\n          \"longitude\": 23.818959\n        },\n        {\n          \"latitude\": 37.996089,\n          \"longitude\": 23.818948\n        },\n        {\n          \"latitude\": 37.996085,\n          \"longitude\": 23.818938\n        },\n        {\n          \"latitude\": 37.996082,\n          \"longitude\": 23.818927\n        },\n        {\n          \"latitude\": 37.996079,\n          \"longitude\": 23.818917\n        },\n        {\n          \"latitude\": 37.996075,\n          \"longitude\": 23.818906\n        },\n        {\n          \"latitude\": 37.996072,\n          \"longitude\": 23.818895\n        },\n        {\n          \"latitude\": 37.996068,\n          \"longitude\": 23.818885\n        },\n        {\n          \"latitude\": 37.996065,\n          \"longitude\": 23.818874\n        },\n        {\n          \"latitude\": 37.996061,\n          \"longitude\": 23.818864\n        },\n        {\n          \"latitude\": 37.996058,\n          \"longitude\": 23.818853\n        },\n        {\n          \"latitude\": 37.996055,\n          \"longitude\": 23.818843\n        },\n        {\n          \"latitude\": 37.996051,\n          \"longitude\": 23.818832\n        },\n        {\n          \"latitude\": 37.996048,\n          \"longitude\": 23.818822\n        },\n        {\n          \"latitude\": 37.996044,\n          \"longitude\": 23.818811\n        },\n        {\n          \"latitude\": 37.996041,\n          \"longitude\": 23.8188\n        },\n        {\n          \"latitude\": 37.996038,\n          \"longitude\": 23.81879\n        },\n        {\n          \"latitude\": 37.996034,\n          \"longitude\": 23.818779\n        },\n        {\n          \"latitude\": 37.996031,\n          \"longitude\": 23.818769\n        },\n        {\n          \"latitude\": 37.996027,\n          \"longitude\": 23.818758\n        },\n        {\n          \"latitude\": 37.996024,\n          \"longitude\": 23.818748\n        },\n        {\n          \"latitude\": 37.99602,\n          \"longitude\": 23.818737\n        },\n        {\n          \"latitude\": 37.996017,\n          \"longitude\": 23.818727\n        },\n        {\n          \"latitude\": 37.996014,\n          \"longitude\": 23.818716\n        },\n        {\n          \"latitude\": 37.99601,\n          \"longitude\": 23.818705\n        },\n        {\n          \"latitude\": 37.996007,\n          \"longitude\": 23.818695\n        },\n        {\n          \"latitude\": 37.996003,\n          \"longitude\": 23.818684\n        },\n        {\n          \"latitude\": 37.996,\n          \"longitude\": 23.818674\n        },\n        {\n          \"latitude\": 37.995997,\n          \"longitude\": 23.818663\n        },\n        {\n          \"latitude\": 37.995993,\n          \"longitude\": 23.818653\n        },\n        {\n          \"latitude\": 37.99599,\n          \"longitude\": 23.818642\n        },\n        {\n          \"latitude\": 37.995997,\n          \"longitude\": 23.818636\n        },\n        {\n          \"latitude\": 37.996005,\n          \"longitude\": 23.818631\n        },\n        {\n          \"latitude\": 37.996013,\n          \"longitude\": 23.818625\n        },\n        {\n          \"latitude\": 37.996021,\n          \"longitude\": 23.81862\n        },\n        {\n          \"latitude\": 37.996029,\n          \"longitude\": 23.818615\n        },\n        {\n          \"latitude\": 37.996037,\n          \"longitude\": 23.81861\n        },\n        {\n          \"latitude\": 37.996045,\n          \"longitude\": 23.818605\n        },\n        {\n          \"latitude\": 37.996053,\n          \"longitude\": 23.8186\n        },\n        {\n          \"latitude\": 37.996062,\n          \"longitude\": 23.818594\n        },\n        {\n          \"latitude\": 37.99607,\n          \"longitude\": 23.818589\n        },\n        {\n          \"latitude\": 37.996078,\n          \"longitude\": 23.818584\n        },\n        {\n          \"latitude\": 37.996086,\n          \"longitude\": 23.818579\n        },\n        {\n          \"latitude\": 37.996094,\n          \"longitude\": 23.818574\n        },\n        {\n          \"latitude\": 37.996102,\n          \"longitude\": 23.818569\n        },\n        {\n          \"latitude\": 37.99611,\n          \"longitude\": 23.818563\n        }\n      ]\n    }\n  ],\n  \"ue_path_association\": [\n    {\n      \"supi\": \"202010000000001\",\n      \"path\": 2\n    },\n    {\n      \"supi\": \"202010000000002\",\n      \"path\": 2\n    },\n    {\n      \"supi\": \"202010000000003\",\n      \"path\": 2\n    },\n    {\n      \"supi\": \"202010000000004\",\n      \"path\": 1\n    }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://3gppnef:4443/api/v1/utils/import/scenario",
+					"protocol": "https",
+					"host": [
+						"3gppnef"
+					],
+					"port": "4443",
+					"path": [
+						"api",
+						"v1",
+						"utils",
+						"import",
+						"scenario"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Collector Event Exposure Notify",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "asegasegsgsggeg",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.1.75:8091/nefeventexposure/notify",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"1",
+						"75"
+					],
+					"port": "8091",
+					"path": [
+						"nefeventexposure",
+						"notify"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
