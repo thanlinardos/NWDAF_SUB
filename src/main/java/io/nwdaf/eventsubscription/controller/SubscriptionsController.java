@@ -44,6 +44,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import static io.nwdaf.eventsubscription.controller.http.ValidateSubscriptionRequest.validateRequest;
+import static io.nwdaf.eventsubscription.kafka.KafkaNotifierLoadBalanceConsumer.fillKnownAoIs;
 import static io.nwdaf.eventsubscription.kafka.KafkaNotifierLoadBalanceConsumer.updateSubscriptionContainedAoIs;
 import static io.nwdaf.eventsubscription.notify.NotificationUtil.*;
 import static io.nwdaf.eventsubscription.utilities.ParserUtil.safeParseLong;
@@ -182,6 +183,7 @@ public class SubscriptionsController implements SubscriptionsApi {
             body.getEventSubscriptions().remove((int) getResponse.getInvalidEvents().get(i));
         }
         updateSubscriptionContainedAoIs(body);
+        fillKnownAoIs(body);
         List<Boolean> canServeSubscription = checkCanServeSubscriptions(getResponse,
                 body,
                 kafkaProducer, metricsService, metricsCacheService,

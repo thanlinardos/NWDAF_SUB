@@ -315,16 +315,34 @@ public class KafkaNotifierLoadBalanceConsumer {
     public static void updateSubscriptionContainedAoIs(NnwdafEventsSubscription sub) {
         toOptional(sub.getEventSubscriptions()).ifPresent(eventSubs -> {
             eventSubs.stream()
-                .filter(Objects::nonNull)
-                .map(EventSubscription::getNetworkArea)
-                .filter(Objects::nonNull)
-                .forEach(area -> updateContainedAOIIds(area, registeredAOIs));
+                    .filter(Objects::nonNull)
+                    .map(EventSubscription::getNetworkArea)
+                    .filter(Objects::nonNull)
+                    .forEach(area -> updateContainedAOIIds(area, registeredAOIs));
             eventSubs.stream()
                     .filter(Objects::nonNull)
                     .map(EventSubscription::getVisitedAreas)
                     .filter(Objects::nonNull)
                     .flatMap(Collection::stream)
                     .forEach(area -> updateContainedAOIIds(area, registeredAOIs));
+        });
+    }
+
+    public static void fillKnownAoIs(NnwdafEventsSubscription sub) {
+        toOptional(sub.getEventSubscriptions()).ifPresent(eventSubs -> {
+            eventSubs.stream()
+                    .filter(Objects::nonNull)
+                    .map(EventSubscription::getNetworkArea)
+                    .filter(Objects::nonNull)
+                    .filter(area -> area.getId() != null)
+                    .forEach(area -> fillAoIContents(area, registeredAOIs.get(area.getId())));
+            eventSubs.stream()
+                    .filter(Objects::nonNull)
+                    .map(EventSubscription::getVisitedAreas)
+                    .filter(Objects::nonNull)
+                    .flatMap(Collection::stream)
+                    .filter(area -> area.getId() != null)
+                    .forEach(area -> fillAoIContents(area, registeredAOIs.get(area.getId())));
         });
     }
 }

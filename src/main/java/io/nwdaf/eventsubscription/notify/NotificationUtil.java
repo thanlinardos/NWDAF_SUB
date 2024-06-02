@@ -9,6 +9,7 @@ import java.util.*;
 import io.nwdaf.eventsubscription.controller.http.NwdafFailureException;
 import io.nwdaf.eventsubscription.customModel.KafkaTopic;
 import io.nwdaf.eventsubscription.model.*;
+import io.nwdaf.eventsubscription.utilities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,10 +28,6 @@ import io.nwdaf.eventsubscription.model.NwdafFailureCode.NwdafFailureCodeEnum;
 import io.nwdaf.eventsubscription.notify.responsetypes.AggregateChecksForAOIResponse;
 import io.nwdaf.eventsubscription.notify.responsetypes.GetGlobalNotifMethodAndRepPeriodResponse;
 import io.nwdaf.eventsubscription.notify.responsetypes.GetNotifMethodAndRepPeriodsResponse;
-import io.nwdaf.eventsubscription.utilities.CheckUtil;
-import io.nwdaf.eventsubscription.utilities.Constants;
-import io.nwdaf.eventsubscription.utilities.ConvertUtil;
-import io.nwdaf.eventsubscription.utilities.OtherUtil;
 import io.nwdaf.eventsubscription.responsebuilders.NotificationBuilder;
 import io.nwdaf.eventsubscription.service.MetricsCacheService;
 import io.nwdaf.eventsubscription.service.MetricsService;
@@ -259,13 +256,16 @@ public class NotificationUtil {
                                         aoi.getNcgis(),
                                         aoi.getGRanNodeIds(),
                                         aoi.getTais())) {
-                            List<String> areaOfInterestIds = safeParseListString(
-                                    Collections.singletonList(aoi.getContainedAreaIds()));
+                            List<String> areaOfInterestIds = aoi.getContainedAreaIds()
+                                    .stream()
+                                    .map(ParserUtil::safeParseString)
+                                    .filter(Objects::nonNull)
+                                    .toList();
                             validVisitedAreas.addAll(areaOfInterestIds);
                         }
                     }
                     validVisitedAreas = validVisitedAreas.stream().distinct().toList();
-                    params = parseQuerryFilterContains(validVisitedAreas, "areaOfInterestIds");
+                    params = parseQuerryFilterListContains(validVisitedAreas, "areaOfInterestIds");
                 } else if (networkArea != null
                         && safeCheckListNotEmpty(networkArea.getContainedAreaIds())
                         && safeCheckOneOfListsNotEmpty(networkArea.getEcgis(),
